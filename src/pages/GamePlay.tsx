@@ -10,17 +10,11 @@ import { LevelSelector } from "@/components/LevelSelector";
 import confetti from "canvas-confetti";
 
 // Import all game components
-import { TicTacToe } from "@/components/games/TicTacToe";
 import { MemoryCards } from "@/components/games/MemoryCards";
-import { Snake } from "@/components/games/Snake";
 import { Game2048 } from "@/components/games/Game2048";
 import { GuessNumber } from "@/components/games/GuessNumber";
-import { RockPaperScissors } from "@/components/games/RockPaperScissors";
 import { ColorMatch } from "@/components/games/ColorMatch";
-import { WhackAMole } from "@/components/games/WhackAMole";
 import { BalloonPop } from "@/components/games/BalloonPop";
-import { FlappyBird } from "@/components/games/FlappyBird";
-import { Sudoku } from "@/components/games/Sudoku";
 import { WordScramble } from "@/components/games/WordScramble";
 import { MathQuiz } from "@/components/games/MathQuiz";
 import { SimonSays } from "@/components/games/SimonSays";
@@ -35,6 +29,12 @@ import SpaceExplorer from "@/components/games/SpaceExplorer";
 import CityCreator from "@/components/games/CityCreator";
 import StarCollector from "@/components/games/StarCollector";
 import DreamWorld from "@/components/games/DreamWorld";
+import GardenBuilder from "@/components/games/GardenBuilder";
+import OceanExplorer from "@/components/games/OceanExplorer";
+import SkyCastle from "@/components/games/SkyCastle";
+import PetParadise from "@/components/games/PetParadise";
+import MusicCreator from "@/components/games/MusicCreator";
+import FlowerField from "@/components/games/FlowerField";
 
 interface Game {
   id: string;
@@ -176,33 +176,38 @@ const GamePlay = () => {
 
     // Map component_name from database to actual components
     switch (game.component_name) {
-      case "TicTacToe": return <TicTacToe {...gameProps} />;
+      // Casual & Happy Games
       case "MemoryCards": return <MemoryCards {...gameProps} />;
-      case "Snake": return <Snake {...gameProps} />;
-      case "Game2048": return <Game2048 {...gameProps} />;
-      case "FlappyBird": return <FlappyBird {...gameProps} />;
-      case "MazeRunner": return <MazeRunner {...gameProps} />;
       case "ColorMatch": return <ColorMatch {...gameProps} />;
-      case "MathQuiz": return <MathQuiz {...gameProps} />;
-      case "RockPaperScissors": return <RockPaperScissors {...gameProps} />;
-      case "Platformer": return <Platformer {...gameProps} />;
-      case "Racing": return <Racing {...gameProps} />;
-      case "PlanetBuilder": return <PlanetBuilder {...gameProps} />;
-      case "HappinessGarden": return <HappinessGarden {...gameProps} />;
-      case "SpaceExplorer": return <SpaceExplorer {...gameProps} />;
-      case "CityCreator": return <CityCreator {...gameProps} />;
-      case "StarCollector": return <StarCollector {...gameProps} />;
-      case "DreamWorld": return <DreamWorld {...gameProps} />;
-      
-      // Old games still available
-      case "GuessNumber": return <GuessNumber {...gameProps} />;
-      case "WhackAMole": return <WhackAMole {...gameProps} />;
       case "BalloonPop": return <BalloonPop {...gameProps} />;
-      case "Sudoku": return <Sudoku {...gameProps} />;
+      case "StarCollector": return <StarCollector {...gameProps} />;
+      case "HappinessGarden": return <HappinessGarden {...gameProps} />;
+      case "FlowerField": return <FlowerField {...gameProps} />;
+      case "PetParadise": return <PetParadise {...gameProps} />;
+      case "MusicCreator": return <MusicCreator {...gameProps} />;
+      
+      // Brain & Educational Games
+      case "Game2048": return <Game2048 {...gameProps} />;
+      case "GuessNumber": return <GuessNumber {...gameProps} />;
       case "WordScramble": return <WordScramble {...gameProps} />;
+      case "MathQuiz": return <MathQuiz {...gameProps} />;
       case "SimonSays": return <SimonSays {...gameProps} />;
       case "TriviaQuiz": return <TriviaQuiz {...gameProps} />;
+      
+      // Building & Creation Games
+      case "PlanetBuilder": return <PlanetBuilder {...gameProps} />;
+      case "CityCreator": return <CityCreator {...gameProps} />;
+      case "GardenBuilder": return <GardenBuilder {...gameProps} />;
+      case "SkyCastle": return <SkyCastle {...gameProps} />;
+      case "DreamWorld": return <DreamWorld {...gameProps} />;
+      
+      // Exploration & Adventure Games
+      case "SpaceExplorer": return <SpaceExplorer {...gameProps} />;
+      case "OceanExplorer": return <OceanExplorer {...gameProps} />;
+      case "MazeRunner": return <MazeRunner {...gameProps} />;
       case "TreasureHunt": return <TreasureHunt {...gameProps} />;
+      case "Platformer": return <Platformer {...gameProps} />;
+      case "Racing": return <Racing {...gameProps} />;
       
       default:
         return (
