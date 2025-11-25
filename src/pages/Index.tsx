@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Gamepad2, Trophy, Users, Sparkles, Shield, Gift } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import camlyCoin from "@/assets/camly-coin.png";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -65,7 +66,36 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-green-100 to-green-50 relative overflow-hidden">
+      {/* Floating Camly Coins Decoration */}
+      <img 
+        src={camlyCoin} 
+        alt="Camly Coin" 
+        className="absolute top-20 left-10 w-24 h-24 opacity-20 animate-pulse"
+      />
+      <img 
+        src={camlyCoin} 
+        alt="Camly Coin" 
+        className="absolute top-40 right-20 w-32 h-32 opacity-30 animate-bounce"
+      />
+      <img 
+        src={camlyCoin} 
+        alt="Camly Coin" 
+        className="absolute bottom-40 left-1/4 w-20 h-20 opacity-25 animate-spin" 
+        style={{ animationDuration: '10s' }}
+      />
+      <img 
+        src={camlyCoin} 
+        alt="Camly Coin" 
+        className="absolute top-1/2 right-10 w-28 h-28 opacity-20 animate-pulse"
+      />
+      <img 
+        src={camlyCoin} 
+        alt="Camly Coin" 
+        className="absolute bottom-20 right-1/3 w-24 h-24 opacity-30 animate-bounce"
+        style={{ animationDelay: '1s' }}
+      />
+      
       <Navigation />
       <Hero />
       
