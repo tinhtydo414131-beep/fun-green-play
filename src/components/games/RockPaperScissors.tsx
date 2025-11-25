@@ -19,6 +19,7 @@ export const RockPaperScissors = ({
   const [computerChoice, setComputerChoice] = useState<Choice | null>(null);
   const [result, setResult] = useState<string>("");
   const [score, setScore] = useState({ player: 0, computer: 0 });
+  const [playerHistory, setPlayerHistory] = useState<Choice[]>([]);
   const targetWins = Math.max(1, Math.floor(2 * difficultyMultiplier));
 
   const choices: { value: Choice; emoji: string; label: string }[] = [
@@ -27,8 +28,30 @@ export const RockPaperScissors = ({
     { value: 'scissors', emoji: '✌️', label: 'Kéo' },
   ];
 
-  const getRandomChoice = (): Choice => {
+  const getSmartChoice = (history: Choice[]): Choice => {
     const choices: Choice[] = ['rock', 'paper', 'scissors'];
+    const counterMap: Record<Choice, Choice> = {
+      rock: 'paper',
+      paper: 'scissors',
+      scissors: 'rock'
+    };
+
+    // At higher difficulties, analyze player patterns
+    if (history.length >= 3 && Math.random() < difficultyMultiplier / 2) {
+      // Count frequency of each choice
+      const counts = { rock: 0, paper: 0, scissors: 0 };
+      history.slice(-5).forEach(choice => counts[choice]++);
+      
+      // Predict player's most frequent choice
+      const predicted = Object.entries(counts).reduce((a, b) => 
+        counts[a[0] as Choice] > counts[b[0] as Choice] ? a : b
+      )[0] as Choice;
+      
+      // Counter that choice
+      return counterMap[predicted];
+    }
+
+    // Random choice at lower difficulties
     return choices[Math.floor(Math.random() * choices.length)];
   };
 
@@ -45,7 +68,10 @@ export const RockPaperScissors = ({
   };
 
   const play = (choice: Choice) => {
-    const computer = getRandomChoice();
+    const newHistory = [...playerHistory, choice];
+    setPlayerHistory(newHistory);
+    
+    const computer = getSmartChoice(newHistory);
     setPlayerChoice(choice);
     setComputerChoice(computer);
 
@@ -53,8 +79,12 @@ export const RockPaperScissors = ({
     
     if (winner === 'player') {
       setResult('🎉 Bạn Thắng Rồi!');
-      setScore(prev => ({ ...prev, player: prev.player + 1 }));
-      toast.success('Bạn thắng! 🎊');
+      const newPlayerScore = score.player + 1;
+      setScore(prev => ({ ...prev, player: newPlayerScore }));
+      toast.success(`Bạn thắng! 🎊 (${newPlayerScore}/${targetWins})`);
+      if (newPlayerScore >= targetWins && onLevelComplete) {
+        setTimeout(() => onLevelComplete(), 1000);
+      }
     } else if (winner === 'computer') {
       setResult('😢 Máy Thắng!');
       setScore(prev => ({ ...prev, computer: prev.computer + 1 }));
@@ -70,6 +100,7 @@ export const RockPaperScissors = ({
     setComputerChoice(null);
     setResult("");
     setScore({ player: 0, computer: 0 });
+    setPlayerHistory([]);
   };
 
   return (
@@ -81,7 +112,7 @@ export const RockPaperScissors = ({
         <div className="flex gap-12 justify-center text-2xl font-comic">
           <div className="space-y-1">
             <p className="text-muted-foreground">Bạn</p>
-            <p className="font-bold text-primary text-3xl">{score.player} 🌟</p>
+            <p className="font-bold text-primary text-3xl">{score.player}/{targetWins} 🌟</p>
           </div>
           <div className="text-4xl text-muted-foreground">VS</div>
           <div className="space-y-1">
@@ -89,6 +120,9 @@ export const RockPaperScissors = ({
             <p className="font-bold text-secondary text-3xl">{score.computer} 🤖</p>
           </div>
         </div>
+        {difficultyMultiplier > 1.5 && (
+          <p className="text-sm text-muted-foreground">⚠️ Máy đang phân tích lối chơi của bạn!</p>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-8 w-full">
