@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useGameLevel } from "@/hooks/useGameLevel";
 import { LevelSelector } from "@/components/LevelSelector";
+import confetti from "canvas-confetti";
 
 // Import all game components
 import { TicTacToe } from "@/components/games/TicTacToe";
@@ -125,17 +126,38 @@ const GamePlay = () => {
     setGameStarted(false);
   };
 
-  const handleLevelComplete = () => {
+  const handleLevelComplete = async () => {
     completeLevel(currentLevel);
-    // Show level selector again after completing a level
+    
+    // Fire confetti 5 times
+    const fireConfetti = () => {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#F38181']
+      });
+    };
+
+    // Fire confetti 5 times with delay
+    for (let i = 0; i < 5; i++) {
+      setTimeout(() => {
+        fireConfetti();
+      }, i * 300);
+    }
+
+    // Auto-advance to next level after confetti
     setTimeout(() => {
-      setShowLevelSelector(true);
-      setGameStarted(false);
-      // Auto-advance to next level if available
       if (currentLevel < 10) {
         setCurrentLevel(currentLevel + 1);
+        setShowLevelSelector(false);
+        setGameStarted(true);
+      } else {
+        // If completed all levels, show level selector
+        setShowLevelSelector(true);
+        setGameStarted(false);
       }
-    }, 1500);
+    }, 2000);
   };
 
   const renderGame = () => {
