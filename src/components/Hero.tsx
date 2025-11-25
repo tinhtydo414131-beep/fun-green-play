@@ -33,7 +33,7 @@ export const Hero = () => {
 
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-fredoka font-black">
             <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent animate-scale-in">
-              Play, Learn & Earn!
+              FUN GAME!
             </span>
           </h1>
 

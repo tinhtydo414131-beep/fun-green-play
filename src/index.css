@@ -7,7 +7,7 @@ All colors MUST be HSL. */
 
 @layer base {
   :root {
-    /* Kid-friendly bright color palette */
+    /* Kid-friendly bright color palette - Green & Orange Theme! */
     --background: 220 100% 98%;
     --foreground: 240 10% 15%;
 
@@ -17,15 +17,15 @@ All colors MUST be HSL. */
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 15%;
 
-    --primary: 280 90% 65%;
+    --primary: 140 70% 50%;
     --primary-foreground: 0 0% 100%;
-    --primary-gradient: linear-gradient(135deg, hsl(280 90% 65%) 0%, hsl(320 85% 60%) 100%);
+    --primary-gradient: linear-gradient(135deg, hsl(140 70% 50%) 0%, hsl(160 65% 45%) 100%);
     
-    --secondary: 45 100% 55%;
-    --secondary-foreground: 240 10% 15%;
+    --secondary: 30 100% 55%;
+    --secondary-foreground: 0 0% 100%;
     
-    --accent: 160 85% 55%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 45 95% 55%;
+    --accent-foreground: 240 10% 15%;
 
     --muted: 220 30% 94%;
     --muted-foreground: 220 15% 45%;
@@ -40,8 +40,8 @@ All colors MUST be HSL. */
     --radius: 1rem;
     
     /* Fun shadows and effects */
-    --shadow-colorful: 0 8px 20px -4px hsl(280 90% 65% / 0.3);
-    --shadow-glow: 0 0 30px hsl(280 90% 65% / 0.4);
+    --shadow-colorful: 0 8px 20px -4px hsl(140 70% 50% / 0.3);
+    --shadow-glow: 0 0 30px hsl(140 70% 50% / 0.4);
   }
 
   .dark {
@@ -54,14 +54,14 @@ All colors MUST be HSL. */
     --popover: 240 15% 15%;
     --popover-foreground: 220 30% 95%;
 
-    --primary: 280 90% 70%;
+    --primary: 140 65% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 45 90% 60%;
-    --secondary-foreground: 240 10% 15%;
+    --secondary: 30 90% 60%;
+    --secondary-foreground: 0 0% 100%;
 
-    --accent: 160 80% 60%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 45 85% 60%;
+    --accent-foreground: 240 10% 15%;
 
     --muted: 240 15% 20%;
     --muted-foreground: 220 15% 65%;
@@ -71,7 +71,7 @@ All colors MUST be HSL. */
 
     --border: 240 15% 20%;
     --input: 240 15% 20%;
-    --ring: 280 90% 70%;
+    --ring: 140 65% 55%;
   }
 }
 
