@@ -88,8 +88,8 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md border-4 border-primary/30 shadow-2xl">
+    <div className="min-h-screen bg-gradient-to-br from-[#e8f5e9] via-[#fff9e5] to-[#fce4ec] flex items-center justify-center p-4">
+      <Card className="w-full max-w-md border-0 shadow-[0_20px_60px_rgba(0,0,0,0.15)] rounded-3xl bg-background/95 backdrop-blur-sm">
         <CardHeader className="text-center space-y-2">
           <div className="flex justify-center mb-4">
             <div className="bg-gradient-to-br from-primary to-secondary p-4 rounded-full">
@@ -169,7 +169,7 @@ export default function Auth() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full text-lg font-bold py-6 bg-gradient-to-r from-primary to-secondary hover:shadow-lg transform hover:scale-105 transition-all"
+              className="w-full text-lg font-bold py-6 bg-gradient-to-r from-[#4ade80] via-[#22c55e] to-[#fb923c] hover:shadow-xl hover:shadow-primary/30 transform hover:scale-[1.02] transition-all duration-300"
             >
               {loading ? "Loading... ⏳" : isLogin ? "Log In 🚀" : "Sign Up 🎨"}
             </Button>
@@ -188,7 +188,7 @@ export default function Auth() {
             onClick={handleGoogleAuth}
             disabled={loading}
             variant="outline"
-            className="w-full text-lg font-bold py-6 border-2 border-accent/30 hover:border-accent hover:bg-accent/10 transform hover:scale-105 transition-all"
+            className="w-full text-lg font-bold py-6 border-2 bg-white hover:bg-gray-50 border-gray-200 hover:border-gray-300 transform hover:scale-[1.02] transition-all duration-300 text-foreground"
           >
             <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
               <path
