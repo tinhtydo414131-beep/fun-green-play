@@ -27,11 +27,14 @@ import { SimonSays } from "@/components/games/SimonSays";
 import { TriviaQuiz } from "@/components/games/TriviaQuiz";
 import { MazeRunner } from "@/components/games/MazeRunner";
 import { TreasureHunt } from "@/components/games/TreasureHunt";
-import { SpaceShooter } from "@/components/games/SpaceShooter";
 import { Platformer } from "@/components/games/Platformer";
-import { DungeonCrawler } from "@/components/games/DungeonCrawler";
 import { Racing } from "@/components/games/Racing";
-import { TowerDefense } from "@/components/games/TowerDefense";
+import PlanetBuilder from "@/components/games/PlanetBuilder";
+import HappinessGarden from "@/components/games/HappinessGarden";
+import SpaceExplorer from "@/components/games/SpaceExplorer";
+import CityCreator from "@/components/games/CityCreator";
+import StarCollector from "@/components/games/StarCollector";
+import DreamWorld from "@/components/games/DreamWorld";
 
 interface Game {
   id: string;
@@ -178,15 +181,18 @@ const GamePlay = () => {
       case "Snake": return <Snake {...gameProps} />;
       case "Game2048": return <Game2048 {...gameProps} />;
       case "FlappyBird": return <FlappyBird {...gameProps} />;
-      case "SpaceShooter": return <SpaceShooter {...gameProps} />;
       case "MazeRunner": return <MazeRunner {...gameProps} />;
       case "ColorMatch": return <ColorMatch {...gameProps} />;
       case "MathQuiz": return <MathQuiz {...gameProps} />;
       case "RockPaperScissors": return <RockPaperScissors {...gameProps} />;
       case "Platformer": return <Platformer {...gameProps} />;
       case "Racing": return <Racing {...gameProps} />;
-      case "TowerDefense": return <TowerDefense {...gameProps} />;
-      case "DungeonCrawler": return <DungeonCrawler {...gameProps} />;
+      case "PlanetBuilder": return <PlanetBuilder {...gameProps} />;
+      case "HappinessGarden": return <HappinessGarden {...gameProps} />;
+      case "SpaceExplorer": return <SpaceExplorer {...gameProps} />;
+      case "CityCreator": return <CityCreator {...gameProps} />;
+      case "StarCollector": return <StarCollector {...gameProps} />;
+      case "DreamWorld": return <DreamWorld {...gameProps} />;
       
       // Old games still available
       case "GuessNumber": return <GuessNumber {...gameProps} />;

@@ -15,11 +15,14 @@ import triviaQuizImg from '@/assets/games/trivia-quiz.jpg';
 import snakeImg from '@/assets/games/snake.jpg';
 import mazeRunnerImg from '@/assets/games/maze-runner.jpg';
 import treasureHuntImg from '@/assets/games/treasure-hunt.jpg';
-import spaceShooterImg from '@/assets/games/space-shooter.jpg';
 import platformerImg from '@/assets/games/platformer.jpg';
-import dungeonCrawlerImg from '@/assets/games/dungeon-crawler.jpg';
 import racingImg from '@/assets/games/racing.jpg';
-import towerDefenseImg from '@/assets/games/tower-defense.jpg';
+import planetBuilderImg from '@/assets/games/planet-builder.jpg';
+import happinessGardenImg from '@/assets/games/happiness-garden.jpg';
+import spaceExplorerImg from '@/assets/games/space-explorer.jpg';
+import cityCreatorImg from '@/assets/games/city-creator.jpg';
+import starCollectorImg from '@/assets/games/star-collector.jpg';
+import dreamWorldImg from '@/assets/games/dream-world.jpg';
 
 export interface Game {
   id: string;
@@ -191,30 +194,12 @@ export const games: Game[] = [
     playable: true,
   },
   {
-    id: 'space-shooter',
-    title: 'Space Shooter',
-    description: 'Bắn tàu vũ trụ trong không gian',
-    category: 'adventure',
-    difficulty: 'hard',
-    image: spaceShooterImg,
-    playable: true,
-  },
-  {
     id: 'platformer',
     title: 'Platform Jump',
     description: 'Nhảy qua các nền tảng',
     category: 'adventure',
     difficulty: 'medium',
     image: platformerImg,
-    playable: true,
-  },
-  {
-    id: 'dungeon-crawler',
-    title: 'Dungeon Crawler',
-    description: 'Khám phá hầm ngục tối tăm',
-    category: 'adventure',
-    difficulty: 'hard',
-    image: dungeonCrawlerImg,
     playable: true,
   },
   {
@@ -227,12 +212,57 @@ export const games: Game[] = [
     playable: true,
   },
   {
-    id: 'tower-defense',
-    title: 'Tower Defense',
-    description: 'Phòng thủ tháp khỏi kẻ địch',
+    id: 'planet-builder',
+    title: 'Planet Builder',
+    description: 'Xây dựng và phát triển hành tinh của bạn',
     category: 'adventure',
-    difficulty: 'hard',
-    image: towerDefenseImg,
+    difficulty: 'medium',
+    image: planetBuilderImg,
+    playable: true,
+  },
+  {
+    id: 'happiness-garden',
+    title: 'Happiness Garden',
+    description: 'Trồng vườn hạnh phúc với hoa và bướm',
+    category: 'casual',
+    difficulty: 'easy',
+    image: happinessGardenImg,
+    playable: true,
+  },
+  {
+    id: 'space-explorer',
+    title: 'Space Explorer',
+    description: 'Khám phá vũ trụ bình yên với tàu vũ trụ',
+    category: 'adventure',
+    difficulty: 'medium',
+    image: spaceExplorerImg,
+    playable: true,
+  },
+  {
+    id: 'city-creator',
+    title: 'City Creator',
+    description: 'Xây dựng thành phố xinh đẹp của bạn',
+    category: 'adventure',
+    difficulty: 'medium',
+    image: cityCreatorImg,
+    playable: true,
+  },
+  {
+    id: 'star-collector',
+    title: 'Star Collector',
+    description: 'Thu thập những ngôi sao lấp lánh',
+    category: 'casual',
+    difficulty: 'easy',
+    image: starCollectorImg,
+    playable: true,
+  },
+  {
+    id: 'dream-world',
+    title: 'Dream World',
+    description: 'Tạo thế giới mơ ước của bạn',
+    category: 'adventure',
+    difficulty: 'medium',
+    image: dreamWorldImg,
     playable: true,
   },
 ];
