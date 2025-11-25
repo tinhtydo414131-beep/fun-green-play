@@ -18,12 +18,18 @@ export const GameCard = ({ game }: GameCardProps) => {
 
   return (
     <Card className="group overflow-hidden border-2 border-border hover:border-primary transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20 animate-fade-in">
-      <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Play className="w-16 h-16 text-primary/40" />
+      <div className="relative aspect-video overflow-hidden">
+        <img 
+          src={game.image} 
+          alt={game.title}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          <Play className="w-16 h-16 text-primary drop-shadow-lg" />
         </div>
         <div className="absolute top-3 right-3">
-          <Badge className={`${difficultyColors[game.difficulty]} border`}>
+          <Badge className={`${difficultyColors[game.difficulty]} border backdrop-blur-sm`}>
             {game.difficulty === 'easy' ? 'Dễ' : game.difficulty === 'medium' ? 'Trung bình' : 'Khó'}
           </Badge>
         </div>
