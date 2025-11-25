@@ -5,15 +5,26 @@ import { toast } from "sonner";
 import { useGameAudio } from "@/hooks/useGameAudio";
 import { AudioControls } from "@/components/AudioControls";
 
-export const MathQuiz = () => {
+export const MathQuiz = ({
+  level = 1,
+  difficultyMultiplier = 1.0,
+  onLevelComplete
+}: {
+  level?: number;
+  difficultyMultiplier?: number;
+  onLevelComplete?: () => void;
+  onBack?: () => void;
+} = {}) => {
   const [num1, setNum1] = useState(0);
   const [num2, setNum2] = useState(0);
   const [operator, setOperator] = useState('+');
   const [answer, setAnswer] = useState(0);
   const [options, setOptions] = useState<number[]>([]);
   const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(30);
+  const baseTime = Math.max(20, Math.floor(30 / difficultyMultiplier));
+  const [timeLeft, setTimeLeft] = useState(baseTime);
   const [isPlaying, setIsPlaying] = useState(false);
+  const targetScore = Math.floor(5 * difficultyMultiplier);
   const { playScore, playError, startBackgroundMusic, stopBackgroundMusic, toggleMusic, toggleSound, isMusicEnabled, isSoundEnabled } = useGameAudio();
 
   useEffect(() => {

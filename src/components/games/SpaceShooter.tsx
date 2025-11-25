@@ -14,12 +14,23 @@ interface Bullet {
   y: number;
 }
 
-export const SpaceShooter = () => {
+export const SpaceShooter = ({
+  level = 1,
+  difficultyMultiplier = 1.0,
+  onLevelComplete
+}: {
+  level?: number;
+  difficultyMultiplier?: number;
+  onLevelComplete?: () => void;
+  onBack?: () => void;
+} = {}) => {
   const [playerX, setPlayerX] = useState(50);
   const [enemies, setEnemies] = useState<Enemy[]>([]);
   const [bullets, setBullets] = useState<Bullet[]>([]);
   const [score, setScore] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const targetScore = Math.floor(10 * difficultyMultiplier);
+  const enemySpeed = 2 * difficultyMultiplier;
 
   useEffect(() => {
     if (!isPlaying) return;

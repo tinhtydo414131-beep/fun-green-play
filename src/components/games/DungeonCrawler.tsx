@@ -3,16 +3,27 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 
-export const DungeonCrawler = () => {
+export const DungeonCrawler = ({
+  level = 1,
+  difficultyMultiplier = 1.0,
+  onLevelComplete
+}: {
+  level?: number;
+  difficultyMultiplier?: number;
+  onLevelComplete?: () => void;
+  onBack?: () => void;
+} = {}) => {
   const [playerPos, setPlayerPos] = useState({ x: 0, y: 0 });
+  const monsterCount = Math.floor(3 * difficultyMultiplier);
   const [monsters, setMonsters] = useState<{x: number, y: number}[]>([
     { x: 4, y: 2 }, { x: 7, y: 5 }, { x: 3, y: 7 }
-  ]);
+  ].slice(0, monsterCount));
   const [treasures, setTreasures] = useState<{x: number, y: number}[]>([
     { x: 9, y: 9 }, { x: 5, y: 4 }
   ]);
   const [hp, setHp] = useState(3);
   const [score, setScore] = useState(0);
+  const targetTreasures = treasures.length;
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {

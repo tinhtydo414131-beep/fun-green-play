@@ -5,11 +5,21 @@ import { toast } from "sonner";
 
 type Choice = 'rock' | 'paper' | 'scissors';
 
-export const RockPaperScissors = () => {
+export const RockPaperScissors = ({
+  level = 1,
+  difficultyMultiplier = 1.0,
+  onLevelComplete
+}: {
+  level?: number;
+  difficultyMultiplier?: number;
+  onLevelComplete?: () => void;
+  onBack?: () => void;
+} = {}) => {
   const [playerChoice, setPlayerChoice] = useState<Choice | null>(null);
   const [computerChoice, setComputerChoice] = useState<Choice | null>(null);
   const [result, setResult] = useState<string>("");
   const [score, setScore] = useState({ player: 0, computer: 0 });
+  const targetWins = Math.max(1, Math.floor(2 * difficultyMultiplier));
 
   const choices: { value: Choice; emoji: string; label: string }[] = [
     { value: 'rock', emoji: '✊', label: 'Búa' },

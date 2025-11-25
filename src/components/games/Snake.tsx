@@ -116,17 +116,25 @@ export const Snake = ({
       });
     };
 
-    const interval = setInterval(moveSnake, 150);
+    const interval = setInterval(moveSnake, gameSpeed);
     return () => clearInterval(interval);
-  }, [direction, isPlaying, food, score, generateFood]);
+  }, [direction, isPlaying, food, score, generateFood, gameSpeed]);
+
+  // Check if level completed
+  useEffect(() => {
+    if (score >= targetScore && isPlaying && onLevelComplete) {
+      setIsPlaying(false);
+      onLevelComplete();
+    }
+  }, [score, targetScore, isPlaying, onLevelComplete]);
 
   return (
     <div className="flex flex-col items-center gap-6 p-6 animate-fade-in">
       <div className="text-center space-y-3">
         <h2 className="text-4xl font-fredoka font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-          🐍 Rắn Săn Mồi
+          🐍 Rắn Săn Mồi - Level {level}
         </h2>
-        <p className="text-3xl font-comic text-primary">Điểm: {score} 🌟</p>
+        <p className="text-3xl font-comic text-primary">Điểm: {score}/{targetScore} 🌟</p>
         <p className="text-lg font-comic text-muted-foreground">
           Dùng phím mũi tên để điều khiển! 🎮
         </p>

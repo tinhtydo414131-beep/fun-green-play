@@ -4,10 +4,20 @@ import { toast } from "sonner";
 import { useGameAudio } from "@/hooks/useGameAudio";
 import { AudioControls } from "@/components/AudioControls";
 
-export const MazeRunner = () => {
+export const MazeRunner = ({
+  level = 1,
+  difficultyMultiplier = 1.0,
+  onLevelComplete
+}: {
+  level?: number;
+  difficultyMultiplier?: number;
+  onLevelComplete?: () => void;
+  onBack?: () => void;
+} = {}) => {
   const [playerPos, setPlayerPos] = useState({ x: 0, y: 0 });
   const [moves, setMoves] = useState(0);
   const goalPos = { x: 9, y: 9 };
+  const maxMoves = Math.floor(30 / difficultyMultiplier);
   const { playClick, playSuccess, startBackgroundMusic, stopBackgroundMusic, toggleMusic, toggleSound, isMusicEnabled, isSoundEnabled } = useGameAudio();
 
   const maze = [

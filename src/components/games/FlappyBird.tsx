@@ -4,13 +4,24 @@ import { toast } from "sonner";
 import { useGameAudio } from "@/hooks/useGameAudio";
 import { AudioControls } from "@/components/AudioControls";
 
-export const FlappyBird = () => {
+export const FlappyBird = ({ 
+  level = 1, 
+  difficultyMultiplier = 1.0,
+  onLevelComplete 
+}: { 
+  level?: number;
+  difficultyMultiplier?: number;
+  onLevelComplete?: () => void;
+  onBack?: () => void;
+} = {}) => {
   const [birdY, setBirdY] = useState(50);
   const [pipes, setPipes] = useState<{ x: number; gapY: number }[]>([]);
   const [score, setScore] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [velocity, setVelocity] = useState(0);
   const { playJump, playError, playScore, startBackgroundMusic, stopBackgroundMusic, toggleMusic, toggleSound, isMusicEnabled, isSoundEnabled } = useGameAudio();
+  const targetScore = Math.floor(5 * difficultyMultiplier);
+  const pipeSpeed = 2 * difficultyMultiplier;
 
   useEffect(() => {
     if (!isPlaying) return;

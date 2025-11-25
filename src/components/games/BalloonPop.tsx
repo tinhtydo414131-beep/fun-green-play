@@ -11,10 +11,21 @@ interface Balloon {
   color: string;
 }
 
-export const BalloonPop = () => {
+export const BalloonPop = ({
+  level = 1,
+  difficultyMultiplier = 1.0,
+  onLevelComplete
+}: {
+  level?: number;
+  difficultyMultiplier?: number;
+  onLevelComplete?: () => void;
+  onBack?: () => void;
+} = {}) => {
   const [balloons, setBalloons] = useState<Balloon[]>([]);
   const [score, setScore] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const targetScore = Math.floor(10 * difficultyMultiplier);
+  const balloonSpeed = 1 + (difficultyMultiplier - 1) * 0.5;
   const { playPop, playScore, startBackgroundMusic, stopBackgroundMusic, toggleMusic, toggleSound, isMusicEnabled, isSoundEnabled } = useGameAudio();
 
   useEffect(() => {

@@ -5,11 +5,23 @@ import { toast } from "sonner";
 import { useGameAudio } from "@/hooks/useGameAudio";
 import { AudioControls } from "@/components/AudioControls";
 
-export const WhackAMole = () => {
+export const WhackAMole = ({
+  level = 1,
+  difficultyMultiplier = 1.0,
+  onLevelComplete
+}: {
+  level?: number;
+  difficultyMultiplier?: number;
+  onLevelComplete?: () => void;
+  onBack?: () => void;
+} = {}) => {
   const [moles, setMoles] = useState<boolean[]>(Array(9).fill(false));
   const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(30);
+  const baseTime = Math.max(15, Math.floor(30 / difficultyMultiplier));
+  const [timeLeft, setTimeLeft] = useState(baseTime);
   const [isPlaying, setIsPlaying] = useState(false);
+  const targetScore = Math.floor(10 * difficultyMultiplier);
+  const moleSpeed = Math.max(400, Math.floor(800 / difficultyMultiplier));
   const { playPop, playScore, startBackgroundMusic, stopBackgroundMusic, toggleMusic, toggleSound, isMusicEnabled, isSoundEnabled } = useGameAudio();
 
   useEffect(() => {
