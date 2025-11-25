@@ -11,6 +11,12 @@ import categoryAdventure from "@/assets/category-adventure.png";
 import categoryPuzzle from "@/assets/category-puzzle.png";
 import categoryCasual from "@/assets/category-casual.png";
 import categoryEducational from "@/assets/category-educational.png";
+import featureGames from "@/assets/feature-games.png";
+import featureSafe from "@/assets/feature-safe.png";
+import featureRewards from "@/assets/feature-rewards.png";
+import featureFriends from "@/assets/feature-friends.png";
+import featureCompete from "@/assets/feature-compete.png";
+import featureLearning from "@/assets/feature-learning.png";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -28,37 +34,43 @@ const Index = () => {
       icon: <Gamepad2 className="w-12 h-12 text-primary" />,
       title: "100+ Fun Games",
       description: "Play amazing games made for kids! From puzzles to adventures! 🎮",
-      color: "from-primary to-purple-500"
+      color: "from-primary to-purple-500",
+      image: featureGames
     },
     {
       icon: <Shield className="w-12 h-12 text-accent" />,
       title: "Safe & Secure",
       description: "Kid-friendly content, no ads, and parent-approved safety! 🛡️",
-      color: "from-accent to-green-500"
+      color: "from-accent to-green-500",
+      image: featureSafe
     },
     {
       icon: <Gift className="w-12 h-12 text-secondary" />,
       title: "Earn Rewards",
       description: "Play games and earn crypto tokens you can collect! 🎁",
-      color: "from-secondary to-orange-500"
+      color: "from-secondary to-orange-500",
+      image: featureRewards
     },
     {
       icon: <Users className="w-12 h-12 text-primary" />,
       title: "Make Friends",
       description: "Chat with other kids and make new gaming buddies! 👥",
-      color: "from-primary to-pink-500"
+      color: "from-primary to-pink-500",
+      image: featureFriends
     },
     {
       icon: <Trophy className="w-12 h-12 text-accent" />,
       title: "Compete & Win",
       description: "Join the leaderboard and become the top player! 🏆",
-      color: "from-accent to-blue-500"
+      color: "from-accent to-blue-500",
+      image: featureCompete
     },
     {
       icon: <Sparkles className="w-12 h-12 text-secondary" />,
       title: "Learn While Playing",
       description: "Educational games that make learning super fun! ✨",
-      color: "from-secondary to-purple-500"
+      color: "from-secondary to-purple-500",
+      image: featureLearning
     }
   ];
 
@@ -119,18 +131,28 @@ const Index = () => {
             {features.map((feature, index) => (
               <Card 
                 key={feature.title}
-                className="p-8 border-4 border-primary/20 hover:border-primary transition-all hover:shadow-2xl transform hover:scale-105 animate-fade-in group"
+                className="overflow-hidden border-4 border-primary/20 hover:border-primary transition-all hover:shadow-2xl transform hover:scale-105 animate-fade-in group"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-br ${feature.color} mb-4 shadow-lg group-hover:shadow-xl transition-all`}>
-                  {feature.icon}
+                <div className="relative aspect-[4/3] overflow-hidden">
+                  <img 
+                    src={feature.image} 
+                    alt={feature.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-20 group-hover:opacity-10 transition-opacity`} />
                 </div>
-                <h3 className="text-2xl font-fredoka font-bold text-foreground mb-3">
-                  {feature.title}
-                </h3>
-                <p className="text-muted-foreground font-comic text-lg">
-                  {feature.description}
-                </p>
+                <div className="p-8">
+                  <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-br ${feature.color} mb-4 shadow-lg group-hover:shadow-xl transition-all`}>
+                    {feature.icon}
+                  </div>
+                  <h3 className="text-2xl font-fredoka font-bold text-foreground mb-3">
+                    {feature.title}
+                  </h3>
+                  <p className="text-muted-foreground font-comic text-lg">
+                    {feature.description}
+                  </p>
+                </div>
               </Card>
             ))}
           </div>
