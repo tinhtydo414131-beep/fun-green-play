@@ -9,6 +9,22 @@ import { Snake } from "@/components/games/Snake";
 import { Game2048 } from "@/components/games/Game2048";
 import { GuessNumber } from "@/components/games/GuessNumber";
 import { RockPaperScissors } from "@/components/games/RockPaperScissors";
+import { ColorMatch } from "@/components/games/ColorMatch";
+import { WhackAMole } from "@/components/games/WhackAMole";
+import { BalloonPop } from "@/components/games/BalloonPop";
+import { FlappyBird } from "@/components/games/FlappyBird";
+import { Sudoku } from "@/components/games/Sudoku";
+import { WordScramble } from "@/components/games/WordScramble";
+import { MathQuiz } from "@/components/games/MathQuiz";
+import { SimonSays } from "@/components/games/SimonSays";
+import { TriviaQuiz } from "@/components/games/TriviaQuiz";
+import { MazeRunner } from "@/components/games/MazeRunner";
+import { TreasureHunt } from "@/components/games/TreasureHunt";
+import { SpaceShooter } from "@/components/games/SpaceShooter";
+import { Platformer } from "@/components/games/Platformer";
+import { DungeonCrawler } from "@/components/games/DungeonCrawler";
+import { Racing } from "@/components/games/Racing";
+import { TowerDefense } from "@/components/games/TowerDefense";
 
 const GamePlay = () => {
   const { gameId } = useParams();
@@ -38,6 +54,22 @@ const GamePlay = () => {
       case '2048': return <Game2048 />;
       case 'guess-number': return <GuessNumber />;
       case 'rock-paper-scissors': return <RockPaperScissors />;
+      case 'color-match': return <ColorMatch />;
+      case 'whack-a-mole': return <WhackAMole />;
+      case 'balloon-pop': return <BalloonPop />;
+      case 'flappy-bird': return <FlappyBird />;
+      case 'sudoku': return <Sudoku />;
+      case 'word-scramble': return <WordScramble />;
+      case 'math-quiz': return <MathQuiz />;
+      case 'simon-says': return <SimonSays />;
+      case 'trivia-quiz': return <TriviaQuiz />;
+      case 'maze-runner': return <MazeRunner />;
+      case 'treasure-hunt': return <TreasureHunt />;
+      case 'space-shooter': return <SpaceShooter />;
+      case 'platformer': return <Platformer />;
+      case 'dungeon-crawler': return <DungeonCrawler />;
+      case 'racing': return <Racing />;
+      case 'tower-defense': return <TowerDefense />;
       default: 
         return (
           <div className="text-center space-y-4 py-12">

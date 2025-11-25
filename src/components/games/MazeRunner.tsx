@@ -1,0 +1,85 @@
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+
+export const MazeRunner = () => {
+  const [playerPos, setPlayerPos] = useState({ x: 0, y: 0 });
+  const [moves, setMoves] = useState(0);
+  const goalPos = { x: 9, y: 9 };
+
+  const maze = [
+    [0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+    [0, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+    [0, 0, 0, 0, 1, 0, 0, 0, 1, 0],
+    [0, 1, 1, 1, 1, 0, 1, 0, 1, 0],
+    [0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+    [0, 1, 1, 1, 1, 1, 1, 0, 1, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+    [0, 1, 1, 1, 1, 1, 1, 0, 0, 0],
+  ];
+
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      let newX = playerPos.x;
+      let newY = playerPos.y;
+
+      switch(e.key) {
+        case 'ArrowUp': newY = Math.max(0, playerPos.y - 1); break;
+        case 'ArrowDown': newY = Math.min(9, playerPos.y + 1); break;
+        case 'ArrowLeft': newX = Math.max(0, playerPos.x - 1); break;
+        case 'ArrowRight': newX = Math.min(9, playerPos.x + 1); break;
+        default: return;
+      }
+
+      if (maze[newY][newX] === 0) {
+        setPlayerPos({ x: newX, y: newY });
+        setMoves(moves + 1);
+
+        if (newX === goalPos.x && newY === goalPos.y) {
+          toast.success(`Thắng rồi! Số bước: ${moves + 1}`);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [playerPos, moves]);
+
+  const resetGame = () => {
+    setPlayerPos({ x: 0, y: 0 });
+    setMoves(0);
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-6">
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl font-bold text-foreground">
+          Số bước: {moves}
+        </h2>
+        <p className="text-muted-foreground">Dùng phím mũi tên</p>
+      </div>
+
+      <div className="grid grid-cols-10 gap-1 p-4 bg-muted/30 rounded-lg">
+        {maze.map((row, y) =>
+          row.map((cell, x) => (
+            <div
+              key={`${x}-${y}`}
+              className={`w-8 h-8 ${
+                x === playerPos.x && y === playerPos.y ? 'bg-primary' :
+                x === goalPos.x && y === goalPos.y ? 'bg-yellow-500' :
+                cell === 1 ? 'bg-foreground' : 'bg-background'
+              } border border-border`}
+            >
+              {x === playerPos.x && y === playerPos.y && '🏃'}
+              {x === goalPos.x && y === goalPos.y && '🏆'}
+            </div>
+          ))
+        )}
+      </div>
+
+      <Button onClick={resetGame} size="lg">Chơi lại</Button>
+    </div>
+  );
+};
