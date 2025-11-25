@@ -16,7 +16,7 @@ export const games: Game[] = [
     description: 'Trò chơi cờ ca-rô cổ điển 3x3',
     category: 'casual',
     difficulty: 'easy',
-    image: '/placeholder.svg',
+    image: '/src/assets/games/tic-tac-toe.jpg',
     playable: true,
   },
   {
@@ -25,7 +25,7 @@ export const games: Game[] = [
     description: 'Lật thẻ và tìm các cặp giống nhau',
     category: 'casual',
     difficulty: 'easy',
-    image: '/placeholder.svg',
+    image: '/src/assets/games/memory-cards.jpg',
     playable: true,
   },
   {
@@ -34,7 +34,7 @@ export const games: Game[] = [
     description: 'Chơi kéo búa bao với máy tính',
     category: 'casual',
     difficulty: 'easy',
-    image: '/placeholder.svg',
+    image: '/src/assets/games/rock-paper-scissors.jpg',
     playable: true,
   },
   {
@@ -43,7 +43,7 @@ export const games: Game[] = [
     description: 'Khớp màu sắc nhanh nhất có thể',
     category: 'casual',
     difficulty: 'easy',
-    image: '/placeholder.svg',
+    image: '/src/assets/games/color-match.jpg',
     playable: true,
   },
   {
@@ -52,7 +52,7 @@ export const games: Game[] = [
     description: 'Đập chuột chũi nhanh tay',
     category: 'casual',
     difficulty: 'medium',
-    image: '/placeholder.svg',
+    image: '/src/assets/games/whack-a-mole.jpg',
     playable: true,
   },
   {
@@ -61,7 +61,7 @@ export const games: Game[] = [
     description: 'Bắn vỡ bóng bay',
     category: 'casual',
     difficulty: 'easy',
-    image: '/placeholder.svg',
+    image: '/src/assets/games/balloon-pop.jpg',
     playable: true,
   },
   {
@@ -70,7 +70,7 @@ export const games: Game[] = [
     description: 'Bay qua các ống nước',
     category: 'casual',
     difficulty: 'hard',
-    image: '/placeholder.svg',
+    image: '/src/assets/games/flappy-bird.jpg',
     playable: true,
   },
   
@@ -81,7 +81,7 @@ export const games: Game[] = [
     description: 'Trò chơi xếp số huyền thoại',
     category: 'brain',
     difficulty: 'medium',
-    image: '/placeholder.svg',
+    image: '/src/assets/games/2048.jpg',
     playable: true,
   },
   {
@@ -90,7 +90,7 @@ export const games: Game[] = [
     description: 'Giải câu đố số Sudoku',
     category: 'brain',
     difficulty: 'hard',
-    image: '/placeholder.svg',
+    image: '/src/assets/games/sudoku.jpg',
     playable: true,
   },
   {
@@ -99,7 +99,7 @@ export const games: Game[] = [
     description: 'Đoán số bí mật',
     category: 'brain',
     difficulty: 'easy',
-    image: '/placeholder.svg',
+    image: '/src/assets/games/guess-number.jpg',
     playable: true,
   },
   {
@@ -108,7 +108,7 @@ export const games: Game[] = [
     description: 'Sắp xếp các chữ cái thành từ',
     category: 'brain',
     difficulty: 'medium',
-    image: '/placeholder.svg',
+    image: '/src/assets/games/word-scramble.jpg',
     playable: true,
   },
   {
@@ -117,7 +117,7 @@ export const games: Game[] = [
     description: 'Trắc nghiệm toán học nhanh',
     category: 'brain',
     difficulty: 'medium',
-    image: '/placeholder.svg',
+    image: '/src/assets/games/math-quiz.jpg',
     playable: true,
   },
   {
@@ -126,7 +126,7 @@ export const games: Game[] = [
     description: 'Ghi nhớ trình tự màu sắc',
     category: 'brain',
     difficulty: 'medium',
-    image: '/placeholder.svg',
+    image: '/src/assets/games/simon-says.jpg',
     playable: true,
   },
   {
@@ -135,7 +135,7 @@ export const games: Game[] = [
     description: 'Câu hỏi kiến thức tổng hợp',
     category: 'brain',
     difficulty: 'easy',
-    image: '/placeholder.svg',
+    image: '/src/assets/games/trivia-quiz.jpg',
     playable: true,
   },
   
@@ -146,7 +146,7 @@ export const games: Game[] = [
     description: 'Rắn săn mồi cổ điển',
     category: 'adventure',
     difficulty: 'medium',
-    image: '/placeholder.svg',
+    image: '/src/assets/games/snake.jpg',
     playable: true,
   },
   {
@@ -155,7 +155,7 @@ export const games: Game[] = [
     description: 'Tìm đường thoát khỏi mê cung',
     category: 'adventure',
     difficulty: 'hard',
-    image: '/placeholder.svg',
+    image: '/src/assets/games/maze-runner.jpg',
     playable: true,
   },
   {
@@ -164,7 +164,7 @@ export const games: Game[] = [
     description: 'Tìm kho báu ẩn giấu',
     category: 'adventure',
     difficulty: 'medium',
-    image: '/placeholder.svg',
+    image: '/src/assets/games/treasure-hunt.jpg',
     playable: true,
   },
   {
@@ -173,7 +173,7 @@ export const games: Game[] = [
     description: 'Bắn tàu vũ trụ trong không gian',
     category: 'adventure',
     difficulty: 'hard',
-    image: '/placeholder.svg',
+    image: '/src/assets/games/space-shooter.jpg',
     playable: true,
   },
   {
@@ -182,7 +182,7 @@ export const games: Game[] = [
     description: 'Nhảy qua các nền tảng',
     category: 'adventure',
     difficulty: 'medium',
-    image: '/placeholder.svg',
+    image: '/src/assets/games/platformer.jpg',
     playable: true,
   },
   {
@@ -191,7 +191,7 @@ export const games: Game[] = [
     description: 'Khám phá hầm ngục tối tăm',
     category: 'adventure',
     difficulty: 'hard',
-    image: '/placeholder.svg',
+    image: '/src/assets/games/dungeon-crawler.jpg',
     playable: true,
   },
   {
@@ -200,7 +200,7 @@ export const games: Game[] = [
     description: 'Đua xe tốc độ cao',
     category: 'adventure',
     difficulty: 'medium',
-    image: '/placeholder.svg',
+    image: '/src/assets/games/racing.jpg',
     playable: true,
   },
   {
@@ -209,7 +209,7 @@ export const games: Game[] = [
     description: 'Phòng thủ tháp khỏi kẻ địch',
     category: 'adventure',
     difficulty: 'hard',
-    image: '/placeholder.svg',
+    image: '/src/assets/games/tower-defense.jpg',
     playable: true,
   },
 ];
