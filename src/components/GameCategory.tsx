@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface GameCategoryProps {
   title: string;
@@ -31,13 +32,15 @@ export const GameCategory = ({ title, description, image, delay = 0 }: GameCateg
         <p className="text-muted-foreground">
           {description}
         </p>
-        <Button 
-          variant="ghost" 
-          className="group/btn p-0 h-auto font-semibold text-primary hover:text-primary-dark hover:bg-transparent"
-        >
-          Khám phá
-          <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
-        </Button>
+        <Link to="/games">
+          <Button 
+            variant="ghost" 
+            className="group/btn p-0 h-auto font-semibold text-primary hover:text-primary-dark hover:bg-transparent"
+          >
+            Khám phá
+            <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+          </Button>
+        </Link>
       </CardContent>
     </Card>
   );

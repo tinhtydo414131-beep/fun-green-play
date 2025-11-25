@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { Sparkles } from "lucide-react";
 
 export const Hero = () => {
@@ -23,12 +24,14 @@ export const Hero = () => {
           </p>
           
           <div className="pt-4 animate-scale-in">
-            <Button 
-              size="lg" 
-              className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-bold text-lg px-12 py-6 rounded-full shadow-2xl hover:shadow-primary-foreground/50 transition-all duration-300 hover:scale-105"
-            >
-              Bắt đầu chơi ngay
-            </Button>
+            <Link to="/games">
+              <Button 
+                size="lg" 
+                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-bold text-lg px-12 py-6 rounded-full shadow-2xl hover:shadow-primary-foreground/50 transition-all duration-300 hover:scale-105"
+              >
+                Bắt đầu chơi ngay
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
