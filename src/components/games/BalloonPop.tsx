@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useGameAudio } from "@/hooks/useGameAudio";
+import { AudioControls } from "@/components/AudioControls";
 
 interface Balloon {
   id: number;
@@ -14,7 +15,7 @@ export const BalloonPop = () => {
   const [balloons, setBalloons] = useState<Balloon[]>([]);
   const [score, setScore] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const { playPop, playScore, startBackgroundMusic, stopBackgroundMusic } = useGameAudio();
+  const { playPop, playScore, startBackgroundMusic, stopBackgroundMusic, toggleMusic, toggleSound, isMusicEnabled, isSoundEnabled } = useGameAudio();
 
   useEffect(() => {
     if (!isPlaying) return;
@@ -68,11 +69,17 @@ export const BalloonPop = () => {
 
   return (
     <div className="flex flex-col items-center gap-8">
-      <div className="text-center space-y-2">
+      <div className="text-center space-y-4">
         <h2 className="text-2xl font-bold text-foreground">
           Điểm: {score}
         </h2>
         <p className="text-muted-foreground">Nhấp để bắn vỡ bóng!</p>
+        <AudioControls 
+          isMusicEnabled={isMusicEnabled}
+          isSoundEnabled={isSoundEnabled}
+          onToggleMusic={toggleMusic}
+          onToggleSound={toggleSound}
+        />
       </div>
 
       <div className="relative w-full h-96 bg-gradient-to-b from-primary/10 to-background border-4 border-primary rounded-lg overflow-hidden">

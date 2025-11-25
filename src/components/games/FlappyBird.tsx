@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useGameAudio } from "@/hooks/useGameAudio";
+import { AudioControls } from "@/components/AudioControls";
 
 export const FlappyBird = () => {
   const [birdY, setBirdY] = useState(50);
@@ -9,7 +10,7 @@ export const FlappyBird = () => {
   const [score, setScore] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [velocity, setVelocity] = useState(0);
-  const { playJump, playError, playScore, startBackgroundMusic, stopBackgroundMusic } = useGameAudio();
+  const { playJump, playError, playScore, startBackgroundMusic, stopBackgroundMusic, toggleMusic, toggleSound, isMusicEnabled, isSoundEnabled } = useGameAudio();
 
   useEffect(() => {
     if (!isPlaying) return;
@@ -78,11 +79,17 @@ export const FlappyBird = () => {
 
   return (
     <div className="flex flex-col items-center gap-8">
-      <div className="text-center space-y-2">
+      <div className="text-center space-y-4">
         <h2 className="text-2xl font-bold text-foreground">
           Điểm: {score}
         </h2>
         <p className="text-muted-foreground">Nhấp để bay lên!</p>
+        <AudioControls 
+          isMusicEnabled={isMusicEnabled}
+          isSoundEnabled={isSoundEnabled}
+          onToggleMusic={toggleMusic}
+          onToggleSound={toggleSound}
+        />
       </div>
 
       <div 

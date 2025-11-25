@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useGameAudio } from "@/hooks/useGameAudio";
+import { AudioControls } from "@/components/AudioControls";
 
 export const WordScramble = () => {
   const words = [
@@ -18,7 +19,7 @@ export const WordScramble = () => {
   const [scrambled, setScrambled] = useState('');
   const [guess, setGuess] = useState('');
   const [score, setScore] = useState(0);
-  const { playSuccess, playError, startBackgroundMusic } = useGameAudio();
+  const { playSuccess, playError, startBackgroundMusic, toggleMusic, toggleSound, isMusicEnabled, isSoundEnabled } = useGameAudio();
 
   useEffect(() => {
     scrambleWord();
@@ -50,8 +51,14 @@ export const WordScramble = () => {
 
   return (
     <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
-      <div className="text-center space-y-2">
+      <div className="text-center space-y-4">
         <h2 className="text-2xl font-bold text-foreground">Điểm: {score}</h2>
+        <AudioControls 
+          isMusicEnabled={isMusicEnabled}
+          isSoundEnabled={isSoundEnabled}
+          onToggleMusic={toggleMusic}
+          onToggleSound={toggleSound}
+        />
       </div>
 
       <Card className="w-full p-8 space-y-6">
