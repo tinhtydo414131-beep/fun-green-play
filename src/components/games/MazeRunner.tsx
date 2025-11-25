@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useGameAudio } from "@/hooks/useGameAudio";
+import { AudioControls } from "@/components/AudioControls";
 
 export const MazeRunner = () => {
   const [playerPos, setPlayerPos] = useState({ x: 0, y: 0 });
   const [moves, setMoves] = useState(0);
   const goalPos = { x: 9, y: 9 };
-  const { playClick, playSuccess, startBackgroundMusic, stopBackgroundMusic } = useGameAudio();
+  const { playClick, playSuccess, startBackgroundMusic, stopBackgroundMusic, toggleMusic, toggleSound, isMusicEnabled, isSoundEnabled } = useGameAudio();
 
   const maze = [
     [0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
@@ -64,11 +65,17 @@ export const MazeRunner = () => {
 
   return (
     <div className="flex flex-col items-center gap-6">
-      <div className="text-center space-y-2">
+      <div className="text-center space-y-4">
         <h2 className="text-2xl font-bold text-foreground">
           Số bước: {moves}
         </h2>
         <p className="text-muted-foreground">Dùng phím mũi tên</p>
+        <AudioControls 
+          isMusicEnabled={isMusicEnabled}
+          isSoundEnabled={isSoundEnabled}
+          onToggleMusic={toggleMusic}
+          onToggleSound={toggleSound}
+        />
       </div>
 
       <div className="grid grid-cols-10 gap-1 p-4 bg-muted/30 rounded-lg">

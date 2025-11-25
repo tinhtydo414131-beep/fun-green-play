@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useGameAudio } from "@/hooks/useGameAudio";
+import { AudioControls } from "@/components/AudioControls";
 
 export const GuessNumber = () => {
   const [targetNumber, setTargetNumber] = useState(0);
@@ -11,7 +12,7 @@ export const GuessNumber = () => {
   const [attempts, setAttempts] = useState(0);
   const [feedback, setFeedback] = useState("");
   const [gameWon, setGameWon] = useState(false);
-  const { playClick, playSuccess, playError, startBackgroundMusic } = useGameAudio();
+  const { playClick, playSuccess, playError, startBackgroundMusic, toggleMusic, toggleSound, isMusicEnabled, isSoundEnabled } = useGameAudio();
 
   useEffect(() => {
     resetGame();
@@ -54,13 +55,19 @@ export const GuessNumber = () => {
 
   return (
     <div className="flex flex-col items-center gap-8 max-w-md mx-auto">
-      <div className="text-center space-y-2">
+      <div className="text-center space-y-4">
         <h2 className="text-2xl font-bold text-foreground">
           Đoán Số Bí Mật
         </h2>
         <p className="text-muted-foreground">
           Số lần đoán: {attempts}
         </p>
+        <AudioControls 
+          isMusicEnabled={isMusicEnabled}
+          isSoundEnabled={isSoundEnabled}
+          onToggleMusic={toggleMusic}
+          onToggleSound={toggleSound}
+        />
       </div>
 
       <Card className="w-full p-8 space-y-6">

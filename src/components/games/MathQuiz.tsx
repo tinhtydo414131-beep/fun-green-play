@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useGameAudio } from "@/hooks/useGameAudio";
+import { AudioControls } from "@/components/AudioControls";
 
 export const MathQuiz = () => {
   const [num1, setNum1] = useState(0);
@@ -13,7 +14,7 @@ export const MathQuiz = () => {
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(30);
   const [isPlaying, setIsPlaying] = useState(false);
-  const { playScore, playError, startBackgroundMusic, stopBackgroundMusic } = useGameAudio();
+  const { playScore, playError, startBackgroundMusic, stopBackgroundMusic, toggleMusic, toggleSound, isMusicEnabled, isSoundEnabled } = useGameAudio();
 
   useEffect(() => {
     if (isPlaying && timeLeft > 0) {
@@ -81,10 +82,16 @@ export const MathQuiz = () => {
 
   return (
     <div className="flex flex-col items-center gap-8">
-      <div className="text-center space-y-2">
+      <div className="text-center space-y-4">
         <h2 className="text-2xl font-bold text-foreground">
           Điểm: {score} | Thời gian: {timeLeft}s
         </h2>
+        <AudioControls 
+          isMusicEnabled={isMusicEnabled}
+          isSoundEnabled={isSoundEnabled}
+          onToggleMusic={toggleMusic}
+          onToggleSound={toggleSound}
+        />
       </div>
 
       {isPlaying ? (

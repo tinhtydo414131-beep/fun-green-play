@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useGameAudio } from "@/hooks/useGameAudio";
+import { AudioControls } from "@/components/AudioControls";
 
 interface CardType {
   id: number;
@@ -16,7 +17,7 @@ export const MemoryCards = () => {
   const [cards, setCards] = useState<CardType[]>([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [moves, setMoves] = useState(0);
-  const { playClick, playSuccess, playError, startBackgroundMusic } = useGameAudio();
+  const { playClick, playSuccess, playError, startBackgroundMusic, toggleMusic, toggleSound, isMusicEnabled, isSoundEnabled } = useGameAudio();
 
   useEffect(() => {
     initializeGame();
@@ -76,10 +77,16 @@ export const MemoryCards = () => {
 
   return (
     <div className="flex flex-col items-center gap-8">
-      <div className="text-center space-y-2">
+      <div className="text-center space-y-4">
         <h2 className="text-2xl font-bold text-foreground">
           Số nước đi: {moves}
         </h2>
+        <AudioControls 
+          isMusicEnabled={isMusicEnabled}
+          isSoundEnabled={isSoundEnabled}
+          onToggleMusic={toggleMusic}
+          onToggleSound={toggleSound}
+        />
       </div>
       
       <div className="grid grid-cols-4 gap-4 w-full max-w-2xl">
