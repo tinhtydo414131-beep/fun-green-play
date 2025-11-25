@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
+import { useGameAudio } from "@/hooks/useGameAudio";
 
 export const GuessNumber = () => {
   const [targetNumber, setTargetNumber] = useState(0);
@@ -10,9 +11,11 @@ export const GuessNumber = () => {
   const [attempts, setAttempts] = useState(0);
   const [feedback, setFeedback] = useState("");
   const [gameWon, setGameWon] = useState(false);
+  const { playClick, playSuccess, playError, startBackgroundMusic } = useGameAudio();
 
   useEffect(() => {
     resetGame();
+    startBackgroundMusic();
   }, []);
 
   const resetGame = () => {
@@ -36,11 +39,14 @@ export const GuessNumber = () => {
     if (guessNumber === targetNumber) {
       setFeedback(`🎉 Chính xác! Bạn đã đoán đúng trong ${attempts + 1} lần!`);
       setGameWon(true);
+      playSuccess();
       toast.success(`Chúc mừng! Đúng trong ${attempts + 1} lần thử!`);
     } else if (guessNumber < targetNumber) {
       setFeedback("📈 Số cần tìm lớn hơn!");
+      playClick();
     } else {
       setFeedback("📉 Số cần tìm nhỏ hơn!");
+      playClick();
     }
 
     setGuess("");

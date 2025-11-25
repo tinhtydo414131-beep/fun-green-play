@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
+import { useGameAudio } from "@/hooks/useGameAudio";
 
 export const MathQuiz = () => {
   const [num1, setNum1] = useState(0);
@@ -12,6 +13,7 @@ export const MathQuiz = () => {
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(30);
   const [isPlaying, setIsPlaying] = useState(false);
+  const { playScore, playError, startBackgroundMusic, stopBackgroundMusic } = useGameAudio();
 
   useEffect(() => {
     if (isPlaying && timeLeft > 0) {
@@ -57,8 +59,10 @@ export const MathQuiz = () => {
   const checkAnswer = (selected: number) => {
     if (selected === answer) {
       setScore(score + 1);
+      playScore();
       toast.success('+1 điểm!');
     } else {
+      playError();
       toast.error('Sai rồi!');
     }
     generateQuestion();
@@ -68,7 +72,12 @@ export const MathQuiz = () => {
     setScore(0);
     setTimeLeft(30);
     setIsPlaying(true);
+    startBackgroundMusic();
   };
+
+  useEffect(() => {
+    if (!isPlaying) stopBackgroundMusic();
+  }, [isPlaying]);
 
   return (
     <div className="flex flex-col items-center gap-8">

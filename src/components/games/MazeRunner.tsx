@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useGameAudio } from "@/hooks/useGameAudio";
 
 export const MazeRunner = () => {
   const [playerPos, setPlayerPos] = useState({ x: 0, y: 0 });
   const [moves, setMoves] = useState(0);
   const goalPos = { x: 9, y: 9 };
+  const { playClick, playSuccess, startBackgroundMusic, stopBackgroundMusic } = useGameAudio();
 
   const maze = [
     [0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
@@ -36,8 +38,10 @@ export const MazeRunner = () => {
       if (maze[newY][newX] === 0) {
         setPlayerPos({ x: newX, y: newY });
         setMoves(moves + 1);
+        playClick();
 
         if (newX === goalPos.x && newY === goalPos.y) {
+          playSuccess();
           toast.success(`Thắng rồi! Số bước: ${moves + 1}`);
         }
       }
@@ -50,7 +54,13 @@ export const MazeRunner = () => {
   const resetGame = () => {
     setPlayerPos({ x: 0, y: 0 });
     setMoves(0);
+    startBackgroundMusic();
   };
+
+  useEffect(() => {
+    startBackgroundMusic();
+    return () => stopBackgroundMusic();
+  }, []);
 
   return (
     <div className="flex flex-col items-center gap-6">

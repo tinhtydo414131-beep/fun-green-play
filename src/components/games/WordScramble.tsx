@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
+import { useGameAudio } from "@/hooks/useGameAudio";
 
 export const WordScramble = () => {
   const words = [
@@ -17,9 +18,11 @@ export const WordScramble = () => {
   const [scrambled, setScrambled] = useState('');
   const [guess, setGuess] = useState('');
   const [score, setScore] = useState(0);
+  const { playSuccess, playError, startBackgroundMusic } = useGameAudio();
 
   useEffect(() => {
     scrambleWord();
+    startBackgroundMusic();
   }, [currentWord]);
 
   const scrambleWord = () => {
@@ -34,11 +37,13 @@ export const WordScramble = () => {
   const checkAnswer = () => {
     if (guess.toUpperCase() === currentWord.word) {
       setScore(score + 1);
+      playSuccess();
       toast.success('Chính xác!');
       const nextIndex = (words.indexOf(currentWord) + 1) % words.length;
       setCurrentWord(words[nextIndex]);
       setGuess('');
     } else {
+      playError();
       toast.error('Sai rồi! Thử lại!');
     }
   };

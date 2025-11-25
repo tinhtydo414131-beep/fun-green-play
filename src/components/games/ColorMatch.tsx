@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
+import { useGameAudio } from "@/hooks/useGameAudio";
 
 export const ColorMatch = () => {
   const colors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500', 'bg-pink-500'];
@@ -12,6 +13,7 @@ export const ColorMatch = () => {
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(30);
   const [isPlaying, setIsPlaying] = useState(false);
+  const { playScore, playError, startBackgroundMusic, stopBackgroundMusic } = useGameAudio();
 
   useEffect(() => {
     if (isPlaying && timeLeft > 0) {
@@ -27,8 +29,13 @@ export const ColorMatch = () => {
     setScore(0);
     setTimeLeft(30);
     setIsPlaying(true);
+    startBackgroundMusic();
     generateQuestion();
   };
+
+  useEffect(() => {
+    if (!isPlaying) stopBackgroundMusic();
+  }, [isPlaying]);
 
   const generateQuestion = () => {
     const colorIndex = Math.floor(Math.random() * colors.length);
@@ -43,8 +50,10 @@ export const ColorMatch = () => {
     const actualMatch = colors.indexOf(displayColor) === colorNames.indexOf(displayText);
     if (isMatch === actualMatch) {
       setScore(score + 1);
+      playScore();
       toast.success('+1 điểm!');
     } else {
+      playError();
       toast.error('Sai rồi!');
     }
     generateQuestion();

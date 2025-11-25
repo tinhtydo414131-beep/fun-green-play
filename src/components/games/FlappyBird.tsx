@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useGameAudio } from "@/hooks/useGameAudio";
 
 export const FlappyBird = () => {
   const [birdY, setBirdY] = useState(50);
@@ -8,6 +9,7 @@ export const FlappyBird = () => {
   const [score, setScore] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [velocity, setVelocity] = useState(0);
+  const { playJump, playError, playScore, startBackgroundMusic, stopBackgroundMusic } = useGameAudio();
 
   useEffect(() => {
     if (!isPlaying) return;
@@ -17,6 +19,7 @@ export const FlappyBird = () => {
         const newY = prev + velocity;
         if (newY > 90 || newY < 0) {
           setIsPlaying(false);
+          playError();
           toast.error(`Game Over! Điểm: ${score}`);
           return prev;
         }
@@ -37,10 +40,14 @@ export const FlappyBird = () => {
           if (pipe.x > 8 && pipe.x < 18) {
             if (birdY < pipe.gapY - 15 || birdY > pipe.gapY + 15) {
               setIsPlaying(false);
+              playError();
               toast.error(`Game Over! Điểm: ${score}`);
             }
           }
-          if (pipe.x === 8) setScore(s => s + 1);
+          if (pipe.x === 8) {
+            setScore(s => s + 1);
+            playScore();
+          }
         });
 
         return newPipes;
@@ -53,6 +60,7 @@ export const FlappyBird = () => {
   const flap = () => {
     if (!isPlaying) return;
     setVelocity(-3);
+    playJump();
   };
 
   const startGame = () => {
@@ -61,7 +69,12 @@ export const FlappyBird = () => {
     setPipes([]);
     setScore(0);
     setIsPlaying(true);
+    startBackgroundMusic();
   };
+
+  useEffect(() => {
+    if (!isPlaying) stopBackgroundMusic();
+  }, [isPlaying]);
 
   return (
     <div className="flex flex-col items-center gap-8">

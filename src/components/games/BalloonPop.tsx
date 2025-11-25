@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useGameAudio } from "@/hooks/useGameAudio";
 
 interface Balloon {
   id: number;
@@ -13,6 +14,7 @@ export const BalloonPop = () => {
   const [balloons, setBalloons] = useState<Balloon[]>([]);
   const [score, setScore] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const { playPop, playScore, startBackgroundMusic, stopBackgroundMusic } = useGameAudio();
 
   useEffect(() => {
     if (!isPlaying) return;
@@ -46,6 +48,8 @@ export const BalloonPop = () => {
   const popBalloon = (id: number) => {
     setBalloons(prev => prev.filter(b => b.id !== id));
     setScore(score + 1);
+    playPop();
+    playScore();
     toast.success('+1 điểm!');
   };
 
@@ -53,7 +57,14 @@ export const BalloonPop = () => {
     setScore(0);
     setBalloons([]);
     setIsPlaying(true);
+    startBackgroundMusic();
   };
+
+  useEffect(() => {
+    if (!isPlaying) {
+      stopBackgroundMusic();
+    }
+  }, [isPlaying]);
 
   return (
     <div className="flex flex-col items-center gap-8">

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
+import { useGameAudio } from "@/hooks/useGameAudio";
 
 interface CardType {
   id: number;
@@ -15,9 +16,11 @@ export const MemoryCards = () => {
   const [cards, setCards] = useState<CardType[]>([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [moves, setMoves] = useState(0);
+  const { playClick, playSuccess, playError, startBackgroundMusic } = useGameAudio();
 
   useEffect(() => {
     initializeGame();
+    startBackgroundMusic();
   }, []);
 
   const initializeGame = () => {
@@ -39,6 +42,7 @@ export const MemoryCards = () => {
 
     const newFlippedCards = [...flippedCards, id];
     setFlippedCards(newFlippedCards);
+    playClick();
     
     const newCards = [...cards];
     newCards[id].isFlipped = true;
@@ -53,11 +57,13 @@ export const MemoryCards = () => {
         newCards[second].isMatched = true;
         setCards(newCards);
         setFlippedCards([]);
+        playSuccess();
         
         if (newCards.every(card => card.isMatched)) {
           toast.success(`Chúc mừng! Bạn hoàn thành với ${moves + 1} nước đi!`);
         }
       } else {
+        playError();
         setTimeout(() => {
           newCards[first].isFlipped = false;
           newCards[second].isFlipped = false;
