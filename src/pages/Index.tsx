@@ -7,6 +7,10 @@ import { Card } from "@/components/ui/card";
 import { Gamepad2, Trophy, Users, Sparkles, Shield, Gift } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import camlyCoin from "@/assets/camly-coin.png";
+import categoryAdventure from "@/assets/category-adventure.png";
+import categoryPuzzle from "@/assets/category-puzzle.png";
+import categoryCasual from "@/assets/category-casual.png";
+import categoryEducational from "@/assets/category-educational.png";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -59,10 +63,10 @@ const Index = () => {
   ];
 
   const categories = [
-    { name: "Adventure 🗺️", count: 5, color: "bg-gradient-to-br from-primary to-purple-500" },
-    { name: "Puzzle 🧩", count: 4, color: "bg-gradient-to-br from-accent to-green-500" },
-    { name: "Casual 🎯", count: 3, color: "bg-gradient-to-br from-secondary to-orange-500" },
-    { name: "Educational 📚", count: 2, color: "bg-gradient-to-br from-primary to-pink-500" },
+    { name: "Adventure 🗺️", count: 5, color: "bg-gradient-to-br from-primary to-purple-500", image: categoryAdventure },
+    { name: "Puzzle 🧩", count: 4, color: "bg-gradient-to-br from-accent to-green-500", image: categoryPuzzle },
+    { name: "Casual 🎯", count: 3, color: "bg-gradient-to-br from-secondary to-orange-500", image: categoryCasual },
+    { name: "Educational 📚", count: 2, color: "bg-gradient-to-br from-primary to-pink-500", image: categoryEducational },
   ];
 
   return (
@@ -150,13 +154,23 @@ const Index = () => {
               <button
                 key={category.name}
                 onClick={() => navigate("/games")}
-                className={`${category.color} p-8 rounded-3xl border-4 border-white/30 shadow-xl hover:shadow-2xl transform hover:scale-110 transition-all text-white group animate-fade-in`}
+                className="relative overflow-hidden rounded-3xl border-4 border-white/30 shadow-xl hover:shadow-2xl transform hover:scale-110 transition-all group animate-fade-in"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <p className="text-3xl font-fredoka font-bold mb-2">{category.count}</p>
-                <p className="text-lg font-comic font-bold">{category.name}</p>
-                <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="text-sm">Click to explore! →</span>
+                <div className="relative aspect-[4/3]">
+                  <img 
+                    src={category.image} 
+                    alt={category.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className={`absolute inset-0 ${category.color} opacity-40 group-hover:opacity-30 transition-opacity`} />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-4">
+                    <p className="text-4xl md:text-5xl font-fredoka font-bold mb-2 drop-shadow-lg">{category.count}</p>
+                    <p className="text-lg md:text-xl font-comic font-bold drop-shadow-lg">{category.name}</p>
+                    <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-sm drop-shadow-lg">Click to explore! →</span>
+                    </div>
+                  </div>
                 </div>
               </button>
             ))}
