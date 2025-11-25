@@ -8,6 +8,9 @@ import Games from "./pages/Games";
 import GamePlay from "./pages/GamePlay";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import Leaderboard from "./pages/Leaderboard";
+import Friends from "./pages/Friends";
+import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +27,9 @@ const App = () => (
           <Route path="/game/:gameId" element={<GamePlay />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/friends" element={<Friends />} />
+          <Route path="/chat" element={<Chat />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
