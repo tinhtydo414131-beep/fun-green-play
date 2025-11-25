@@ -146,13 +146,13 @@ export const GameCard = ({ game }: GameCardProps) => {
   };
 
   return (
-    <Card className="group overflow-hidden border-4 border-primary/20 hover:border-primary transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20 animate-fade-in transform hover:scale-105">
+    <Card className="group overflow-hidden border-4 border-primary/20 hover:border-primary transition-all duration-500 hover:shadow-[0_25px_60px_rgba(59,130,246,0.5)] animate-fade-in transform hover:-translate-y-6 hover:scale-105">
       <div className="relative aspect-video overflow-hidden">
         {game.thumbnail_url ? (
           <img 
             src={game.thumbnail_url} 
             alt={game.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2"
           />
         ) : (
           <div className={`w-full h-full bg-gradient-to-br ${genreColors[game.genre as keyof typeof genreColors] || 'from-primary to-secondary'} flex flex-col items-center justify-center gap-4 relative overflow-hidden`}>
