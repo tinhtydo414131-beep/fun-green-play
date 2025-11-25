@@ -2,12 +2,14 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
+import { useGameAudio } from "@/hooks/useGameAudio";
 
 export const WhackAMole = () => {
   const [moles, setMoles] = useState<boolean[]>(Array(9).fill(false));
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(30);
   const [isPlaying, setIsPlaying] = useState(false);
+  const { playPop, playScore, startBackgroundMusic, stopBackgroundMusic } = useGameAudio();
 
   useEffect(() => {
     if (isPlaying && timeLeft > 0) {
@@ -36,12 +38,19 @@ export const WhackAMole = () => {
     setScore(0);
     setTimeLeft(30);
     setIsPlaying(true);
+    startBackgroundMusic();
   };
+
+  useEffect(() => {
+    if (!isPlaying) stopBackgroundMusic();
+  }, [isPlaying]);
 
   const whackMole = (index: number) => {
     if (!isPlaying || !moles[index]) return;
     
     setScore(score + 1);
+    playPop();
+    playScore();
     const newMoles = [...moles];
     newMoles[index] = false;
     setMoles(newMoles);
