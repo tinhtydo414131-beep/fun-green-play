@@ -8,12 +8,22 @@ interface Obstacle {
   y: number;
 }
 
-export const Racing = () => {
+export const Racing = ({
+  level = 1,
+  difficultyMultiplier = 1.0,
+  onLevelComplete
+}: {
+  level?: number;
+  difficultyMultiplier?: number;
+  onLevelComplete?: () => void;
+  onBack?: () => void;
+} = {}) => {
   const [carX, setCarX] = useState(50);
   const [obstacles, setObstacles] = useState<Obstacle[]>([]);
   const [score, setScore] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [speed, setSpeed] = useState(2);
+  const [speed, setSpeed] = useState(2 * difficultyMultiplier);
+  const targetScore = Math.floor(20 * difficultyMultiplier);
 
   useEffect(() => {
     if (!isPlaying) return;

@@ -3,11 +3,21 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 
-export const TreasureHunt = () => {
+export const TreasureHunt = ({
+  level = 1,
+  difficultyMultiplier = 1.0,
+  onLevelComplete
+}: {
+  level?: number;
+  difficultyMultiplier?: number;
+  onLevelComplete?: () => void;
+  onBack?: () => void;
+} = {}) => {
   const [treasurePos, setTreasurePos] = useState({ x: 5, y: 5 });
   const [guesses, setGuesses] = useState<{ x: number; y: number; distance: number }[]>([]);
   const [attempts, setAttempts] = useState(0);
   const [won, setWon] = useState(false);
+  const maxAttempts = Math.max(5, Math.floor(10 / difficultyMultiplier));
 
   const calculateDistance = (x: number, y: number) => {
     return Math.sqrt(Math.pow(x - treasurePos.x, 2) + Math.pow(y - treasurePos.y, 2));

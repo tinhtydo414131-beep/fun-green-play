@@ -2,12 +2,22 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-export const Platformer = () => {
+export const Platformer = ({
+  level = 1,
+  difficultyMultiplier = 1.0,
+  onLevelComplete
+}: {
+  level?: number;
+  difficultyMultiplier?: number;
+  onLevelComplete?: () => void;
+  onBack?: () => void;
+} = {}) => {
   const [playerPos, setPlayerPos] = useState({ x: 10, y: 70 });
   const [velocity, setVelocity] = useState(0);
   const [isJumping, setIsJumping] = useState(false);
   const [score, setScore] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const targetScore = Math.floor(10 * difficultyMultiplier);
 
   const platforms = [
     { x: 0, y: 80, width: 100 },

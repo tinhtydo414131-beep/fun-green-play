@@ -6,13 +6,24 @@ import { toast } from "sonner";
 import { useGameAudio } from "@/hooks/useGameAudio";
 import { AudioControls } from "@/components/AudioControls";
 
-export const WordScramble = () => {
+export const WordScramble = ({
+  level = 1,
+  difficultyMultiplier = 1.0,
+  onLevelComplete
+}: {
+  level?: number;
+  difficultyMultiplier?: number;
+  onLevelComplete?: () => void;
+  onBack?: () => void;
+} = {}) => {
   const words = [
     { word: 'GAME', hint: 'Trò chơi' },
     { word: 'PLAY', hint: 'Chơi' },
     { word: 'CODE', hint: 'Mã code' },
     { word: 'FUN', hint: 'Vui vẻ' },
-    { word: 'WIN', hint: 'Thắng' }
+    { word: 'WIN', hint: 'Thắng' },
+    { word: 'CRYPTO', hint: 'Tiền mã hóa' },
+    { word: 'BLOCKCHAIN', hint: 'Chuỗi khối' }
   ];
 
   const [currentWord, setCurrentWord] = useState(words[0]);

@@ -9,13 +9,23 @@ interface Enemy {
   position: number;
 }
 
-export const TowerDefense = () => {
+export const TowerDefense = ({
+  level = 1,
+  difficultyMultiplier = 1.0,
+  onLevelComplete
+}: {
+  level?: number;
+  difficultyMultiplier?: number;
+  onLevelComplete?: () => void;
+  onBack?: () => void;
+} = {}) => {
   const [enemies, setEnemies] = useState<Enemy[]>([]);
   const [towers, setTowers] = useState<number[]>([]);
   const [gold, setGold] = useState(100);
   const [lives, setLives] = useState(10);
   const [wave, setWave] = useState(1);
   const [isPlaying, setIsPlaying] = useState(false);
+  const targetWave = Math.floor(3 * difficultyMultiplier);
 
   useEffect(() => {
     if (!isPlaying) return;

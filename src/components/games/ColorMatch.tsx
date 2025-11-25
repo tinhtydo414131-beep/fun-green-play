@@ -5,7 +5,16 @@ import { toast } from "sonner";
 import { useGameAudio } from "@/hooks/useGameAudio";
 import { AudioControls } from "@/components/AudioControls";
 
-export const ColorMatch = () => {
+export const ColorMatch = ({
+  level = 1,
+  difficultyMultiplier = 1.0,
+  onLevelComplete
+}: {
+  level?: number;
+  difficultyMultiplier?: number;
+  onLevelComplete?: () => void;
+  onBack?: () => void;
+} = {}) => {
   const colors = [
     { bg: 'bg-red-500', text: 'text-red-500', name: 'Đỏ' },
     { bg: 'bg-blue-500', text: 'text-blue-500', name: 'Xanh dương' },
@@ -18,8 +27,10 @@ export const ColorMatch = () => {
   const [displayColorIndex, setDisplayColorIndex] = useState(0);
   const [displayTextIndex, setDisplayTextIndex] = useState(0);
   const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(30);
+  const baseTime = Math.max(15, Math.floor(30 / difficultyMultiplier));
+  const [timeLeft, setTimeLeft] = useState(baseTime);
   const [isPlaying, setIsPlaying] = useState(false);
+  const targetScore = Math.floor(5 * difficultyMultiplier);
   const { playScore, playError, startBackgroundMusic, stopBackgroundMusic, toggleMusic, toggleSound, isMusicEnabled, isSoundEnabled } = useGameAudio();
 
   useEffect(() => {

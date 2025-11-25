@@ -6,12 +6,23 @@ import { toast } from "sonner";
 import { useGameAudio } from "@/hooks/useGameAudio";
 import { AudioControls } from "@/components/AudioControls";
 
-export const GuessNumber = () => {
+export const GuessNumber = ({
+  level = 1,
+  difficultyMultiplier = 1.0,
+  onLevelComplete
+}: {
+  level?: number;
+  difficultyMultiplier?: number;
+  onLevelComplete?: () => void;
+  onBack?: () => void;
+} = {}) => {
+  const maxNumber = Math.floor(50 * difficultyMultiplier);
   const [targetNumber, setTargetNumber] = useState(0);
   const [guess, setGuess] = useState("");
   const [attempts, setAttempts] = useState(0);
   const [feedback, setFeedback] = useState("");
   const [gameWon, setGameWon] = useState(false);
+  const maxAttempts = Math.max(5, Math.floor(10 / difficultyMultiplier));
   const { playClick, playSuccess, playError, startBackgroundMusic, toggleMusic, toggleSound, isMusicEnabled, isSoundEnabled } = useGameAudio();
 
   useEffect(() => {

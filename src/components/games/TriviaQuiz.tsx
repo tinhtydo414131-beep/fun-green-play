@@ -3,7 +3,16 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 
-export const TriviaQuiz = () => {
+export const TriviaQuiz = ({
+  level = 1,
+  difficultyMultiplier = 1.0,
+  onLevelComplete
+}: {
+  level?: number;
+  difficultyMultiplier?: number;
+  onLevelComplete?: () => void;
+  onBack?: () => void;
+} = {}) => {
   const questions = [
     { q: 'Thủ đô của Việt Nam?', a: ['Hà Nội', 'TP.HCM', 'Đà Nẵng', 'Huế'], c: 0 },
     { q: 'Núi cao nhất thế giới?', a: ['Everest', 'K2', 'Kilimanjaro', 'Phú Sĩ'], c: 0 },
@@ -15,6 +24,7 @@ export const TriviaQuiz = () => {
   const [currentQ, setCurrentQ] = useState(0);
   const [score, setScore] = useState(0);
   const [showResult, setShowResult] = useState(false);
+  const targetScore = Math.floor(3 * difficultyMultiplier);
 
   const handleAnswer = (index: number) => {
     if (index === questions[currentQ].c) {

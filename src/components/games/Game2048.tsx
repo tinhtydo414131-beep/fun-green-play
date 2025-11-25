@@ -3,10 +3,20 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 
-export const Game2048 = () => {
+export const Game2048 = ({
+  level = 1,
+  difficultyMultiplier = 1.0,
+  onLevelComplete
+}: {
+  level?: number;
+  difficultyMultiplier?: number;
+  onLevelComplete?: () => void;
+  onBack?: () => void;
+} = {}) => {
   const [board, setBoard] = useState<number[][]>([]);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
+  const targetTile = Math.pow(2, Math.min(11, 6 + level)); // Level 1: 128, Level 2: 256, etc.
 
   useEffect(() => {
     initializeGame();

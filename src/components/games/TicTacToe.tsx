@@ -3,11 +3,22 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 
-export const TicTacToe = () => {
+export const TicTacToe = ({
+  level = 1,
+  difficultyMultiplier = 1.0,
+  onLevelComplete
+}: {
+  level?: number;
+  difficultyMultiplier?: number;
+  onLevelComplete?: () => void;
+  onBack?: () => void;
+} = {}) => {
   const [board, setBoard] = useState<(string | null)[]>(Array(9).fill(null));
   const [isXNext, setIsXNext] = useState(true);
   const [winner, setWinner] = useState<string | null>(null);
   const [score, setScore] = useState(0);
+  const [gamesWon, setGamesWon] = useState(0);
+  const targetWins = Math.max(1, Math.floor(level * 0.5)); // Level 1-2: 1 win, Level 3-4: 2 wins, etc.
 
   const calculateWinner = (squares: (string | null)[]) => {
     const lines = [

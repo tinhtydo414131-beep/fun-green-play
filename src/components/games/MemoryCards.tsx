@@ -12,11 +12,22 @@ interface CardType {
   isMatched: boolean;
 }
 
-export const MemoryCards = () => {
-  const emojis = ['🍎', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🥝'];
+export const MemoryCards = ({
+  level = 1,
+  difficultyMultiplier = 1.0,
+  onLevelComplete
+}: {
+  level?: number;
+  difficultyMultiplier?: number;
+  onLevelComplete?: () => void;
+  onBack?: () => void;
+} = {}) => {
+  const pairCount = Math.min(8, Math.floor(4 + level * 0.5)); // Increases pairs with level
+  const emojis = ['🍎', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🥝', '🥑', '🍒'].slice(0, pairCount);
   const [cards, setCards] = useState<CardType[]>([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [moves, setMoves] = useState(0);
+  const maxMoves = Math.floor(20 / difficultyMultiplier); // Fewer moves allowed at higher levels
   const { playClick, playSuccess, playError, startBackgroundMusic, toggleMusic, toggleSound, isMusicEnabled, isSoundEnabled } = useGameAudio();
 
   useEffect(() => {

@@ -3,13 +3,23 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 
-export const SimonSays = () => {
+export const SimonSays = ({
+  level = 1,
+  difficultyMultiplier = 1.0,
+  onLevelComplete
+}: {
+  level?: number;
+  difficultyMultiplier?: number;
+  onLevelComplete?: () => void;
+  onBack?: () => void;
+} = {}) => {
   const colors = ['bg-red-500', 'bg-blue-500', 'bg-primary', 'bg-yellow-500'];
   const [sequence, setSequence] = useState<number[]>([]);
   const [userSequence, setUserSequence] = useState<number[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isShowing, setIsShowing] = useState(false);
   const [activeColor, setActiveColor] = useState<number | null>(null);
+  const targetSequenceLength = Math.floor(3 + level);
 
   const startGame = () => {
     setSequence([Math.floor(Math.random() * 4)]);
