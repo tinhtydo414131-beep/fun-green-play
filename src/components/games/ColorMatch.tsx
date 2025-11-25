@@ -6,11 +6,17 @@ import { useGameAudio } from "@/hooks/useGameAudio";
 import { AudioControls } from "@/components/AudioControls";
 
 export const ColorMatch = () => {
-  const colors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500', 'bg-pink-500'];
-  const colorNames = ['Đỏ', 'Xanh dương', 'Xanh lá', 'Vàng', 'Tím', 'Hồng'];
+  const colors = [
+    { bg: 'bg-red-500', text: 'text-red-500', name: 'Đỏ' },
+    { bg: 'bg-blue-500', text: 'text-blue-500', name: 'Xanh dương' },
+    { bg: 'bg-green-500', text: 'text-green-500', name: 'Xanh lá' },
+    { bg: 'bg-yellow-500', text: 'text-yellow-500', name: 'Vàng' },
+    { bg: 'bg-purple-500', text: 'text-purple-500', name: 'Tím' },
+    { bg: 'bg-pink-500', text: 'text-pink-500', name: 'Hồng' },
+  ];
   
-  const [displayColor, setDisplayColor] = useState('');
-  const [displayText, setDisplayText] = useState('');
+  const [displayColorIndex, setDisplayColorIndex] = useState(0);
+  const [displayTextIndex, setDisplayTextIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(30);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -22,7 +28,8 @@ export const ColorMatch = () => {
       return () => clearTimeout(timer);
     } else if (timeLeft === 0) {
       setIsPlaying(false);
-      toast.success(`Game Over! Điểm: ${score}`);
+      stopBackgroundMusic();
+      toast.success(`🎉 Game Over! Điểm của bạn: ${score}`);
     }
   }, [timeLeft, isPlaying, score]);
 
@@ -40,34 +47,42 @@ export const ColorMatch = () => {
 
   const generateQuestion = () => {
     const colorIndex = Math.floor(Math.random() * colors.length);
-    const textIndex = Math.floor(Math.random() * colorNames.length);
-    setDisplayColor(colors[colorIndex]);
-    setDisplayText(colorNames[textIndex]);
+    const textIndex = Math.floor(Math.random() * colors.length);
+    setDisplayColorIndex(colorIndex);
+    setDisplayTextIndex(textIndex);
   };
 
   const handleAnswer = (isMatch: boolean) => {
     if (!isPlaying) return;
     
-    const actualMatch = colors.indexOf(displayColor) === colorNames.indexOf(displayText);
+    const actualMatch = displayColorIndex === displayTextIndex;
     if (isMatch === actualMatch) {
       setScore(score + 1);
       playScore();
-      toast.success('+1 điểm!');
+      toast.success('Đúng rồi! +1 điểm! 🎉');
     } else {
       playError();
-      toast.error('Sai rồi!');
+      toast.error('Sai rồi! 😢');
     }
     generateQuestion();
   };
 
   return (
-    <div className="flex flex-col items-center gap-8">
+    <div className="flex flex-col items-center gap-8 p-6 animate-fade-in">
       <div className="text-center space-y-4">
-        <h2 className="text-2xl font-bold text-foreground">
-          Điểm: {score} | Thời gian: {timeLeft}s
+        <h2 className="text-4xl font-fredoka font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+          🎨 Đố Màu Sắc
         </h2>
-        <p className="text-muted-foreground">
-          Màu chữ và nội dung có khớp không?
+        <div className="flex gap-8 justify-center">
+          <p className="text-2xl font-comic text-primary">
+            Điểm: {score} 🌟
+          </p>
+          <p className="text-2xl font-comic text-secondary">
+            Thời gian: {timeLeft}s ⏱️
+          </p>
+        </div>
+        <p className="text-xl font-comic text-muted-foreground">
+          Màu chữ và nội dung có khớp không? 🤔
         </p>
         <AudioControls 
           isMusicEnabled={isMusicEnabled}
@@ -78,26 +93,39 @@ export const ColorMatch = () => {
       </div>
 
       {isPlaying && (
-        <Card className="p-12 border-4 border-primary">
-          <div className={`text-6xl font-bold ${displayColor}`}>
-            {displayText}
+        <Card className="p-16 border-4 border-primary/30 bg-gradient-to-br from-background to-primary/10 shadow-2xl">
+          <div className={`text-7xl font-fredoka font-bold ${colors[displayColorIndex].text}`}>
+            {colors[displayTextIndex].name}
           </div>
         </Card>
       )}
 
-      <div className="flex gap-4">
+      <div className="flex gap-6">
         {isPlaying ? (
           <>
-            <Button onClick={() => handleAnswer(true)} size="lg" className="bg-primary">
-              ✓ Khớp
+            <Button 
+              onClick={() => handleAnswer(true)} 
+              size="lg" 
+              className="text-2xl px-12 py-8 font-fredoka font-bold bg-gradient-to-r from-primary to-secondary hover:shadow-2xl transform hover:scale-110 transition-all"
+            >
+              ✓ Khớp Nhau
             </Button>
-            <Button onClick={() => handleAnswer(false)} size="lg" variant="destructive">
-              ✗ Không khớp
+            <Button 
+              onClick={() => handleAnswer(false)} 
+              size="lg" 
+              variant="outline"
+              className="text-2xl px-12 py-8 font-fredoka font-bold border-4 border-destructive hover:bg-destructive/10"
+            >
+              ✗ Không Khớp
             </Button>
           </>
         ) : (
-          <Button onClick={startGame} size="lg">
-            {timeLeft === 30 ? 'Bắt đầu' : 'Chơi lại'}
+          <Button 
+            onClick={startGame} 
+            size="lg"
+            className="text-2xl px-12 py-8 font-fredoka font-bold bg-gradient-to-r from-primary via-secondary to-accent hover:shadow-2xl transform hover:scale-110 transition-all"
+          >
+            {timeLeft === 30 ? 'Bắt Đầu 🎮' : 'Chơi Lại 🔄'}
           </Button>
         )}
       </div>

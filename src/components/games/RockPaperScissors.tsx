@@ -42,16 +42,16 @@ export const RockPaperScissors = () => {
     const winner = determineWinner(choice, computer);
     
     if (winner === 'player') {
-      setResult('Bạn thắng! 🎉');
+      setResult('🎉 Bạn Thắng Rồi!');
       setScore(prev => ({ ...prev, player: prev.player + 1 }));
-      toast.success('Bạn thắng!');
+      toast.success('Bạn thắng! 🎊');
     } else if (winner === 'computer') {
-      setResult('Máy thắng! 😢');
+      setResult('😢 Máy Thắng!');
       setScore(prev => ({ ...prev, computer: prev.computer + 1 }));
       toast.error('Máy thắng!');
     } else {
-      setResult('Hòa! 🤝');
-      toast.info('Hòa!');
+      setResult('🤝 Hòa Nhau!');
+      toast.info('Hòa rồi!');
     }
   };
 
@@ -63,35 +63,42 @@ export const RockPaperScissors = () => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-8 max-w-2xl mx-auto">
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold text-foreground">
-          Kéo Búa Bao
+    <div className="flex flex-col items-center gap-8 max-w-3xl mx-auto p-6 animate-fade-in">
+      <div className="text-center space-y-3">
+        <h2 className="text-4xl font-fredoka font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+          ✊ Kéo Búa Bao ✋
         </h2>
-        <div className="flex gap-8 justify-center text-lg">
-          <div>Bạn: <span className="font-bold text-primary">{score.player}</span></div>
-          <div>Máy: <span className="font-bold text-destructive">{score.computer}</span></div>
+        <div className="flex gap-12 justify-center text-2xl font-comic">
+          <div className="space-y-1">
+            <p className="text-muted-foreground">Bạn</p>
+            <p className="font-bold text-primary text-3xl">{score.player} 🌟</p>
+          </div>
+          <div className="text-4xl text-muted-foreground">VS</div>
+          <div className="space-y-1">
+            <p className="text-muted-foreground">Máy</p>
+            <p className="font-bold text-secondary text-3xl">{score.computer} 🤖</p>
+          </div>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-8 w-full">
-        <Card className="p-8 text-center space-y-4">
-          <h3 className="text-lg font-semibold text-muted-foreground">Bạn chọn</h3>
-          <div className="text-6xl">
+        <Card className="p-10 text-center space-y-4 border-4 border-primary/30 bg-gradient-to-br from-primary/10 to-transparent shadow-xl">
+          <h3 className="text-xl font-fredoka font-bold text-primary">Bạn Chọn</h3>
+          <div className="text-8xl animate-bounce">
             {playerChoice && choices.find(c => c.value === playerChoice)?.emoji}
           </div>
         </Card>
 
-        <Card className="p-8 text-center space-y-4">
-          <h3 className="text-lg font-semibold text-muted-foreground">Máy chọn</h3>
-          <div className="text-6xl">
+        <Card className="p-10 text-center space-y-4 border-4 border-secondary/30 bg-gradient-to-br from-secondary/10 to-transparent shadow-xl">
+          <h3 className="text-xl font-fredoka font-bold text-secondary">Máy Chọn</h3>
+          <div className="text-8xl animate-bounce" style={{ animationDelay: '0.1s' }}>
             {computerChoice && choices.find(c => c.value === computerChoice)?.emoji}
           </div>
         </Card>
       </div>
 
       {result && (
-        <div className="text-2xl font-bold text-center text-foreground animate-scale-in">
+        <div className="text-3xl font-fredoka font-bold text-center animate-scale-in bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
           {result}
         </div>
       )}
@@ -102,15 +109,19 @@ export const RockPaperScissors = () => {
             key={choice.value}
             onClick={() => play(choice.value)}
             size="lg"
-            className="text-2xl px-8 py-6"
+            className="text-3xl px-10 py-8 font-fredoka font-bold bg-gradient-to-r from-primary to-secondary hover:shadow-2xl transform hover:scale-110 transition-all"
           >
             {choice.emoji} {choice.label}
           </Button>
         ))}
       </div>
 
-      <Button onClick={resetGame} variant="outline">
-        Đặt lại điểm
+      <Button 
+        onClick={resetGame} 
+        variant="outline"
+        className="font-fredoka font-bold border-4 border-primary/30 hover:border-primary px-10 py-6"
+      >
+        Đặt Lại Điểm 🔄
       </Button>
     </div>
   );

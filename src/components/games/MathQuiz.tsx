@@ -22,7 +22,8 @@ export const MathQuiz = () => {
       return () => clearTimeout(timer);
     } else if (timeLeft === 0) {
       setIsPlaying(false);
-      toast.success(`Game Over! Điểm: ${score}`);
+      stopBackgroundMusic();
+      toast.success(`🎉 Game Over! Điểm: ${score}`);
     }
   }, [timeLeft, isPlaying, score]);
 
@@ -35,7 +36,7 @@ export const MathQuiz = () => {
   const generateQuestion = () => {
     const n1 = Math.floor(Math.random() * 20) + 1;
     const n2 = Math.floor(Math.random() * 20) + 1;
-    const ops = ['+', '-', '*'];
+    const ops = ['+', '-', '×'];
     const op = ops[Math.floor(Math.random() * ops.length)];
     
     setNum1(n1);
@@ -61,10 +62,10 @@ export const MathQuiz = () => {
     if (selected === answer) {
       setScore(score + 1);
       playScore();
-      toast.success('+1 điểm!');
+      toast.success('Đúng rồi! +1 điểm! 🎉');
     } else {
       playError();
-      toast.error('Sai rồi!');
+      toast.error('Sai rồi! Cố gắng lên! 😢');
     }
     generateQuestion();
   };
@@ -81,11 +82,19 @@ export const MathQuiz = () => {
   }, [isPlaying]);
 
   return (
-    <div className="flex flex-col items-center gap-8">
+    <div className="flex flex-col items-center gap-8 p-6 animate-fade-in">
       <div className="text-center space-y-4">
-        <h2 className="text-2xl font-bold text-foreground">
-          Điểm: {score} | Thời gian: {timeLeft}s
+        <h2 className="text-4xl font-fredoka font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+          🔢 Toán Học Vui
         </h2>
+        <div className="flex gap-8 justify-center">
+          <p className="text-2xl font-comic text-primary">
+            Điểm: {score} 🌟
+          </p>
+          <p className="text-2xl font-comic text-secondary">
+            Thời gian: {timeLeft}s ⏱️
+          </p>
+        </div>
         <AudioControls 
           isMusicEnabled={isMusicEnabled}
           isSoundEnabled={isSoundEnabled}
@@ -96,19 +105,19 @@ export const MathQuiz = () => {
 
       {isPlaying ? (
         <>
-          <Card className="p-12 border-4 border-primary">
-            <div className="text-6xl font-bold text-foreground">
+          <Card className="p-16 border-4 border-primary/30 bg-gradient-to-br from-primary/10 to-secondary/10 shadow-2xl">
+            <div className="text-7xl font-fredoka font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               {num1} {operator} {num2} = ?
             </div>
           </Card>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-6 w-full max-w-2xl">
             {options.map((opt, i) => (
               <Button
                 key={i}
                 onClick={() => checkAnswer(opt)}
                 size="lg"
-                className="text-2xl px-12 py-8"
+                className="text-4xl px-12 py-10 font-fredoka font-bold bg-gradient-to-br from-primary to-secondary hover:shadow-2xl transform hover:scale-110 transition-all"
               >
                 {opt}
               </Button>
@@ -116,8 +125,12 @@ export const MathQuiz = () => {
           </div>
         </>
       ) : (
-        <Button onClick={startGame} size="lg">
-          {timeLeft === 30 ? 'Bắt đầu' : 'Chơi lại'}
+        <Button 
+          onClick={startGame} 
+          size="lg"
+          className="text-2xl px-12 py-10 font-fredoka font-bold bg-gradient-to-r from-primary via-secondary to-accent hover:shadow-2xl transform hover:scale-110 transition-all"
+        >
+          {timeLeft === 30 ? 'Bắt Đầu 🎮' : 'Chơi Lại 🔄'}
         </Button>
       )}
     </div>

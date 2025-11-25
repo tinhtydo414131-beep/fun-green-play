@@ -83,7 +83,7 @@ export const Snake = () => {
 
         if (checkCollision(head)) {
           setIsPlaying(false);
-          toast.error(`Game Over! Điểm: ${score}`);
+          toast.error(`😢 Game Over! Điểm: ${score}`);
           return prevSnake;
         }
 
@@ -91,6 +91,7 @@ export const Snake = () => {
 
         if (head.x === food.x && head.y === food.y) {
           setScore(s => s + 10);
+          toast.success('Ngon quá! 🍎 +10');
           generateFood();
         } else {
           newSnake.pop();
@@ -105,47 +106,70 @@ export const Snake = () => {
   }, [direction, isPlaying, food, score, generateFood]);
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold text-foreground">
-          Điểm: {score}
+    <div className="flex flex-col items-center gap-6 p-6 animate-fade-in">
+      <div className="text-center space-y-3">
+        <h2 className="text-4xl font-fredoka font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+          🐍 Rắn Săn Mồi
         </h2>
-        <p className="text-muted-foreground">
-          Dùng phím mũi tên để điều khiển
+        <p className="text-3xl font-comic text-primary">Điểm: {score} 🌟</p>
+        <p className="text-lg font-comic text-muted-foreground">
+          Dùng phím mũi tên để điều khiển! 🎮
         </p>
       </div>
 
-      <div className="border-4 border-primary rounded-lg overflow-hidden bg-background/50">
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
-          gap: '1px',
-          backgroundColor: 'hsl(var(--border))'
-        }}>
-          {Array.from({ length: gridSize * gridSize }).map((_, index) => {
-            const x = index % gridSize;
-            const y = Math.floor(index / gridSize);
-            const isSnake = snake.some(s => s.x === x && s.y === y);
-            const isFood = food.x === x && food.y === y;
-            const isHead = snake[0].x === x && snake[0].y === y;
+      <div 
+        className="border-4 border-primary rounded-3xl overflow-hidden shadow-2xl"
+        style={{ 
+          width: `${gridSize * 20}px`, 
+          height: `${gridSize * 20}px`,
+          position: 'relative',
+          background: 'linear-gradient(135deg, hsl(140 70% 96%) 0%, hsl(30 100% 96%) 100%)'
+        }}
+      >
+        {/* Snake */}
+        {snake.map((segment, index) => (
+          <div
+            key={index}
+            style={{
+              position: 'absolute',
+              left: `${segment.x * 20}px`,
+              top: `${segment.y * 20}px`,
+              width: '18px',
+              height: '18px',
+              background: index === 0 
+                ? 'linear-gradient(135deg, hsl(140 70% 50%) 0%, hsl(160 65% 45%) 100%)' 
+                : 'hsl(140 70% 55%)',
+              borderRadius: '6px',
+              border: '2px solid hsl(140 70% 40%)',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+              transition: 'all 0.1s'
+            }}
+          />
+        ))}
 
-            return (
-              <div
-                key={index}
-                style={{
-                  width: '20px',
-                  height: '20px',
-                  backgroundColor: isHead ? 'hsl(var(--primary))' : isSnake ? 'hsl(var(--primary) / 0.7)' : isFood ? 'hsl(var(--destructive))' : 'hsl(var(--background))',
-                  transition: 'background-color 0.1s'
-                }}
-              />
-            );
-          })}
-        </div>
+        {/* Food */}
+        <div
+          style={{
+            position: 'absolute',
+            left: `${food.x * 20}px`,
+            top: `${food.y * 20}px`,
+            width: '18px',
+            height: '18px',
+            background: 'linear-gradient(135deg, hsl(30 100% 55%) 0%, hsl(45 95% 55%) 100%)',
+            borderRadius: '50%',
+            border: '2px solid hsl(30 100% 45%)',
+            boxShadow: '0 2px 8px rgba(255,150,0,0.6)',
+            animation: 'pulse 1s infinite'
+          }}
+        />
       </div>
 
-      <Button onClick={resetGame} size="lg">
-        {isPlaying ? 'Chơi lại' : 'Bắt đầu'}
+      <Button 
+        onClick={resetGame}
+        size="lg"
+        className="font-fredoka font-bold text-xl px-12 py-8 bg-gradient-to-r from-primary via-secondary to-accent hover:shadow-2xl transform hover:scale-110 transition-all"
+      >
+        {isPlaying ? 'Chơi Lại 🔄' : 'Bắt Đầu 🎮'}
       </Button>
     </div>
   );

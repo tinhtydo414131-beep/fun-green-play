@@ -21,7 +21,7 @@ export const FlappyBird = () => {
         if (newY > 90 || newY < 0) {
           setIsPlaying(false);
           playError();
-          toast.error(`Game Over! Điểm: ${score}`);
+          toast.error(`😢 Game Over! Điểm: ${score}`);
           return prev;
         }
         return newY;
@@ -42,12 +42,13 @@ export const FlappyBird = () => {
             if (birdY < pipe.gapY - 15 || birdY > pipe.gapY + 15) {
               setIsPlaying(false);
               playError();
-              toast.error(`Game Over! Điểm: ${score}`);
+              toast.error(`😢 Game Over! Điểm: ${score}`);
             }
           }
           if (pipe.x === 8) {
             setScore(s => s + 1);
             playScore();
+            toast.success('Tuyệt vời! +1 🎉');
           }
         });
 
@@ -78,12 +79,12 @@ export const FlappyBird = () => {
   }, [isPlaying]);
 
   return (
-    <div className="flex flex-col items-center gap-8">
-      <div className="text-center space-y-4">
-        <h2 className="text-2xl font-bold text-foreground">
-          Điểm: {score}
+    <div className="flex flex-col items-center gap-6 p-6 animate-fade-in">
+      <div className="text-center space-y-3">
+        <h2 className="text-4xl font-fredoka font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+          🐦 Chim Bay Phiêu Lưu
         </h2>
-        <p className="text-muted-foreground">Nhấp để bay lên!</p>
+        <p className="text-3xl font-comic text-primary">Điểm: {score} 🌟</p>
         <AudioControls 
           isMusicEnabled={isMusicEnabled}
           isSoundEnabled={isSoundEnabled}
@@ -93,45 +94,76 @@ export const FlappyBird = () => {
       </div>
 
       <div 
+        className="relative w-full max-w-2xl h-96 border-4 border-primary rounded-3xl overflow-hidden cursor-pointer shadow-2xl"
         onClick={flap}
-        className="relative w-full h-96 bg-gradient-to-b from-sky-300 to-primary/20 border-4 border-primary rounded-lg overflow-hidden cursor-pointer"
+        style={{ 
+          background: 'linear-gradient(180deg, hsl(200 80% 85%) 0%, hsl(140 60% 90%) 100%)'
+        }}
       >
         {/* Bird */}
-        <div
-          className="absolute w-8 h-8 bg-yellow-500 rounded-full transition-all"
-          style={{ left: '10%', top: `${birdY}%` }}
+        <div 
+          className="absolute w-12 h-12 text-4xl flex items-center justify-center transition-all duration-100 animate-bounce"
+          style={{ 
+            left: '10%', 
+            top: `${birdY}%`,
+            transform: 'translateY(-50%)'
+          }}
         >
           🐦
         </div>
 
         {/* Pipes */}
         {pipes.map((pipe, i) => (
-          <div key={i}>
-            <div
-              className="absolute bg-primary"
-              style={{
-                left: `${pipe.x}%`,
-                top: 0,
+          <div key={i} style={{ position: 'absolute', left: `${pipe.x}%` }}>
+            {/* Top pipe */}
+            <div 
+              style={{ 
                 width: '60px',
-                height: `${pipe.gapY - 15}%`
+                height: `${pipe.gapY - 15}%`,
+                background: 'linear-gradient(90deg, hsl(140 70% 45%) 0%, hsl(140 70% 50%) 100%)',
+                position: 'absolute',
+                top: 0,
+                border: '3px solid hsl(140 70% 35%)',
+                borderRadius: '0 0 8px 8px',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
               }}
             />
-            <div
-              className="absolute bg-primary"
-              style={{
-                left: `${pipe.x}%`,
-                bottom: 0,
+            {/* Bottom pipe */}
+            <div 
+              style={{ 
                 width: '60px',
-                height: `${100 - (pipe.gapY + 15)}%`
+                height: `${85 - pipe.gapY}%`,
+                background: 'linear-gradient(90deg, hsl(140 70% 45%) 0%, hsl(140 70% 50%) 100%)',
+                position: 'absolute',
+                bottom: 0,
+                border: '3px solid hsl(140 70% 35%)',
+                borderRadius: '8px 8px 0 0',
+                boxShadow: '0 -4px 8px rgba(0,0,0,0.3)'
               }}
             />
           </div>
         ))}
+
+        {!isPlaying && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+            <p className="text-3xl font-fredoka font-bold text-white animate-pulse">
+              Nhấn để bắt đầu! 🎮
+            </p>
+          </div>
+        )}
       </div>
 
-      <Button onClick={startGame} size="lg">
-        {isPlaying ? 'Chơi lại' : 'Bắt đầu'}
+      <Button 
+        onClick={startGame}
+        size="lg"
+        className="font-fredoka font-bold text-xl px-12 py-8 bg-gradient-to-r from-primary via-secondary to-accent hover:shadow-2xl transform hover:scale-110 transition-all"
+      >
+        {isPlaying ? 'Chơi Lại 🔄' : 'Bắt Đầu 🎮'}
       </Button>
+
+      <p className="text-center text-lg font-comic text-muted-foreground">
+        Click để bay lên! 🚀
+      </p>
     </div>
   );
 };
