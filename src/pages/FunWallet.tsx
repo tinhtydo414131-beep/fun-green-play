@@ -51,11 +51,30 @@ const tokens = [
   { symbol: "FUN", name: "FUN TOKEN", gradient: "from-cyan-400 to-purple-600", emoji: "🎯", contract: null }
 ];
 
-// Ultra-low-gas Multi-Send Contract (70% cheaper!)
-const MULTISEND_CONTRACT = "0x18DfB4c40aE7E3B5a11eFAB1cF0B4B4e4c9F9F8c2";
+// Verified BSC Multi-Send Contract from ethereumico.io
+const MULTISEND_CONTRACT = "0xe5c6BABcB9209994a989C0339d90fa4a120F0CB6";
 const MULTISEND_ABI = [
-  "function scatterToken(address token, address[] recipients, uint256[] amounts)",
-  "function approve(address token, uint256 amount)"
+  {
+    "inputs": [
+      {"internalType": "address[]", "name": "_contributions", "type": "address[]"},
+      {"internalType": "uint256[]", "name": "_values", "type": "uint256[]"}
+    ],
+    "name": "multiSendEth",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "token", "type": "address"},
+      {"internalType": "address[]", "name": "_contributions", "type": "address[]"},
+      {"internalType": "uint256[]", "name": "_values", "type": "uint256[]"}
+    ],
+    "name": "multiSendToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
 ];
 
 // CAMLY uses 3 decimals (confirmed from BscScan: 0x0910320181889fefde0bb1ca63962b0a8882e413)
@@ -595,37 +614,49 @@ export default function FunWallet() {
       console.log("Recipients array:", addresses);
       console.log("Amounts array:", amounts.map(a => a.toString()));
 
-      // Step 4: Execute scatterToken (ONE transaction for ALL recipients!)
+      // Step 4: Execute multiSendToken (ONE transaction for ALL recipients!)
       setBulkProgressText(`Executing ultra-low-gas airdrop to ${addresses.length} wallets... 💎`);
       setBulkProgress(50);
       toast.info("Please confirm the batch airdrop in MetaMask... 🦊");
 
       const multisendContract = new ethers.Contract(MULTISEND_CONTRACT, MULTISEND_ABI, signer);
       
+      console.log("🔍 DEBUG - Calling multiSendToken with:");
+      console.log("- Token:", camlyToken.contract);
+      console.log("- Recipients:", addresses);
+      console.log("- Amounts:", amounts.map(a => a.toString()));
+      
       let txHash = "";
       try {
-        const scatterTx = await multisendContract.scatterToken(
+        const multiSendTx = await multisendContract.multiSendToken(
           camlyToken.contract,
           addresses,
           amounts
         );
         
-        console.log("ScatterToken TX sent:", scatterTx.hash);
-        txHash = scatterTx.hash;
+        console.log("✅ MultiSendToken TX sent:", multiSendTx.hash);
+        txHash = multiSendTx.hash;
         toast.success("🚀 Airdrop transaction sent! Waiting for confirmation...");
         
         setBulkProgress(70);
-        const receipt = await scatterTx.wait();
+        const receipt = await multiSendTx.wait();
         
-        console.log("ScatterToken TX confirmed:", receipt.hash);
+        console.log("✅ MultiSendToken TX confirmed:", receipt.hash);
       } catch (contractError: any) {
-        console.error("Contract call error:", contractError);
+        console.error("❌ Contract call error:", contractError);
+        console.log("Error details:", {
+          code: contractError.code,
+          message: contractError.message,
+          data: contractError.data
+        });
         
         // Handle specific contract errors
         if (contractError.code === "BUFFER_OVERRUN") {
-          throw new Error("Contract call failed - invalid data. Please verify the contract address and try again.");
+          throw new Error("Contract call failed - invalid data format. Check console for debug info.");
         } else if (contractError.message?.includes("execution reverted")) {
-          throw new Error("Transaction reverted - check your token balance and allowance.");
+          throw new Error("Transaction reverted - verify token balance and allowance.");
+        } else if (contractError.message?.includes("invalid address")) {
+          throw new Error("Invalid wallet address detected. Please validate addresses first.");
         } else {
           throw contractError;
         }
@@ -648,7 +679,7 @@ export default function FunWallet() {
       setCelebrationAmount(totalAmount);
       setShowCelebration(true);
 
-      toast.success(`🎉 PERFECT! All ${addresses.length} airdrops successful in ONE transaction! 70% gas saved! 💰`);
+      toast.success(`🎉 FUN AND RICH!!! All ${addresses.length} airdrops successful in ONE transaction! 💰✨`);
       
       setBulkAddresses("");
       setValidAddresses([]);
