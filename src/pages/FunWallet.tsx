@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowUpRight, ArrowDownLeft, Wallet, Sparkles, Copy, CheckCircle, ChevronDown, ExternalLink } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, Wallet, Sparkles, Copy, CheckCircle, ChevronDown, ExternalLink, Home } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { CelebrationNotification } from "@/components/CelebrationNotification";
 import { toast } from "sonner";
 import { ethers } from "ethers";
@@ -39,6 +40,7 @@ const tokens = [
 
 export default function FunWallet() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [account, setAccount] = useState<string | null>(null);
   const [balance, setBalance] = useState("0");
   const [networkName, setNetworkName] = useState("BNB Chain");
@@ -407,6 +409,29 @@ export default function FunWallet() {
       </div>
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Back to Home Button */}
+        <motion.div
+          initial={{ x: -50, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          className="mb-6"
+        >
+          <Button
+            onClick={() => navigate("/")}
+            variant="outline"
+            className="border-0 font-bold text-lg px-6 py-3 transition-all duration-300 group"
+            style={{
+              background: 'rgba(255,255,255,0.1)',
+              backdropFilter: 'blur(20px)',
+              boxShadow: '0 0 30px rgba(157,0,255,0.3), inset 0 0 20px rgba(255,255,255,0.1)',
+            }}
+          >
+            <Home className="w-5 h-5 mr-2 text-cyan-400 group-hover:scale-110 transition-transform" />
+            <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+              Về Trang Chính
+            </span>
+          </Button>
+        </motion.div>
+
         {!account ? (
           /* Connect Wallet Screen */
           <motion.div
