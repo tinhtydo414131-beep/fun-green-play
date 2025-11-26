@@ -1,4 +1,4 @@
-import { Gamepad2, User, LogOut, Trophy, Users, MessageCircle } from "lucide-react";
+import { Gamepad2, User, LogOut, Trophy, Users, MessageCircle, Wallet } from "lucide-react";
 import { NavLink } from "./NavLink";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -85,6 +85,10 @@ export const Navigation = () => {
                   <DropdownMenuItem onClick={() => navigate("/chat")} className="font-fredoka cursor-pointer hover:bg-primary/10">
                     <MessageCircle className="mr-2 h-5 w-5 text-primary" />
                     <span>Chat 💬</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/wallet")} className="font-fredoka cursor-pointer hover:bg-yellow-500/10">
+                    <Wallet className="mr-2 h-5 w-5 text-yellow-500" />
+                    <span>FUN Wallet 💰</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-primary/20" />
                   <DropdownMenuItem onClick={handleSignOut} className="font-fredoka cursor-pointer hover:bg-destructive/10 text-destructive">

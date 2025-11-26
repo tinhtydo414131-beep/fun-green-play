@@ -12,6 +12,7 @@ import Leaderboard from "./pages/Leaderboard";
 import Friends from "./pages/Friends";
 import Chat from "./pages/Chat";
 import NexusLeaderboard from "./pages/NexusLeaderboard";
+import FunWallet from "./pages/FunWallet";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/nexus-leaderboard" element={<NexusLeaderboard />} />
+          <Route path="/wallet" element={<FunWallet />} />
           <Route path="/friends" element={<Friends />} />
           <Route path="/chat" element={<Chat />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
