@@ -418,36 +418,66 @@ export default function FunWallet() {
           #00D4FF 100%)`
       }}
     >
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: `radial-gradient(circle, rgba(0,212,255,0.1) 0%, rgba(123,44,191,0) 60%)`
-        }}
-      />
+      {/* Galaxy background with floating particles */}
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute inset-0" style={{
+          background: 'radial-gradient(ellipse at top, rgba(0,212,255,0.3) 0%, rgba(123,44,191,0.5) 50%, rgba(0,0,0,0.9) 100%)',
+        }} />
 
-      <motion.div
-        className="absolute inset-0"
-        style={{ opacity: 0.4 }}
-        animate={{
-          background: [
-            "radial-gradient(circle, rgba(0,255,255,0.2) 0%, rgba(0,0,0,0) 60%)",
-            "radial-gradient(circle, rgba(157,0,255,0.2) 0%, rgba(0,0,0,0) 60%)",
-            "radial-gradient(circle, rgba(224,170,255,0.2) 0%, rgba(0,0,0,0) 60%)",
-            "radial-gradient(circle, rgba(0,212,255,0.2) 0%, rgba(0,0,0,0) 60%)",
-          ]
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-      >
-        <div className="absolute top-1/4 left-1/4 w-2 h-2 rounded-full bg-cyan-50 opacity-50 animate-pulse" />
-        <div className="absolute top-2/3 right-1/4 w-3 h-3 rounded-full bg-purple-50 opacity-50 animate-pulse" />
-        <div className="absolute bottom-1/3 left-1/3 w-1 h-1 rounded-full bg-pink-50 opacity-50 animate-pulse" />
-      </motion.div>
+        {/* Stardust particles */}
+        {[...Array(100)].map((_, i) => (
+          <motion.div
+            key={`stardust-${i}`}
+            className="absolute rounded-full"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              width: Math.random() * 3 + 1,
+              height: Math.random() * 3 + 1,
+              background: ['#FFD700', '#00FFFF', '#FF00FF', '#FFA500'][Math.floor(Math.random() * 4)],
+              boxShadow: `0 0 ${Math.random() * 20 + 10}px currentColor`
+            }}
+            animate={{
+              opacity: [0, 1, 0],
+              scale: [0, 1.5, 0],
+              y: [0, -50]
+            }}
+            transition={{
+              duration: Math.random() * 4 + 3,
+              repeat: Infinity,
+              delay: Math.random() * 3
+            }}
+          />
+        ))}
 
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Rainbow twinkling stars */}
+        {[...Array(50)].map((_, i) => (
+          <motion.div
+            key={`star-${i}`}
+            className="absolute rounded-full"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              width: Math.random() * 2 + 1,
+              height: Math.random() * 2 + 1,
+              background: Math.random() > 0.5 ? '#FFFFFF' : ['#FFD700', '#00FFFF', '#FF00FF'][Math.floor(Math.random() * 3)],
+              boxShadow: '0 0 10px currentColor'
+            }}
+            animate={{
+              opacity: [0, 1, 0],
+              scale: [0, 2, 0]
+            }}
+            transition={{
+              duration: Math.random() * 4 + 2,
+              repeat: Infinity,
+              delay: Math.random() * 3
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="container mx-auto px-4 py-8 max-w-4xl relative z-10">
+        {/* Back to Home Button */}
         <motion.div
           initial={{ x: -50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
@@ -512,199 +542,501 @@ export default function FunWallet() {
           </motion.div>
         ) : (
           <>
+            {/* Main Wallet Card */}
             <motion.div
               initial={{ y: -50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               className="mb-8"
             >
-              <Card
-                className="glassmorphism relative overflow-hidden"
-                style={{
-                  background: 'rgba(255,255,255,0.08)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  boxShadow: '0 4px 60px rgba(0,0,0,0.3)',
-                }}
-              >
-                <div
-                  className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none"
-                  style={{
-                    background: 'linear-gradient(to bottom right, rgba(0,255,255,0.2), rgba(157,0,255,0.2))',
-                    zIndex: 0,
+              <Card className="border-0 overflow-hidden relative" style={{
+                background: 'rgba(30,0,51,0.4)',
+                backdropFilter: 'blur(40px)',
+                boxShadow: `0 0 60px ${selectedNetwork.color}40, 0 20px 80px rgba(0,0,0,0.5), inset 0 0 0 2px ${selectedNetwork.color}60`
+              }}>
+                <motion.div
+                  className="absolute inset-0 rounded-lg pointer-events-none"
+                  animate={{
+                    boxShadow: [
+                      `0 0 20px ${selectedNetwork.color}60`,
+                      `0 0 40px ${selectedNetwork.color}80`,
+                      `0 0 20px ${selectedNetwork.color}60`
+                    ]
                   }}
+                  transition={{ duration: 2, repeat: Infinity }}
                 />
 
-                <CardHeader className="pb-4 pt-6 px-6 relative">
-                  <CardTitle className="text-3xl font-black text-white drop-shadow-md mb-1 relative z-10">
-                    {account.slice(0, 6)}...{account.slice(-4)}
-                    <Button
-                      onClick={copyAddress}
-                      variant="ghost"
-                      className="absolute top-1 right-1 text-white/60 hover:text-white h-8 w-8 p-1"
-                    >
-                      {copied ? <CheckCircle className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-                    </Button>
-                  </CardTitle>
+                <CardContent className="p-8">
+                  {/* Header with Network Selector */}
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                      >
+                        <Sparkles className="w-10 h-10 text-cyan-400" />
+                      </motion.div>
+                      <h1 className="text-4xl font-black bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-400 bg-clip-text text-transparent">
+                        FUN WALLET
+                      </h1>
+                    </div>
 
-                  <p className="text-white/70 font-semibold relative z-10">
-                    <span className="text-sm">Tổng số dư</span>
-                  </p>
-
-                  <div className="text-5xl font-extrabold text-transparent bg-clip-text relative z-10"
-                    style={{
-                      background: 'linear-gradient(135deg, #00FFFF, #9D00FF)',
-                      WebkitTextStroke: '1px rgba(255,255,255,0.2)',
-                      textShadow: '0 0 20px rgba(0,255,255,0.8)'
-                    }}
-                  >
-                    {balance} <span className="text-xl">ETH</span>
+                    {/* Network Selector */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          className="border-0 font-bold text-lg px-6 py-6 h-auto transition-all duration-300"
+                          style={{
+                            background: `linear-gradient(135deg, ${selectedNetwork.color}40, ${selectedNetwork.color}20)`,
+                            backdropFilter: 'blur(20px)',
+                            boxShadow: `0 0 30px ${selectedNetwork.color}60, inset 0 0 20px ${selectedNetwork.color}20`,
+                            color: selectedNetwork.color
+                          }}
+                        >
+                          <span className="text-2xl mr-2">{selectedNetwork.icon}</span>
+                          {selectedNetwork.name}
+                          <ChevronDown className="ml-2 w-5 h-5" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent 
+                        className="border-0 p-2 z-[100]"
+                        style={{
+                          background: 'rgba(30,0,51,0.95)',
+                          backdropFilter: 'blur(40px)',
+                          boxShadow: '0 20px 60px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(157,0,255,0.5)'
+                        }}
+                      >
+                        {networks.map((network) => (
+                          <DropdownMenuItem
+                            key={network.id}
+                            onClick={() => switchNetwork(network)}
+                            className="px-4 py-3 cursor-pointer transition-all duration-200"
+                            style={{
+                              background: selectedNetwork.id === network.id ? `${network.color}20` : 'transparent',
+                              color: network.color,
+                              borderLeft: selectedNetwork.id === network.id ? `4px solid ${network.color}` : 'none'
+                            }}
+                          >
+                            <span className="text-2xl mr-3">{network.icon}</span>
+                            <span className="font-bold text-lg">{network.name}</span>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
 
-                  <div className="flex items-center mt-2 relative z-10">
-                    <div className="text-xl font-extrabold text-transparent bg-clip-text mr-2"
+                  {/* Address */}
+                  <div className="flex items-center justify-center gap-2 mb-4">
+                    <p className="text-sm text-white/60 font-mono">
+                      {account.slice(0, 6)}...{account.slice(-4)}
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={copyAddress}
+                      className="h-6 w-6 p-0"
+                    >
+                      {copied ? (
+                        <CheckCircle className="w-4 h-4 text-green-400" />
+                      ) : (
+                        <Copy className="w-4 h-4 text-white/60" />
+                      )}
+                    </Button>
+                  </div>
+
+                  {/* Balance */}
+                  <div className="text-center mb-6">
+                    <motion.div
+                      animate={{ scale: [1, 1.05, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="text-7xl font-black mb-2"
                       style={{
-                        background: 'linear-gradient(135deg, #FF69B4, #FFD700)',
-                        WebkitTextStroke: '0.5px rgba(255,255,255,0.2)',
-                        textShadow: '0 0 10px rgba(255,105,180,0.8)'
+                        background: 'linear-gradient(135deg, #00FFFF 0%, #9D00FF 50%, #00FFFF 100%)',
+                        backgroundSize: '200% auto',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                        filter: 'drop-shadow(0 0 30px rgba(0,255,255,0.8))',
                       }}
                     >
-                      {camlyBalance}
-                    </div>
-                    <span className="text-white font-bold">CAMLY</span>
-                    {tokens.find(t => t.symbol === "CAMLY")?.verified && (
-                      <CheckCircle className="w-4 h-4 ml-1 text-green-500" />
-                    )}
+                      {balance}
+                    </motion.div>
+                    <p className="text-2xl font-bold" style={{ color: selectedNetwork.color }}>
+                      {selectedNetwork.symbol}
+                    </p>
+                    
+                    {/* CAMLY Balance Highlight */}
+                    <motion.div
+                      animate={{ scale: [1, 1.03, 1] }}
+                      transition={{ duration: 3, repeat: Infinity }}
+                      className="mt-4 p-4 rounded-2xl"
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(255,192,203,0.2), rgba(255,215,0,0.2))',
+                        backdropFilter: 'blur(10px)',
+                        border: '2px solid rgba(255,215,0,0.5)',
+                        boxShadow: '0 0 40px rgba(255,215,0,0.4)'
+                      }}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <span className="text-3xl">👑</span>
+                        <div>
+                          <p className="text-xs text-white/60">CAMLY COIN</p>
+                          <p className="text-3xl font-black bg-gradient-to-r from-pink-400 via-yellow-300 to-pink-500 bg-clip-text text-transparent">
+                            {camlyBalance}
+                          </p>
+                        </div>
+                        {tokens.find(t => t.symbol === "CAMLY")?.verified && (
+                          <Shield className="w-5 h-5 text-green-400" />
+                        )}
+                      </div>
+                      <p className="text-xs text-white/40 mt-2">
+                        Contract: {tokens.find(t => t.symbol === "CAMLY")?.contract?.slice(0, 10)}...
+                      </p>
+                    </motion.div>
                   </div>
-                </CardHeader>
-
-                <CardContent className="relative">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="w-full justify-between font-bold">
-                        {networkName}
-                        <ChevronDown className="w-4 h-4 opacity-70" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56">
-                      {networks.map(network => (
-                        <DropdownMenuItem key={network.id} onClick={() => switchNetwork(network)}>
-                          {network.name}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
                 </CardContent>
               </Card>
             </motion.div>
 
+            {/* Token Selector */}
             <motion.div
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.1 }}
+              className="mb-6"
+            >
+              <div className="flex gap-3 overflow-x-auto pb-4 px-2 scrollbar-hide">
+                {tokens.map((token) => (
+                  <motion.button
+                    key={token.symbol}
+                    onClick={() => setSelectedToken(token)}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={`flex-shrink-0 px-6 py-4 rounded-2xl border-0 font-bold transition-all duration-300 ${
+                      selectedToken.symbol === token.symbol ? 'scale-110' : 'scale-100 opacity-70'
+                    }`}
+                    style={{
+                      background: selectedToken.symbol === token.symbol
+                        ? `linear-gradient(135deg, ${token.gradient})`
+                        : 'rgba(255,255,255,0.1)',
+                      backdropFilter: 'blur(20px)',
+                      boxShadow: selectedToken.symbol === token.symbol
+                        ? `0 0 40px ${token.special ? '#FFD700' : 'rgba(255,255,255,0.5)'}`
+                        : 'none'
+                    }}
+                  >
+                    <motion.div
+                      animate={selectedToken.symbol === token.symbol ? { rotate: 360 } : {}}
+                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                      className="text-3xl mb-1"
+                    >
+                      {token.emoji}
+                    </motion.div>
+                    <div className="text-white font-black text-sm">{token.symbol}</div>
+                  </motion.button>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Tabs for Normal Send and Bulk Send */}
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="mb-8"
             >
               <Tabs defaultValue="send" className="w-full">
-                <TabsList className="mb-4">
-                  <TabsTrigger value="send" className="data-[state=active]:bg-cyan-500/10 data-[state=active]:text-cyan-500">
-                    <Send className="w-4 h-4 mr-2" />
-                    Send
+                <TabsList className="grid w-full grid-cols-2 mb-6 border-0 p-2" style={{
+                  background: 'rgba(30,0,51,0.6)',
+                  backdropFilter: 'blur(30px)',
+                  boxShadow: '0 0 40px rgba(157,0,255,0.3)'
+                }}>
+                  <TabsTrigger 
+                    value="send"
+                    className="font-black text-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-purple-600 data-[state=active]:text-white"
+                  >
+                    <Send className="w-5 h-5 mr-2" />
+                    Normal Send
                   </TabsTrigger>
-                  <TabsTrigger value="bulk" className="data-[state=active]:bg-purple-500/10 data-[state=active]:text-purple-500">
-                    <Zap className="w-4 h-4 mr-2" />
-                    Bulk Send / Airdrop
+                  <TabsTrigger 
+                    value="bulk"
+                    className="font-black text-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-500 data-[state=active]:text-white"
+                  >
+                    <Zap className="w-5 h-5 mr-2" />
+                    Bulk Airdrop
                   </TabsTrigger>
                 </TabsList>
 
+                {/* Normal Send Tab */}
                 <TabsContent value="send">
-                  <Card className="glassmorphism">
-                    <CardHeader>
-                      <CardTitle>Send {selectedToken.name}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid gap-4">
-                        <div className="grid gap-2">
-                          <label htmlFor="email">Send to address</label>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* Send Card */}
+                    <Card className="relative overflow-hidden border-0" style={{
+                      background: 'rgba(255,20,147,0.15)',
+                      backdropFilter: 'blur(30px)',
+                      boxShadow: '0 8px 32px 0 rgba(255,20,147,0.4), inset 0 0 0 2px rgba(255,20,147,0.5)'
+                    }}>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-2xl">
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                          >
+                            <ArrowUpRight className="w-6 h-6 text-pink-400" />
+                          </motion.div>
+                          <span className="bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent font-black">
+                            Send FUN
+                          </span>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <label className="text-sm text-white/60 mb-2 block">Recipient Address</label>
                           <Input
-                            id="send-to"
                             value={sendTo}
                             onChange={(e) => setSendTo(e.target.value)}
                             placeholder="0x..."
-                            type="text"
+                            className="border-0 text-white placeholder:text-white/40"
+                            style={{
+                              background: 'rgba(255,255,255,0.05)',
+                              backdropFilter: 'blur(10px)',
+                              boxShadow: `inset 0 0 0 1px ${selectedNetwork.color}40`
+                            }}
                           />
                         </div>
-                        <div className="grid gap-2">
-                          <label htmlFor="email">Amount</label>
+                        <div>
+                          <label className="text-sm text-white/60 mb-2 block">Amount ({selectedToken.symbol})</label>
                           <Input
-                            id="send-amount"
+                            type="number"
                             value={sendAmount}
                             onChange={(e) => setSendAmount(e.target.value)}
-                            placeholder="0.0"
-                            type="number"
+                            placeholder="0.00"
+                            className="border-0 text-white placeholder:text-white/40"
+                            style={{
+                              background: 'rgba(255,255,255,0.05)',
+                              backdropFilter: 'blur(10px)',
+                              boxShadow: `inset 0 0 0 1px ${selectedNetwork.color}40`
+                            }}
                           />
                         </div>
-                        <Button onClick={handleSend} disabled={sending} className="relative overflow-hidden group"
+                        <Button
+                          onClick={handleSend}
+                          disabled={sending}
+                          className="w-full font-black text-xl py-6 border-0 relative overflow-hidden group"
                           style={{
-                            background: 'linear-gradient(135deg, #00FFFF 0%, #9D00FF 100%)',
-                            boxShadow: '0 0 20px rgba(157,0,255,0.4)'
+                            background: 'linear-gradient(135deg, #FF1493 0%, #9D00FF 50%, #00FFFF 100%)',
+                            backgroundSize: '200% auto',
+                            boxShadow: '0 0 40px rgba(255,20,147,0.8)'
                           }}
                         >
+                          <motion.div
+                            animate={{
+                              backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
+                            }}
+                            transition={{ duration: 3, repeat: Infinity }}
+                            className="absolute inset-0"
+                            style={{
+                              background: 'linear-gradient(135deg, #FF1493 0%, #9D00FF 50%, #00FFFF 100%)',
+                              backgroundSize: '200% auto'
+                            }}
+                          />
                           <span className="relative z-10">
-                            {sending ? "Sending..." : "Send"}
+                            {sending ? "SENDING..." : "SEND NOW ⚡"}
                           </span>
                         </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+
+                    {/* Receive Card */}
+                    <Card className="relative overflow-hidden border-0" style={{
+                      background: 'rgba(0,255,255,0.15)',
+                      backdropFilter: 'blur(30px)',
+                      boxShadow: '0 8px 32px 0 rgba(0,255,255,0.4), inset 0 0 0 2px rgba(0,255,255,0.5)'
+                    }}>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-2xl">
+                          <motion.div
+                            animate={{ rotate: -360 }}
+                            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                          >
+                            <ArrowDownLeft className="w-6 h-6 text-cyan-400" />
+                          </motion.div>
+                          <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent font-black">
+                            Receive
+                          </span>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="p-6 rounded-xl text-center" style={{
+                          background: 'rgba(255,255,255,0.05)',
+                          backdropFilter: 'blur(10px)',
+                        }}>
+                          <p className="text-xs text-white/60 mb-3">Your Address</p>
+                          <p className="font-mono text-sm text-white break-all mb-4">
+                            {account}
+                          </p>
+                          <Button
+                            onClick={copyAddress}
+                            className="w-full font-black text-lg py-6 border-0"
+                            style={{
+                              background: 'linear-gradient(135deg, #00FFFF 0%, #0088FF 100%)',
+                              boxShadow: '0 0 40px rgba(0,255,255,0.8)'
+                            }}
+                          >
+                            <Copy className="w-5 h-5 mr-2" />
+                            {copied ? "COPIED! ✨" : "COPY ADDRESS 🔥"}
+                          </Button>
+                        </div>
+
+                        <div className="text-center">
+                          <Button
+                            onClick={() => {
+                              setCelebrationAmount(0.042);
+                              setShowCelebration(true);
+                            }}
+                            variant="outline"
+                            className="text-sm border-cyan-400/30 text-cyan-400"
+                          >
+                            Test Celebration 🎉
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </TabsContent>
 
+                {/* Bulk Send/Airdrop Tab */}
                 <TabsContent value="bulk">
-                  <Card className="glassmorphism">
+                  <Card className="border-0 relative overflow-hidden" style={{
+                    background: 'rgba(123,44,191,0.2)',
+                    backdropFilter: 'blur(40px)',
+                    boxShadow: '0 8px 32px 0 rgba(224,170,255,0.5), inset 0 0 0 3px rgba(224,170,255,0.4)'
+                  }}>
                     <CardHeader>
-                      <CardTitle>Bulk Send CAMLY (Airdrop)</CardTitle>
+                      <CardTitle className="flex items-center gap-3 text-3xl">
+                        <motion.div
+                          animate={{ rotate: [0, 360] }}
+                          transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                        >
+                          <Zap className="w-8 h-8 text-yellow-400" />
+                        </motion.div>
+                        <span className="bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-500 bg-clip-text text-transparent font-black">
+                          LAUNCH AIRDROP CAMLY 👑
+                        </span>
+                      </CardTitle>
+                      <p className="text-white/60 text-sm mt-2">
+                        Send CAMLY tokens to multiple addresses at once! Perfect for rewarding your community ✨
+                      </p>
                     </CardHeader>
-                    <CardContent>
-                      <div className="grid gap-4">
-                        <Button className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded relative overflow-hidden group border-0"
+                    <CardContent className="space-y-6">
+                      <div>
+                        <label className="text-white font-bold mb-3 block flex items-center gap-2">
+                          <span>📝 Wallet Addresses</span>
+                          <span className="text-xs text-white/40">(one per line)</span>
+                        </label>
+                        <Textarea
+                          value={bulkAddresses}
+                          onChange={(e) => setBulkAddresses(e.target.value)}
+                          placeholder="0x1234...
+0x5678...
+0x9abc..."
+                          rows={8}
+                          className="border-0 text-white placeholder:text-white/30 font-mono text-sm"
                           style={{
-                            boxShadow: '0 0 20px rgba(157,0,255,0.4)'
+                            background: 'rgba(255,255,255,0.05)',
+                            backdropFilter: 'blur(10px)',
+                            boxShadow: 'inset 0 0 0 2px rgba(224,170,255,0.3)'
                           }}
-                        >
-                          <span className="relative z-10">Launch Airdrop CAMLY</span>
-                        </Button>
-                        <div className="grid gap-2">
-                          <label htmlFor="email">Wallet Addresses (one per line)</label>
-                          <Textarea
-                            placeholder="0x..."
-                            value={bulkAddresses}
-                            onChange={(e) => setBulkAddresses(e.target.value)}
-                            className="h-40"
-                          />
-                        </div>
-                        <div className="grid gap-2">
-                          <label htmlFor="email">Amount of CAMLY per address</label>
-                          <Input
-                            placeholder="1000"
-                            type="number"
-                            value={bulkAmount}
-                            onChange={(e) => setBulkAmount(e.target.value)}
-                          />
-                        </div>
-                        <div className="text-white/80">
-                          Total CAMLY needed: {(parseFloat(bulkAmount) * bulkAddresses.split('\n').filter(addr => addr.trim()).length).toFixed(2)}
-                        </div>
-                        <Button onClick={handleBulkSend} disabled={bulkSending} className="relative overflow-hidden group"
-                          style={{
-                            background: 'linear-gradient(90deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f)',
-                            backgroundSize: '400% 400%',
-                            animation: 'gradient 10s linear infinite',
-                            boxShadow: '0 0 30px rgba(255,255,255,0.5)'
-                          }}
-                        >
-                          <span className="relative z-10">
-                            {bulkSending ? "Sending..." : "SEND TO ALL"}
-                          </span>
-                        </Button>
-                        {bulkSending && (
-                          <Progress value={bulkProgress} className="mt-2" />
-                        )}
+                        />
                       </div>
+
+                      <div>
+                        <label className="text-white font-bold mb-3 block">
+                          💎 Amount of CAMLY per Address
+                        </label>
+                        <Input
+                          type="number"
+                          value={bulkAmount}
+                          onChange={(e) => setBulkAmount(e.target.value)}
+                          placeholder="1000"
+                          className="border-0 text-white text-2xl font-black placeholder:text-white/30"
+                          style={{
+                            background: 'rgba(255,255,255,0.05)',
+                            backdropFilter: 'blur(10px)',
+                            boxShadow: 'inset 0 0 0 2px rgba(224,170,255,0.3)'
+                          }}
+                        />
+                      </div>
+
+                      {bulkAddresses && bulkAmount && (
+                        <motion.div
+                          initial={{ scale: 0.9, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          className="p-6 rounded-2xl"
+                          style={{
+                            background: 'linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,105,180,0.2))',
+                            backdropFilter: 'blur(10px)',
+                            border: '2px solid rgba(255,215,0,0.5)',
+                            boxShadow: '0 0 40px rgba(255,215,0,0.3)'
+                          }}
+                        >
+                          <h3 className="text-xl font-black text-yellow-300 mb-3">📊 Airdrop Summary</h3>
+                          <div className="space-y-2 text-white">
+                            <p>🎯 Recipients: <span className="font-black text-cyan-400">{bulkAddresses.split('\n').filter(a => a.trim()).length}</span></p>
+                            <p>💰 Amount per address: <span className="font-black text-pink-400">{bulkAmount} CAMLY</span></p>
+                            <p className="text-2xl">🚀 Total needed: <span className="font-black bg-gradient-to-r from-yellow-300 to-pink-400 bg-clip-text text-transparent">{parseFloat(bulkAmount) * bulkAddresses.split('\n').filter(a => a.trim()).length} CAMLY</span></p>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {bulkSending && bulkProgress > 0 && (
+                        <motion.div
+                          initial={{ scale: 0.9, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          className="space-y-3"
+                        >
+                          <p className="text-white font-bold">🚀 Airdrop in progress...</p>
+                          <Progress value={bulkProgress} className="h-4" />
+                          <p className="text-cyan-400 text-center text-lg font-black">{bulkProgress}%</p>
+                        </motion.div>
+                      )}
+
+                      <Button
+                        onClick={handleBulkSend}
+                        disabled={bulkSending || !bulkAddresses || !bulkAmount}
+                        className="w-full font-black text-2xl py-8 border-0 relative overflow-hidden group"
+                        style={{
+                          background: 'linear-gradient(135deg, #FFD700 0%, #FF1493 25%, #9D00FF 50%, #00FFFF 75%, #FFD700 100%)',
+                          backgroundSize: '300% auto',
+                          boxShadow: '0 0 60px rgba(255,215,0,0.8), 0 0 100px rgba(255,20,147,0.5)'
+                        }}
+                      >
+                        <motion.div
+                          animate={{
+                            backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
+                          }}
+                          transition={{ duration: 5, repeat: Infinity }}
+                          className="absolute inset-0"
+                          style={{
+                            background: 'linear-gradient(135deg, #FFD700 0%, #FF1493 25%, #9D00FF 50%, #00FFFF 75%, #FFD700 100%)',
+                            backgroundSize: '300% auto'
+                          }}
+                        />
+                        <span className="relative z-10 flex items-center justify-center gap-3">
+                          {bulkSending ? (
+                            <>
+                              <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
+                                🚀
+                              </motion.div>
+                              SENDING AIRDROP...
+                            </>
+                          ) : (
+                            <>
+                              🎁 SEND TO ALL 🎁
+                            </>
+                          )}
+                        </span>
+                      </Button>
                     </CardContent>
                   </Card>
                 </TabsContent>
@@ -731,17 +1063,6 @@ export default function FunWallet() {
         .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
-        }
-        @keyframes gradient {
-          0% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-          100% {
-            background-position: 0% 50%;
-          }
         }
       `}</style>
     </div>
