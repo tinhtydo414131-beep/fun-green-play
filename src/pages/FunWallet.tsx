@@ -115,6 +115,9 @@ export default function FunWallet() {
   const [validAddresses, setValidAddresses] = useState<string[]>([]);
   const [invalidAddresses, setInvalidAddresses] = useState<string[]>([]);
   const [showValidation, setShowValidation] = useState(false);
+  const [needsApproval, setNeedsApproval] = useState(false);
+  const [approving, setApproving] = useState(false);
+  const [approvalComplete, setApprovalComplete] = useState(false);
 
   useEffect(() => {
     checkConnection();
@@ -473,7 +476,104 @@ export default function FunWallet() {
     }
     
     toast.success(`✅ All ${valid.length} addresses are valid!`);
+    
+    // Auto-check allowance after validation
+    checkAllowance(valid.length);
+    
     return true;
+  };
+
+  const checkAllowance = async (recipientCount: number) => {
+    if (!account || !bulkAmount) return;
+    
+    try {
+      const camlyToken = tokens.find(t => t.symbol === "CAMLY");
+      if (!camlyToken?.contract) return;
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const contract = new ethers.Contract(camlyToken.contract, ERC20_ABI, provider);
+      
+      const amount = parseFloat(bulkAmount);
+      const amountPerWalletWei = ethers.parseUnits(bulkAmount, CAMLY_DECIMALS);
+      const totalAmountWei = amountPerWalletWei * BigInt(recipientCount);
+      
+      const currentAllowance = await contract.allowance(account, MULTISEND_CONTRACT);
+      
+      console.log("🔍 Checking allowance:");
+      console.log("- Current:", ethers.formatUnits(currentAllowance, CAMLY_DECIMALS), "CAMLY");
+      console.log("- Needed:", ethers.formatUnits(totalAmountWei, CAMLY_DECIMALS), "CAMLY");
+      
+      if (currentAllowance < totalAmountWei) {
+        setNeedsApproval(true);
+        setApprovalComplete(false);
+        toast.warning("⚠️ Approval needed! Click APPROVE button to continue.");
+      } else {
+        setNeedsApproval(false);
+        setApprovalComplete(true);
+        toast.success("✅ Approval sufficient! Ready to airdrop!");
+      }
+    } catch (error) {
+      console.error("Error checking allowance:", error);
+    }
+  };
+
+  const handleApprove = async () => {
+    if (!account || validAddresses.length === 0 || !bulkAmount) {
+      toast.error("Please validate addresses first!");
+      return;
+    }
+
+    setApproving(true);
+
+    try {
+      const camlyToken = tokens.find(t => t.symbol === "CAMLY");
+      if (!camlyToken?.contract) {
+        toast.error("CAMLY token not configured!");
+        setApproving(false);
+        return;
+      }
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const camlyContract = new ethers.Contract(camlyToken.contract, ERC20_ABI, signer);
+      
+      const amountPerWalletWei = ethers.parseUnits(bulkAmount, CAMLY_DECIMALS);
+      const totalAmountWei = amountPerWalletWei * BigInt(validAddresses.length);
+      
+      console.log("🔓 Approving CAMLY for multi-send:");
+      console.log("- Token:", camlyToken.contract);
+      console.log("- Spender:", MULTISEND_CONTRACT);
+      console.log("- Amount:", ethers.formatUnits(totalAmountWei, CAMLY_DECIMALS), "CAMLY");
+      
+      toast.info("Please approve CAMLY spending in MetaMask... 🦊");
+      
+      const approveTx = await camlyContract.approve(MULTISEND_CONTRACT, totalAmountWei);
+      console.log("✅ Approval TX sent:", approveTx.hash);
+      
+      toast.success("Approval sent! Waiting for confirmation... ⏳");
+      await approveTx.wait();
+      
+      console.log("✅ Approval confirmed!");
+      toast.success("🎉 APPROVED! Ready to FUN AND RICH! 💰");
+      
+      setNeedsApproval(false);
+      setApprovalComplete(true);
+      
+      // Trigger mini celebration
+      setCelebrationAmount(parseFloat(bulkAmount) * validAddresses.length);
+      setShowCelebration(true);
+      setTimeout(() => setShowCelebration(false), 3000); // Short 3s celebration
+      
+    } catch (error: any) {
+      console.error("Approval error:", error);
+      if (error.code === 4001) {
+        toast.error("❌ Approval rejected by user");
+      } else {
+        toast.error(`❌ Approval failed: ${error.message || "Unknown error"}`);
+      }
+    } finally {
+      setApproving(false);
+    }
   };
 
   const handleBulkSendClick = () => {
@@ -650,13 +750,15 @@ export default function FunWallet() {
           data: contractError.data
         });
         
-        // Handle specific contract errors
+        // Handle specific contract errors with detailed guidance
         if (contractError.code === "BUFFER_OVERRUN") {
           throw new Error("Contract call failed - invalid data format. Check console for debug info.");
         } else if (contractError.message?.includes("execution reverted")) {
-          throw new Error("Transaction reverted - verify token balance and allowance.");
+          throw new Error("Transaction reverted! Verify: ✓ Balance OK? ✓ Allowance set? ✓ MetaMask gas limit >500k?");
         } else if (contractError.message?.includes("invalid address")) {
           throw new Error("Invalid wallet address detected. Please validate addresses first.");
+        } else if (contractError.message?.includes("insufficient allowance")) {
+          throw new Error("Insufficient allowance! Click APPROVE button first.");
         } else {
           throw contractError;
         }
@@ -685,6 +787,8 @@ export default function FunWallet() {
       setValidAddresses([]);
       setInvalidAddresses([]);
       setShowValidation(false);
+      setNeedsApproval(false);
+      setApprovalComplete(false);
       await getCamlyBalance(account!);
       await fetchTransactionHistory();
     } catch (error: any) {
@@ -1309,6 +1413,8 @@ export default function FunWallet() {
                           onChange={(e) => {
                             setBulkAddresses(e.target.value);
                             setShowValidation(false); // Reset validation on change
+                            setNeedsApproval(false);
+                            setApprovalComplete(false);
                           }}
                           placeholder="0x1234...
 0x5678...
@@ -1383,7 +1489,11 @@ export default function FunWallet() {
                         <Input
                           type="number"
                           value={bulkAmount}
-                          onChange={(e) => setBulkAmount(e.target.value)}
+                          onChange={(e) => {
+                            setBulkAmount(e.target.value);
+                            setNeedsApproval(false);
+                            setApprovalComplete(false);
+                          }}
                           placeholder="1000"
                           className="border-0 text-white text-2xl font-black placeholder:text-white/30"
                           style={{
@@ -1441,9 +1551,72 @@ export default function FunWallet() {
                         </motion.div>
                       )}
 
+                      {/* Approve Button */}
+                      {showValidation && validAddresses.length > 0 && needsApproval && (
+                        <motion.div
+                          initial={{ scale: 0.9, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                        >
+                          <Button
+                            onClick={handleApprove}
+                            disabled={approving}
+                            className="w-full font-black text-2xl py-8 mb-4 border-0 relative overflow-hidden"
+                            style={{
+                              background: 'linear-gradient(135deg, #9D00FF 0%, #FF1493 50%, #00FFFF 100%)',
+                              backgroundSize: '200% auto',
+                              boxShadow: '0 0 60px rgba(157,0,255,0.8), 0 0 100px rgba(255,20,147,0.5)'
+                            }}
+                          >
+                            <motion.div
+                              animate={{
+                                backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
+                              }}
+                              transition={{ duration: 3, repeat: Infinity }}
+                              className="absolute inset-0"
+                              style={{
+                                background: 'linear-gradient(135deg, #9D00FF 0%, #FF1493 50%, #00FFFF 100%)',
+                                backgroundSize: '200% auto'
+                              }}
+                            />
+                            <span className="relative z-10 flex items-center justify-center gap-3">
+                              {approving ? (
+                                <>
+                                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
+                                    🔓
+                                  </motion.div>
+                                  APPROVING...
+                                </>
+                              ) : (
+                                <>
+                                  🔓 APPROVE CAMLY FOR AIRDROP 🔓
+                                </>
+                              )}
+                            </span>
+                          </Button>
+                        </motion.div>
+                      )}
+
+                      {/* Success Message after Approval */}
+                      {showValidation && approvalComplete && !needsApproval && (
+                        <motion.div
+                          initial={{ scale: 0.9, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          className="p-4 rounded-xl mb-4"
+                          style={{
+                            background: 'rgba(0,255,0,0.2)',
+                            border: '2px solid rgba(0,255,0,0.6)',
+                            boxShadow: '0 0 30px rgba(0,255,0,0.4)'
+                          }}
+                        >
+                          <p className="text-green-400 font-black text-xl text-center">
+                            ✅ Approved! Ready to FUN AND RICH! 💰✨
+                          </p>
+                        </motion.div>
+                      )}
+
                       <Button
                         onClick={handleBulkSendClick}
-                        disabled={bulkSending || !bulkAddresses || !bulkAmount || (showValidation && validAddresses.length === 0)}
+                        disabled={bulkSending || !bulkAddresses || !bulkAmount || (showValidation && validAddresses.length === 0) || (showValidation && needsApproval)}
                         className="w-full font-black text-2xl py-8 border-0 relative overflow-hidden group"
                         style={{
                           background: 'linear-gradient(135deg, #FFD700 0%, #FF1493 25%, #9D00FF 50%, #00FFFF 75%, #FFD700 100%)',
@@ -1469,6 +1642,10 @@ export default function FunWallet() {
                                 🚀
                               </motion.div>
                               SENDING AIRDROP...
+                            </>
+                          ) : (showValidation && needsApproval) ? (
+                            <>
+                              🔒 APPROVE FIRST TO UNLOCK 🔒
                             </>
                           ) : (
                             <>
