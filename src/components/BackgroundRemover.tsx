@@ -1,16 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { removeBackground, loadImage } from "@/utils/removeBackground";
 import camlyCoinOriginal from "@/assets/camly-coin.png";
 
-export const BackgroundRemover = () => {
+const STORAGE_KEY = "camly-coin-processed";
+
+export const BackgroundRemover = ({ onImageProcessed }: { onImageProcessed?: (imageUrl: string) => void }) => {
   const [processing, setProcessing] = useState(false);
   const [processedImage, setProcessedImage] = useState<string | null>(null);
 
+  // Check if we have a processed image in localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      setProcessedImage(stored);
+      onImageProcessed?.(stored);
+    }
+  }, [onImageProcessed]);
+
   const handleRemoveBackground = async () => {
     setProcessing(true);
-    toast.info("Đang xử lý ảnh, vui lòng đợi...");
+    toast.info("Đang xử lý ảnh, vui lòng đợi... Quá trình này có thể mất 30-60 giây.");
 
     try {
       // Load the original image
@@ -21,17 +32,28 @@ export const BackgroundRemover = () => {
       // Remove background
       const resultBlob = await removeBackground(imageElement);
       
-      // Create URL for the processed image
-      const url = URL.createObjectURL(resultBlob);
-      setProcessedImage(url);
+      // Convert blob to base64 for storage
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64data = reader.result as string;
+        
+        // Store in localStorage
+        localStorage.setItem(STORAGE_KEY, base64data);
+        setProcessedImage(base64data);
+        
+        // Notify parent component
+        onImageProcessed?.(base64data);
 
-      // Download the processed image
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'camly-coin-no-bg.png';
-      link.click();
+        // Also download for manual replacement
+        const link = document.createElement('a');
+        link.href = base64data;
+        link.download = 'camly-coin.png';
+        link.click();
 
-      toast.success("✅ Đã xóa nền thành công! Ảnh đã được tải xuống.");
+        toast.success("✅ Đã xóa nền thành công! Ảnh đã được lưu và tải xuống. Tải lại trang để thấy thay đổi.");
+      };
+      reader.readAsDataURL(resultBlob);
+
     } catch (error) {
       console.error("Error:", error);
       toast.error("Lỗi khi xử lý ảnh. Vui lòng thử lại.");
@@ -41,20 +63,32 @@ export const BackgroundRemover = () => {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-4 right-4 z-50 space-y-2">
       <Button
         onClick={handleRemoveBackground}
         disabled={processing}
         size="lg"
-        className="font-bold"
+        className="font-bold w-full"
       >
         {processing ? "Đang xử lý..." : "🎨 Xóa Nền CAMLY Coin"}
       </Button>
       
       {processedImage && (
-        <div className="mt-4 p-4 bg-card border border-border rounded-lg">
-          <p className="text-sm font-bold mb-2">Ảnh đã xử lý:</p>
-          <img src={processedImage} alt="Processed" className="w-32 h-32 object-contain" />
+        <div className="p-4 bg-card border-2 border-primary rounded-lg shadow-lg">
+          <p className="text-sm font-bold mb-2 text-center">✅ Ảnh đã xử lý:</p>
+          <img src={processedImage} alt="Processed" className="w-32 h-32 object-contain mx-auto bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg p-2" />
+          <Button
+            onClick={() => {
+              localStorage.removeItem(STORAGE_KEY);
+              setProcessedImage(null);
+              toast.info("Đã xóa ảnh đã xử lý. Tải lại trang để dùng ảnh gốc.");
+            }}
+            variant="outline"
+            size="sm"
+            className="w-full mt-2"
+          >
+            Dùng lại ảnh gốc
+          </Button>
         </div>
       )}
     </div>

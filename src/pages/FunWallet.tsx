@@ -102,6 +102,15 @@ export default function FunWallet() {
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationAmount, setCelebrationAmount] = useState(0);
   const [celebrationToken, setCelebrationToken] = useState("CAMLY");
+  const [processedCoinImage, setProcessedCoinImage] = useState<string | null>(null);
+
+  // Check for processed coin image on mount
+  useEffect(() => {
+    const stored = localStorage.getItem("camly-coin-processed");
+    if (stored) {
+      setProcessedCoinImage(stored);
+    }
+  }, []);
   const [sendAmount, setSendAmount] = useState("");
   const [sendTo, setSendTo] = useState("");
   const [sending, setSending] = useState(false);
@@ -1099,7 +1108,12 @@ export default function FunWallet() {
                       className="mt-4 p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 border-2 border-primary-light"
                     >
                       <div className="flex items-center justify-center gap-2">
-                        <img src={camlyCoinImg} alt="CAMLY Coin" className="w-8 h-8 object-contain" style={{ filter: 'drop-shadow(0 0 8px rgba(255,215,0,0.6))' }} />
+                        <img 
+                          src={processedCoinImage || camlyCoinImg} 
+                          alt="CAMLY Coin" 
+                          className="w-8 h-8 object-contain" 
+                          style={{ filter: 'drop-shadow(0 0 8px rgba(255,215,0,0.6))' }} 
+                        />
                         <div>
                           <p className="text-xs text-muted-foreground">CAMLY COIN</p>
                           <p className="text-3xl font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
@@ -1145,7 +1159,11 @@ export default function FunWallet() {
                       className="text-3xl mb-1 flex items-center justify-center"
                     >
                       {token.image ? (
-                        <img src={token.image} alt={token.symbol} className="w-10 h-10 object-contain" />
+                        <img 
+                          src={token.symbol === "CAMLY" && processedCoinImage ? processedCoinImage : token.image} 
+                          alt={token.symbol} 
+                          className="w-10 h-10 object-contain" 
+                        />
                       ) : (
                         token.emoji
                       )}
@@ -1646,7 +1664,7 @@ export default function FunWallet() {
       </AnimatePresence>
 
       {/* Background Remover Tool */}
-      <BackgroundRemover />
+      <BackgroundRemover onImageProcessed={(url) => setProcessedCoinImage(url)} />
 
       <style>{`
         .scrollbar-hide::-webkit-scrollbar {
