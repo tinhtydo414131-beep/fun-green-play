@@ -134,6 +134,7 @@ export default function FunWallet() {
   const [celebrationAmount, setCelebrationAmount] = useState(0);
   const [celebrationToken, setCelebrationToken] = useState("CAMLY");
   const [processedCoinImage, setProcessedCoinImage] = useState<string | null>(null);
+  const [showChart, setShowChart] = useState(true);
 
   // Check for processed coin image on mount
   useEffect(() => {
@@ -1402,53 +1403,82 @@ export default function FunWallet() {
                     </div>
                   </div>
 
-                  {/* Price Chart */}
+                  {/* Toggle Chart Button */}
                   {chartData.length > 0 && (
-                    <div className="mt-4 h-32 sm:h-48 w-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={chartData}>
-                          <defs>
-                            <linearGradient id="priceGradient" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
-                              <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                            </linearGradient>
-                          </defs>
-                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-                          <XAxis 
-                            dataKey="time" 
-                            stroke="hsl(var(--muted-foreground))" 
-                            fontSize={10}
-                            className="sm:text-xs"
-                          />
-                          <YAxis 
-                            stroke="hsl(var(--muted-foreground))" 
-                            fontSize={10}
-                            className="sm:text-xs"
-                            tickFormatter={(value) => `$${value.toFixed(selectedToken.symbol === 'CAMLY' ? 6 : 2)}`}
-                          />
-                          <Tooltip 
-                            contentStyle={{ 
-                              backgroundColor: 'hsl(var(--background))', 
-                              border: '2px solid hsl(var(--primary))',
-                              borderRadius: '12px',
-                              boxShadow: '0 0 20px rgba(139,92,246,0.5)',
-                              padding: '8px 12px'
-                            }}
-                            formatter={(value: any) => [`$${value.toFixed(selectedToken.symbol === 'CAMLY' ? 6 : 2)}`, 'Giá']}
-                          />
-                          <Line 
-                            type="monotone" 
-                            dataKey="price" 
-                            stroke="hsl(var(--primary))" 
-                            strokeWidth={3}
-                            dot={false}
-                            fill="url(#priceGradient)"
-                            className="drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]"
-                          />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
+                    <Button
+                      onClick={() => setShowChart(!showChart)}
+                      variant="outline"
+                      size="sm"
+                      className="mt-4 w-full font-bold border-2 border-primary/30 hover:border-primary hover:bg-primary/10 transition-all duration-300"
+                    >
+                      <motion.div
+                        animate={{ rotate: showChart ? 180 : 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="mr-2"
+                      >
+                        <ChevronDown className="w-4 h-4" />
+                      </motion.div>
+                      {showChart ? "Ẩn Biểu Đồ" : "Hiện Biểu Đồ"}
+                    </Button>
                   )}
+
+                  {/* Price Chart */}
+                  <AnimatePresence>
+                    {showChart && chartData.length > 0 && (
+                      <motion.div 
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="mt-4 h-32 sm:h-48 w-full">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={chartData}>
+                              <defs>
+                                <linearGradient id="priceGradient" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
+                                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                                </linearGradient>
+                              </defs>
+                              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                              <XAxis 
+                                dataKey="time" 
+                                stroke="hsl(var(--muted-foreground))" 
+                                fontSize={10}
+                                className="sm:text-xs"
+                              />
+                              <YAxis 
+                                stroke="hsl(var(--muted-foreground))" 
+                                fontSize={10}
+                                className="sm:text-xs"
+                                tickFormatter={(value) => `$${value.toFixed(selectedToken.symbol === 'CAMLY' ? 6 : 2)}`}
+                              />
+                              <Tooltip 
+                                contentStyle={{ 
+                                  backgroundColor: 'hsl(var(--background))', 
+                                  border: '2px solid hsl(var(--primary))',
+                                  borderRadius: '12px',
+                                  boxShadow: '0 0 20px rgba(139,92,246,0.5)',
+                                  padding: '8px 12px'
+                                }}
+                                formatter={(value: any) => [`$${value.toFixed(selectedToken.symbol === 'CAMLY' ? 6 : 2)}`, 'Giá']}
+                              />
+                              <Line 
+                                type="monotone" 
+                                dataKey="price" 
+                                stroke="hsl(var(--primary))" 
+                                strokeWidth={3}
+                                dot={false}
+                                fill="url(#priceGradient)"
+                                className="drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]"
+                              />
+                            </LineChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </CardContent>
               </Card>
             </motion.div>
