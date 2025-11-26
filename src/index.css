@@ -2,76 +2,97 @@
 @tailwind components;
 @tailwind utilities;
 
-/* FUN Planet Design System - Bright, Fun, Kid-Friendly! 
-All colors MUST be HSL. */
+/* Surreal Healing Web3 Fantasy Design System - Ultra-Dreamy Aurora */
 
 @layer base {
   :root {
-    /* Dreamy Aurora Heart Palette - Teal → Periwinkle → Lavender → Pink (Vibrant) */
-    --background: 270 100% 99%;
-    --foreground: 270 15% 20%;
+    /* Healing Galaxy Palette - Cosmic Teal → Ethereal Turquoise → Mystic Periwinkle → Soft Lavender → Pastel Pink */
+    --background: 270 100% 98%;
+    --foreground: 176 30% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 270 15% 20%;
+    --card-foreground: 176 30% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 270 15% 20%;
+    --popover-foreground: 176 30% 15%;
 
-    --primary: 176 85% 52%;
+    /* Primary: Deep Cosmic Teal → Ethereal Turquoise */
+    --primary: 176 85% 31%;
+    --primary-light: 176 76% 64%;
+    --primary-dark: 176 85% 24%;
     --primary-foreground: 0 0% 100%;
-    --primary-gradient: linear-gradient(135deg, hsl(176 85% 52%) 0%, hsl(224 90% 68%) 50%, hsl(270 95% 72%) 75%, hsl(316 85% 68%) 100%);
+    --primary-gradient: linear-gradient(135deg, hsl(176 85% 31%) 0%, hsl(176 76% 64%) 100%);
     
-    --secondary: 224 90% 68%;
+    /* Secondary: Mystic Periwinkle */
+    --secondary: 240 100% 81%;
     --secondary-foreground: 0 0% 100%;
     
-    --accent: 270 95% 72%;
-    --accent-foreground: 270 15% 20%;
+    /* Accent: Soft Lavender Purple */
+    --accent: 249 95% 85%;
+    --accent-foreground: 176 30% 15%;
 
-    --muted: 270 30% 96%;
-    --muted-foreground: 270 15% 50%;
+    /* Glow: Pastel Magenta-Pink */
+    --glow: 292 93% 83%;
+    --glow-foreground: 0 0% 100%;
+
+    --muted: 249 60% 95%;
+    --muted-foreground: 176 20% 40%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 270 40% 85%;
-    --input: 270 30% 97%;
-    --ring: 316 85% 68%;
+    --border: 249 50% 88%;
+    --input: 249 60% 96%;
+    --ring: 292 93% 83%;
 
-    --radius: 1rem;
+    --radius: 1.2rem;
     
-    /* Dreamy glow effects */
-    --shadow-colorful: 0 8px 20px -4px hsl(270 95% 72% / 0.5);
-    --shadow-glow: 0 0 40px hsl(176 85% 52% / 0.4), 0 0 60px hsl(316 85% 68% / 0.3);
+    /* Aurora Healing Gradients */
+    --aurora-gradient: linear-gradient(135deg, hsl(176 85% 31%) 0%, hsl(176 76% 64%) 25%, hsl(240 100% 81%) 50%, hsl(249 95% 85%) 75%, hsl(292 93% 83%) 100%);
+    --aurora-breathing: linear-gradient(45deg, hsl(176 85% 31% / 0.3) 0%, hsl(240 100% 81% / 0.3) 50%, hsl(292 93% 83% / 0.3) 100%);
+    --marble-vein: radial-gradient(ellipse at 20% 50%, hsl(176 76% 64% / 0.08) 0%, transparent 50%),
+                    radial-gradient(ellipse at 80% 30%, hsl(249 95% 85% / 0.08) 0%, transparent 50%),
+                    radial-gradient(ellipse at 50% 80%, hsl(292 93% 83% / 0.08) 0%, transparent 50%);
+    
+    /* Angelic Glow Effects */
+    --shadow-healing: 0 8px 32px -8px hsl(176 76% 64% / 0.4), 0 16px 64px -16px hsl(292 93% 83% / 0.3);
+    --shadow-aurora: 0 0 40px hsl(176 76% 64% / 0.5), 0 0 80px hsl(240 100% 81% / 0.4), 0 0 120px hsl(292 93% 83% / 0.3);
+    --glow-inner: inset 0 0 20px hsl(292 93% 83% / 0.3), inset 0 0 40px hsl(240 100% 81% / 0.2);
+    --glow-outer: 0 0 20px hsl(176 76% 64% / 0.6), 0 0 40px hsl(249 95% 85% / 0.4), 0 0 60px hsl(292 93% 83% / 0.3);
+    --glassmorphism: backdrop-blur(12px) saturate(180%);
   }
 
   .dark {
-    --background: 270 30% 8%;
-    --foreground: 270 30% 95%;
+    --background: 176 40% 6%;
+    --foreground: 176 20% 92%;
 
-    --card: 270 25% 12%;
-    --card-foreground: 270 30% 95%;
+    --card: 176 35% 10%;
+    --card-foreground: 176 20% 92%;
 
-    --popover: 270 25% 12%;
-    --popover-foreground: 270 30% 95%;
+    --popover: 176 35% 10%;
+    --popover-foreground: 176 20% 92%;
 
-    --primary: 176 85% 52%;
+    --primary: 176 85% 31%;
+    --primary-light: 176 76% 64%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 224 90% 65%;
+    --secondary: 240 100% 81%;
     --secondary-foreground: 0 0% 100%;
 
-    --accent: 270 95% 70%;
-    --accent-foreground: 270 30% 95%;
+    --accent: 249 95% 85%;
+    --accent-foreground: 176 20% 92%;
 
-    --muted: 270 20% 18%;
-    --muted-foreground: 270 15% 65%;
+    --glow: 292 93% 83%;
+
+    --muted: 176 25% 14%;
+    --muted-foreground: 176 15% 65%;
 
     --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 270 20% 18%;
-    --input: 270 20% 18%;
-    --ring: 316 85% 65%;
+    --border: 176 25% 16%;
+    --input: 176 25% 14%;
+    --ring: 292 93% 83%;
   }
 }
 
