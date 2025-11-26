@@ -1102,9 +1102,9 @@ export default function FunWallet() {
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-4xl relative z-10">
         {/* Back to Home Button - Premium Design */}
         <motion.div
-          initial={{ y: 20, opacity: 0 }}
+          initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="fixed bottom-6 left-0 right-0 z-50 px-4 sm:px-6 flex justify-center"
+          className="mb-6 flex justify-center"
         >
           <motion.button
             onClick={() => navigate("/")}
