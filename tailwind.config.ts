@@ -30,6 +30,10 @@ export default {
           dark: "hsl(var(--primary-dark))",
           light: "hsl(var(--primary-light))",
         },
+        glow: {
+          DEFAULT: "hsl(var(--glow))",
+          foreground: "hsl(var(--glow-foreground))",
+        },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
@@ -115,6 +119,60 @@ export default {
             boxShadow: "0 0 40px hsl(var(--glow) / 0.6)",
           },
         },
+        "breathing": {
+          "0%, 100%": {
+            backgroundPosition: "0% 50%",
+            filter: "brightness(1) saturate(1)",
+          },
+          "50%": {
+            backgroundPosition: "100% 50%",
+            filter: "brightness(1.1) saturate(1.2)",
+          },
+        },
+        "aurora": {
+          "0%, 100%": {
+            backgroundPosition: "0% 50%",
+            opacity: "0.8",
+          },
+          "50%": {
+            backgroundPosition: "100% 50%",
+            opacity: "1",
+          },
+        },
+        "float-up": {
+          "0%": {
+            transform: "translateY(100vh) scale(0)",
+            opacity: "0",
+          },
+          "10%": {
+            opacity: "1",
+          },
+          "90%": {
+            opacity: "1",
+          },
+          "100%": {
+            transform: "translateY(-100vh) scale(1)",
+            opacity: "0",
+          },
+        },
+        "sparkle": {
+          "0%, 100%": {
+            opacity: "0",
+            transform: "scale(0) rotate(0deg)",
+          },
+          "50%": {
+            opacity: "1",
+            transform: "scale(1) rotate(180deg)",
+          },
+        },
+        "pulse-glow": {
+          "0%, 100%": {
+            boxShadow: "0 0 20px hsl(176 76% 64% / 0.4), 0 0 40px hsl(292 93% 83% / 0.3), inset 0 0 20px hsl(240 100% 81% / 0.2)",
+          },
+          "50%": {
+            boxShadow: "0 0 40px hsl(176 76% 64% / 0.6), 0 0 80px hsl(292 93% 83% / 0.5), inset 0 0 30px hsl(240 100% 81% / 0.3)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -123,6 +181,11 @@ export default {
         "slide-up": "slide-up 0.8s ease-out",
         "scale-in": "scale-in 0.5s ease-out",
         "glow": "glow 2s ease-in-out infinite",
+        "breathing": "breathing 6s ease-in-out infinite",
+        "aurora": "aurora 8s ease-in-out infinite",
+        "float-up": "float-up 15s linear infinite",
+        "sparkle": "sparkle 3s ease-in-out infinite",
+        "pulse-glow": "pulse-glow 3s ease-in-out infinite",
       },
     },
   },
