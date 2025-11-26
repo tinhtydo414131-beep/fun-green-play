@@ -108,7 +108,7 @@ export const Game2048Nexus = ({
 
     if (!error && tokensEarned > 0) {
       setNexusTokens(prev => prev + tokensEarned);
-      toast.success(`🪙 Earned ${tokensEarned} $NEXUS tokens!`);
+      toast.success(`🪙 Earned ${tokensEarned} Camly coin!`);
     }
   }, [user, nexusTokens, highestTile]);
 
@@ -282,7 +282,7 @@ export const Game2048Nexus = ({
               <div className="flex items-center gap-2">
                 <Coins className="w-5 h-5 text-yellow-500" />
                 <div className="text-left">
-                  <div className="text-xs text-muted-foreground">$NEXUS</div>
+                  <div className="text-xs text-muted-foreground">Camly coin</div>
                   <div className="text-lg font-bold">{nexusTokens}</div>
                 </div>
               </div>
@@ -378,7 +378,7 @@ export const Game2048Nexus = ({
           <ul className="text-sm text-muted-foreground space-y-1">
             <li>• Use arrow keys (or swipe on mobile) to move tiles</li>
             <li>• Merge tiles with same numbers to create bigger tiles</li>
-            <li>• Earn 1 $NEXUS token for every 1000 points</li>
+            <li>• Earn 1 Camly coin for every 1000 points</li>
             <li>• Reach {targetTile} to complete Level {level}</li>
             <li>• Grid size increases with level: {gridSize}×{gridSize}</li>
           </ul>
