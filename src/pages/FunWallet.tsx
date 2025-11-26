@@ -17,7 +17,10 @@ import { ethers } from "ethers";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { QRCodeSVG } from "qrcode.react";
-import camlyCoinImg from "@/assets/camly-coin.png";
+import camlyCoinPro from "@/assets/camly-coin-pro.png";
+import bnbLogo from "@/assets/tokens/bnb-logo.png";
+import ethLogo from "@/assets/tokens/eth-logo.png";
+import usdtLogo from "@/assets/tokens/usdt-logo.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,20 +41,47 @@ const networks = [
 ];
 
 const tokens = [
-  { symbol: "BNB", name: "BNB", gradient: "from-yellow-400 to-yellow-600", emoji: "◆", contract: null },
+  { 
+    symbol: "BNB", 
+    name: "BNB", 
+    gradient: "from-yellow-400 to-yellow-600", 
+    emoji: "◆", 
+    image: bnbLogo,
+    contract: null 
+  },
   { 
     symbol: "CAMLY", 
     name: "CAMLY COIN", 
     gradient: "from-pink-400 via-yellow-300 to-pink-500", 
     emoji: "👑",
-    image: camlyCoinImg,
+    image: camlyCoinPro,
     special: true,
     contract: "0x0910320181889fefde0bb1ca63962b0a8882e413",
     verified: true
   },
-  { symbol: "ETH", name: "Ethereum", gradient: "from-blue-400 to-purple-600", emoji: "⟠", contract: null },
-  { symbol: "USDT", name: "Tether", gradient: "from-green-400 to-green-600", emoji: "💵", contract: null },
-  { symbol: "FUN", name: "FUN TOKEN", gradient: "from-cyan-400 to-purple-600", emoji: "🎯", contract: null }
+  { 
+    symbol: "ETH", 
+    name: "Ethereum", 
+    gradient: "from-blue-400 to-purple-600", 
+    emoji: "⟠", 
+    image: ethLogo,
+    contract: null 
+  },
+  { 
+    symbol: "USDT", 
+    name: "Tether", 
+    gradient: "from-green-400 to-green-600", 
+    emoji: "💵", 
+    image: usdtLogo,
+    contract: null 
+  },
+  { 
+    symbol: "FUN", 
+    name: "FUN TOKEN", 
+    gradient: "from-cyan-400 to-purple-600", 
+    emoji: "🎯", 
+    contract: null 
+  }
 ];
 
 // Verified BSC Multi-Send Contract from ethereumico.io
@@ -1109,10 +1139,13 @@ export default function FunWallet() {
                     >
                       <div className="flex items-center justify-center gap-2">
                         <img 
-                          src={processedCoinImage || camlyCoinImg} 
+                          src={processedCoinImage || camlyCoinPro} 
                           alt="CAMLY Coin" 
-                          className="w-8 h-8 object-contain" 
-                          style={{ filter: 'drop-shadow(0 0 8px rgba(255,215,0,0.6))' }} 
+                          className="w-12 h-12 object-contain rounded-full" 
+                          style={{ 
+                            filter: 'drop-shadow(0 4px 12px rgba(255,215,0,0.5))',
+                            boxShadow: '0 0 20px rgba(255,215,0,0.3)'
+                          }} 
                         />
                         <div>
                           <p className="text-xs text-muted-foreground">CAMLY COIN</p>
@@ -1162,7 +1195,11 @@ export default function FunWallet() {
                         <img 
                           src={token.symbol === "CAMLY" && processedCoinImage ? processedCoinImage : token.image} 
                           alt={token.symbol} 
-                          className="w-10 h-10 object-contain" 
+                          className="w-12 h-12 object-contain rounded-full" 
+                          style={{ 
+                            filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.2))',
+                            boxShadow: '0 0 12px rgba(0,0,0,0.15)'
+                          }} 
                         />
                       ) : (
                         token.emoji
@@ -1657,6 +1694,11 @@ export default function FunWallet() {
           <CelebrationNotification
             amount={celebrationAmount}
             token={celebrationToken}
+            tokenImage={
+              celebrationToken === "CAMLY" 
+                ? (processedCoinImage || camlyCoinPro)
+                : tokens.find(t => t.symbol === celebrationToken)?.image
+            }
             onComplete={() => setShowCelebration(false)}
             duration={celebrationToken === "CAMLY" && celebrationAmount > 1000 ? 25000 : 15000}
           />

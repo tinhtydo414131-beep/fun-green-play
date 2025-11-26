@@ -5,11 +5,12 @@ import confetti from "canvas-confetti";
 interface CelebrationNotificationProps {
   amount: number;
   token: string;
+  tokenImage?: string; // Optional token image URL
   onComplete?: () => void;
   duration?: number; // Optional duration in milliseconds (default: 25000)
 }
 
-export const CelebrationNotification = ({ amount, token, onComplete, duration: customDuration }: CelebrationNotificationProps) => {
+export const CelebrationNotification = ({ amount, token, tokenImage, onComplete, duration: customDuration }: CelebrationNotificationProps) => {
   const [show, setShow] = useState(true);
   const [showBadge, setShowBadge] = useState(false);
   
@@ -193,7 +194,19 @@ export const CelebrationNotification = ({ amount, token, onComplete, duration: c
                 }}
               >
                 <span>+{amount}</span>
-                <span className="text-5xl md:text-6xl">{token}</span>
+                {tokenImage ? (
+                  <img 
+                    src={tokenImage} 
+                    alt={token} 
+                    className="w-20 h-20 md:w-24 md:h-24 object-contain rounded-full"
+                    style={{
+                      filter: 'drop-shadow(0 0 20px rgba(255,215,0,0.8))',
+                      boxShadow: '0 0 40px rgba(255,215,0,0.5)'
+                    }}
+                  />
+                ) : (
+                  <span className="text-5xl md:text-6xl">{token}</span>
+                )}
               </motion.div>
             </div>
           </motion.div>
@@ -207,12 +220,22 @@ export const CelebrationNotification = ({ amount, token, onComplete, duration: c
             initial={{ scale: 0, x: 100 }}
             animate={{ scale: 1, x: 0 }}
             exit={{ scale: 0, opacity: 0 }}
-            className="fixed top-20 right-6 z-50 px-6 py-3 rounded-full"
+            className="fixed top-20 right-6 z-50 px-6 py-3 rounded-full flex items-center gap-3"
             style={{
               background: 'linear-gradient(135deg, #8B46FF 0%, #00F2FF 100%)',
               boxShadow: '0 8px 24px rgba(139,70,255,0.4)',
             }}
           >
+            {tokenImage && (
+              <img 
+                src={tokenImage} 
+                alt={token} 
+                className="w-8 h-8 object-contain rounded-full"
+                style={{
+                  filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.6))'
+                }}
+              />
+            )}
             <span className="text-2xl font-black text-white drop-shadow-lg">
               +{amount} {token}
             </span>
