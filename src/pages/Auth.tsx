@@ -190,7 +190,13 @@ export default function Auth() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full text-lg font-bold py-6 bg-gradient-to-r from-[#4ade80] via-[#22c55e] to-[#fb923c] hover:shadow-xl hover:shadow-primary/30 transform hover:scale-[1.02] transition-all duration-300"
+              className="w-full text-lg font-bold py-6 border-0 transform hover:scale-[1.02] transition-all duration-300 shadow-lg"
+              style={{
+                background: 'linear-gradient(135deg, #8B46FF 0%, #00F2FF 100%)',
+                color: '#FFFFFF',
+                borderRadius: '12px',
+                boxShadow: '0 4px 16px rgba(139, 70, 255, 0.3)',
+              }}
             >
               {loading ? "Loading... ⏳" : isLogin ? "Log In 🚀" : "Sign Up 🎨"}
             </Button>
