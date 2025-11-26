@@ -344,6 +344,47 @@ export type Database = {
         }
         Relationships: []
       }
+      nexus_leaderboard: {
+        Row: {
+          created_at: string | null
+          highest_tile: number
+          id: string
+          level_reached: number
+          score: number
+          time_played: number
+          user_id: string
+          week_start: string
+        }
+        Insert: {
+          created_at?: string | null
+          highest_tile: number
+          id?: string
+          level_reached?: number
+          score: number
+          time_played?: number
+          user_id: string
+          week_start: string
+        }
+        Update: {
+          created_at?: string | null
+          highest_tile?: number
+          id?: string
+          level_reached?: number
+          score?: number
+          time_played?: number
+          user_id?: string
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nexus_leaderboard_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -391,6 +432,53 @@ export type Database = {
           wallet_balance?: number | null
         }
         Relationships: []
+      }
+      user_nexus_stats: {
+        Row: {
+          created_at: string | null
+          daily_streak: number
+          games_played: number
+          highest_tile: number
+          id: string
+          last_login_date: string | null
+          nexus_tokens: number
+          total_score: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          daily_streak?: number
+          games_played?: number
+          highest_tile?: number
+          id?: string
+          last_login_date?: string | null
+          nexus_tokens?: number
+          total_score?: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          daily_streak?: number
+          games_played?: number
+          highest_tile?: number
+          id?: string
+          last_login_date?: string | null
+          nexus_tokens?: number
+          total_score?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_nexus_stats_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

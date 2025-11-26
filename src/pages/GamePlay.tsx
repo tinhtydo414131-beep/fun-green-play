@@ -36,6 +36,7 @@ import PetParadise from "@/components/games/PetParadise";
 import MusicCreator from "@/components/games/MusicCreator";
 import FlowerField from "@/components/games/FlowerField";
 import LilBlockBuddy from "@/components/games/LilBlockBuddy";
+import { Game2048Nexus } from "@/components/games/Game2048Nexus";
 
 interface Game {
   id: string;
@@ -210,6 +211,7 @@ const GamePlay = () => {
       case "Platformer": return <Platformer {...gameProps} />;
       case "Racing": return <Racing {...gameProps} />;
       case "LilBlockBuddy": return <LilBlockBuddy {...gameProps} />;
+      case "Game2048Nexus": return <Game2048Nexus {...gameProps} />;
       
       default:
         return (
