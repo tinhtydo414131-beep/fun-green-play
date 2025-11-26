@@ -3,7 +3,6 @@ import { NavLink } from "./NavLink";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import camlyCoin from "@/assets/camly-coin.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,12 +28,7 @@ export const Navigation = () => {
         <div className="flex items-center justify-between">
           <NavLink to="/" className="flex items-center gap-3 text-3xl font-fredoka font-bold text-primary hover:text-secondary transition-all transform hover:scale-110">
             <div className="bg-gradient-to-br from-primary to-secondary p-2 rounded-full shadow-lg">
-              <img 
-                src={camlyCoin} 
-                alt="FUN Planet" 
-                className="w-8 h-8 object-contain"
-                style={{ filter: 'brightness(0) invert(1)' }}
-              />
+              <Gamepad2 className="w-8 h-8 text-white" />
             </div>
             <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
               FUN Planet
