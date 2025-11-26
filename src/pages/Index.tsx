@@ -236,8 +236,8 @@ const Index = () => {
         <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
             <div>
-              <h3 className="text-2xl font-fredoka font-bold text-primary mb-4">KidCrypto Games 🎮</h3>
-              <p className="font-comic text-muted-foreground">Making gaming fun, safe, and rewarding for kids everywhere!</p>
+              <h3 className="text-2xl font-fredoka font-bold text-primary mb-4">FUN Planet 🌍</h3>
+              <p className="font-comic text-muted-foreground">Build Your Planet – Play & Earn Joy!</p>
             </div>
             <div>
               <h4 className="text-xl font-fredoka font-bold text-foreground mb-4">Quick Links</h4>
@@ -253,7 +253,7 @@ const Index = () => {
             </div>
           </div>
           <div className="mt-8 pt-8 border-t-2 border-primary/20 text-center">
-            <p className="font-comic text-muted-foreground">© 2024 KidCrypto Games. Made with ❤️ for kids!</p>
+            <p className="font-comic text-muted-foreground">© 2024 FUN Planet. Build Your Planet – Play & Earn Joy! Made with ❤️</p>
           </div>
         </div>
       </footer>

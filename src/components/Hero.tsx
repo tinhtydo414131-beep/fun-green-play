@@ -29,7 +29,7 @@ export const Hero = () => {
         <div className="text-center space-y-8 animate-fade-in">
           <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full border-2 border-primary/30 shadow-lg">
             <Sparkles className="w-5 h-5 text-primary animate-pulse" />
-            <span className="font-comic text-lg font-bold text-primary">Welcome to KidCrypto Games! 🎉</span>
+            <span className="font-comic text-lg font-bold text-primary">Welcome to FUN Planet! 🎉</span>
           </div>
 
           <div className="flex items-center justify-center gap-6 md:gap-8">
@@ -53,7 +53,7 @@ export const Hero = () => {
           </div>
 
           <p className="text-xl md:text-2xl text-muted-foreground font-comic max-w-3xl mx-auto leading-relaxed">
-            🎮 Awesome games for kids! 🌟 Safe and fun! 🎁 Earn crypto rewards while you play!
+            🌍 Build Your Planet – Play & Earn Joy! 🎮 Create your dream world with fun games and amazing rewards! 🌟
           </p>
 
           <form onSubmit={handleSearch} className="max-w-2xl mx-auto">

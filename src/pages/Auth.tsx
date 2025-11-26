@@ -31,10 +31,10 @@ export default function Auth() {
         if (error) throw error;
 
         if (rememberMe && data.session) {
-          localStorage.setItem("kidcrypto_session", JSON.stringify(data.session));
+          localStorage.setItem("funplanet_session", JSON.stringify(data.session));
         }
 
-        toast.success("🎉 Welcome back to KidCrypto Games!");
+        toast.success("🎉 Welcome back to FUN Planet!");
         navigate("/");
       } else {
         const { data, error } = await supabase.auth.signUp({
@@ -53,9 +53,9 @@ export default function Auth() {
         // With auto_confirm_email enabled, user should have a session immediately
         if (data.session) {
           if (rememberMe) {
-            localStorage.setItem("kidcrypto_session", JSON.stringify(data.session));
+            localStorage.setItem("funplanet_session", JSON.stringify(data.session));
           }
-          toast.success("🎊 Chào mừng bạn đến với KidCrypto Games!");
+          toast.success("🎊 Chào mừng bạn đến với FUN Planet!");
           navigate("/");
         } else if (data.user) {
           toast.success("🎊 Tài khoản đã được tạo! Bạn có thể đăng nhập ngay!");
