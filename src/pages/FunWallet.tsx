@@ -954,25 +954,25 @@ export default function FunWallet() {
         ))}
       </div>
 
-      <div className="container mx-auto px-4 py-8 max-w-4xl relative z-10">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-4xl relative z-10">
         {/* Back to Home Button */}
         <motion.div
           initial={{ x: -50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
-          className="mb-6"
+          className="mb-4 sm:mb-6"
         >
           <Button
             onClick={() => navigate("/")}
             variant="outline"
-            className="border-0 font-bold text-lg px-6 py-3 transition-all duration-300 group"
+            className="border-0 font-bold text-base sm:text-lg px-5 sm:px-6 py-5 sm:py-3 h-auto sm:h-12 transition-all duration-300 group w-full sm:w-auto"
             style={{
               background: 'rgba(255,255,255,0.1)',
               backdropFilter: 'blur(20px)',
               boxShadow: '0 0 30px rgba(157,0,255,0.3), inset 0 0 20px rgba(255,255,255,0.1)',
             }}
           >
-            <Home className="w-5 h-5 mr-2 text-cyan-400 group-hover:scale-110 transition-transform" />
-            <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+            <Home className="w-5 h-5 sm:w-5 sm:h-5 mr-2 text-cyan-400 group-hover:scale-110 transition-transform" />
+            <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent text-base sm:text-base">
               Về Trang Chính
             </span>
           </Button>
@@ -982,7 +982,7 @@ export default function FunWallet() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-center py-20"
+            className="text-center py-12 sm:py-20 px-4"
           >
             <motion.div
               animate={{
@@ -990,26 +990,26 @@ export default function FunWallet() {
                 scale: [1, 1.1, 1]
               }}
               transition={{ duration: 2, repeat: Infinity }}
-              className="w-40 h-40 mx-auto mb-8 rounded-full flex items-center justify-center shadow-2xl relative overflow-hidden"
+              className="w-32 h-32 sm:w-40 sm:h-40 mx-auto mb-6 sm:mb-8 rounded-full flex items-center justify-center shadow-2xl relative overflow-hidden"
               style={{
                 background: 'linear-gradient(135deg, #9D00FF, #00FFFF, #0088FF)',
                 boxShadow: '0 0 80px rgba(157,0,255,0.8)'
               }}
             >
-              <Wallet className="w-20 h-20 text-white" />
+              <Wallet className="w-16 h-16 sm:w-20 sm:h-20 text-white" />
             </motion.div>
             
-            <h1 className="text-6xl font-black mb-4 bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-400 bg-clip-text text-transparent">
+            <h1 className="text-4xl sm:text-6xl font-black mb-3 sm:mb-4 bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-400 bg-clip-text text-transparent leading-tight">
               FUN WALLET
             </h1>
             
-            <p className="text-2xl text-white/80 mb-8 font-bold">
+            <p className="text-lg sm:text-2xl text-white/80 mb-6 sm:mb-8 font-bold px-2">
               Connect your MetaMask to start having FUN! 🚀
             </p>
             
             <Button
               onClick={connectWallet}
-              className="text-2xl font-black px-12 py-8 h-auto relative overflow-hidden group border-0"
+              className="text-xl sm:text-2xl font-black px-8 sm:px-12 py-6 sm:py-8 h-auto relative overflow-hidden group border-0 w-full sm:w-auto"
               style={{
                 background: 'linear-gradient(135deg, #9D00FF 0%, #00FFFF 100%)',
                 boxShadow: '0 0 40px rgba(157,0,255,0.6)'
@@ -1024,20 +1024,20 @@ export default function FunWallet() {
             <motion.div
               initial={{ y: -50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              className="mb-8"
+              className="mb-6 sm:mb-8"
             >
               <Card className="border border-border rounded-2xl overflow-hidden relative bg-card/90 backdrop-blur-sm shadow-[var(--shadow-card)]">
-                <CardContent className="p-8">
+                <CardContent className="p-4 sm:p-6 md:p-8">
                   {/* Header with Network Selector */}
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <motion.div
                         animate={{ rotate: 360 }}
                         transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                       >
-                        <Sparkles className="w-10 h-10 text-secondary" />
+                        <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-secondary" />
                       </motion.div>
-                      <h1 className="text-4xl font-black text-primary">
+                      <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-primary">
                         FUN WALLET
                       </h1>
                     </div>
@@ -1047,24 +1047,25 @@ export default function FunWallet() {
                       <DropdownMenuTrigger asChild>
                         <Button 
                           variant="outline" 
-                          className="font-bold text-lg px-6 py-6 h-auto"
+                          className="font-bold text-base sm:text-lg px-4 sm:px-6 py-4 sm:py-6 h-auto w-full sm:w-auto"
                         >
-                          <span className="text-2xl mr-2">{selectedNetwork.icon}</span>
-                          {selectedNetwork.name}
-                          <ChevronDown className="ml-2 w-5 h-5" />
+                          <span className="text-xl sm:text-2xl mr-2">{selectedNetwork.icon}</span>
+                          <span className="hidden sm:inline">{selectedNetwork.name}</span>
+                          <span className="sm:hidden">{selectedNetwork.symbol}</span>
+                          <ChevronDown className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent 
-                        className="border border-border bg-card/95 backdrop-blur-lg z-[100]"
+                        className="border border-border bg-card/95 backdrop-blur-lg z-[100] w-48 sm:w-auto"
                       >
                         {networks.map((network) => (
                           <DropdownMenuItem
                             key={network.id}
                             onClick={() => switchNetwork(network)}
-                            className="px-4 py-3 cursor-pointer"
+                            className="px-3 sm:px-4 py-2 sm:py-3 cursor-pointer"
                           >
-                            <span className="text-2xl mr-3">{network.icon}</span>
-                            <span className="font-bold text-lg">{network.name}</span>
+                            <span className="text-xl sm:text-2xl mr-2 sm:mr-3">{network.icon}</span>
+                            <span className="font-bold text-base sm:text-lg">{network.name}</span>
                           </DropdownMenuItem>
                         ))}
                       </DropdownMenuContent>
@@ -1072,20 +1073,20 @@ export default function FunWallet() {
                   </div>
 
                   {/* Address */}
-                  <div className="flex items-center justify-center gap-2 mb-4">
-                    <p className="text-sm text-muted-foreground font-mono">
+                  <div className="flex items-center justify-center gap-2 mb-3 sm:mb-4">
+                    <p className="text-xs sm:text-sm text-muted-foreground font-mono">
                       {account.slice(0, 6)}...{account.slice(-4)}
                     </p>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={copyAddress}
-                      className="h-6 w-6 p-0"
+                      className="h-7 w-7 sm:h-6 sm:w-6 p-0"
                     >
                       {copied ? (
-                        <CheckCircle className="w-4 h-4 text-success" />
+                        <CheckCircle className="w-4 h-4 sm:w-4 sm:h-4 text-success" />
                       ) : (
-                        <Copy className="w-4 h-4 text-muted-foreground" />
+                        <Copy className="w-4 h-4 sm:w-4 sm:h-4 text-muted-foreground" />
                       )}
                     </Button>
                   </div>
@@ -1094,40 +1095,40 @@ export default function FunWallet() {
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="flex justify-center mb-6"
+                    className="flex justify-center mb-4 sm:mb-6"
                   >
                     <div 
-                      className="p-6 rounded-2xl relative bg-white border-2 border-primary-light"
+                      className="p-4 sm:p-6 rounded-2xl relative bg-white border-2 border-primary-light"
                     >
                       <QRCodeSVG
                         value={account}
-                        size={180}
+                        size={window.innerWidth < 640 ? 140 : 180}
                         bgColor="#FFFFFF"
                         fgColor="#8B46FF"
                         level="H"
                         includeMargin={false}
                         className="rounded-xl relative z-10"
                       />
-                      <div className="absolute -top-3 -right-3 bg-gradient-to-br from-primary to-secondary rounded-full p-2 shadow-lg">
-                        <QrCode className="w-6 h-6 text-white" />
+                      <div className="absolute -top-2 -right-2 sm:-top-3 sm:-right-3 bg-gradient-to-br from-primary to-secondary rounded-full p-1.5 sm:p-2 shadow-lg">
+                        <QrCode className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                       </div>
                     </div>
                   </motion.div>
 
-                  <p className="text-center text-sm text-muted-foreground mb-4 font-bold">
+                  <p className="text-center text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4 font-bold">
                     📱 Scan QR to receive tokens
                   </p>
 
                   {/* Balance */}
-                  <div className="text-center mb-6">
+                  <div className="text-center mb-4 sm:mb-6">
                     <motion.div
                       animate={{ scale: [1, 1.05, 1] }}
                       transition={{ duration: 2, repeat: Infinity }}
-                      className="text-7xl font-black mb-2 text-primary"
+                      className="text-5xl sm:text-6xl md:text-7xl font-black mb-2 text-primary"
                     >
                       {balance}
                     </motion.div>
-                    <p className="text-2xl font-bold text-secondary">
+                    <p className="text-xl sm:text-2xl font-bold text-secondary">
                       {selectedNetwork.symbol}
                     </p>
                     
@@ -1135,29 +1136,29 @@ export default function FunWallet() {
                     <motion.div
                       animate={{ scale: [1, 1.03, 1] }}
                       transition={{ duration: 3, repeat: Infinity }}
-                      className="mt-4 p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 border-2 border-primary-light"
+                      className="mt-3 sm:mt-4 p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 border-2 border-primary-light"
                     >
-                      <div className="flex items-center justify-center gap-2">
+                      <div className="flex items-center justify-center gap-2 sm:gap-2">
                         <img 
                           src={processedCoinImage || camlyCoinPro} 
                           alt="CAMLY Coin" 
-                          className="w-12 h-12 object-contain rounded-full" 
+                          className="w-10 h-10 sm:w-12 sm:h-12 object-contain rounded-full" 
                           style={{ 
                             filter: 'drop-shadow(0 4px 12px rgba(255,215,0,0.5))',
                             boxShadow: '0 0 20px rgba(255,215,0,0.3)'
                           }} 
                         />
                         <div>
-                          <p className="text-xs text-muted-foreground">CAMLY COIN</p>
-                          <p className="text-3xl font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                          <p className="text-[10px] sm:text-xs text-muted-foreground">CAMLY COIN</p>
+                          <p className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                             {camlyBalance}
                           </p>
                         </div>
                         {tokens.find(t => t.symbol === "CAMLY")?.verified && (
-                          <Shield className="w-5 h-5 text-success" />
+                          <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-success" />
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-2">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 sm:mt-2">
                         Contract: {tokens.find(t => t.symbol === "CAMLY")?.contract?.slice(0, 10)}...
                       </p>
                     </motion.div>
@@ -1171,16 +1172,16 @@ export default function FunWallet() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.1 }}
-              className="mb-6"
+              className="mb-4 sm:mb-6"
             >
-              <div className="flex gap-3 overflow-x-auto pb-4 px-2 scrollbar-hide">
+              <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-3 sm:pb-4 px-1 sm:px-2 scrollbar-hide snap-x snap-mandatory">
                 {tokens.map((token) => (
                   <motion.button
                     key={token.symbol}
                     onClick={() => setSelectedToken(token)}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className={`flex-shrink-0 px-6 py-4 rounded-2xl border-2 font-bold transition-all duration-300 ${
+                    className={`flex-shrink-0 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 font-bold transition-all duration-300 snap-center min-w-[100px] sm:min-w-[120px] ${
                       selectedToken.symbol === token.symbol 
                         ? 'border-primary bg-gradient-to-br from-primary to-secondary text-white scale-105 shadow-[var(--shadow-button)]' 
                         : 'border-border bg-card/80 text-foreground opacity-70'
@@ -1189,13 +1190,13 @@ export default function FunWallet() {
                     <motion.div
                       animate={selectedToken.symbol === token.symbol ? { rotate: 360 } : {}}
                       transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                      className="text-3xl mb-1 flex items-center justify-center"
+                      className="text-2xl sm:text-3xl mb-1 flex items-center justify-center"
                     >
                       {token.image ? (
                         <img 
                           src={token.symbol === "CAMLY" && processedCoinImage ? processedCoinImage : token.image} 
                           alt={token.symbol} 
-                          className="w-12 h-12 object-contain rounded-full" 
+                          className="w-10 h-10 sm:w-12 sm:h-12 object-contain rounded-full" 
                           style={{ 
                             filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.2))',
                             boxShadow: '0 0 12px rgba(0,0,0,0.15)'
@@ -1205,7 +1206,7 @@ export default function FunWallet() {
                         token.emoji
                       )}
                     </motion.div>
-                    <div className="font-black text-sm">{token.symbol}</div>
+                    <div className="font-black text-xs sm:text-sm">{token.symbol}</div>
                   </motion.button>
                 ))}
               </div>
@@ -1216,62 +1217,65 @@ export default function FunWallet() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="mb-8"
+              className="mb-6 sm:mb-8"
             >
               <Tabs defaultValue="send" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-6 p-2 bg-muted rounded-2xl">
+                <TabsList className="grid w-full grid-cols-3 mb-4 sm:mb-6 p-1.5 sm:p-2 bg-muted rounded-xl sm:rounded-2xl">
                   <TabsTrigger 
                     value="send"
-                    className="font-black text-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white rounded-xl"
+                    className="font-black text-[11px] sm:text-base md:text-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white rounded-lg sm:rounded-xl py-2.5 sm:py-2"
                   >
-                    <Send className="w-5 h-5 mr-2" />
-                    Normal Send
+                    <Send className="w-3.5 h-3.5 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">Normal Send</span>
+                    <span className="sm:hidden">Send</span>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="bulk"
-                    className="font-black text-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white rounded-xl"
+                    className="font-black text-[11px] sm:text-base md:text-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white rounded-lg sm:rounded-xl py-2.5 sm:py-2"
                   >
-                    <Zap className="w-5 h-5 mr-2" />
-                    Bulk Airdrop
+                    <Zap className="w-3.5 h-3.5 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">Bulk Airdrop</span>
+                    <span className="sm:hidden">Bulk</span>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="history"
-                    className="font-black text-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white rounded-xl"
+                    className="font-black text-[11px] sm:text-base md:text-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white rounded-lg sm:rounded-xl py-2.5 sm:py-2"
                   >
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    History
+                    <Sparkles className="w-3.5 h-3.5 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">History</span>
+                    <span className="sm:hidden">History</span>
                   </TabsTrigger>
                 </TabsList>
 
                 {/* Normal Send Tab */}
                 <TabsContent value="send">
-                  <div className="grid md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     {/* Send Card */}
-                    <Card className="border border-primary-light rounded-2xl bg-card/90 backdrop-blur-sm">
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-2xl text-primary">
-                          <Send className="w-6 h-6" />
+                    <Card className="border border-primary-light rounded-xl sm:rounded-2xl bg-card/90 backdrop-blur-sm">
+                      <CardHeader className="pb-3 sm:pb-6">
+                        <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl text-primary">
+                          <Send className="w-5 h-5 sm:w-6 sm:h-6" />
                           Send FUN
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="space-y-4">
+                      <CardContent className="space-y-3 sm:space-y-4">
                         <div>
-                          <label className="text-sm text-muted-foreground mb-2 block font-medium">Recipient Address</label>
+                          <label className="text-xs sm:text-sm text-muted-foreground mb-2 block font-medium">Recipient Address</label>
                           <Input
                             value={sendTo}
                             onChange={(e) => setSendTo(e.target.value)}
                             placeholder="0x..."
-                            className="bg-background/50 border-input"
+                            className="bg-background/50 border-input h-12 sm:h-10 text-base sm:text-sm px-4 sm:px-3"
                           />
                         </div>
                         <div>
-                          <label className="text-sm text-muted-foreground mb-2 block font-medium">Amount ({selectedToken.symbol})</label>
+                          <label className="text-xs sm:text-sm text-muted-foreground mb-2 block font-medium">Amount ({selectedToken.symbol})</label>
                           <Input
                             type="number"
                             value={sendAmount}
                             onChange={(e) => setSendAmount(e.target.value)}
                             placeholder="0.00"
-                            className="border-0 text-white placeholder:text-white/40"
+                            className="border-0 text-white placeholder:text-white/40 h-12 sm:h-10 text-base sm:text-sm px-4 sm:px-3"
                             style={{
                               background: 'rgba(255,255,255,0.05)',
                               backdropFilter: 'blur(10px)',
@@ -1282,7 +1286,7 @@ export default function FunWallet() {
                         <Button
                           onClick={handleSend}
                           disabled={sending}
-                          className="w-full font-black text-xl py-6 border-0 relative overflow-hidden group"
+                          className="w-full font-black text-lg sm:text-xl py-6 sm:py-6 h-auto border-0 relative overflow-hidden group"
                           style={{
                             background: 'linear-gradient(135deg, #FF1493 0%, #9D00FF 50%, #00FFFF 100%)',
                             backgroundSize: '200% auto',
@@ -1308,42 +1312,42 @@ export default function FunWallet() {
                     </Card>
 
                     {/* Receive Card */}
-                    <Card className="relative overflow-hidden border-0" style={{
+                    <Card className="relative overflow-hidden border-0 rounded-xl sm:rounded-2xl" style={{
                       background: 'rgba(0,255,255,0.15)',
                       backdropFilter: 'blur(30px)',
                       boxShadow: '0 8px 32px 0 rgba(0,255,255,0.4), inset 0 0 0 2px rgba(0,255,255,0.5)'
                     }}>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-2xl">
+                      <CardHeader className="pb-3 sm:pb-6">
+                        <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl">
                           <motion.div
                             animate={{ rotate: -360 }}
                             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                           >
-                            <ArrowDownLeft className="w-6 h-6 text-cyan-400" />
+                            <ArrowDownLeft className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400" />
                           </motion.div>
                           <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent font-black">
                             Receive
                           </span>
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="space-y-4">
-                        <div className="p-6 rounded-xl text-center" style={{
+                      <CardContent className="space-y-3 sm:space-y-4">
+                        <div className="p-4 sm:p-6 rounded-xl text-center" style={{
                           background: 'rgba(255,255,255,0.05)',
                           backdropFilter: 'blur(10px)',
                         }}>
-                          <p className="text-xs text-white/60 mb-3">Your Address</p>
-                          <p className="font-mono text-sm text-white break-all mb-4">
+                          <p className="text-[10px] sm:text-xs text-white/60 mb-2 sm:mb-3">Your Address</p>
+                          <p className="font-mono text-xs sm:text-sm text-white break-all mb-3 sm:mb-4">
                             {account}
                           </p>
                           <Button
                             onClick={copyAddress}
-                            className="w-full font-black text-lg py-6 border-0"
+                            className="w-full font-black text-base sm:text-lg py-5 sm:py-6 h-auto border-0"
                             style={{
                               background: 'linear-gradient(135deg, #00FFFF 0%, #0088FF 100%)',
                               boxShadow: '0 0 40px rgba(0,255,255,0.8)'
                             }}
                           >
-                            <Copy className="w-5 h-5 mr-2" />
+                            <Copy className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                             {copied ? "COPIED! ✨" : "COPY ADDRESS 🔥"}
                           </Button>
                         </div>
@@ -1355,7 +1359,7 @@ export default function FunWallet() {
                               setShowCelebration(true);
                             }}
                             variant="outline"
-                            className="text-sm border-cyan-400/30 text-cyan-400"
+                            className="text-xs sm:text-sm border-cyan-400/30 text-cyan-400 h-9 sm:h-10"
                           >
                             Test Celebration 🎉
                           </Button>
@@ -1367,32 +1371,32 @@ export default function FunWallet() {
 
                 {/* Bulk Send/Airdrop Tab */}
                 <TabsContent value="bulk">
-                  <Card className="border-0 relative overflow-hidden" style={{
+                  <Card className="border-0 relative overflow-hidden rounded-xl sm:rounded-2xl" style={{
                     background: 'rgba(123,44,191,0.2)',
                     backdropFilter: 'blur(40px)',
                     boxShadow: '0 8px 32px 0 rgba(224,170,255,0.5), inset 0 0 0 3px rgba(224,170,255,0.4)'
                   }}>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-3 text-3xl">
+                    <CardHeader className="pb-3 sm:pb-6">
+                      <CardTitle className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl md:text-3xl">
                         <motion.div
                           animate={{ rotate: [0, 360] }}
                           transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
                         >
-                          <Zap className="w-8 h-8 text-yellow-400" />
+                          <Zap className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-400" />
                         </motion.div>
-                        <span className="bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-500 bg-clip-text text-transparent font-black">
+                        <span className="bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-500 bg-clip-text text-transparent font-black leading-tight">
                           LAUNCH AIRDROP CAMLY 👑
                         </span>
                       </CardTitle>
-                      <p className="text-white/60 text-sm mt-2">
+                      <p className="text-white/60 text-xs sm:text-sm mt-2">
                         Send CAMLY tokens to multiple addresses at once! Perfect for rewarding your community ✨
                       </p>
                     </CardHeader>
-                    <CardContent className="space-y-6">
+                    <CardContent className="space-y-4 sm:space-y-6">
                       <div>
-                        <label className="text-white font-bold mb-3 block flex items-center gap-2">
+                        <label className="text-white font-bold mb-2 sm:mb-3 block flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-sm sm:text-base">
                           <span>📝 Wallet Addresses</span>
-                          <span className="text-xs text-white/40">(one per line, max 1000)</span>
+                          <span className="text-[10px] sm:text-xs text-white/40">(one per line, max 1000)</span>
                         </label>
                         <Textarea
                           value={bulkAddresses}
@@ -1405,8 +1409,8 @@ export default function FunWallet() {
                           placeholder="0x1234...
 0x5678...
 0x9abc..."
-                          rows={8}
-                          className="border-0 text-white placeholder:text-white/30 font-mono text-sm"
+                          rows={6}
+                          className="border-0 text-white placeholder:text-white/30 font-mono text-xs sm:text-sm px-4 sm:px-3 py-3 sm:py-2"
                           style={{
                             background: 'rgba(255,255,255,0.05)',
                             backdropFilter: 'blur(10px)',
@@ -1418,7 +1422,7 @@ export default function FunWallet() {
                         <Button
                           onClick={validateAddresses}
                           disabled={!bulkAddresses.trim()}
-                          className="mt-3 font-bold border-0"
+                          className="mt-3 font-bold border-0 w-full sm:w-auto py-5 sm:py-2 h-auto sm:h-10 text-base sm:text-sm"
                           style={{
                             background: 'linear-gradient(135deg, #00FFFF 0%, #0088FF 100%)',
                             boxShadow: '0 0 20px rgba(0,255,255,0.5)'
@@ -1469,7 +1473,7 @@ export default function FunWallet() {
                       </div>
 
                       <div>
-                        <label className="text-white font-bold mb-3 block">
+                        <label className="text-white font-bold mb-2 sm:mb-3 block text-sm sm:text-base">
                           💎 Amount of CAMLY per Address
                         </label>
                         <Input
@@ -1481,7 +1485,7 @@ export default function FunWallet() {
                             setApprovalComplete(false);
                           }}
                           placeholder="1000"
-                          className="border-0 text-white text-2xl font-black placeholder:text-white/30"
+                          className="border-0 text-white text-xl sm:text-2xl font-black placeholder:text-white/30 h-14 sm:h-12 px-4 sm:px-3"
                           style={{
                             background: 'rgba(255,255,255,0.05)',
                             backdropFilter: 'blur(10px)',
@@ -1494,7 +1498,7 @@ export default function FunWallet() {
                         <motion.div
                           initial={{ scale: 0.9, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
-                          className="p-6 rounded-2xl"
+                          className="p-4 sm:p-6 rounded-xl sm:rounded-2xl"
                           style={{
                             background: 'linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,105,180,0.2))',
                             backdropFilter: 'blur(10px)',
@@ -1502,15 +1506,15 @@ export default function FunWallet() {
                             boxShadow: '0 0 40px rgba(255,215,0,0.3)'
                           }}
                         >
-                          <h3 className="text-xl font-black text-yellow-300 mb-3">📊 Airdrop Summary</h3>
-                          <div className="space-y-2 text-white">
+                          <h3 className="text-lg sm:text-xl font-black text-yellow-300 mb-2 sm:mb-3">📊 Airdrop Summary</h3>
+                          <div className="space-y-1.5 sm:space-y-2 text-white text-sm sm:text-base">
                             <p>🎯 Recipients: <span className="font-black text-cyan-400">
                               {showValidation && validAddresses.length > 0 
                                 ? `${validAddresses.length} (validated)` 
                                 : bulkAddresses.split('\n').filter(a => a.trim()).length}
                             </span></p>
                             <p>💰 Amount per address: <span className="font-black text-pink-400">{bulkAmount} CAMLY</span></p>
-                            <p className="text-2xl">🚀 Total needed: <span className="font-black bg-gradient-to-r from-yellow-300 to-pink-400 bg-clip-text text-transparent">
+                            <p className="text-xl sm:text-2xl">🚀 Total needed: <span className="font-black bg-gradient-to-r from-yellow-300 to-pink-400 bg-clip-text text-transparent">
                               {showValidation && validAddresses.length > 0 
                                 ? `${validAddresses.length} × ${bulkAmount} CAMLY`
                                 : `${bulkAddresses.split('\n').filter(a => a.trim()).length} × ${bulkAmount} CAMLY`}
@@ -1523,15 +1527,15 @@ export default function FunWallet() {
                         <motion.div
                           initial={{ scale: 0.9, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
-                          className="space-y-3"
+                          className="space-y-2 sm:space-y-3"
                         >
-                          <p className="text-white font-black text-xl text-center">
+                          <p className="text-white font-black text-lg sm:text-xl text-center">
                             ✨ {bulkProgressText || `Airdropping... ${bulkProgress}%`}
                           </p>
-                          <Progress value={bulkProgress} className="h-6" style={{
+                          <Progress value={bulkProgress} className="h-5 sm:h-6" style={{
                             background: 'rgba(255,255,255,0.2)',
                           }} />
-                          <p className="text-cyan-400 text-center text-2xl font-black animate-pulse">
+                          <p className="text-cyan-400 text-center text-xl sm:text-2xl font-black animate-pulse">
                             {bulkProgress}% Complete
                           </p>
                         </motion.div>
@@ -1546,7 +1550,7 @@ export default function FunWallet() {
                           <Button
                             onClick={handleApprove}
                             disabled={approving}
-                            className="w-full font-black text-2xl py-8 mb-4 border-0 relative overflow-hidden"
+                            className="w-full font-black text-lg sm:text-xl md:text-2xl py-6 sm:py-7 md:py-8 mb-4 border-0 relative overflow-hidden h-auto"
                             style={{
                               background: 'linear-gradient(135deg, #9D00FF 0%, #FF1493 50%, #00FFFF 100%)',
                               backgroundSize: '200% auto',
@@ -1564,17 +1568,17 @@ export default function FunWallet() {
                                 backgroundSize: '200% auto'
                               }}
                             />
-                            <span className="relative z-10 flex items-center justify-center gap-3">
+                            <span className="relative z-10 flex items-center justify-center gap-2 sm:gap-3">
                               {approving ? (
                                 <>
                                   <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
                                     🔓
                                   </motion.div>
-                                  APPROVING...
+                                  <span>APPROVING...</span>
                                 </>
                               ) : (
                                 <>
-                                  🔓 APPROVE CAMLY FOR AIRDROP 🔓
+                                  <span>🔓 APPROVE CAMLY FOR AIRDROP 🔓</span>
                                 </>
                               )}
                             </span>
@@ -1587,14 +1591,14 @@ export default function FunWallet() {
                         <motion.div
                           initial={{ scale: 0.9, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
-                          className="p-4 rounded-xl mb-4"
+                          className="p-3 sm:p-4 rounded-xl mb-3 sm:mb-4"
                           style={{
                             background: 'rgba(0,255,0,0.2)',
                             border: '2px solid rgba(0,255,0,0.6)',
                             boxShadow: '0 0 30px rgba(0,255,0,0.4)'
                           }}
                         >
-                          <p className="text-green-400 font-black text-xl text-center">
+                          <p className="text-green-400 font-black text-lg sm:text-xl text-center">
                             ✅ Approved! Ready to FUN AND RICH! 💰✨
                           </p>
                         </motion.div>
@@ -1603,7 +1607,7 @@ export default function FunWallet() {
                       <Button
                         onClick={handleBulkSendClick}
                         disabled={bulkSending || !bulkAddresses || !bulkAmount || (showValidation && validAddresses.length === 0) || (showValidation && needsApproval)}
-                        className="w-full font-black text-2xl py-8 border-0 relative overflow-hidden group"
+                        className="w-full font-black text-lg sm:text-xl md:text-2xl py-6 sm:py-7 md:py-8 border-0 relative overflow-hidden group h-auto"
                         style={{
                           background: 'linear-gradient(135deg, #FFD700 0%, #FF1493 25%, #9D00FF 50%, #00FFFF 75%, #FFD700 100%)',
                           backgroundSize: '300% auto',
@@ -1621,21 +1625,21 @@ export default function FunWallet() {
                             backgroundSize: '300% auto'
                           }}
                         />
-                        <span className="relative z-10 flex items-center justify-center gap-3">
+                        <span className="relative z-10 flex items-center justify-center gap-2 sm:gap-3">
                           {bulkSending ? (
                             <>
                               <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
                                 🚀
                               </motion.div>
-                              SENDING AIRDROP...
+                              <span className="text-base sm:text-xl md:text-2xl">SENDING AIRDROP...</span>
                             </>
                           ) : (showValidation && needsApproval) ? (
                             <>
-                              🔒 APPROVE FIRST TO UNLOCK 🔒
+                              <span className="text-base sm:text-xl md:text-2xl">🔒 APPROVE FIRST TO UNLOCK 🔒</span>
                             </>
                           ) : (
                             <>
-                              🎁 SEND TO ALL 🎁
+                              <span className="text-base sm:text-xl md:text-2xl">🎁 SEND TO ALL 🎁</span>
                             </>
                           )}
                         </span>
@@ -1646,28 +1650,28 @@ export default function FunWallet() {
 
                 {/* Transaction History Tab */}
                 <TabsContent value="history">
-                  <Card className="border-0 relative overflow-hidden" style={{
+                  <Card className="border-0 relative overflow-hidden rounded-xl sm:rounded-2xl" style={{
                     background: 'rgba(0,136,255,0.2)',
                     backdropFilter: 'blur(40px)',
                     boxShadow: '0 8px 32px 0 rgba(0,212,255,0.5), inset 0 0 0 3px rgba(0,212,255,0.4)'
                   }}>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-3 text-3xl">
+                    <CardHeader className="pb-3 sm:pb-6">
+                      <CardTitle className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl md:text-3xl">
                         <motion.div
                           animate={{ rotate: [0, 360] }}
                           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                         >
-                          <Sparkles className="w-8 h-8 text-cyan-400" />
+                          <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-cyan-400" />
                         </motion.div>
-                        <span className="bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent font-black">
+                        <span className="bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent font-black leading-tight">
                           TRANSACTION HISTORY 📜
                         </span>
                       </CardTitle>
-                      <p className="text-white/60 text-sm mt-2">
+                      <p className="text-white/60 text-xs sm:text-sm mt-2">
                         View all your past transactions, airdrops, and token transfers ✨
                       </p>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="px-3 sm:px-6">
                       <TransactionHistory transactions={transactions} />
                     </CardContent>
                   </Card>
