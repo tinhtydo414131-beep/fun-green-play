@@ -7,7 +7,7 @@ All colors MUST be HSL. */
 
 @layer base {
   :root {
-    /* Dreamy Aurora Heart Palette - Teal → Periwinkle → Lavender → Pink */
+    /* Dreamy Aurora Heart Palette - Teal → Periwinkle → Lavender → Pink (Vibrant) */
     --background: 270 100% 99%;
     --foreground: 270 15% 20%;
 
@@ -17,14 +17,14 @@ All colors MUST be HSL. */
     --popover: 0 0% 100%;
     --popover-foreground: 270 15% 20%;
 
-    --primary: 176 75% 64%;
+    --primary: 176 85% 52%;
     --primary-foreground: 0 0% 100%;
-    --primary-gradient: linear-gradient(135deg, hsl(176 75% 64%) 0%, hsl(224 88% 84%) 50%, hsl(270 97% 85%) 75%, hsl(316 73% 84%) 100%);
+    --primary-gradient: linear-gradient(135deg, hsl(176 85% 52%) 0%, hsl(224 90% 68%) 50%, hsl(270 95% 72%) 75%, hsl(316 85% 68%) 100%);
     
-    --secondary: 224 88% 84%;
-    --secondary-foreground: 270 15% 20%;
+    --secondary: 224 90% 68%;
+    --secondary-foreground: 0 0% 100%;
     
-    --accent: 270 97% 85%;
+    --accent: 270 95% 72%;
     --accent-foreground: 270 15% 20%;
 
     --muted: 270 30% 96%;
@@ -33,15 +33,15 @@ All colors MUST be HSL. */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 270 30% 90%;
+    --border: 270 40% 85%;
     --input: 270 30% 97%;
-    --ring: 316 73% 84%;
+    --ring: 316 85% 68%;
 
     --radius: 1rem;
     
     /* Dreamy glow effects */
-    --shadow-colorful: 0 8px 20px -4px hsl(270 97% 85% / 0.4);
-    --shadow-glow: 0 0 40px hsl(176 75% 64% / 0.3), 0 0 60px hsl(316 73% 84% / 0.2);
+    --shadow-colorful: 0 8px 20px -4px hsl(270 95% 72% / 0.5);
+    --shadow-glow: 0 0 40px hsl(176 85% 52% / 0.4), 0 0 60px hsl(316 85% 68% / 0.3);
   }
 
   .dark {
@@ -54,13 +54,13 @@ All colors MUST be HSL. */
     --popover: 270 25% 12%;
     --popover-foreground: 270 30% 95%;
 
-    --primary: 176 75% 64%;
+    --primary: 176 85% 52%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 224 88% 74%;
+    --secondary: 224 90% 65%;
     --secondary-foreground: 0 0% 100%;
 
-    --accent: 270 97% 75%;
+    --accent: 270 95% 70%;
     --accent-foreground: 270 30% 95%;
 
     --muted: 270 20% 18%;
@@ -71,7 +71,7 @@ All colors MUST be HSL. */
 
     --border: 270 20% 18%;
     --input: 270 20% 18%;
-    --ring: 316 73% 74%;
+    --ring: 316 85% 65%;
   }
 }
 
