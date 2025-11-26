@@ -44,8 +44,8 @@ export const CelebrationNotification = ({ amount, token, onComplete }: Celebrati
     setTimeout(playJackpotSound, 200);
     setTimeout(playJackpotSound, 400);
 
-    // Continuous confetti - 20 SECONDS OF FUN!
-    const duration = 20000;
+    // Continuous confetti - 25 SECONDS OF FUN!
+    const duration = 25000;
     const animationEnd = Date.now() + duration;
     
     const randomInRange = (min: number, max: number) => {
@@ -109,19 +109,19 @@ export const CelebrationNotification = ({ amount, token, onComplete }: Celebrati
       });
     }, 800);
 
-    // Main celebration ends after 20 seconds
+    // Main celebration ends after 25 seconds
     const mainTimeout = setTimeout(() => {
       setShow(false);
       setShowBadge(true);
       clearInterval(confettiInterval);
       clearInterval(fireworksInterval);
-    }, 20000);
+    }, 25000);
  
-    // Badge disappears after 40 seconds total (20 + 20)
+    // Badge disappears after 50 seconds total (25 + 25)
     const badgeTimeout = setTimeout(() => {
       setShowBadge(false);
       onComplete?.();
-    }, 40000);
+    }, 50000);
 
     return () => {
       clearTimeout(mainTimeout);
