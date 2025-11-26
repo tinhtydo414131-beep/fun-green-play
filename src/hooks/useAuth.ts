@@ -20,7 +20,7 @@ export const useAuth = () => {
     // THEN check for existing session (including stored session)
     const initAuth = async () => {
       // Check for stored session from "Remember Me"
-      const storedSession = localStorage.getItem("kidcrypto_session");
+      const storedSession = localStorage.getItem("funplanet_session");
       if (storedSession) {
         try {
           const parsedSession = JSON.parse(storedSession);
@@ -33,10 +33,10 @@ export const useAuth = () => {
             setSession(data.session);
             setUser(data.session.user);
           } else {
-            localStorage.removeItem("kidcrypto_session");
+            localStorage.removeItem("funplanet_session");
           }
         } catch (err) {
-          localStorage.removeItem("kidcrypto_session");
+          localStorage.removeItem("funplanet_session");
         }
       }
 
@@ -53,7 +53,7 @@ export const useAuth = () => {
   }, []);
 
   const signOut = async () => {
-    localStorage.removeItem("kidcrypto_session");
+    localStorage.removeItem("funplanet_session");
     await supabase.auth.signOut();
   };
 
