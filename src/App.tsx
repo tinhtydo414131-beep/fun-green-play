@@ -17,6 +17,7 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+// Force rebuild to clear Vite HMR cache and fix React hooks error
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
