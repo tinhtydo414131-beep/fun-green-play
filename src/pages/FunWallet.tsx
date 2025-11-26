@@ -1269,17 +1269,19 @@ export default function FunWallet() {
                           />
                         </div>
                         <div>
-                          <label className="text-xs sm:text-sm text-muted-foreground mb-2 block font-medium">Amount ({selectedToken.symbol})</label>
+                          <label className="text-base sm:text-lg text-primary mb-2 sm:mb-3 block font-black">
+                            Amount ({selectedToken.symbol})
+                          </label>
                           <Input
                             type="number"
                             value={sendAmount}
                             onChange={(e) => setSendAmount(e.target.value)}
                             placeholder="0.00"
-                            className="border-0 text-white placeholder:text-white/40 h-12 sm:h-10 text-base sm:text-sm px-4 sm:px-3"
+                            className="border-2 border-primary/30 text-foreground placeholder:text-muted-foreground h-14 sm:h-12 text-xl sm:text-lg px-4 font-bold"
                             style={{
-                              background: 'rgba(255,255,255,0.05)',
+                              background: 'rgba(255,255,255,0.1)',
                               backdropFilter: 'blur(10px)',
-                              boxShadow: `inset 0 0 0 1px ${selectedNetwork.color}40`
+                              boxShadow: `0 0 20px ${selectedNetwork.color}30, inset 0 0 0 1px ${selectedNetwork.color}40`
                             }}
                           />
                         </div>
