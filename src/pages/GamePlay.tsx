@@ -11,7 +11,6 @@ import confetti from "canvas-confetti";
 
 // Import all game components
 import { MemoryCards } from "@/components/games/MemoryCards";
-import { Game2048 } from "@/components/games/Game2048";
 import { GuessNumber } from "@/components/games/GuessNumber";
 import { ColorMatch } from "@/components/games/ColorMatch";
 import { BalloonPop } from "@/components/games/BalloonPop";
@@ -189,7 +188,6 @@ const GamePlay = () => {
       case "MusicCreator": return <MusicCreator {...gameProps} />;
       
       // Brain & Educational Games
-      case "Game2048": return <Game2048 {...gameProps} />;
       case "GuessNumber": return <GuessNumber {...gameProps} />;
       case "WordScramble": return <WordScramble {...gameProps} />;
       case "MathQuiz": return <MathQuiz {...gameProps} />;
