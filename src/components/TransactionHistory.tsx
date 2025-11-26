@@ -50,15 +50,11 @@ export const TransactionHistory = ({ transactions }: TransactionHistoryProps) =>
     setTimeout(() => setCopiedHash(null), 2000);
   };
 
-  // Format hash with line breaks
-  const formatHash = (hash: string): string[] => {
-    if (!hash) return [];
-    const chunkSize = 16;
-    const chunks: string[] = [];
-    for (let i = 0; i < hash.length; i += chunkSize) {
-      chunks.push(hash.slice(i, i + chunkSize));
-    }
-    return chunks;
+  // Format hash - truncate for display
+  const truncateHash = (hash: string): string => {
+    if (!hash) return '';
+    if (hash.length <= 20) return hash;
+    return `${hash.slice(0, 10)}...${hash.slice(-10)}`;
   };
 
   // Load more transactions
@@ -109,7 +105,7 @@ export const TransactionHistory = ({ transactions }: TransactionHistoryProps) =>
 
   return (
     <ScrollArea className="h-[600px] pr-2">
-      <div className="space-y-3">
+      <div className="space-y-2">
         {displayedTransactions.map((tx, index) => {
           const isReceive = tx.type === 'receive';
           const isSend = tx.type === 'send' || tx.type === 'airdrop';
@@ -123,12 +119,12 @@ export const TransactionHistory = ({ transactions }: TransactionHistoryProps) =>
               transition={{ delay: index * 0.05 }}
             >
               <Card className="border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl hover:border-white/20 transition-all duration-300 overflow-hidden group">
-                <div className="p-4">
-                  <div className="flex items-start gap-4">
+                <div className="p-2.5">
+                  <div className="flex items-start gap-3">
                     {/* Icon */}
                     <motion.div
                       whileHover={{ scale: 1.1, rotate: 5 }}
-                      className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                         tx.type === 'airdrop' 
                           ? 'bg-gradient-to-br from-yellow-500 to-orange-500'
                           : isReceive
@@ -137,19 +133,19 @@ export const TransactionHistory = ({ transactions }: TransactionHistoryProps) =>
                       }`}
                     >
                       {tx.type === 'airdrop' ? (
-                        <Zap className="w-6 h-6 text-white" />
+                        <Zap className="w-5 h-5 text-white" />
                       ) : isReceive ? (
-                        <ArrowDownLeft className="w-6 h-6 text-white" />
+                        <ArrowDownLeft className="w-5 h-5 text-white" />
                       ) : (
-                        <ArrowUpRight className="w-6 h-6 text-white" />
+                        <ArrowUpRight className="w-5 h-5 text-white" />
                       )}
                     </motion.div>
 
                     {/* Content */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 mb-1">
+                      <div className="flex items-start justify-between gap-2 mb-0.5">
                         <div>
-                          <h4 className={`font-bold text-sm ${
+                          <h4 className={`font-bold text-xs ${
                             tx.type === 'airdrop' 
                               ? 'text-yellow-400'
                               : isReceive 
@@ -158,13 +154,13 @@ export const TransactionHistory = ({ transactions }: TransactionHistoryProps) =>
                           }`}>
                             {tx.type === 'airdrop' ? 'Airdrop Sent' : isReceive ? 'Token Received' : 'Token Sent'}
                           </h4>
-                          <p className="text-[10px] text-white/40 mt-0.5">
+                          <p className="text-[9px] text-white/40 mt-0.5">
                             {formatTime(txDate)}
                           </p>
                         </div>
 
                         {/* Status Badge */}
-                        <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
+                        <div className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase ${
                           tx.status === 'completed' 
                             ? 'bg-green-500/20 text-green-400'
                             : tx.status === 'failed'
@@ -172,18 +168,18 @@ export const TransactionHistory = ({ transactions }: TransactionHistoryProps) =>
                             : 'bg-yellow-500/20 text-yellow-400'
                         }`}>
                           {tx.status === 'completed' ? (
-                            <CheckCircle className="w-3 h-3" />
+                            <CheckCircle className="w-2.5 h-2.5" />
                           ) : tx.status === 'failed' ? (
-                            <XCircle className="w-3 h-3" />
+                            <XCircle className="w-2.5 h-2.5" />
                           ) : (
-                            <Clock className="w-3 h-3" />
+                            <Clock className="w-2.5 h-2.5" />
                           )}
                           <span>{tx.status}</span>
                         </div>
                       </div>
 
                       {/* Amount */}
-                      <div className={`text-lg font-black mb-3 ${
+                      <div className={`text-base font-black mb-1.5 ${
                         isReceive ? 'text-green-400' : 'text-red-400'
                       }`}>
                         {isReceive ? '+' : '-'}{tx.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {tx.token_type}
@@ -191,43 +187,39 @@ export const TransactionHistory = ({ transactions }: TransactionHistoryProps) =>
 
                       {/* Recipients for airdrop */}
                       {tx.type === 'airdrop' && tx.recipients_count && (
-                        <div className="flex items-center gap-1 text-xs text-white/50 mb-3">
-                          <Users className="w-3 h-3" />
+                        <div className="flex items-center gap-1 text-[10px] text-white/50 mb-1.5">
+                          <Users className="w-2.5 h-2.5" />
                           <span>{tx.recipients_count} recipients</span>
                         </div>
                       )}
 
-                      {/* Transaction Hash */}
+                      {/* Transaction Hash - Single Line */}
                       {tx.transaction_hash && (
-                        <div className="bg-black/20 rounded-lg p-3 mb-3 border border-white/5">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-[10px] text-white/40 font-medium">Transaction Hash</span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => copyHash(tx.transaction_hash!)}
-                              className="h-6 px-2 text-[10px] hover:bg-white/10"
-                            >
-                              {copiedHash === tx.transaction_hash ? (
-                                <Check className="w-3 h-3 text-green-400" />
-                              ) : (
-                                <Copy className="w-3 h-3" />
-                              )}
-                            </Button>
+                        <div className="bg-black/20 rounded-lg px-2 py-1.5 mb-1.5 border border-white/5 flex items-center justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <span className="text-[9px] text-white/40 font-medium block mb-0.5">Transaction Hash</span>
+                            <p className="text-[10px] font-mono text-white/60 truncate">
+                              {tx.transaction_hash}
+                            </p>
                           </div>
-                          <div className="space-y-0.5">
-                            {formatHash(tx.transaction_hash).map((chunk, i) => (
-                              <p key={i} className="text-[10px] font-mono text-white/60 leading-tight">
-                                {chunk}
-                              </p>
-                            ))}
-                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => copyHash(tx.transaction_hash!)}
+                            className="h-5 w-5 p-0 text-[10px] hover:bg-white/10 flex-shrink-0"
+                          >
+                            {copiedHash === tx.transaction_hash ? (
+                              <Check className="w-3 h-3 text-green-400" />
+                            ) : (
+                              <Copy className="w-3 h-3" />
+                            )}
+                          </Button>
                         </div>
                       )}
 
                       {/* Notes */}
                       {tx.notes && (
-                        <p className="text-xs text-white/50 mb-3 italic">"{tx.notes}"</p>
+                        <p className="text-[10px] text-white/50 mb-1.5 italic truncate">"{tx.notes}"</p>
                       )}
 
                       {/* View on Explorer */}
@@ -236,9 +228,9 @@ export const TransactionHistory = ({ transactions }: TransactionHistoryProps) =>
                           variant="outline"
                           size="sm"
                           onClick={() => window.open(`https://bscscan.com/tx/${tx.transaction_hash}`, '_blank')}
-                          className="h-8 text-xs gap-2 bg-white/5 border-white/10 hover:bg-white/10 hover:border-primary/50 group-hover:border-primary/30 transition-all"
+                          className="h-6 text-[10px] gap-1.5 bg-white/5 border-white/10 hover:bg-white/10 hover:border-primary/50 group-hover:border-primary/30 transition-all px-2"
                         >
-                          <ExternalLink className="w-3 h-3" />
+                          <ExternalLink className="w-2.5 h-2.5" />
                           View on BscScan
                         </Button>
                       )}
