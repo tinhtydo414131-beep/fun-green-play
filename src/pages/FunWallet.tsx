@@ -1682,56 +1682,179 @@ export default function FunWallet() {
                       </CardContent>
                     </Card>
 
-                    {/* Receive Card */}
-                    <Card className="relative overflow-hidden border-0 rounded-xl sm:rounded-2xl" style={{
-                      background: 'linear-gradient(135deg, rgba(0,255,255,0.2) 0%, rgba(0,136,255,0.2) 100%)',
-                      backdropFilter: 'blur(30px)',
-                      boxShadow: '0 8px 32px 0 rgba(0,255,255,0.5), inset 0 0 0 3px rgba(0,255,255,0.6)'
+                    {/* Receive Card - Redesigned */}
+                    <Card className="relative overflow-hidden border-0 rounded-3xl" style={{
+                      background: 'linear-gradient(135deg, rgba(139, 70, 255, 0.15) 0%, rgba(0, 136, 255, 0.15) 100%)',
+                      backdropFilter: 'blur(40px)',
+                      boxShadow: '0 12px 48px 0 rgba(139, 70, 255, 0.4), inset 0 0 0 1px rgba(139, 70, 255, 0.3)',
+                      border: '2px solid transparent',
+                      backgroundClip: 'padding-box'
                     }}>
-                      <CardHeader className="pb-3 sm:pb-6">
-                        <CardTitle className="flex items-center gap-2 text-2xl sm:text-3xl">
+                      {/* Gradient Border Effect */}
+                      <div className="absolute inset-0 rounded-3xl pointer-events-none" style={{
+                        background: 'linear-gradient(135deg, #8B46FF 0%, #00FFFF 50%, #0088FF 100%)',
+                        mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                        WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                        maskComposite: 'exclude',
+                        WebkitMaskComposite: 'xor',
+                        padding: '2px'
+                      }} />
+                      
+                      <CardHeader className="pb-4 sm:pb-6 pt-6">
+                        <CardTitle className="flex items-center justify-center gap-3 text-2xl sm:text-3xl">
                           <motion.div
-                            animate={{ rotate: -360 }}
-                            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                            animate={{ 
+                              rotate: -360,
+                              scale: [1, 1.1, 1]
+                            }}
+                            transition={{ 
+                              rotate: { duration: 3, repeat: Infinity, ease: "linear" },
+                              scale: { duration: 2, repeat: Infinity }
+                            }}
                           >
-                            <ArrowDownLeft className="w-6 h-6 sm:w-8 sm:h-8 text-cyan-300" />
+                            <ArrowDownLeft className="w-7 h-7 sm:w-9 sm:h-9 text-cyan-400" />
                           </motion.div>
-                          <span className="bg-gradient-to-r from-cyan-300 via-blue-400 to-cyan-500 bg-clip-text text-transparent font-black">
-                            Receive
+                          <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent font-black">
+                            Receive Tokens
                           </span>
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="space-y-4 sm:space-y-5">
-                        <div className="p-5 sm:p-8 rounded-2xl text-center border-2 border-cyan-400/40" style={{
-                          background: 'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(0,255,255,0.08) 100%)',
-                          backdropFilter: 'blur(20px)',
-                          boxShadow: '0 4px 20px rgba(0,255,255,0.3)'
-                        }}>
-                          <p className="text-xs sm:text-sm text-white/70 mb-3 sm:mb-4 font-bold uppercase tracking-wider">
-                            💎 Your Wallet Address
-                          </p>
-                          <motion.p 
-                            className="font-mono text-base sm:text-lg md:text-xl text-white break-all mb-5 sm:mb-6 leading-relaxed font-bold"
-                            animate={{ opacity: [0.8, 1, 0.8] }}
+                      
+                      <CardContent className="space-y-5 sm:space-y-6 pb-8">
+                        {/* Main Receive Container */}
+                        <motion.div 
+                          initial={{ scale: 0.95, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ duration: 0.5 }}
+                          className="p-6 sm:p-8 rounded-3xl text-center relative overflow-hidden"
+                          style={{
+                            background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(139, 70, 255,0.05) 50%, rgba(0,136,255,0.1) 100%)',
+                            backdropFilter: 'blur(30px)',
+                            boxShadow: '0 8px 32px rgba(139, 70, 255, 0.2), inset 0 0 0 1px rgba(255,255,255,0.1)'
+                          }}
+                        >
+                          {/* Wallet Icon Header */}
+                          <motion.div 
+                            className="flex justify-center mb-5"
+                            animate={{ y: [0, -5, 0] }}
                             transition={{ duration: 2, repeat: Infinity }}
-                            style={{
-                              textShadow: '0 0 20px rgba(0,255,255,0.6), 0 0 10px rgba(255,255,255,0.4)',
-                              letterSpacing: '0.5px'
-                            }}
                           >
-                            {account}
-                          </motion.p>
+                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center shadow-lg">
+                              <Wallet className="w-8 h-8 sm:w-9 sm:h-9 text-white" />
+                            </div>
+                          </motion.div>
+
+                          {/* QR Code */}
                           <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.2 }}
+                            className="flex justify-center mb-6"
+                          >
+                            <div 
+                              className="p-4 sm:p-5 rounded-3xl relative bg-white"
+                              style={{
+                                boxShadow: '0 8px 32px rgba(139, 70, 255, 0.3), 0 0 0 4px rgba(139, 70, 255, 0.1)'
+                              }}
+                            >
+                              <QRCodeSVG
+                                value={account}
+                                size={window.innerWidth < 640 ? 140 : 160}
+                                bgColor="#FFFFFF"
+                                fgColor="#1a1a1a"
+                                level="H"
+                                includeMargin={false}
+                                className="rounded-2xl"
+                              />
+                              {/* QR Icon Badge */}
+                              <motion.div 
+                                className="absolute -top-3 -right-3 bg-gradient-to-br from-cyan-400 to-purple-500 rounded-full p-2.5 shadow-lg"
+                                animate={{ rotate: [0, 360] }}
+                                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                              >
+                                <QrCode className="w-5 h-5 text-white" />
+                              </motion.div>
+                            </div>
+                          </motion.div>
+
+                          {/* Label */}
+                          <p className="text-xs sm:text-sm text-white/60 mb-4 font-bold uppercase tracking-widest flex items-center justify-center gap-2">
+                            <motion.span
+                              animate={{ opacity: [0.5, 1, 0.5] }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                            >
+                              💎
+                            </motion.span>
+                            Your Wallet Address
+                            <motion.span
+                              animate={{ opacity: [0.5, 1, 0.5] }}
+                              transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+                            >
+                              💎
+                            </motion.span>
+                          </p>
+                          
+                          {/* Address - Split into multiple lines */}
+                          <motion.div 
+                            className="mb-6 px-4"
+                            animate={{ opacity: [0.9, 1, 0.9] }}
+                            transition={{ duration: 3, repeat: Infinity }}
+                          >
+                            <div className="space-y-3 sm:space-y-4">
+                              {(() => {
+                                const addr = account;
+                                const chunkSize = Math.ceil(addr.length / 3);
+                                const line1 = addr.slice(0, chunkSize);
+                                const line2 = addr.slice(chunkSize, chunkSize * 2);
+                                const line3 = addr.slice(chunkSize * 2);
+                                
+                                return (
+                                  <>
+                                    <p className="font-mono text-lg sm:text-xl font-bold text-foreground leading-tight tracking-wide break-all"
+                                       style={{
+                                         textShadow: '0 2px 8px rgba(139, 70, 255, 0.3)',
+                                         color: '#1a1a1a'
+                                       }}>
+                                      {line1}
+                                    </p>
+                                    <p className="font-mono text-lg sm:text-xl font-bold text-foreground leading-tight tracking-wide break-all"
+                                       style={{
+                                         textShadow: '0 2px 8px rgba(139, 70, 255, 0.3)',
+                                         color: '#1a1a1a'
+                                       }}>
+                                      {line2}
+                                    </p>
+                                    {line3 && (
+                                      <p className="font-mono text-lg sm:text-xl font-bold text-foreground leading-tight tracking-wide break-all"
+                                         style={{
+                                           textShadow: '0 2px 8px rgba(139, 70, 255, 0.3)',
+                                           color: '#1a1a1a'
+                                         }}>
+                                        {line3}
+                                      </p>
+                                    )}
+                                  </>
+                                );
+                              })()}
+                            </div>
+                          </motion.div>
+                          
+                          {/* Copy Button */}
+                          <motion.div
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.98 }}
                           >
                             <Button
                               onClick={copyAddress}
-                              className="w-full font-black text-xl sm:text-2xl py-7 sm:py-8 h-auto border-0 relative overflow-hidden group"
+                              className="w-full font-black text-base sm:text-lg py-6 sm:py-7 h-auto border-0 relative overflow-hidden group rounded-2xl"
                               style={{
-                                background: 'linear-gradient(135deg, #00FFFF 0%, #0099FF 50%, #00FFFF 100%)',
+                                background: copied 
+                                  ? 'linear-gradient(135deg, #00FF88 0%, #00CC66 100%)'
+                                  : 'linear-gradient(135deg, #8B46FF 0%, #00FFFF 50%, #0088FF 100%)',
                                 backgroundSize: '200% auto',
-                                boxShadow: '0 0 50px rgba(0,255,255,0.9), 0 0 30px rgba(0,153,255,0.6)'
+                                boxShadow: copied
+                                  ? '0 0 40px rgba(0,255,136,0.8), 0 0 20px rgba(0,204,102,0.6)'
+                                  : '0 0 40px rgba(139, 70, 255, 0.6), 0 0 20px rgba(0,255,255,0.4)'
                               }}
                             >
                               <motion.div
@@ -1741,26 +1864,47 @@ export default function FunWallet() {
                                 transition={{ duration: 3, repeat: Infinity }}
                                 className="absolute inset-0"
                                 style={{
-                                  background: 'linear-gradient(135deg, #00FFFF 0%, #0099FF 50%, #00FFFF 100%)',
+                                  background: copied
+                                    ? 'linear-gradient(135deg, #00FF88 0%, #00CC66 100%)'
+                                    : 'linear-gradient(135deg, #8B46FF 0%, #00FFFF 50%, #0088FF 100%)',
                                   backgroundSize: '200% auto'
                                 }}
                               />
-                              <span className="relative z-10 flex items-center justify-center gap-3">
-                                <Copy className="w-6 h-6 sm:w-7 sm:h-7" />
-                                {copied ? "✨ COPIED! ✨" : "📋 COPY ADDRESS 🔥"}
+                              <span className="relative z-10 flex items-center justify-center gap-3 text-white">
+                                {copied ? (
+                                  <>
+                                    <CheckCircle className="w-6 h-6 sm:w-7 sm:h-7" />
+                                    <span className="uppercase">✨ COPIED! ✨</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Copy className="w-6 h-6 sm:w-7 sm:h-7" />
+                                    <span className="uppercase">COPY ADDRESS 🔥</span>
+                                  </>
+                                )}
                               </span>
                             </Button>
                           </motion.div>
-                        </div>
 
-                        <div className="text-center">
+                          {/* Helper Text */}
+                          <motion.p 
+                            className="text-xs sm:text-sm text-white/50 mt-4 font-medium"
+                            animate={{ opacity: [0.5, 0.8, 0.5] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                          >
+                            👆 Tap to copy address
+                          </motion.p>
+                        </motion.div>
+
+                        {/* Test Celebration Button */}
+                        <div className="text-center pt-2">
                           <Button
                             onClick={() => {
                               setCelebrationAmount(0.042);
                               setShowCelebration(true);
                             }}
                             variant="outline"
-                            className="text-sm sm:text-base border-2 border-cyan-400/50 text-cyan-300 hover:bg-cyan-400/20 h-10 sm:h-12 font-bold px-6"
+                            className="text-sm border-2 border-primary/40 text-primary hover:bg-primary/10 h-11 font-bold px-6 rounded-xl"
                           >
                             Test Celebration 🎉
                           </Button>
