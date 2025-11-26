@@ -195,14 +195,25 @@ export default function FunWallet() {
       const camlyToken = tokens.find(t => t.symbol === "CAMLY");
       if (!camlyToken?.contract) return;
 
+      console.log("Fetching CAMLY balance for:", address);
+      console.log("CAMLY Contract:", camlyToken.contract);
+
       const provider = new ethers.BrowserProvider(window.ethereum);
       const contract = new ethers.Contract(camlyToken.contract, ERC20_ABI, provider);
+      
       const balance = await contract.balanceOf(address);
       const decimals = await contract.decimals();
+      
+      console.log("CAMLY Balance (raw):", balance.toString());
+      console.log("CAMLY Decimals:", decimals.toString());
+      
       const formatted = ethers.formatUnits(balance, decimals);
+      console.log("CAMLY Balance (formatted):", formatted);
+      
       setCamlyBalance(parseFloat(formatted).toFixed(2));
     } catch (error) {
       console.error("Error getting CAMLY balance:", error);
+      setCamlyBalance("0.00");
     }
   };
 
@@ -280,24 +291,72 @@ export default function FunWallet() {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
 
-      const tx = await signer.sendTransaction({
-        to: sendTo,
-        value: ethers.parseEther(sendAmount),
-      });
+      let txHash: string;
 
-      toast.success("Transaction sent! Waiting for confirmation... ⏳");
+      // Check if sending ERC-20 token (like CAMLY) or native token (BNB/ETH)
+      if (selectedToken.contract) {
+        // ERC-20 Token Transfer (CAMLY, USDT, etc.)
+        console.log(`Sending ${amount} ${selectedToken.symbol} to ${sendTo}`);
+        
+        const contract = new ethers.Contract(selectedToken.contract, ERC20_ABI, signer);
+        
+        // Get decimals
+        const decimals = await contract.decimals();
+        console.log(`Token decimals: ${decimals}`);
+        
+        // Check balance
+        const balance = await contract.balanceOf(account);
+        const balanceFormatted = parseFloat(ethers.formatUnits(balance, decimals));
+        console.log(`Current balance: ${balanceFormatted} ${selectedToken.symbol}`);
+        
+        if (balanceFormatted < amount) {
+          toast.error(`Insufficient ${selectedToken.symbol}! You have ${balanceFormatted.toFixed(6)} but trying to send ${amount}`);
+          setSending(false);
+          return;
+        }
+        
+        // Convert amount to wei with correct decimals
+        const amountInWei = ethers.parseUnits(sendAmount, decimals);
+        console.log(`Sending ${amountInWei.toString()} wei (${amount} ${selectedToken.symbol})`);
+        
+        // Execute transfer
+        const tx = await contract.transfer(sendTo, amountInWei);
+        toast.success(`${selectedToken.symbol} transfer initiated! Waiting for confirmation... ⏳`);
+        
+        const receipt = await tx.wait();
+        txHash = receipt.hash;
+        
+        toast.success(`${amount} ${selectedToken.symbol} sent successfully! 🎉`);
+        
+        // Update CAMLY balance if that's what was sent
+        if (selectedToken.symbol === "CAMLY") {
+          await getCamlyBalance(account);
+        }
+      } else {
+        // Native Token Transfer (BNB, ETH, MATIC)
+        console.log(`Sending ${amount} ${selectedToken.symbol} (native) to ${sendTo}`);
+        
+        const tx = await signer.sendTransaction({
+          to: sendTo,
+          value: ethers.parseEther(sendAmount),
+        });
 
-      await tx.wait();
+        toast.success("Transaction sent! Waiting for confirmation... ⏳");
+        const receipt = await tx.wait();
+        txHash = receipt.hash;
+        
+        toast.success("Transaction confirmed! 🎉");
+      }
 
+      // Record transaction in database
       await supabase.from("wallet_transactions").insert({
         from_user_id: user?.id,
         amount: amount,
         token_type: selectedToken.symbol,
-        transaction_hash: tx.hash,
+        transaction_hash: txHash,
         status: "completed",
       });
 
-      toast.success("Transaction confirmed! 🎉");
       setSendAmount("");
       setSendTo("");
       await getBalance(account);
@@ -306,10 +365,10 @@ export default function FunWallet() {
       console.error("Error sending transaction:", error);
       if (error.code === 4001) {
         toast.error("Transaction rejected by user");
-      } else if (error.code === -32603) {
-        toast.error("Insufficient funds for transaction");
+      } else if (error.code === -32603 || error.message?.includes("insufficient")) {
+        toast.error(`Insufficient funds! Make sure you have enough ${selectedToken.symbol} and BNB for gas fees.`);
       } else {
-        toast.error("Transaction failed! Please try again");
+        toast.error(`Transaction failed: ${error.message || "Unknown error"}`);
       }
     } finally {
       setSending(false);
@@ -372,68 +431,98 @@ export default function FunWallet() {
       const camlyToken = tokens.find(t => t.symbol === "CAMLY");
       if (!camlyToken?.contract) {
         toast.error("CAMLY token not configured!");
+        setBulkSending(false);
         return;
       }
+
+      console.log("=== CAMLY AIRDROP START ===");
+      console.log("Contract:", camlyToken.contract);
+      console.log("Recipients:", addresses.length);
+      console.log("Amount per address:", amount);
+      console.log("Total CAMLY needed:", totalAmount);
 
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(camlyToken.contract, ERC20_ABI, signer);
       const decimals = await contract.decimals();
 
+      console.log("CAMLY Decimals:", decimals.toString());
+
       // Check current balance
       const balance = await contract.balanceOf(account);
       const balanceFormatted = parseFloat(ethers.formatUnits(balance, decimals));
       
+      console.log("Your CAMLY balance:", balanceFormatted);
+      console.log("Total needed:", totalAmount);
+      
       if (balanceFormatted < totalAmount) {
-        toast.error(`Insufficient CAMLY! You have ${balanceFormatted.toFixed(2)} but need ${totalAmount}`);
+        toast.error(`❌ Insufficient CAMLY! You have ${balanceFormatted.toFixed(2)} but need ${totalAmount}`);
         setBulkSending(false);
         return;
       }
 
-      toast.success("🚀 Starting airdrop to " + addresses.length + " wallets!");
+      toast.success(`🚀 Starting airdrop of ${amount} CAMLY to ${addresses.length} wallets!`);
 
       let successCount = 0;
+      let failedAddresses: string[] = [];
+      
       for (let i = 0; i < addresses.length; i++) {
         try {
-          setBulkProgressText(`Airdropping... ${i + 1}/${addresses.length} wallets done`);
+          setBulkProgressText(`Airdropping... ${i + 1}/${addresses.length} wallets`);
           
-          const tx = await contract.transfer(
-            addresses[i],
-            ethers.parseUnits(bulkAmount, decimals)
-          );
+          console.log(`Sending to ${addresses[i]}: ${amount} CAMLY`);
           
-          await tx.wait();
+          const amountInWei = ethers.parseUnits(bulkAmount, decimals);
+          const tx = await contract.transfer(addresses[i], amountInWei);
+          
+          console.log(`TX sent: ${tx.hash}`);
+          
+          const receipt = await tx.wait();
+          console.log(`TX confirmed: ${receipt.hash}`);
+          
           successCount++;
           setBulkProgress(Math.round(((i + 1) / addresses.length) * 100));
           
-          toast.success(`✅ ${i + 1}/${addresses.length}: Sent ${amount} CAMLY to ${addresses[i].slice(0, 6)}...${addresses[i].slice(-4)}`);
+          toast.success(`✅ ${i + 1}/${addresses.length}: ${amount} CAMLY → ${addresses[i].slice(0, 6)}...${addresses[i].slice(-4)}`);
         } catch (error: any) {
           console.error(`Failed to send to ${addresses[i]}:`, error);
-          toast.error(`❌ ${i + 1}/${addresses.length}: Failed ${addresses[i].slice(0, 6)}...${addresses[i].slice(-4)}`);
+          failedAddresses.push(addresses[i]);
+          toast.error(`❌ ${i + 1}/${addresses.length}: Failed ${addresses[i].slice(0, 6)}...${addresses[i].slice(-4)} - ${error.message || 'Unknown error'}`);
         }
       }
 
+      console.log("=== AIRDROP COMPLETE ===");
+      console.log("Success:", successCount);
+      console.log("Failed:", failedAddresses.length);
+
       // Record airdrop transaction in database
       const batchId = new Date().getTime();
+      const totalSent = successCount * amount;
+      
       await supabase.from("wallet_transactions").insert({
         from_user_id: user?.id,
-        amount: totalAmount,
+        amount: totalSent,
         token_type: "CAMLY",
         status: successCount === addresses.length ? "completed" : "partial",
-        notes: `Airdrop to ${addresses.length} recipients - ${successCount} successful, ${addresses.length - successCount} failed - Batch #${batchId}`
+        notes: `Airdrop to ${addresses.length} recipients - ${successCount} successful, ${failedAddresses.length} failed - Batch #${batchId}`
       });
 
       // Trigger 10-second celebration!
-      setCelebrationAmount(totalAmount);
+      setCelebrationAmount(totalSent);
       setShowCelebration(true);
 
-      toast.success(`🎉 AIRDROP COMPLETE! Successfully sent to ${successCount}/${addresses.length} addresses!`);
+      if (successCount === addresses.length) {
+        toast.success(`🎉 PERFECT! All ${addresses.length} airdrops successful!`);
+      } else {
+        toast.success(`🎉 Airdrop done! ${successCount}/${addresses.length} successful`);
+      }
+      
       setBulkAddresses("");
       await getCamlyBalance(account!);
       await fetchTransactionHistory();
     } catch (error: any) {
       console.error("Bulk send error:", error);
-      toast.error("Airdrop failed! " + (error.message || "Unknown error"));
+      toast.error(`Airdrop failed: ${error.message || "Unknown error"}`);
     } finally {
       setBulkSending(false);
       setBulkProgress(0);
