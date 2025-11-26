@@ -1,0 +1,253 @@
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { motion } from "framer-motion";
+import confetti from "canvas-confetti";
+import { Sparkles, RotateCcw, Trophy } from "lucide-react";
+
+interface LilBlockBuddyProps {
+  level: number;
+  onLevelComplete: (stars: number, score: number) => void;
+}
+
+const LilBlockBuddy = ({ level, onLevelComplete }: LilBlockBuddyProps) => {
+  const gridSize = Math.min(3 + level, 5); // Tăng kích thước từ 3x3 đến 5x5
+  const totalTiles = gridSize * gridSize;
+  
+  const [tiles, setTiles] = useState<number[]>([]);
+  const [moves, setMoves] = useState(0);
+  const [time, setTime] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
+
+  // Khởi tạo puzzle
+  const initializePuzzle = () => {
+    const numbers = Array.from({ length: totalTiles - 1 }, (_, i) => i + 1);
+    numbers.push(0); // 0 là ô trống
+    
+    // Shuffle tiles đảm bảo có thể giải được
+    let shuffled = [...numbers];
+    for (let i = 0; i < 100; i++) {
+      const emptyIndex = shuffled.indexOf(0);
+      const validMoves = getValidMoves(emptyIndex, gridSize);
+      const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+      [shuffled[emptyIndex], shuffled[randomMove]] = [shuffled[randomMove], shuffled[emptyIndex]];
+    }
+    
+    setTiles(shuffled);
+    setMoves(0);
+    setTime(0);
+    setIsPlaying(false);
+    setIsComplete(false);
+  };
+
+  useEffect(() => {
+    initializePuzzle();
+  }, [level]);
+
+  // Timer
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isPlaying && !isComplete) {
+      interval = setInterval(() => {
+        setTime(t => t + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isPlaying, isComplete]);
+
+  // Lấy các nước đi hợp lệ
+  const getValidMoves = (emptyIndex: number, size: number): number[] => {
+    const row = Math.floor(emptyIndex / size);
+    const col = emptyIndex % size;
+    const moves: number[] = [];
+
+    if (row > 0) moves.push(emptyIndex - size); // Trên
+    if (row < size - 1) moves.push(emptyIndex + size); // Dưới
+    if (col > 0) moves.push(emptyIndex - 1); // Trái
+    if (col < size - 1) moves.push(emptyIndex + 1); // Phải
+
+    return moves;
+  };
+
+  // Kiểm tra hoàn thành
+  const checkComplete = (currentTiles: number[]): boolean => {
+    for (let i = 0; i < currentTiles.length - 1; i++) {
+      if (currentTiles[i] !== i + 1) return false;
+    }
+    return currentTiles[currentTiles.length - 1] === 0;
+  };
+
+  // Xử lý click tile
+  const handleTileClick = (index: number) => {
+    if (isComplete) return;
+    
+    if (!isPlaying) setIsPlaying(true);
+
+    const emptyIndex = tiles.indexOf(0);
+    const validMoves = getValidMoves(emptyIndex, gridSize);
+
+    if (validMoves.includes(index)) {
+      const newTiles = [...tiles];
+      [newTiles[emptyIndex], newTiles[index]] = [newTiles[index], newTiles[emptyIndex]];
+      setTiles(newTiles);
+      setMoves(m => m + 1);
+
+      if (checkComplete(newTiles)) {
+        setIsComplete(true);
+        setIsPlaying(false);
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+
+        // Tính điểm dựa trên moves và time
+        const baseScore = 1000;
+        const movesPenalty = moves * 5;
+        const timePenalty = time * 2;
+        const finalScore = Math.max(100, baseScore - movesPenalty - timePenalty);
+        
+        // Tính stars
+        const stars = moves < gridSize * 5 && time < 60 ? 3 : moves < gridSize * 8 ? 2 : 1;
+        
+        setTimeout(() => onLevelComplete(stars, finalScore), 1000);
+      }
+    }
+  };
+
+  // Màu sắc cho tiles
+  const getTileColor = (num: number): string => {
+    const colors = [
+      "from-primary to-primary-dark",
+      "from-accent to-purple-400",
+      "from-glow to-pink-400",
+      "from-primary-light to-accent",
+    ];
+    return colors[num % colors.length];
+  };
+
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5 p-4 flex items-center justify-center">
+      <div className="max-w-2xl w-full space-y-6">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center space-y-2"
+        >
+          <h1 className="text-4xl md:text-5xl font-fredoka font-bold bg-gradient-to-r from-primary via-accent to-glow bg-clip-text text-transparent">
+            Lil Block Buddy 🧩
+          </h1>
+          <p className="text-lg text-muted-foreground font-comic">
+            Sắp xếp các số theo thứ tự từ 1 đến {totalTiles - 1}!
+          </p>
+          <Badge variant="secondary" className="text-lg px-4 py-2">
+            Level {level} • Grid {gridSize}x{gridSize}
+          </Badge>
+        </motion.div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-4">
+          <Card className="p-4 text-center glassmorphism border-primary/20">
+            <p className="text-sm text-muted-foreground mb-1">Số bước</p>
+            <p className="text-2xl font-fredoka font-bold text-primary">{moves}</p>
+          </Card>
+          <Card className="p-4 text-center glassmorphism border-accent/20">
+            <p className="text-sm text-muted-foreground mb-1">Thời gian</p>
+            <p className="text-2xl font-fredoka font-bold text-accent">{formatTime(time)}</p>
+          </Card>
+          <Card className="p-4 text-center glassmorphism border-glow/20">
+            <p className="text-sm text-muted-foreground mb-1">Target</p>
+            <p className="text-2xl font-fredoka font-bold text-glow">⭐ {gridSize * 5}</p>
+          </Card>
+        </div>
+
+        {/* Game Board */}
+        <Card className="p-6 glassmorphism border-primary/20">
+          <div 
+            className="grid gap-2 mx-auto"
+            style={{ 
+              gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
+              maxWidth: '500px'
+            }}
+          >
+            {tiles.map((num, index) => (
+              <motion.button
+                key={index}
+                onClick={() => handleTileClick(index)}
+                disabled={num === 0 || isComplete}
+                className={`aspect-square rounded-xl text-2xl md:text-3xl font-fredoka font-bold shadow-lg transition-all ${
+                  num === 0 
+                    ? 'bg-background/50 cursor-default' 
+                    : `bg-gradient-to-br ${getTileColor(num)} text-white hover:scale-105 hover:shadow-xl cursor-pointer`
+                }`}
+                whileHover={num !== 0 ? { scale: 1.05 } : {}}
+                whileTap={num !== 0 ? { scale: 0.95 } : {}}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.02 }}
+              >
+                {num !== 0 && num}
+              </motion.button>
+            ))}
+          </div>
+        </Card>
+
+        {/* Controls */}
+        <div className="flex justify-center gap-4">
+          <Button
+            onClick={initializePuzzle}
+            variant="outline"
+            size="lg"
+            className="font-fredoka font-bold border-2 hover:scale-105 transition-all"
+          >
+            <RotateCcw className="mr-2 h-5 w-5" />
+            Reset
+          </Button>
+        </div>
+
+        {/* Win message */}
+        {isComplete && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center space-y-2"
+          >
+            <div className="text-6xl">🎉</div>
+            <h2 className="text-3xl font-fredoka font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              Hoàn thành!
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              {moves} bước trong {formatTime(time)}
+            </p>
+          </motion.div>
+        )}
+
+        {/* Tips */}
+        <Card className="p-4 glassmorphism border-accent/20">
+          <div className="flex items-start gap-3">
+            <Sparkles className="h-5 w-5 text-accent mt-1 flex-shrink-0" />
+            <div className="space-y-1">
+              <p className="font-fredoka font-bold text-accent">Mẹo chơi:</p>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                <li>• Click vào ô cạnh ô trống để di chuyển</li>
+                <li>• Hoàn thành càng nhanh và ít bước càng được nhiều sao</li>
+                <li>• Grid size tăng dần theo level</li>
+              </ul>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default LilBlockBuddy;
