@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { ArrowUpRight, ArrowDownLeft, Wallet, Sparkles, Copy, CheckCircle, ChevronDown, ExternalLink, Home, Send, Zap, Shield, QrCode, ArrowLeft } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, Wallet, Sparkles, Copy, CheckCircle, ChevronDown, ExternalLink, Home, Send, Zap, Shield, QrCode, ArrowLeft, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { CelebrationNotification } from "@/components/CelebrationNotification";
 import { AirdropConfirmModal } from "@/components/AirdropConfirmModal";
@@ -1100,44 +1100,135 @@ export default function FunWallet() {
       </div>
 
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-4xl relative z-10">
-        {/* Navigation Buttons */}
+        {/* User Info & Navigation */}
         <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="mb-6 flex items-center justify-center gap-3"
+          className="mb-6 space-y-4"
         >
-          {/* Back Button */}
-          <motion.button
-            onClick={() => navigate(-1)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="w-14 h-14 rounded-full font-bold flex items-center justify-center transition-all duration-300 shadow-2xl border-0"
-            style={{
-              background: 'linear-gradient(135deg, #9B5DE5 0%, #00F5FF 100%)',
-              boxShadow: '0 8px 32px rgba(0, 245, 255, 0.4), 0 4px 16px rgba(155, 93, 229, 0.3)',
-            }}
-          >
-            <ArrowLeft className="w-6 h-6 text-white" />
-          </motion.button>
+          {/* User Profile Bar */}
+          {user && (
+            <div className="flex items-center justify-between bg-white/10 backdrop-blur-xl rounded-2xl p-3 border border-white/20">
+              <div className="flex items-center gap-3">
+                {user.user_metadata?.avatar_url ? (
+                  <img 
+                    src={user.user_metadata.avatar_url} 
+                    alt="Profile" 
+                    className="w-10 h-10 rounded-full border-2 border-white/30"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
+                    {user.email?.[0].toUpperCase()}
+                  </div>
+                )}
+                <div>
+                  <p className="text-white font-bold text-sm">
+                    Hi {user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0]} 👋
+                  </p>
+                  <p className="text-white/60 text-xs">{user.email}</p>
+                </div>
+              </div>
+              <Button
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                  toast.success("Đã đăng xuất!");
+                  navigate("/auth");
+                }}
+                variant="ghost"
+                size="sm"
+                className="text-white/80 hover:text-white hover:bg-white/10"
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
 
-          {/* Home Button */}
-          <motion.button
-            onClick={() => navigate("/")}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex-1 max-w-md h-14 rounded-[28px] font-bold flex items-center justify-center gap-3 transition-all duration-300 shadow-2xl border-0"
-            style={{
-              background: 'linear-gradient(135deg, #9B5DE5 0%, #00F5FF 100%)',
-              boxShadow: '0 8px 32px rgba(0, 245, 255, 0.4), 0 4px 16px rgba(155, 93, 229, 0.3)',
-              fontSize: '19px',
-              letterSpacing: '0.5px',
-              fontWeight: 700,
-              color: '#FFFFFF'
-            }}
-          >
-            <Home className="w-7 h-7 text-white" />
-            <span>Về Trang Chủ</span>
-          </motion.button>
+          {/* Navigation Buttons */}
+          <div className="flex items-center justify-center gap-3">
+            {/* Back Button */}
+            <motion.button
+              onClick={() => navigate(-1)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-14 h-14 rounded-full font-bold flex items-center justify-center transition-all duration-300 shadow-2xl border-0"
+              style={{
+                background: 'linear-gradient(135deg, #9B5DE5 0%, #00F5FF 100%)',
+                boxShadow: '0 8px 32px rgba(0, 245, 255, 0.4), 0 4px 16px rgba(155, 93, 229, 0.3)',
+              }}
+            >
+              <ArrowLeft className="w-6 h-6 text-white" />
+            </motion.button>
+
+            {/* Home Button */}
+            <motion.button
+              onClick={() => navigate("/")}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex-1 max-w-md h-14 rounded-[28px] font-bold flex items-center justify-center gap-3 transition-all duration-300 shadow-2xl border-0"
+              style={{
+                background: 'linear-gradient(135deg, #9B5DE5 0%, #00F5FF 100%)',
+                boxShadow: '0 8px 32px rgba(0, 245, 255, 0.4), 0 4px 16px rgba(155, 93, 229, 0.3)',
+                fontSize: '19px',
+                letterSpacing: '0.5px',
+                fontWeight: 700,
+                color: '#FFFFFF'
+              }}
+            >
+              <Home className="w-7 h-7 text-white" />
+              <span>Về Trang Chủ</span>
+            </motion.button>
+          </div>
+
+          {/* Google Sign In Button (if not logged in) */}
+          {!user && (
+            <motion.button
+              onClick={async () => {
+                try {
+                  const { error } = await supabase.auth.signInWithOAuth({
+                    provider: "google",
+                    options: {
+                      redirectTo: `${window.location.origin}/wallet`,
+                    },
+                  });
+                  if (error) throw error;
+                } catch (error: any) {
+                  console.error("Google auth error:", error);
+                  toast.error("Không thể kết nối với Google. Vui lòng thử lại!");
+                }
+              }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-full max-w-md mx-auto h-14 rounded-xl font-bold flex items-center justify-center gap-3 transition-all duration-300 shadow-2xl border-0"
+              style={{
+                background: 'linear-gradient(135deg, #8B46FF 0%, #00F2FF 100%)',
+                boxShadow: '0 8px 32px rgba(0, 245, 255, 0.4), 0 4px 16px rgba(139, 70, 255, 0.3)',
+                fontSize: '18px',
+                letterSpacing: '0.5px',
+                fontWeight: 700,
+                color: '#FFFFFF'
+              }}
+            >
+              <svg className="w-6 h-6" viewBox="0 0 24 24">
+                <path
+                  fill="#FFFFFF"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="#FFFFFF"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                />
+                <path
+                  fill="#FFFFFF"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                />
+                <path
+                  fill="#FFFFFF"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                />
+              </svg>
+              <span>Sign in with Google</span>
+            </motion.button>
+          )}
         </motion.div>
 
         {!account ? (
