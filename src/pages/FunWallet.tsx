@@ -1117,7 +1117,7 @@ export default function FunWallet() {
             }}
           >
             <Home className="w-5 h-5 sm:w-5 sm:h-5 mr-2 text-cyan-400 group-hover:scale-110 transition-transform" />
-            <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent text-base sm:text-base">
+            <span className="bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent text-base sm:text-base font-bold">
               Về Trang Chính
             </span>
           </Button>
