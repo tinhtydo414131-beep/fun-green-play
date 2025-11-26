@@ -1249,11 +1249,12 @@ export default function FunWallet() {
                       {selectedNetwork.symbol}
                     </p>
                     
-                    {/* CAMLY Balance Highlight */}
+                    {/* CAMLY Balance Highlight - Click to toggle chart */}
                     <motion.div
                       animate={{ scale: [1, 1.03, 1] }}
                       transition={{ duration: 3, repeat: Infinity }}
-                      className="mt-3 sm:mt-4 p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 border-2 border-primary-light"
+                      onClick={() => setShowChart(!showChart)}
+                      className="mt-3 sm:mt-4 p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 border-2 border-primary-light cursor-pointer hover:border-primary transition-colors"
                     >
                       <div className="flex items-center justify-center gap-2 sm:gap-2">
                         <img 
@@ -1402,25 +1403,6 @@ export default function FunWallet() {
                       </div>
                     </div>
                   </div>
-
-                  {/* Toggle Chart Button */}
-                  {chartData.length > 0 && (
-                    <Button
-                      onClick={() => setShowChart(!showChart)}
-                      variant="outline"
-                      size="sm"
-                      className="mt-4 w-full font-bold border-2 border-primary/30 hover:border-primary hover:bg-primary/10 transition-all duration-300"
-                    >
-                      <motion.div
-                        animate={{ rotate: showChart ? 180 : 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="mr-2"
-                      >
-                        <ChevronDown className="w-4 h-4" />
-                      </motion.div>
-                      {showChart ? "Ẩn Biểu Đồ" : "Hiện Biểu Đồ"}
-                    </Button>
-                  )}
 
                   {/* Price Chart */}
                   <AnimatePresence>
