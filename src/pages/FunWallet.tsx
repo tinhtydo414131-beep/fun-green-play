@@ -984,23 +984,7 @@ export default function FunWallet() {
               animate={{ y: 0, opacity: 1 }}
               className="mb-8"
             >
-              <Card className="border-0 overflow-hidden relative" style={{
-                background: 'rgba(30,0,51,0.4)',
-                backdropFilter: 'blur(40px)',
-                boxShadow: `0 0 60px ${selectedNetwork.color}40, 0 20px 80px rgba(0,0,0,0.5), inset 0 0 0 2px ${selectedNetwork.color}60`
-              }}>
-                <motion.div
-                  className="absolute inset-0 rounded-lg pointer-events-none"
-                  animate={{
-                    boxShadow: [
-                      `0 0 20px ${selectedNetwork.color}60`,
-                      `0 0 40px ${selectedNetwork.color}80`,
-                      `0 0 20px ${selectedNetwork.color}60`
-                    ]
-                  }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-
+              <Card className="border border-border rounded-2xl overflow-hidden relative bg-card/90 backdrop-blur-sm shadow-[var(--shadow-card)]">
                 <CardContent className="p-8">
                   {/* Header with Network Selector */}
                   <div className="flex items-center justify-between mb-6">
@@ -1009,9 +993,9 @@ export default function FunWallet() {
                         animate={{ rotate: 360 }}
                         transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                       >
-                        <Sparkles className="w-10 h-10 text-cyan-400" />
+                        <Sparkles className="w-10 h-10 text-secondary" />
                       </motion.div>
-                      <h1 className="text-4xl font-black bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-400 bg-clip-text text-transparent">
+                      <h1 className="text-4xl font-black text-primary">
                         FUN WALLET
                       </h1>
                     </div>
@@ -1021,13 +1005,7 @@ export default function FunWallet() {
                       <DropdownMenuTrigger asChild>
                         <Button 
                           variant="outline" 
-                          className="border-0 font-bold text-lg px-6 py-6 h-auto transition-all duration-300"
-                          style={{
-                            background: `linear-gradient(135deg, ${selectedNetwork.color}40, ${selectedNetwork.color}20)`,
-                            backdropFilter: 'blur(20px)',
-                            boxShadow: `0 0 30px ${selectedNetwork.color}60, inset 0 0 20px ${selectedNetwork.color}20`,
-                            color: selectedNetwork.color
-                          }}
+                          className="font-bold text-lg px-6 py-6 h-auto"
                         >
                           <span className="text-2xl mr-2">{selectedNetwork.icon}</span>
                           {selectedNetwork.name}
@@ -1035,23 +1013,13 @@ export default function FunWallet() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent 
-                        className="border-0 p-2 z-[100]"
-                        style={{
-                          background: 'rgba(30,0,51,0.95)',
-                          backdropFilter: 'blur(40px)',
-                          boxShadow: '0 20px 60px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(157,0,255,0.5)'
-                        }}
+                        className="border border-border bg-card/95 backdrop-blur-lg z-[100]"
                       >
                         {networks.map((network) => (
                           <DropdownMenuItem
                             key={network.id}
                             onClick={() => switchNetwork(network)}
-                            className="px-4 py-3 cursor-pointer transition-all duration-200"
-                            style={{
-                              background: selectedNetwork.id === network.id ? `${network.color}20` : 'transparent',
-                              color: network.color,
-                              borderLeft: selectedNetwork.id === network.id ? `4px solid ${network.color}` : 'none'
-                            }}
+                            className="px-4 py-3 cursor-pointer"
                           >
                             <span className="text-2xl mr-3">{network.icon}</span>
                             <span className="font-bold text-lg">{network.name}</span>
@@ -1063,7 +1031,7 @@ export default function FunWallet() {
 
                   {/* Address */}
                   <div className="flex items-center justify-center gap-2 mb-4">
-                    <p className="text-sm text-white/60 font-mono">
+                    <p className="text-sm text-muted-foreground font-mono">
                       {account.slice(0, 6)}...{account.slice(-4)}
                     </p>
                     <Button
@@ -1073,9 +1041,9 @@ export default function FunWallet() {
                       className="h-6 w-6 p-0"
                     >
                       {copied ? (
-                        <CheckCircle className="w-4 h-4 text-green-400" />
+                        <CheckCircle className="w-4 h-4 text-success" />
                       ) : (
-                        <Copy className="w-4 h-4 text-white/60" />
+                        <Copy className="w-4 h-4 text-muted-foreground" />
                       )}
                     </Button>
                   </div>
@@ -1087,41 +1055,24 @@ export default function FunWallet() {
                     className="flex justify-center mb-6"
                   >
                     <div 
-                      className="p-6 rounded-3xl relative"
-                      style={{
-                        background: 'rgba(255,255,255,0.95)',
-                        backdropFilter: 'blur(20px)',
-                        boxShadow: '0 0 60px rgba(0,255,255,0.6), 0 0 120px rgba(157,0,255,0.4), inset 0 0 30px rgba(255,255,255,0.8)',
-                        border: '3px solid rgba(0,255,255,0.3)'
-                      }}
+                      className="p-6 rounded-2xl relative bg-white border-2 border-primary-light"
                     >
-                      <motion.div
-                        animate={{ 
-                          boxShadow: [
-                            '0 0 40px rgba(0,255,255,0.6)',
-                            '0 0 80px rgba(157,0,255,0.8)',
-                            '0 0 40px rgba(0,255,255,0.6)'
-                          ]
-                        }}
-                        transition={{ duration: 3, repeat: Infinity }}
-                        className="absolute inset-0 rounded-3xl pointer-events-none"
-                      />
                       <QRCodeSVG
                         value={account}
                         size={180}
                         bgColor="#FFFFFF"
-                        fgColor="#1E0033"
+                        fgColor="#8B46FF"
                         level="H"
                         includeMargin={false}
-                        className="rounded-2xl relative z-10"
+                        className="rounded-xl relative z-10"
                       />
-                      <div className="absolute -top-3 -right-3 bg-gradient-to-br from-cyan-400 to-purple-600 rounded-full p-2 shadow-2xl">
+                      <div className="absolute -top-3 -right-3 bg-gradient-to-br from-primary to-secondary rounded-full p-2 shadow-lg">
                         <QrCode className="w-6 h-6 text-white" />
                       </div>
                     </div>
                   </motion.div>
 
-                  <p className="text-center text-sm text-white/60 mb-4 font-bold">
+                  <p className="text-center text-sm text-muted-foreground mb-4 font-bold">
                     📱 Scan QR to receive tokens
                   </p>
 
@@ -1130,19 +1081,11 @@ export default function FunWallet() {
                     <motion.div
                       animate={{ scale: [1, 1.05, 1] }}
                       transition={{ duration: 2, repeat: Infinity }}
-                      className="text-7xl font-black mb-2"
-                      style={{
-                        background: 'linear-gradient(135deg, #00FFFF 0%, #9D00FF 50%, #00FFFF 100%)',
-                        backgroundSize: '200% auto',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text',
-                        filter: 'drop-shadow(0 0 30px rgba(0,255,255,0.8))',
-                      }}
+                      className="text-7xl font-black mb-2 text-primary"
                     >
                       {balance}
                     </motion.div>
-                    <p className="text-2xl font-bold" style={{ color: selectedNetwork.color }}>
+                    <p className="text-2xl font-bold text-secondary">
                       {selectedNetwork.symbol}
                     </p>
                     
@@ -1150,27 +1093,21 @@ export default function FunWallet() {
                     <motion.div
                       animate={{ scale: [1, 1.03, 1] }}
                       transition={{ duration: 3, repeat: Infinity }}
-                      className="mt-4 p-4 rounded-2xl"
-                      style={{
-                        background: 'linear-gradient(135deg, rgba(255,192,203,0.2), rgba(255,215,0,0.2))',
-                        backdropFilter: 'blur(10px)',
-                        border: '2px solid rgba(255,215,0,0.5)',
-                        boxShadow: '0 0 40px rgba(255,215,0,0.4)'
-                      }}
+                      className="mt-4 p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 border-2 border-primary-light"
                     >
                       <div className="flex items-center justify-center gap-2">
                         <span className="text-3xl">👑</span>
                         <div>
-                          <p className="text-xs text-white/60">CAMLY COIN</p>
-                          <p className="text-3xl font-black bg-gradient-to-r from-pink-400 via-yellow-300 to-pink-500 bg-clip-text text-transparent">
+                          <p className="text-xs text-muted-foreground">CAMLY COIN</p>
+                          <p className="text-3xl font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                             {camlyBalance}
                           </p>
                         </div>
                         {tokens.find(t => t.symbol === "CAMLY")?.verified && (
-                          <Shield className="w-5 h-5 text-green-400" />
+                          <Shield className="w-5 h-5 text-success" />
                         )}
                       </div>
-                      <p className="text-xs text-white/40 mt-2">
+                      <p className="text-xs text-muted-foreground mt-2">
                         Contract: {tokens.find(t => t.symbol === "CAMLY")?.contract?.slice(0, 10)}...
                       </p>
                     </motion.div>
@@ -1191,20 +1128,13 @@ export default function FunWallet() {
                   <motion.button
                     key={token.symbol}
                     onClick={() => setSelectedToken(token)}
-                    whileHover={{ scale: 1.1 }}
+                    whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className={`flex-shrink-0 px-6 py-4 rounded-2xl border-0 font-bold transition-all duration-300 ${
-                      selectedToken.symbol === token.symbol ? 'scale-110' : 'scale-100 opacity-70'
+                    className={`flex-shrink-0 px-6 py-4 rounded-2xl border-2 font-bold transition-all duration-300 ${
+                      selectedToken.symbol === token.symbol 
+                        ? 'border-primary bg-gradient-to-br from-primary to-secondary text-white scale-105 shadow-[var(--shadow-button)]' 
+                        : 'border-border bg-card/80 text-foreground opacity-70'
                     }`}
-                    style={{
-                      background: selectedToken.symbol === token.symbol
-                        ? `linear-gradient(135deg, ${token.gradient})`
-                        : 'rgba(255,255,255,0.1)',
-                      backdropFilter: 'blur(20px)',
-                      boxShadow: selectedToken.symbol === token.symbol
-                        ? `0 0 40px ${token.special ? '#FFD700' : 'rgba(255,255,255,0.5)'}`
-                        : 'none'
-                    }}
                   >
                     <motion.div
                       animate={selectedToken.symbol === token.symbol ? { rotate: 360 } : {}}
@@ -1213,7 +1143,7 @@ export default function FunWallet() {
                     >
                       {token.emoji}
                     </motion.div>
-                    <div className="text-white font-black text-sm">{token.symbol}</div>
+                    <div className="font-black text-sm">{token.symbol}</div>
                   </motion.button>
                 ))}
               </div>
@@ -1227,28 +1157,24 @@ export default function FunWallet() {
               className="mb-8"
             >
               <Tabs defaultValue="send" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-6 border-0 p-2" style={{
-                  background: 'rgba(30,0,51,0.6)',
-                  backdropFilter: 'blur(30px)',
-                  boxShadow: '0 0 40px rgba(157,0,255,0.3)'
-                }}>
+                <TabsList className="grid w-full grid-cols-3 mb-6 p-2 bg-muted rounded-2xl">
                   <TabsTrigger 
                     value="send"
-                    className="font-black text-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-purple-600 data-[state=active]:text-white"
+                    className="font-black text-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white rounded-xl"
                   >
                     <Send className="w-5 h-5 mr-2" />
                     Normal Send
                   </TabsTrigger>
                   <TabsTrigger 
                     value="bulk"
-                    className="font-black text-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-500 data-[state=active]:text-white"
+                    className="font-black text-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white rounded-xl"
                   >
                     <Zap className="w-5 h-5 mr-2" />
                     Bulk Airdrop
                   </TabsTrigger>
                   <TabsTrigger 
                     value="history"
-                    className="font-black text-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500 data-[state=active]:to-blue-600 data-[state=active]:text-white"
+                    className="font-black text-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white rounded-xl"
                   >
                     <Sparkles className="w-5 h-5 mr-2" />
                     History
@@ -1259,41 +1185,25 @@ export default function FunWallet() {
                 <TabsContent value="send">
                   <div className="grid md:grid-cols-2 gap-6">
                     {/* Send Card */}
-                    <Card className="relative overflow-hidden border-0" style={{
-                      background: 'rgba(255,20,147,0.15)',
-                      backdropFilter: 'blur(30px)',
-                      boxShadow: '0 8px 32px 0 rgba(255,20,147,0.4), inset 0 0 0 2px rgba(255,20,147,0.5)'
-                    }}>
+                    <Card className="border border-primary-light rounded-2xl bg-card/90 backdrop-blur-sm">
                       <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-2xl">
-                          <motion.div
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                          >
-                            <ArrowUpRight className="w-6 h-6 text-pink-400" />
-                          </motion.div>
-                          <span className="bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent font-black">
-                            Send FUN
-                          </span>
+                        <CardTitle className="flex items-center gap-2 text-2xl text-primary">
+                          <Send className="w-6 h-6" />
+                          Send FUN
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div>
-                          <label className="text-sm text-white/60 mb-2 block">Recipient Address</label>
+                          <label className="text-sm text-muted-foreground mb-2 block font-medium">Recipient Address</label>
                           <Input
                             value={sendTo}
                             onChange={(e) => setSendTo(e.target.value)}
                             placeholder="0x..."
-                            className="border-0 text-white placeholder:text-white/40"
-                            style={{
-                              background: 'rgba(255,255,255,0.05)',
-                              backdropFilter: 'blur(10px)',
-                              boxShadow: `inset 0 0 0 1px ${selectedNetwork.color}40`
-                            }}
+                            className="bg-background/50 border-input"
                           />
                         </div>
                         <div>
-                          <label className="text-sm text-white/60 mb-2 block">Amount ({selectedToken.symbol})</label>
+                          <label className="text-sm text-muted-foreground mb-2 block font-medium">Amount ({selectedToken.symbol})</label>
                           <Input
                             type="number"
                             value={sendAmount}

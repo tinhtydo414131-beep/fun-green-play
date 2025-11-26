@@ -2,69 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Surreal Healing Web3 Fantasy Design System - Ultra-Dreamy Aurora */
+/* Fun Planet Web3 Design System - Clean Purple-Cyan */
 
 @layer base {
   :root {
-    --background: 270 60% 8%;
-    --foreground: 270 10% 98%;
-    --card: 270 50% 12%;
-    --card-foreground: 270 10% 98%;
-    --popover: 270 50% 12%;
-    --popover-foreground: 270 10% 98%;
-    --primary: 280 100% 50%;
+    --background: 270 100% 98%;
+    --foreground: 0 0% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 20%;
+    --primary: 262 100% 64%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 280 100% 70%;
-    --secondary: 190 100% 50%;
+    --primary-light: 262 100% 87%;
+    --secondary: 186 100% 50%;
     --secondary-foreground: 0 0% 100%;
-    --accent: 45 100% 60%;
-    --accent-foreground: 270 40% 10%;
-    --glow: 280 100% 70%;
-    --muted: 270 30% 20%;
-    --muted-foreground: 270 20% 70%;
+    --accent: 186 100% 50%;
+    --accent-foreground: 0 0% 20%;
+    --success: 186 100% 50%;
+    --muted: 270 100% 95%;
+    --muted-foreground: 0 0% 45%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 270 40% 25%;
-    --input: 270 40% 20%;
-    --ring: 280 100% 50%;
+    --border: 262 100% 87%;
+    --input: 262 100% 87%;
+    --ring: 262 100% 64%;
     --radius: 1rem;
     
-    /* Purple-Cyan Galaxy Gradients */
-    --aurora-gradient: linear-gradient(135deg, hsl(280, 100%, 50%) 0%, hsl(220, 90%, 55%) 40%, hsl(190, 100%, 50%) 100%);
-    --aurora-breathing: linear-gradient(45deg, hsl(280, 100%, 60%) 0%, hsl(240, 100%, 60%) 30%, hsl(190, 100%, 60%) 70%, hsl(280, 100%, 60%) 100%);
-    --marble-vein: linear-gradient(90deg, transparent 0%, hsl(280, 80%, 40%) 50%, transparent 100%);
-    --golden-glow: linear-gradient(135deg, hsl(45, 100%, 50%) 0%, hsl(45, 100%, 70%) 100%);
+    /* Fun Planet Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(262, 100%, 64%) 0%, hsl(186, 100%, 50%) 100%);
+    --gradient-celebration: linear-gradient(135deg, hsl(45, 100%, 50%) 0%, hsl(186, 100%, 50%) 100%);
     
-    /* Neon Glows & Glass Effects */
-    --shadow-healing: 0 8px 32px hsla(280, 100%, 50%, 0.3);
-    --shadow-aurora: 0 0 80px hsla(280, 100%, 60%, 0.5), 0 0 40px hsla(190, 100%, 60%, 0.3);
-    --glow-inner: inset 0 0 30px hsla(280, 100%, 70%, 0.15);
-    --glow-outer: 0 0 60px hsla(280, 100%, 60%, 0.6), 0 0 30px hsla(190, 100%, 60%, 0.4);
-    --glassmorphism: blur(16px) saturate(200%);
-    --neon-border: 0 0 10px hsla(280, 100%, 60%, 0.8), 0 0 20px hsla(190, 100%, 60%, 0.6);
+    /* Shadows */
+    --shadow-card: 0 4px 16px hsla(262, 100%, 64%, 0.1);
+    --shadow-button: 0 4px 12px hsla(262, 100%, 64%, 0.2);
+    --shadow-button-hover: 0 6px 20px hsla(262, 100%, 64%, 0.3);
   }
 
   .dark {
-    --background: 270 60% 8%;
-    --foreground: 270 10% 98%;
-    --card: 270 50% 12%;
-    --card-foreground: 270 10% 98%;
-    --popover: 270 50% 12%;
-    --popover-foreground: 270 10% 98%;
-    --primary: 280 100% 50%;
+    --background: 270 100% 98%;
+    --foreground: 0 0% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 20%;
+    --primary: 262 100% 64%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 280 100% 70%;
-    --secondary: 190 100% 50%;
+    --primary-light: 262 100% 87%;
+    --secondary: 186 100% 50%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 270 30% 20%;
-    --muted-foreground: 270 20% 70%;
-    --accent: 45 100% 60%;
-    --accent-foreground: 270 40% 10%;
+    --muted: 270 100% 95%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 186 100% 50%;
+    --accent-foreground: 0 0% 20%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 270 40% 25%;
-    --input: 270 40% 20%;
-    --ring: 280 100% 50%;
+    --border: 262 100% 87%;
+    --input: 262 100% 87%;
+    --ring: 262 100% 64%;
   }
 }
 
