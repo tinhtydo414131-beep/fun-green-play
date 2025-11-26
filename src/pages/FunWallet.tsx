@@ -726,10 +726,10 @@ export default function FunWallet() {
       console.log("- Recipients:", addresses);
       console.log("- Amounts:", amounts.map(a => a.toString()));
       
-      toast.info("Setting Gas Limit to 800k — cheap & safe for airdrop! 💜");
+      toast.info("MetaMask tip: Set Gas Limit to 1M+ in popup for success! 💜");
       let txHash = "";
       try {
-        const gasLimit = 800000n;
+        const gasLimit = 1200000n;
         const multiSendTx = await multisendContract.multiSendToken(
           camlyToken.contract,
           addresses,
@@ -757,7 +757,7 @@ export default function FunWallet() {
         if (contractError.code === "BUFFER_OVERRUN") {
           throw new Error("Contract call failed - invalid data format. Check console for debug info.");
         } else if (contractError.message?.includes("execution reverted")) {
-          throw new Error("Transaction reverted! Verify: ✓ Balance OK? ✓ Allowance set? ✓ MetaMask gas limit ≥ 800k?");
+          throw new Error("Transaction reverted! Edit gas in MetaMask >1M limit. ✓ Balance OK? ✓ Allowance set?");
         } else if (contractError.message?.includes("invalid address")) {
           throw new Error("Invalid wallet address detected. Please validate addresses first.");
         } else if (contractError.message?.includes("insufficient allowance")) {
