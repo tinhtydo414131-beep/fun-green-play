@@ -1,7 +1,6 @@
 import memoryCardsImg from '@/assets/games/memory-cards.jpg';
 import colorMatchImg from '@/assets/games/color-match.jpg';
 import balloonPopImg from '@/assets/games/balloon-pop.jpg';
-import game2048Img from '@/assets/games/2048.jpg';
 import guessNumberImg from '@/assets/games/guess-number.jpg';
 import wordScrambleImg from '@/assets/games/word-scramble.jpg';
 import mathQuizImg from '@/assets/games/math-quiz.jpg';
@@ -110,15 +109,6 @@ export const games: Game[] = [
   },
   
   // Brain & Educational Games
-  {
-    id: '2048',
-    title: '2048',
-    description: 'Trò chơi xếp số huyền thoại',
-    category: 'brain',
-    difficulty: 'medium',
-    image: game2048Img,
-    playable: true,
-  },
   {
     id: 'guess-number',
     title: 'Guess The Number',
