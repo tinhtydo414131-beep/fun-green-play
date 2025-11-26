@@ -1564,43 +1564,73 @@ export default function FunWallet() {
 
                     {/* Receive Card */}
                     <Card className="relative overflow-hidden border-0 rounded-xl sm:rounded-2xl" style={{
-                      background: 'rgba(0,255,255,0.15)',
+                      background: 'linear-gradient(135deg, rgba(0,255,255,0.2) 0%, rgba(0,136,255,0.2) 100%)',
                       backdropFilter: 'blur(30px)',
-                      boxShadow: '0 8px 32px 0 rgba(0,255,255,0.4), inset 0 0 0 2px rgba(0,255,255,0.5)'
+                      boxShadow: '0 8px 32px 0 rgba(0,255,255,0.5), inset 0 0 0 3px rgba(0,255,255,0.6)'
                     }}>
                       <CardHeader className="pb-3 sm:pb-6">
-                        <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl">
+                        <CardTitle className="flex items-center gap-2 text-2xl sm:text-3xl">
                           <motion.div
                             animate={{ rotate: -360 }}
                             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                           >
-                            <ArrowDownLeft className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400" />
+                            <ArrowDownLeft className="w-6 h-6 sm:w-8 sm:h-8 text-cyan-300" />
                           </motion.div>
-                          <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent font-black">
+                          <span className="bg-gradient-to-r from-cyan-300 via-blue-400 to-cyan-500 bg-clip-text text-transparent font-black">
                             Receive
                           </span>
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="space-y-3 sm:space-y-4">
-                        <div className="p-4 sm:p-6 rounded-xl text-center" style={{
-                          background: 'rgba(255,255,255,0.05)',
-                          backdropFilter: 'blur(10px)',
+                      <CardContent className="space-y-4 sm:space-y-5">
+                        <div className="p-5 sm:p-8 rounded-2xl text-center border-2 border-cyan-400/40" style={{
+                          background: 'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(0,255,255,0.08) 100%)',
+                          backdropFilter: 'blur(20px)',
+                          boxShadow: '0 4px 20px rgba(0,255,255,0.3)'
                         }}>
-                          <p className="text-[10px] sm:text-xs text-white/60 mb-2 sm:mb-3">Your Address</p>
-                          <p className="font-mono text-xs sm:text-sm text-white break-all mb-3 sm:mb-4">
-                            {account}
+                          <p className="text-xs sm:text-sm text-white/70 mb-3 sm:mb-4 font-bold uppercase tracking-wider">
+                            💎 Your Wallet Address
                           </p>
-                          <Button
-                            onClick={copyAddress}
-                            className="w-full font-black text-base sm:text-lg py-5 sm:py-6 h-auto border-0"
+                          <motion.p 
+                            className="font-mono text-base sm:text-lg md:text-xl text-white break-all mb-5 sm:mb-6 leading-relaxed font-bold"
+                            animate={{ opacity: [0.8, 1, 0.8] }}
+                            transition={{ duration: 2, repeat: Infinity }}
                             style={{
-                              background: 'linear-gradient(135deg, #00FFFF 0%, #0088FF 100%)',
-                              boxShadow: '0 0 40px rgba(0,255,255,0.8)'
+                              textShadow: '0 0 20px rgba(0,255,255,0.6), 0 0 10px rgba(255,255,255,0.4)',
+                              letterSpacing: '0.5px'
                             }}
                           >
-                            <Copy className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                            {copied ? "COPIED! ✨" : "COPY ADDRESS 🔥"}
-                          </Button>
+                            {account}
+                          </motion.p>
+                          <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <Button
+                              onClick={copyAddress}
+                              className="w-full font-black text-xl sm:text-2xl py-7 sm:py-8 h-auto border-0 relative overflow-hidden group"
+                              style={{
+                                background: 'linear-gradient(135deg, #00FFFF 0%, #0099FF 50%, #00FFFF 100%)',
+                                backgroundSize: '200% auto',
+                                boxShadow: '0 0 50px rgba(0,255,255,0.9), 0 0 30px rgba(0,153,255,0.6)'
+                              }}
+                            >
+                              <motion.div
+                                animate={{
+                                  backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
+                                }}
+                                transition={{ duration: 3, repeat: Infinity }}
+                                className="absolute inset-0"
+                                style={{
+                                  background: 'linear-gradient(135deg, #00FFFF 0%, #0099FF 50%, #00FFFF 100%)',
+                                  backgroundSize: '200% auto'
+                                }}
+                              />
+                              <span className="relative z-10 flex items-center justify-center gap-3">
+                                <Copy className="w-6 h-6 sm:w-7 sm:h-7" />
+                                {copied ? "✨ COPIED! ✨" : "📋 COPY ADDRESS 🔥"}
+                              </span>
+                            </Button>
+                          </motion.div>
                         </div>
 
                         <div className="text-center">
@@ -1610,7 +1640,7 @@ export default function FunWallet() {
                               setShowCelebration(true);
                             }}
                             variant="outline"
-                            className="text-xs sm:text-sm border-cyan-400/30 text-cyan-400 h-9 sm:h-10"
+                            className="text-sm sm:text-base border-2 border-cyan-400/50 text-cyan-300 hover:bg-cyan-400/20 h-10 sm:h-12 font-bold px-6"
                           >
                             Test Celebration 🎉
                           </Button>
