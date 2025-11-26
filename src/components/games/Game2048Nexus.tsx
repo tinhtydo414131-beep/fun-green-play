@@ -27,6 +27,7 @@ export const Game2048Nexus = ({
   const [highestTile, setHighestTile] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [walletConnected, setWalletConnected] = useState(false);
+  const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
 
   const gridSize = level <= 5 ? 4 : level <= 10 ? 5 : level <= 15 ? 6 : 7;
   const targetTile = Math.pow(2, Math.min(17, 11 + Math.floor(level / 5)));
@@ -205,6 +206,34 @@ export const Game2048Nexus = ({
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [board]);
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    setTouchStart({ x: touch.clientX, y: touch.clientY });
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStart) return;
+
+    const touch = e.changedTouches[0];
+    const deltaX = touch.clientX - touchStart.x;
+    const deltaY = touch.clientY - touchStart.y;
+    const minSwipeDistance = 50;
+
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      // Horizontal swipe
+      if (Math.abs(deltaX) > minSwipeDistance) {
+        move(deltaX > 0 ? 'right' : 'left');
+      }
+    } else {
+      // Vertical swipe
+      if (Math.abs(deltaY) > minSwipeDistance) {
+        move(deltaY > 0 ? 'down' : 'up');
+      }
+    }
+
+    setTouchStart(null);
+  };
+
   const getTileColor = (value: number) => {
     const colors: { [key: number]: string } = {
       0: 'bg-background/20 border-primary/10',
@@ -276,7 +305,11 @@ export const Game2048Nexus = ({
         </div>
 
         {/* Game Board */}
-        <Card className="p-4 bg-background/30 backdrop-blur border-primary/20 shadow-2xl">
+        <Card 
+          className="p-4 bg-background/30 backdrop-blur border-primary/20 shadow-2xl"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
           <div 
             className="grid gap-3"
             style={{
