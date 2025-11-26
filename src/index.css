@@ -7,71 +7,71 @@ All colors MUST be HSL. */
 
 @layer base {
   :root {
-    /* Kid-friendly bright color palette - Green & Orange Theme! */
-    --background: 220 100% 98%;
-    --foreground: 240 10% 15%;
+    /* Dreamy Aurora Heart Palette - Teal → Periwinkle → Lavender → Pink */
+    --background: 270 100% 99%;
+    --foreground: 270 15% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 15%;
+    --card-foreground: 270 15% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 15%;
+    --popover-foreground: 270 15% 20%;
 
-    --primary: 140 70% 50%;
+    --primary: 176 75% 64%;
     --primary-foreground: 0 0% 100%;
-    --primary-gradient: linear-gradient(135deg, hsl(140 70% 50%) 0%, hsl(160 65% 45%) 100%);
+    --primary-gradient: linear-gradient(135deg, hsl(176 75% 64%) 0%, hsl(224 88% 84%) 50%, hsl(270 97% 85%) 75%, hsl(316 73% 84%) 100%);
     
-    --secondary: 30 100% 55%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 224 88% 84%;
+    --secondary-foreground: 270 15% 20%;
     
-    --accent: 45 95% 55%;
-    --accent-foreground: 240 10% 15%;
+    --accent: 270 97% 85%;
+    --accent-foreground: 270 15% 20%;
 
-    --muted: 220 30% 94%;
-    --muted-foreground: 220 15% 45%;
+    --muted: 270 30% 96%;
+    --muted-foreground: 270 15% 50%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 30% 85%;
-    --input: 220 30% 95%;
-    --ring: 280 90% 65%;
+    --border: 270 30% 90%;
+    --input: 270 30% 97%;
+    --ring: 316 73% 84%;
 
     --radius: 1rem;
     
-    /* Fun shadows and effects */
-    --shadow-colorful: 0 8px 20px -4px hsl(140 70% 50% / 0.3);
-    --shadow-glow: 0 0 30px hsl(140 70% 50% / 0.4);
+    /* Dreamy glow effects */
+    --shadow-colorful: 0 8px 20px -4px hsl(270 97% 85% / 0.4);
+    --shadow-glow: 0 0 40px hsl(176 75% 64% / 0.3), 0 0 60px hsl(316 73% 84% / 0.2);
   }
 
   .dark {
-    --background: 240 20% 10%;
-    --foreground: 220 30% 95%;
+    --background: 270 30% 8%;
+    --foreground: 270 30% 95%;
 
-    --card: 240 15% 15%;
-    --card-foreground: 220 30% 95%;
+    --card: 270 25% 12%;
+    --card-foreground: 270 30% 95%;
 
-    --popover: 240 15% 15%;
-    --popover-foreground: 220 30% 95%;
+    --popover: 270 25% 12%;
+    --popover-foreground: 270 30% 95%;
 
-    --primary: 140 65% 55%;
+    --primary: 176 75% 64%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 30 90% 60%;
+    --secondary: 224 88% 74%;
     --secondary-foreground: 0 0% 100%;
 
-    --accent: 45 85% 60%;
-    --accent-foreground: 240 10% 15%;
+    --accent: 270 97% 75%;
+    --accent-foreground: 270 30% 95%;
 
-    --muted: 240 15% 20%;
-    --muted-foreground: 220 15% 65%;
+    --muted: 270 20% 18%;
+    --muted-foreground: 270 15% 65%;
 
     --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 15% 20%;
-    --input: 240 15% 20%;
-    --ring: 140 65% 55%;
+    --border: 270 20% 18%;
+    --input: 270 20% 18%;
+    --ring: 316 73% 74%;
   }
 }
 
