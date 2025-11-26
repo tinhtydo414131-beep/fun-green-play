@@ -10,6 +10,7 @@ import { ArrowUpRight, ArrowDownLeft, Wallet, Sparkles, Copy, CheckCircle, Chevr
 import { useNavigate } from "react-router-dom";
 import { CelebrationNotification } from "@/components/CelebrationNotification";
 import { AirdropConfirmModal } from "@/components/AirdropConfirmModal";
+import { TransactionHistory } from "@/components/TransactionHistory";
 import { toast } from "sonner";
 import { ethers } from "ethers";
 import { useAuth } from "@/hooks/useAuth";
@@ -227,19 +228,28 @@ export default function FunWallet() {
         .select("*")
         .or(`from_user_id.eq.${user.id},to_user_id.eq.${user.id}`)
         .order("created_at", { ascending: false })
-        .limit(10);
+        .limit(20);
 
       if (error) throw error;
 
-      const formattedTxs = data?.map(tx => ({
-        type: tx.from_user_id === user.id ? "send" : "receive",
-        amount: tx.amount,
-        token: tx.token_type || "ETH",
-        time: new Date(tx.created_at || "").toLocaleString(),
-        hash: tx.transaction_hash,
-        from: tx.from_user_id,
-        to: tx.to_user_id,
-      })) || [];
+      const formattedTxs = data?.map(tx => {
+        // Check if it's an airdrop by looking at notes
+        const isAirdrop = tx.notes?.includes('Airdrop');
+        const recipientsMatch = tx.notes?.match(/(\d+) recipients/);
+        const recipientsCount = recipientsMatch ? parseInt(recipientsMatch[1]) : undefined;
+
+        return {
+          id: tx.id,
+          type: isAirdrop ? 'airdrop' : (tx.from_user_id === user.id ? 'send' : 'receive'),
+          amount: tx.amount,
+          token_type: tx.token_type || "BNB",
+          status: tx.status || "completed",
+          created_at: tx.created_at || new Date().toISOString(),
+          transaction_hash: tx.transaction_hash,
+          notes: tx.notes,
+          recipients_count: recipientsCount
+        };
+      }) || [];
 
       setTransactions(formattedTxs);
     } catch (error) {
@@ -403,6 +413,16 @@ export default function FunWallet() {
         }
       }
 
+      // Record airdrop transaction in database
+      const batchId = new Date().getTime();
+      await supabase.from("wallet_transactions").insert({
+        from_user_id: user?.id,
+        amount: totalAmount,
+        token_type: "CAMLY",
+        status: successCount === addresses.length ? "completed" : "partial",
+        notes: `Airdrop to ${addresses.length} recipients - ${successCount} successful, ${addresses.length - successCount} failed - Batch #${batchId}`
+      });
+
       // Trigger 10-second celebration!
       setCelebrationAmount(totalAmount);
       setShowCelebration(true);
@@ -410,6 +430,7 @@ export default function FunWallet() {
       toast.success(`🎉 AIRDROP COMPLETE! Successfully sent to ${successCount}/${addresses.length} addresses!`);
       setBulkAddresses("");
       await getCamlyBalance(account!);
+      await fetchTransactionHistory();
     } catch (error: any) {
       console.error("Bulk send error:", error);
       toast.error("Airdrop failed! " + (error.message || "Unknown error"));
@@ -821,7 +842,7 @@ export default function FunWallet() {
               className="mb-8"
             >
               <Tabs defaultValue="send" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6 border-0 p-2" style={{
+                <TabsList className="grid w-full grid-cols-3 mb-6 border-0 p-2" style={{
                   background: 'rgba(30,0,51,0.6)',
                   backdropFilter: 'blur(30px)',
                   boxShadow: '0 0 40px rgba(157,0,255,0.3)'
@@ -839,6 +860,13 @@ export default function FunWallet() {
                   >
                     <Zap className="w-5 h-5 mr-2" />
                     Bulk Airdrop
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="history"
+                    className="font-black text-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500 data-[state=active]:to-blue-600 data-[state=active]:text-white"
+                  >
+                    <Sparkles className="w-5 h-5 mr-2" />
+                    History
                   </TabsTrigger>
                 </TabsList>
 
@@ -1118,6 +1146,35 @@ export default function FunWallet() {
                           )}
                         </span>
                       </Button>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Transaction History Tab */}
+                <TabsContent value="history">
+                  <Card className="border-0 relative overflow-hidden" style={{
+                    background: 'rgba(0,136,255,0.2)',
+                    backdropFilter: 'blur(40px)',
+                    boxShadow: '0 8px 32px 0 rgba(0,212,255,0.5), inset 0 0 0 3px rgba(0,212,255,0.4)'
+                  }}>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-3 text-3xl">
+                        <motion.div
+                          animate={{ rotate: [0, 360] }}
+                          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                        >
+                          <Sparkles className="w-8 h-8 text-cyan-400" />
+                        </motion.div>
+                        <span className="bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent font-black">
+                          TRANSACTION HISTORY 📜
+                        </span>
+                      </CardTitle>
+                      <p className="text-white/60 text-sm mt-2">
+                        View all your past transactions, airdrops, and token transfers ✨
+                      </p>
+                    </CardHeader>
+                    <CardContent>
+                      <TransactionHistory transactions={transactions} />
                     </CardContent>
                   </Card>
                 </TabsContent>
