@@ -5,21 +5,22 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 will-change-[box-shadow]",
   {
     variants: {
       variant: {
-        default: "bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-[0_4px_12px_hsla(262,100%,64%,0.2)] hover:shadow-[0_6px_20px_hsla(262,100%,64%,0.3)] hover:brightness-110",
+        default: "bg-[hsl(var(--button-base))] text-white border border-primary hover:bg-[hsl(var(--button-hover))] hover:shadow-[0_0_10px_hsla(51,100%,50%,0.6),0_0_20px_hsla(33,100%,50%,0.4),0_0_30px_hsla(51,100%,50%,0.2)] hover:text-[hsl(var(--button-active))] active:bg-[hsl(var(--button-active))] active:scale-[0.98] hover:animate-glow",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-primary-light bg-card/90 text-foreground hover:bg-muted hover:border-primary",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-muted hover:text-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+        outline: "border-2 border-secondary bg-card/50 text-foreground hover:bg-card hover:border-primary hover:shadow-[var(--shadow-inner-glow)]",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 hover:shadow-[var(--shadow-glow)]",
+        ghost: "hover:bg-muted hover:text-primary",
+        link: "text-primary underline-offset-4 hover:underline hover:text-primary-light",
+        luxury: "bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--secondary))] text-white shadow-[var(--shadow-button)] hover:shadow-[var(--shadow-button-hover)] hover:scale-105 border-2 border-primary-light",
       },
       size: {
         default: "h-12 px-6 py-3",
-        sm: "h-10 rounded-xl px-4",
-        lg: "h-14 rounded-2xl px-10 text-base",
+        sm: "h-10 rounded-lg px-4",
+        lg: "h-14 rounded-xl px-10 text-base",
         icon: "h-12 w-12",
       },
     },

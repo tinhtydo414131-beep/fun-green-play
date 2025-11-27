@@ -54,6 +54,16 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         success: "hsl(var(--success))",
+        golden: {
+          DEFAULT: "hsl(51, 100%, 50%)",
+          light: "hsl(51, 100%, 70%)",
+          dark: "hsl(43, 89%, 38%)",
+        },
+        orange: {
+          DEFAULT: "hsl(33, 100%, 50%)",
+          light: "hsl(33, 100%, 70%)",
+        },
+        goldenrod: "hsl(43, 74%, 49%)",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -109,10 +119,10 @@ export default {
         },
         "glow": {
           "0%, 100%": {
-            boxShadow: "0 0 20px hsl(var(--glow) / 0.4)",
+            boxShadow: "0 0 10px hsla(51, 100%, 50%, 0.6), 0 0 20px hsla(33, 100%, 50%, 0.4), 0 0 30px hsla(51, 100%, 50%, 0.2)",
           },
           "50%": {
-            boxShadow: "0 0 40px hsl(var(--glow) / 0.6)",
+            boxShadow: "0 0 20px hsla(51, 100%, 50%, 0.8), 0 0 40px hsla(33, 100%, 50%, 0.6), 0 0 60px hsla(51, 100%, 50%, 0.4)",
           },
         },
         "breathing": {
@@ -163,20 +173,20 @@ export default {
         },
         "pulse-glow": {
           "0%, 100%": {
-            boxShadow: "0 0 20px hsl(280 100% 60% / 0.6), 0 0 40px hsl(190 100% 60% / 0.4), inset 0 0 20px hsl(280 100% 70% / 0.2)",
+            boxShadow: "0 0 20px hsla(51, 100%, 50%, 0.6), 0 0 40px hsla(33, 100%, 50%, 0.4), inset 0 0 20px hsla(51, 100%, 50%, 0.2)",
           },
           "50%": {
-            boxShadow: "0 0 40px hsl(280 100% 60% / 0.8), 0 0 80px hsl(190 100% 60% / 0.6), inset 0 0 30px hsl(280 100% 70% / 0.3)",
+            boxShadow: "0 0 40px hsla(51, 100%, 50%, 0.8), 0 0 80px hsla(33, 100%, 50%, 0.6), inset 0 0 30px hsla(51, 100%, 50%, 0.3)",
           },
         },
         "neon-pulse": {
           "0%, 100%": {
-            boxShadow: "0 0 10px hsl(280 100% 60% / 0.8), 0 0 20px hsl(190 100% 60% / 0.6)",
-            borderColor: "hsl(280 100% 60%)",
+            boxShadow: "0 0 10px hsla(51, 100%, 50%, 0.8), 0 0 20px hsla(33, 100%, 50%, 0.6)",
+            borderColor: "hsl(51, 100%, 50%)",
           },
           "50%": {
-            boxShadow: "0 0 20px hsl(280 100% 60% / 1), 0 0 40px hsl(190 100% 60% / 0.8)",
-            borderColor: "hsl(190 100% 60%)",
+            boxShadow: "0 0 20px hsla(51, 100%, 50%, 1), 0 0 40px hsla(33, 100%, 50%, 0.8)",
+            borderColor: "hsl(33, 100%, 50%)",
           },
         },
         "golden-shimmer": {
