@@ -337,4 +337,60 @@ body::before {
   .card {
     margin-bottom: 1rem;
   }
+  
+  /* Diamond button mobile size */
+  .diamond-masterpiece {
+    width: 120px !important;
+    height: 52px !important;
+    font-size: 16px !important;
+  }
+  
+  /* Text sizes mobile */
+  .game-title, h1, h2 {
+    font-size: 32px !important;
+  }
+  
+  .level-number {
+    font-size: 48px !important;
+  }
+  
+  /* Level grid mobile - 2 columns */
+  .level-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
+  }
+  
+  .level-btn {
+    width: 100px !important;
+    height: 100px !important;
+  }
+}
+
+/* Tablet Perfection - 481px to 768px */
+@media (min-width: 481px) and (max-width: 768px) {
+  /* Diamond button tablet size */
+  .diamond-masterpiece {
+    width: 140px !important;
+    height: 60px !important;
+  }
+  
+  /* Text sizes tablet */
+  .game-title, h1, h2 {
+    font-size: 36px !important;
+  }
+  
+  .level-number {
+    font-size: 52px !important;
+  }
+  
+  /* Level grid tablet - 2 columns */
+  .level-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 20px !important;
+  }
+  
+  .level-btn {
+    width: 110px !important;
+    height: 110px !important;
+  }
 }
