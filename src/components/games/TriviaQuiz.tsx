@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
+import { ArrowLeft } from "lucide-react";
 
 export const TriviaQuiz = ({
   level = 1,
   difficultyMultiplier = 1.0,
-  onLevelComplete
+  onLevelComplete,
+  onBack
 }: {
   level?: number;
   difficultyMultiplier?: number;
@@ -83,9 +85,21 @@ export const TriviaQuiz = ({
           <p className="text-2xl text-primary">
             Điểm: {score}/{questions.length}
           </p>
-          <Button onClick={resetGame} size="lg">
-            Chơi lại
-          </Button>
+          <div className="flex gap-4 justify-center">
+            {onBack && (
+              <Button 
+                onClick={onBack}
+                size="lg"
+                variant="outline"
+              >
+                <ArrowLeft className="mr-2" />
+                Quay lại
+              </Button>
+            )}
+            <Button onClick={resetGame} size="lg">
+              Chơi lại
+            </Button>
+          </div>
         </Card>
       )}
     </div>

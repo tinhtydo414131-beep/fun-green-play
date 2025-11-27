@@ -5,11 +5,13 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useGameAudio } from "@/hooks/useGameAudio";
 import { AudioControls } from "@/components/AudioControls";
+import { ArrowLeft } from "lucide-react";
 
 export const GuessNumber = ({
   level = 1,
   difficultyMultiplier = 1.0,
-  onLevelComplete
+  onLevelComplete,
+  onBack
 }: {
   level?: number;
   difficultyMultiplier?: number;
@@ -105,9 +107,22 @@ export const GuessNumber = ({
         )}
 
         {gameWon && (
-          <Button onClick={resetGame} className="w-full" size="lg">
-            Chơi lại
-          </Button>
+          <div className="flex gap-4">
+            {onBack && (
+              <Button 
+                onClick={onBack}
+                variant="outline"
+                size="lg"
+                className="flex-1"
+              >
+                <ArrowLeft className="mr-2" />
+                Quay lại
+              </Button>
+            )}
+            <Button onClick={resetGame} className="flex-1" size="lg">
+              Chơi lại
+            </Button>
+          </div>
         )}
       </Card>
     </div>

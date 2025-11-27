@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ArrowLeft } from "lucide-react";
 
 interface PlanetBuilderProps {
   level: number;
   onLevelComplete: () => void;
+  onBack?: () => void;
 }
 
 type BuildingType = 'tree' | 'flower' | 'house' | 'rainbow' | 'sun';
@@ -25,7 +27,7 @@ const buildingEmojis: Record<BuildingType, string> = {
   sun: '☀️',
 };
 
-const PlanetBuilder = ({ level, onLevelComplete }: PlanetBuilderProps) => {
+const PlanetBuilder = ({ level, onLevelComplete, onBack }: PlanetBuilderProps) => {
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [selectedType, setSelectedType] = useState<BuildingType>('tree');
   const [happiness, setHappiness] = useState(0);
@@ -110,6 +112,16 @@ const PlanetBuilder = ({ level, onLevelComplete }: PlanetBuilderProps) => {
         </div>
 
         <div className="flex justify-center gap-4">
+          {onBack && (
+            <Button
+              onClick={onBack}
+              variant="outline"
+              className="font-fredoka font-bold px-8 py-6 text-lg"
+            >
+              <ArrowLeft className="mr-2" />
+              Quay lại
+            </Button>
+          )}
           <Button
             onClick={resetGame}
             variant="outline"

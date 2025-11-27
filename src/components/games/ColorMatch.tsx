@@ -4,11 +4,13 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useGameAudio } from "@/hooks/useGameAudio";
 import { AudioControls } from "@/components/AudioControls";
+import { ArrowLeft } from "lucide-react";
 
 export const ColorMatch = ({
   level = 1,
   difficultyMultiplier = 1.0,
-  onLevelComplete
+  onLevelComplete,
+  onBack
 }: {
   level?: number;
   difficultyMultiplier?: number;
@@ -112,6 +114,17 @@ export const ColorMatch = ({
       )}
 
       <div className="flex gap-6">
+        {onBack && !isPlaying && (
+          <Button 
+            onClick={onBack}
+            size="lg"
+            variant="outline"
+            className="text-2xl px-12 py-8 font-fredoka font-bold transform hover:scale-110 transition-all"
+          >
+            <ArrowLeft className="mr-2" />
+            Quay lại
+          </Button>
+        )}
         {isPlaying ? (
           <>
             <Button 

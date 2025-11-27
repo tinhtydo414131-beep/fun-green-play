@@ -3,11 +3,13 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useGameAudio } from "@/hooks/useGameAudio";
 import { AudioControls } from "@/components/AudioControls";
+import { ArrowLeft } from "lucide-react";
 
 export const MazeRunner = ({
   level = 1,
   difficultyMultiplier = 1.0,
-  onLevelComplete
+  onLevelComplete,
+  onBack
 }: {
   level?: number;
   difficultyMultiplier?: number;
@@ -106,7 +108,19 @@ export const MazeRunner = ({
         )}
       </div>
 
-      <Button onClick={resetGame} size="lg">Chơi lại</Button>
+      <div className="flex gap-4">
+        {onBack && (
+          <Button 
+            onClick={onBack}
+            size="lg"
+            variant="outline"
+          >
+            <ArrowLeft className="mr-2" />
+            Quay lại
+          </Button>
+        )}
+        <Button onClick={resetGame} size="lg">Chơi lại</Button>
+      </div>
     </div>
   );
 };

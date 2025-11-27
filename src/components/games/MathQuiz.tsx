@@ -4,11 +4,13 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useGameAudio } from "@/hooks/useGameAudio";
 import { AudioControls } from "@/components/AudioControls";
+import { ArrowLeft } from "lucide-react";
 
 export const MathQuiz = ({
   level = 1,
   difficultyMultiplier = 1.0,
-  onLevelComplete
+  onLevelComplete,
+  onBack
 }: {
   level?: number;
   difficultyMultiplier?: number;
@@ -136,13 +138,26 @@ export const MathQuiz = ({
           </div>
         </>
       ) : (
-        <Button 
-          onClick={startGame} 
-          size="lg"
-          className="text-2xl px-12 py-10 font-fredoka font-bold bg-gradient-to-r from-primary via-secondary to-accent hover:shadow-2xl transform hover:scale-110 transition-all"
-        >
-          {timeLeft === 30 ? 'Bắt Đầu 🎮' : 'Chơi Lại 🔄'}
-        </Button>
+        <div className="flex gap-4">
+          {onBack && (
+            <Button 
+              onClick={onBack}
+              size="lg"
+              variant="outline"
+              className="text-2xl px-12 py-10 font-fredoka font-bold transform hover:scale-110 transition-all"
+            >
+              <ArrowLeft className="mr-2" />
+              Quay lại
+            </Button>
+          )}
+          <Button 
+            onClick={startGame} 
+            size="lg"
+            className="text-2xl px-12 py-10 font-fredoka font-bold bg-gradient-to-r from-primary via-secondary to-accent hover:shadow-2xl transform hover:scale-110 transition-all"
+          >
+            {timeLeft === 30 ? 'Bắt Đầu 🎮' : 'Chơi Lại 🔄'}
+          </Button>
+        </div>
       )}
     </div>
   );

@@ -5,11 +5,13 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useGameAudio } from "@/hooks/useGameAudio";
 import { AudioControls } from "@/components/AudioControls";
+import { ArrowLeft } from "lucide-react";
 
 export const WordScramble = ({
   level = 1,
   difficultyMultiplier = 1.0,
-  onLevelComplete
+  onLevelComplete,
+  onBack
 }: {
   level?: number;
   difficultyMultiplier?: number;
@@ -88,9 +90,22 @@ export const WordScramble = ({
             placeholder="Nhập từ đúng..."
             className="text-center text-xl"
           />
-          <Button onClick={checkAnswer} className="w-full" size="lg">
-            Kiểm tra
-          </Button>
+          <div className="flex gap-4">
+            {onBack && (
+              <Button 
+                onClick={onBack}
+                variant="outline"
+                size="lg"
+                className="flex-1"
+              >
+                <ArrowLeft className="mr-2" />
+                Quay lại
+              </Button>
+            )}
+            <Button onClick={checkAnswer} className="flex-1" size="lg">
+              Kiểm tra
+            </Button>
+          </div>
         </div>
       </Card>
     </div>

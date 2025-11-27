@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ArrowLeft } from "lucide-react";
 
 interface SpaceExplorerProps {
   level: number;
   onLevelComplete: () => void;
+  onBack?: () => void;
 }
 
 interface Star {
@@ -14,7 +16,7 @@ interface Star {
   collected: boolean;
 }
 
-const SpaceExplorer = ({ level, onLevelComplete }: SpaceExplorerProps) => {
+const SpaceExplorer = ({ level, onLevelComplete, onBack }: SpaceExplorerProps) => {
   const [rocketX, setRocketX] = useState(50);
   const [rocketY, setRocketY] = useState(50);
   const [stars, setStars] = useState<Star[]>([]);
@@ -136,13 +138,24 @@ const SpaceExplorer = ({ level, onLevelComplete }: SpaceExplorerProps) => {
           >
             ⬅️
           </Button>
-          <Button
-            onClick={resetGame}
-            variant="outline"
-            className="font-fredoka font-bold text-lg"
-          >
-            🔄
-          </Button>
+          {onBack ? (
+            <Button
+              onClick={onBack}
+              variant="outline"
+              className="font-fredoka font-bold text-sm"
+            >
+              <ArrowLeft className="mr-1" />
+              Quay lại
+            </Button>
+          ) : (
+            <Button
+              onClick={resetGame}
+              variant="outline"
+              className="font-fredoka font-bold text-lg"
+            >
+              🔄
+            </Button>
+          )}
           <Button
             onClick={() => moveRocket(5, 0)}
             className="font-fredoka font-bold text-2xl"

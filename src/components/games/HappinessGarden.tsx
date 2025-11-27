@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ArrowLeft } from "lucide-react";
 
 interface HappinessGardenProps {
   level: number;
   onLevelComplete: () => void;
+  onBack?: () => void;
 }
 
 interface Flower {
@@ -17,7 +19,7 @@ interface Flower {
 
 const flowerEmojis = ['🌸', '🌺', '🌻', '🌷', '🌹', '💐'];
 
-const HappinessGarden = ({ level, onLevelComplete }: HappinessGardenProps) => {
+const HappinessGarden = ({ level, onLevelComplete, onBack }: HappinessGardenProps) => {
   const [flowers, setFlowers] = useState<Flower[]>([]);
   const [grownCount, setGrownCount] = useState(0);
   const targetFlowers = level * 3;
@@ -103,6 +105,16 @@ const HappinessGarden = ({ level, onLevelComplete }: HappinessGardenProps) => {
         </div>
 
         <div className="flex justify-center gap-4">
+          {onBack && (
+            <Button
+              onClick={onBack}
+              variant="outline"
+              className="font-fredoka font-bold px-8 py-6 text-lg"
+            >
+              <ArrowLeft className="mr-2" />
+              Quay lại
+            </Button>
+          )}
           <Button
             onClick={resetGame}
             variant="outline"

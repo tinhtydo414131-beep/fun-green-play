@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useGameAudio } from "@/hooks/useGameAudio";
 import { AudioControls } from "@/components/AudioControls";
+import { ArrowLeft } from "lucide-react";
 
 interface CardType {
   id: number;
@@ -15,7 +16,8 @@ interface CardType {
 export const MemoryCards = ({
   level = 1,
   difficultyMultiplier = 1.0,
-  onLevelComplete
+  onLevelComplete,
+  onBack
 }: {
   level?: number;
   difficultyMultiplier?: number;
@@ -119,13 +121,26 @@ export const MemoryCards = ({
         ))}
       </div>
       
-      <Button 
-        onClick={initializeGame} 
-        size="lg"
-        className="font-fredoka font-bold text-xl px-12 py-8 bg-gradient-to-r from-primary via-secondary to-accent hover:shadow-2xl transform hover:scale-110 transition-all"
-      >
-        Chơi Lại 🔄
-      </Button>
+      <div className="flex gap-4">
+        {onBack && (
+          <Button 
+            onClick={onBack}
+            size="lg"
+            variant="outline"
+            className="font-fredoka font-bold text-xl px-12 py-8 transform hover:scale-110 transition-all"
+          >
+            <ArrowLeft className="mr-2" />
+            Quay lại
+          </Button>
+        )}
+        <Button 
+          onClick={initializeGame} 
+          size="lg"
+          className="font-fredoka font-bold text-xl px-12 py-8 bg-gradient-to-r from-primary via-secondary to-accent hover:shadow-2xl transform hover:scale-110 transition-all"
+        >
+          Chơi Lại 🔄
+        </Button>
+      </div>
     </div>
   );
 };

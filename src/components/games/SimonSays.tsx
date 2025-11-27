@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
+import { ArrowLeft } from "lucide-react";
 
 export const SimonSays = ({
   level = 1,
   difficultyMultiplier = 1.0,
-  onLevelComplete
+  onLevelComplete,
+  onBack
 }: {
   level?: number;
   difficultyMultiplier?: number;
@@ -90,9 +92,21 @@ export const SimonSays = ({
       </div>
 
       {!isPlaying && (
-        <Button onClick={startGame} size="lg">
-          {sequence.length === 0 ? 'Bắt đầu' : 'Chơi lại'}
-        </Button>
+        <div className="flex gap-4">
+          {onBack && (
+            <Button 
+              onClick={onBack}
+              size="lg"
+              variant="outline"
+            >
+              <ArrowLeft className="mr-2" />
+              Quay lại
+            </Button>
+          )}
+          <Button onClick={startGame} size="lg">
+            {sequence.length === 0 ? 'Bắt đầu' : 'Chơi lại'}
+          </Button>
+        </div>
       )}
     </div>
   );
