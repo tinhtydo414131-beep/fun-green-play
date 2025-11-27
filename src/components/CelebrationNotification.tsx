@@ -13,6 +13,7 @@ interface CelebrationNotificationProps {
 export const CelebrationNotification = ({ amount, token, tokenImage, onComplete, duration: customDuration }: CelebrationNotificationProps) => {
   const [show, setShow] = useState(true);
   const [showBadge, setShowBadge] = useState(false);
+  const [moneyEmojis, setMoneyEmojis] = useState<Array<{ id: number; x: number; delay: number; duration: number }>>([]);
   
   // Use custom duration or default to 25000ms
   const celebrationDuration = customDuration || 25000;
@@ -23,6 +24,31 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
     if (navigator.vibrate) {
       navigator.vibrate([200, 100, 200, 100, 200]);
     }
+
+    // Create money emoji rain synchronized with "RICH" sounds
+    const createMoneyRain = (delay: number) => {
+      setTimeout(() => {
+        const newEmojis = Array.from({ length: 15 }, (_, i) => ({
+          id: Date.now() + i + delay,
+          x: Math.random() * 100,
+          delay: Math.random() * 300,
+          duration: 2 + Math.random() * 1.5
+        }));
+        setMoneyEmojis(prev => [...prev, ...newEmojis]);
+        
+        // Remove emojis after animation
+        setTimeout(() => {
+          setMoneyEmojis(prev => prev.filter(e => !newEmojis.find(ne => ne.id === e.id)));
+        }, 4000);
+      }, delay);
+    };
+
+    // Trigger money rain 5 times synchronized with "RICH"
+    createMoneyRain(0);
+    createMoneyRain(400);
+    createMoneyRain(800);
+    createMoneyRain(1200);
+    createMoneyRain(1600);
 
     // Voice announcement "RICH" 5 times with excitement
     if ('speechSynthesis' in window) {
@@ -162,12 +188,36 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
-            className="fixed inset-0 z-50 flex items-center justify-center"
+            className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden"
             style={{
               background: 'linear-gradient(135deg, #8B46FF 0%, #00F2FF 100%)',
               backdropFilter: 'blur(8px)'
             }}
           >
+            {/* Money emoji rain */}
+            {moneyEmojis.map((emoji) => (
+              <motion.div
+                key={emoji.id}
+                initial={{ y: -100, x: `${emoji.x}vw`, opacity: 1, rotate: 0 }}
+                animate={{ 
+                  y: '110vh', 
+                  rotate: 360,
+                  opacity: [1, 1, 0.5, 0]
+                }}
+                transition={{ 
+                  duration: emoji.duration,
+                  delay: emoji.delay / 1000,
+                  ease: 'linear'
+                }}
+                className="absolute text-6xl md:text-7xl pointer-events-none"
+                style={{
+                  filter: 'drop-shadow(0 0 10px rgba(255,215,0,0.8))',
+                  zIndex: 1
+                }}
+              >
+                💰
+              </motion.div>
+            ))}
 
             <div className="text-center z-10">
               {/* Main text with clean neon effect */}
