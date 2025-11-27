@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Gamepad2, User, Wallet } from "lucide-react";
+import { Gamepad2, User, Wallet, BookOpen } from "lucide-react";
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { web3Modal } from '@/lib/web3';
 
@@ -232,6 +232,16 @@ export default function Auth() {
                   </div>
                 </div>
               </div>
+
+              {/* Hướng dẫn chi tiết */}
+              <Button
+                onClick={() => navigate("/wallet-guide")}
+                variant="outline"
+                className="w-full border-2 border-primary/30 hover:bg-primary/5"
+              >
+                <BookOpen className="w-5 h-5 mr-2" />
+                <span className="font-fredoka font-bold">Xem Hướng Dẫn Chi Tiết Kết Nối Ví</span>
+              </Button>
             </div>
           )}
 
