@@ -152,7 +152,7 @@ export const GameCard = ({ game }: GameCardProps) => {
   };
 
   return (
-    <Card className="group overflow-hidden border-3 border-primary/20 hover:border-primary transition-all duration-500 hover:shadow-[0_25px_60px_rgba(59,130,246,0.5)] animate-fade-in transform hover:-translate-y-4 hover:scale-105 h-full flex flex-col">
+    <Card className="group overflow-hidden border-3 border-primary/20 hover:border-primary transition-all duration-500 hover:shadow-[0_25px_60px_rgba(59,130,246,0.5)] animate-fade-in transform hover:-translate-y-4 hover:scale-105 h-full flex flex-col bg-gradient-to-br from-[#20B2AA] via-[#48D1CC] to-[#40E0D0]">
       <div className="relative aspect-video overflow-hidden">
         {game.thumbnail_url && !imageError ? (
           <img 
@@ -207,11 +207,11 @@ export const GameCard = ({ game }: GameCardProps) => {
         </div>
       </div>
       
-      <CardContent className="p-6 space-y-4 flex-1 flex flex-col">
-        <h3 className="text-xl font-fredoka font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+      <CardContent className="p-6 space-y-4 flex-1 flex flex-col bg-gradient-to-b from-[#2C5F5D] to-[#1F4037]">
+        <h3 className="text-xl font-fredoka font-bold text-white group-hover:text-primary transition-colors line-clamp-1">
           {game.title}
         </h3>
-        <p className="text-muted-foreground text-base font-comic line-clamp-3 leading-relaxed flex-1">
+        <p className="text-white/90 text-base font-comic line-clamp-3 leading-relaxed flex-1">
           {game.description}
         </p>
 
