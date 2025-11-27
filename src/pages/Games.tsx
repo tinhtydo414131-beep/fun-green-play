@@ -92,7 +92,7 @@ const Games = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-white">
         <Navigation />
         <div className="container mx-auto py-32 px-4 text-center">
           <div className="animate-bounce text-6xl mb-4">🎮</div>
@@ -103,7 +103,7 @@ const Games = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
+    <div className="min-h-screen bg-white">
       <Navigation />
       
       <section className="pt-20 sm:pt-32 pb-12 sm:pb-20 px-4">
