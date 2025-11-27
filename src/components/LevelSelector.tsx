@@ -26,18 +26,18 @@ export const LevelSelector = ({
   };
 
   return (
-    <Card className="p-4 sm:p-8 border-3 sm:border-4 border-primary/30 bg-gradient-to-br from-card via-primary/5 to-secondary/5">
-      <div className="text-center mb-6 sm:mb-8 space-y-2">
-        <h2 className="text-2xl sm:text-4xl font-fredoka font-bold text-primary">
+    <Card className="p-6 sm:p-8 border-3 sm:border-4 border-primary/30 bg-gradient-to-br from-card via-primary/5 to-secondary/5 rounded-[32px] shadow-lg">
+      <div className="text-center mb-6 space-y-3 py-4">
+        <h2 className="text-[36px] sm:text-4xl font-fredoka font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
           Chọn Level 🎮
         </h2>
-        <p className="text-base sm:text-lg font-comic text-muted-foreground">
+        <p className="text-[18px] sm:text-lg font-comic text-muted-foreground">
           Hoàn thành level để mở level tiếp theo!
         </p>
       </div>
 
       {/* Mobile: 3 columns, Tablet+: 5 columns */}
-      <div className="grid grid-cols-3 md:grid-cols-5 gap-4 md:gap-4 mb-6 sm:mb-8">
+      <div className="grid grid-cols-3 md:grid-cols-5 gap-x-4 gap-y-5 mb-8 justify-items-center">
         {levels.map((level) => {
           const unlocked = isLevelUnlocked(level);
           const completed = level <= highestLevelCompleted;
@@ -50,8 +50,8 @@ export const LevelSelector = ({
               onClick={() => unlocked && onLevelSelect(level)}
               disabled={!unlocked}
               className={cn(
-                "relative aspect-square w-full flex flex-col items-center justify-center rounded-[24px] transition-all group",
-                "w-[90px] h-[90px] xs:w-[100px] xs:h-[100px] sm:w-[120px] sm:h-[120px] md:w-[140px] md:h-[140px]",
+                "relative flex flex-col items-center justify-center rounded-[28px] transition-all group",
+                "w-[104px] h-[104px] sm:w-[120px] sm:h-[120px] md:w-[140px] md:h-[140px]",
                 selected && unlocked && "bg-gradient-to-br from-primary via-secondary to-accent border-[4px] border-[#00F2FF] shadow-[0_0_30px_rgba(0,242,255,0.5),0_8px_20px_rgba(139,70,255,0.4)] scale-105",
                 !selected && unlocked && "bg-gradient-to-br from-primary to-secondary border-[2px] border-white/50 shadow-[0_4px_15px_rgba(139,70,255,0.3)] hover:scale-105 hover:shadow-[0_6px_20px_rgba(139,70,255,0.4)]",
                 !unlocked && "bg-white border-[2px] border-muted/40 cursor-not-allowed opacity-60"
@@ -59,31 +59,22 @@ export const LevelSelector = ({
             >
               {/* Level number */}
               <div className={cn(
-                "text-[42px] sm:text-[48px] md:text-[52px] font-fredoka font-bold leading-none mb-1",
+                "text-[52px] sm:text-[56px] md:text-[60px] font-fredoka font-bold leading-none mb-0.5",
                 unlocked ? "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]" : "text-muted-foreground"
               )}>
                 {level}
               </div>
 
-              {/* Status icon */}
+              {/* Status icon for locked levels */}
               {!unlocked && (
-                <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground mb-1" />
-              )}
-              {completed && unlocked && !selected && (
-                <Star className="w-5 h-5 sm:w-6 sm:h-6 text-white fill-white drop-shadow-md mb-1" />
-              )}
-              {unlocked && !completed && !selected && (
-                <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-white drop-shadow-md mb-1" />
+                <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground mt-1" />
               )}
 
-              {/* Coin reward - Prominent on unlocked levels */}
+              {/* Coin reward - Compact and centered under number */}
               {unlocked && (
-                <div className={cn(
-                  "flex items-center justify-center gap-1 font-comic font-bold",
-                  selected ? "text-[18px] sm:text-[20px] text-white drop-shadow-md" : "text-[16px] sm:text-[18px] text-white drop-shadow-md"
-                )}>
-                  <span>+{coinReward}</span>
-                  <span className="text-[28px] sm:text-[32px]">🪙</span>
+                <div className="flex items-center justify-center gap-0.5 font-comic font-bold text-white drop-shadow-md mt-0.5">
+                  <span className="text-[14px] sm:text-[16px]">+{coinReward}</span>
+                  <span className="text-[20px] sm:text-[24px]">🪙</span>
                 </div>
               )}
             </button>
