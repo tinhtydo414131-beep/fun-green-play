@@ -27,13 +27,14 @@ export default function Auth() {
     wallet: "metamask" | "coinbase" | "trust" | "walletconnect"
   ) => {
     console.log("🔵 Wallet button clicked:", wallet);
+    console.log("🔵 Available connectors:", connectors.map(c => ({ id: c.id, name: c.name })));
 
     try {
       const nameMap: Record<
         "metamask" | "coinbase" | "trust" | "walletconnect",
         string[]
       > = {
-        metamask: ["MetaMask"],
+        metamask: ["MetaMask", "Injected"],
         coinbase: ["Coinbase Wallet", "Coinbase"],
         trust: ["Trust Wallet", "Trust"],
         walletconnect: ["WalletConnect"],
@@ -41,9 +42,24 @@ export default function Auth() {
 
       const targetNames = nameMap[wallet].map((n) => n.toLowerCase());
 
-      const connector = connectors.find((c) =>
+      let connector = connectors.find((c) =>
         targetNames.some((name) => c.name.toLowerCase().includes(name))
       );
+
+      // Mobile fallback: nếu không tìm thấy connector đúng tên, fallback sang WalletConnect
+      if (!connector) {
+        connector = connectors.find((c) =>
+          c.id.toLowerCase().includes("walletconnect") ||
+          c.name.toLowerCase().includes("walletconnect")
+        );
+
+        if (connector) {
+          console.log("🟡 Fallback to WalletConnect for wallet:", wallet, {
+            id: connector.id,
+            name: connector.name,
+          });
+        }
+      }
 
       if (!connector) {
         console.error("❌ No connector found for wallet:", wallet, connectors);
@@ -66,7 +82,6 @@ export default function Auth() {
       toast.error("Kết nối ví thất bại. Vui lòng mở app ví và thử lại!");
     }
   };
-
   const handleDisconnect = () => {
     disconnect();
     toast.success("Đã ngắt kết nối ví!");
