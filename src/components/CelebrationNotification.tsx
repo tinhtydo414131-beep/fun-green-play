@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import cCoinGlow from "@/assets/c-coin-glow.png";
+import cCoinRainbow from "@/assets/c-coin-rainbow.png";
 
 interface CelebrationNotificationProps {
   amount: number;
@@ -15,8 +16,8 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
   const [show, setShow] = useState(true);
   const [showBadge, setShowBadge] = useState(false);
   
-  // Use custom duration or default to 25000ms
-  const celebrationDuration = customDuration || 25000;
+  // Use custom duration or default to 12000ms (for 5 times RICH)
+  const celebrationDuration = customDuration || 12000;
   const badgeDuration = celebrationDuration * 2;
 
   useEffect(() => {
@@ -25,9 +26,9 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
       navigator.vibrate([200, 100, 200, 100, 200]);
     }
 
-    // Voice announcement "RICH" 10 times
+    // Voice announcement "RICH" 5 times
     if ('speechSynthesis' in window) {
-      const richText = "RICH! ".repeat(10);
+      const richText = "RICH! ".repeat(5);
       const utterance = new SpeechSynthesisUtterance(richText);
       utterance.rate = 1.0;
       utterance.pitch = 1.3;
@@ -156,47 +157,41 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
           >
 
             <div className="text-center z-10">
-              {/* Main text with clean neon effect and spinning coins */}
-              <div className="relative">
-                {/* Spinning coins around text */}
-                {[...Array(6)].map((_, i) => (
-                  <motion.img
-                    key={i}
-                    src={cCoinGlow}
-                    alt="coin"
-                    className="absolute w-20 h-20 md:w-28 md:h-28"
-                    style={{
-                      left: `${15 + i * 15}%`,
-                      top: i % 2 === 0 ? '-40px' : 'calc(100% + 10px)',
-                    }}
-                    animate={{
-                      rotate: [0, 360],
-                      scale: [1, 1.2, 1],
-                      filter: [
-                        'brightness(1) drop-shadow(0 0 20px rgba(255,215,0,0.8))',
-                        'brightness(1.5) drop-shadow(0 0 40px rgba(255,215,0,1))',
-                        'brightness(1) drop-shadow(0 0 20px rgba(255,215,0,0.8))',
-                      ],
-                    }}
-                    transition={{
-                      rotate: { duration: 2, repeat: Infinity, ease: "linear" },
-                      scale: { duration: 1, repeat: Infinity, ease: "easeInOut" },
-                      filter: { duration: 0.5, repeat: Infinity, ease: "easeInOut" },
-                      delay: i * 0.2,
-                    }}
-                  />
-                ))}
+              {/* Main text with 2 glowing coins on sides */}
+              <div className="relative flex items-center justify-center gap-6 md:gap-12">
+                {/* Left coin - synchronized with RICH text */}
+                <motion.img
+                  src={cCoinRainbow}
+                  alt="coin"
+                  className="w-24 h-24 md:w-40 md:h-40 flex-shrink-0"
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ 
+                    scale: [1, 1.15, 1],
+                    rotate: 0,
+                    filter: [
+                      'brightness(1) drop-shadow(0 0 30px rgba(255,215,0,0.9))',
+                      'brightness(1.8) drop-shadow(0 0 60px rgba(255,215,0,1))',
+                      'brightness(1) drop-shadow(0 0 30px rgba(255,215,0,0.9))',
+                    ],
+                  }}
+                  transition={{ 
+                    scale: { repeat: Infinity, duration: 1.5, ease: "easeInOut" },
+                    rotate: { duration: 0.6, ease: "backOut" },
+                    filter: { repeat: Infinity, duration: 1.5, ease: "easeInOut" },
+                  }}
+                />
                 
+                {/* RICH text */}
                 <motion.h1
                   initial={{ scale: 0 }}
                   animate={{ 
-                    scale: [1, 1.1, 1],
+                    scale: [1, 1.15, 1],
                   }}
                   transition={{ 
                     duration: 0.5,
-                    scale: { repeat: Infinity, duration: 1.5 }
+                    scale: { repeat: Infinity, duration: 1.5, ease: "easeInOut" }
                   }}
-                  className="text-6xl md:text-8xl font-black mb-8 relative leading-tight"
+                  className="text-5xl md:text-7xl font-black mb-8 relative leading-tight"
                   style={{
                     color: '#FFD700',
                     textShadow: '0 0 40px rgba(0,242,255,0.8), 0 0 80px rgba(0,242,255,0.5), 0 4px 20px rgba(0,0,0,0.3)',
@@ -204,8 +199,30 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
                     letterSpacing: '0.05em'
                   }}
                 >
-                  RICH RICH RICH RICH RICH RICH RICH RICH RICH RICH!!!
+                  RICH RICH RICH RICH RICH!!!
                 </motion.h1>
+
+                {/* Right coin - synchronized with RICH text */}
+                <motion.img
+                  src={cCoinRainbow}
+                  alt="coin"
+                  className="w-24 h-24 md:w-40 md:h-40 flex-shrink-0"
+                  initial={{ scale: 0, rotate: 180 }}
+                  animate={{ 
+                    scale: [1, 1.15, 1],
+                    rotate: 0,
+                    filter: [
+                      'brightness(1) drop-shadow(0 0 30px rgba(255,215,0,0.9))',
+                      'brightness(1.8) drop-shadow(0 0 60px rgba(255,215,0,1))',
+                      'brightness(1) drop-shadow(0 0 30px rgba(255,215,0,0.9))',
+                    ],
+                  }}
+                  transition={{ 
+                    scale: { repeat: Infinity, duration: 1.5, ease: "easeInOut" },
+                    rotate: { duration: 0.6, ease: "backOut" },
+                    filter: { repeat: Infinity, duration: 1.5, ease: "easeInOut" },
+                  }}
+                />
               </div>
 
               {/* Amount display */}
