@@ -152,13 +152,13 @@ export const GameCard = ({ game }: GameCardProps) => {
   };
 
   return (
-    <Card className="group overflow-hidden border-3 sm:border-4 border-primary/20 hover:border-primary transition-all duration-500 hover:shadow-[0_25px_60px_rgba(59,130,246,0.5)] animate-fade-in transform hover:-translate-y-3 sm:hover:-translate-y-6 hover:scale-105">
-      <div className="relative aspect-video overflow-hidden">
+    <Card className="group overflow-hidden border-[3px] border-primary/20 hover:border-primary transition-all duration-300 hover:shadow-[0_20px_50px_rgba(139,70,255,0.3)] animate-fade-in transform hover:-translate-y-2 rounded-[24px]">
+      <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-primary/5 to-secondary/5">
         {game.thumbnail_url && !imageError ? (
           <img 
             src={game.thumbnail_url} 
             alt={game.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
             onError={() => setImageError(true)}
           />
         ) : (
@@ -168,58 +168,58 @@ export const GameCard = ({ game }: GameCardProps) => {
             <div className="absolute bottom-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
             
             {/* Game Emoji */}
-            <span className="text-9xl filter drop-shadow-2xl transform group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 relative z-10">
+            <span className="text-8xl filter drop-shadow-2xl transform group-hover:scale-110 transition-all duration-500 relative z-10">
               {genreEmojis[game.genre as keyof typeof genreEmojis] || '🎮'}
             </span>
             
             {/* Game Title Overlay */}
-            <div className="text-white text-2xl font-fredoka font-bold text-center px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 relative z-10 bg-black/30 backdrop-blur-sm rounded-2xl py-2">
+            <div className="text-white text-xl font-fredoka font-bold text-center px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 relative z-10 bg-black/30 backdrop-blur-sm rounded-2xl py-2">
               {game.title}
             </div>
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
         
         {/* Play Icon Overlay */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className="bg-primary/90 p-6 rounded-full shadow-2xl transform scale-0 group-hover:scale-100 transition-transform duration-300">
-            <Play className="w-12 h-12 text-white" />
+          <div className="bg-primary/95 p-5 rounded-full shadow-2xl transform scale-0 group-hover:scale-100 transition-transform duration-300">
+            <Play className="w-10 h-10 text-white fill-white" />
           </div>
         </div>
 
-        {/* Badges */}
-        <div className="absolute top-3 right-3 flex gap-2">
-          <Badge className={`${difficultyColors[game.difficulty as keyof typeof difficultyColors]} border backdrop-blur-sm font-fredoka font-bold`}>
+        {/* Difficulty Badge - Top Right */}
+        <div className="absolute top-2 right-2">
+          <Badge className={`${difficultyColors[game.difficulty as keyof typeof difficultyColors]} border-2 backdrop-blur-sm font-fredoka font-bold text-xs px-2.5 py-1 shadow-lg`}>
             {difficultyEmoji[game.difficulty as keyof typeof difficultyEmoji]} {game.difficulty}
           </Badge>
         </div>
 
-        {/* Stats */}
-        <div className="absolute bottom-3 left-3 flex gap-2">
-          <div className="bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full border-2 border-primary/30 flex items-center gap-1">
-            <Heart className="w-4 h-4 text-red-500" />
-            <span className="font-fredoka font-bold text-sm">{likes}</span>
+        {/* Stats - Bottom Left */}
+        <div className="absolute bottom-2 left-2 flex gap-1.5">
+          <div className="bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-full border-2 border-primary/20 flex items-center gap-1 shadow-md">
+            <Heart className="w-3.5 h-3.5 text-red-500" />
+            <span className="font-fredoka font-bold text-xs text-foreground">{likes}</span>
           </div>
-          <div className="bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full border-2 border-accent/30 flex items-center gap-1">
-            <TrendingUp className="w-4 h-4 text-accent" />
-            <span className="font-fredoka font-bold text-sm">{plays}</span>
+          <div className="bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-full border-2 border-accent/20 flex items-center gap-1 shadow-md">
+            <TrendingUp className="w-3.5 h-3.5 text-accent" />
+            <span className="font-fredoka font-bold text-xs text-foreground">{plays}</span>
           </div>
         </div>
       </div>
       
-      <CardContent className="p-4 sm:p-6 space-y-3 sm:space-y-4">
-        <h3 className="text-lg sm:text-2xl font-fredoka font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+      <CardContent className="p-4 space-y-3 bg-white">
+        <h3 className="text-xl font-fredoka font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">
           {game.title}
         </h3>
-        <p className="text-muted-foreground text-xs sm:text-sm font-comic line-clamp-2">
+        <p className="text-muted-foreground text-sm font-comic line-clamp-2 min-h-[40px]">
           {game.description}
         </p>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 pt-1">
           <Link to={`/game/${game.id}`} className="flex-1">
-            <Button className="w-full group/btn font-fredoka font-bold text-sm sm:text-base py-4 sm:py-6 bg-gradient-to-r from-primary to-secondary hover:shadow-lg transition-all rounded-[20px] sm:rounded-2xl">
-              Play Now! 🎮
-              <Play className="ml-2 w-3 h-3 sm:w-4 sm:h-4 transition-transform group-hover/btn:scale-125" />
+            <Button className="w-full group/btn font-fredoka font-bold text-base py-5 bg-gradient-to-r from-[#8B46FF] via-secondary to-[#00F2FF] hover:shadow-xl transition-all rounded-[20px] border-0">
+              <span className="mr-1.5">Play Now!</span>
+              <span className="text-lg">🎮</span>
             </Button>
           </Link>
 
@@ -227,13 +227,13 @@ export const GameCard = ({ game }: GameCardProps) => {
             variant="outline"
             size="icon"
             onClick={handleLike}
-            className={`border-3 sm:border-4 transition-all transform hover:scale-110 min-w-[48px] min-h-[48px] rounded-[16px] sm:rounded-2xl ${
+            className={`border-2 transition-all transform hover:scale-110 w-12 h-12 rounded-[16px] flex-shrink-0 ${
               liked 
                 ? 'bg-red-500 border-red-500 hover:bg-red-600 hover:border-red-600' 
-                : 'border-primary/30 hover:border-red-500 hover:bg-red-500/10'
+                : 'border-primary/30 hover:border-red-500 hover:bg-red-50'
             }`}
           >
-            <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${liked ? 'fill-white text-white' : 'text-red-500'}`} />
+            <Heart className={`w-5 h-5 ${liked ? 'fill-white text-white' : 'text-red-500'}`} />
           </Button>
 
           <Dialog>
@@ -241,17 +241,17 @@ export const GameCard = ({ game }: GameCardProps) => {
               <Button
                 variant="outline"
                 size="icon"
-                className="border-3 sm:border-4 border-accent/30 hover:border-accent hover:bg-accent/10 transition-all transform hover:scale-110 min-w-[48px] min-h-[48px] rounded-[16px] sm:rounded-2xl"
+                className="border-2 border-primary/30 hover:border-primary hover:bg-primary/5 transition-all transform hover:scale-110 w-12 h-12 rounded-[16px] flex-shrink-0"
               >
-                <Info className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
+                <TrendingUp className="w-5 h-5 text-primary" />
               </Button>
             </DialogTrigger>
-            <DialogContent className="border-4 border-primary/30 max-w-[calc(100vw-2rem)] sm:max-w-2xl mx-4">
+            <DialogContent className="border-4 border-primary/30 max-w-[calc(100vw-2rem)] sm:max-w-2xl mx-4 rounded-[24px]">
               <DialogHeader>
-                <DialogTitle className="font-fredoka text-xl sm:text-3xl text-primary">
+                <DialogTitle className="font-fredoka text-2xl text-primary">
                   How to Play {game.title} 🎮
                 </DialogTitle>
-                <DialogDescription className="font-comic text-sm sm:text-lg pt-4">
+                <DialogDescription className="font-comic text-base pt-4">
                   {game.how_to_play ? (
                     <div className="space-y-2 text-left">
                       {game.how_to_play.split('\n').map((line, i) => (
