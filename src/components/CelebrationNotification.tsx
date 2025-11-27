@@ -24,13 +24,14 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
       navigator.vibrate([200, 100, 200, 100, 200]);
     }
 
-    // Voice announcement "FUN AND RICH!!!"
+    // Voice announcement "RICH" 10 times
     if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance("FUN AND RICH!!!");
-      utterance.rate = 0.9;
-      utterance.pitch = 1.2;
+      const richText = "RICH! ".repeat(10);
+      const utterance = new SpeechSynthesisUtterance(richText);
+      utterance.rate = 1.0;
+      utterance.pitch = 1.3;
       utterance.volume = 1;
-      utterance.lang = 'vi-VN';
+      utterance.lang = 'en-US';
       speechSynthesis.speak(utterance);
     }
 
@@ -164,7 +165,7 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
                   duration: 0.5,
                   scale: { repeat: Infinity, duration: 1.5 }
                 }}
-                className="text-8xl md:text-9xl font-black mb-8 relative"
+                className="text-6xl md:text-8xl font-black mb-8 relative leading-tight"
                 style={{
                   color: '#FFD700',
                   textShadow: '0 0 40px rgba(0,242,255,0.8), 0 0 80px rgba(0,242,255,0.5), 0 4px 20px rgba(0,0,0,0.3)',
@@ -172,7 +173,7 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
                   letterSpacing: '0.05em'
                 }}
               >
-                FUN AND RICH!!!
+                RICH RICH RICH RICH RICH RICH RICH RICH RICH RICH!!!
               </motion.h1>
 
               {/* Amount display */}
