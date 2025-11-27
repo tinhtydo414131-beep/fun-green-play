@@ -21,9 +21,11 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [resetEmail, setResetEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<"connect" | "register">("connect");
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const navigate = useNavigate();
   
   const { address, isConnected } = useAccount();
@@ -144,6 +146,36 @@ export default function Auth() {
       } else {
         toast.error(error.message || "Có lỗi xảy ra. Vui lòng thử lại!");
       }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      emailSchema.parse(resetEmail);
+    } catch (error: any) {
+      toast.error(error.errors?.[0]?.message || "Email không hợp lệ!");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail.trim(), {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) throw error;
+
+      toast.success("📧 Đã gửi email đặt lại mật khẩu! Vui lòng kiểm tra hộp thư.");
+      setShowForgotPassword(false);
+      setResetEmail("");
+    } catch (error: any) {
+      console.error("Reset password error:", error);
+      toast.error(error.message || "Không thể gửi email. Vui lòng thử lại!");
     } finally {
       setLoading(false);
     }
@@ -356,6 +388,17 @@ export default function Auth() {
                   >
                     {loading ? "Đang xử lý... ⏳" : authMode === "login" ? "Đăng nhập 🚀" : "Đăng ký 🎉"}
                   </Button>
+
+                  {authMode === "login" && (
+                    <Button
+                      type="button"
+                      variant="link"
+                      onClick={() => setShowForgotPassword(true)}
+                      className="w-full font-comic text-sm text-muted-foreground hover:text-primary"
+                    >
+                      Quên mật khẩu? 🔑
+                    </Button>
+                  )}
                 </form>
               </TabsContent>
 
@@ -377,6 +420,62 @@ export default function Auth() {
                 </div>
               </TabsContent>
             </Tabs>
+
+            {/* Forgot Password Modal */}
+            {showForgotPassword && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                <Card className="w-full max-w-md border-2 border-primary/20 shadow-2xl rounded-3xl">
+                  <CardHeader>
+                    <CardTitle className="text-2xl font-fredoka text-primary">
+                      Đặt lại mật khẩu 🔑
+                    </CardTitle>
+                    <CardDescription className="font-comic">
+                      Nhập email của bạn để nhận link đặt lại mật khẩu
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <form onSubmit={handleForgotPassword} className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-comic text-muted-foreground flex items-center gap-2">
+                          <Mail className="w-4 h-4" />
+                          Email
+                        </label>
+                        <Input
+                          type="email"
+                          placeholder="your@email.com"
+                          value={resetEmail}
+                          onChange={(e) => setResetEmail(e.target.value)}
+                          className="h-12 border-2 border-primary/30 focus:border-primary"
+                          required
+                        />
+                      </div>
+
+                      <div className="flex gap-3">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            setShowForgotPassword(false);
+                            setResetEmail("");
+                          }}
+                          className="flex-1 h-12 font-fredoka"
+                          disabled={loading}
+                        >
+                          Hủy
+                        </Button>
+                        <Button
+                          type="submit"
+                          disabled={loading}
+                          className="flex-1 h-12 font-fredoka font-bold bg-gradient-to-r from-primary to-secondary"
+                        >
+                          {loading ? "Đang gửi... ⏳" : "Gửi email 📧"}
+                        </Button>
+                      </div>
+                    </form>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
