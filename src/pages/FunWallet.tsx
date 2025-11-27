@@ -2230,7 +2230,7 @@ export default function FunWallet() {
                 : tokens.find(t => t.symbol === celebrationToken)?.image
             )}
             onComplete={() => setShowCelebration(false)}
-            duration={5000}
+            duration={12000}
           />
         )}
       </AnimatePresence>
