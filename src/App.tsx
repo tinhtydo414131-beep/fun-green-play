@@ -11,6 +11,7 @@ import GamePlay from "./pages/GamePlay";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
+import PublicProfile from "./pages/PublicProfile";
 import Leaderboard from "./pages/Leaderboard";
 import Friends from "./pages/Friends";
 import Chat from "./pages/Chat";
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/profile/:userId" element={<PublicProfile />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/nexus-leaderboard" element={<NexusLeaderboard />} />
             <Route path="/wallet" element={<FunWallet />} />

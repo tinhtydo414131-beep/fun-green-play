@@ -115,6 +115,11 @@ export const Navigation = () => {
                     <Settings className="mr-2 h-5 w-5 text-primary" />
                     <span>Settings ⚙️</span>
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate(`/profile/${user.id}`)} className="font-fredoka cursor-pointer hover:bg-accent/10">
+                    <User className="mr-2 h-5 w-5 text-accent" />
+                    <span>Xem Profile Công Khai 👁️</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-primary/20" />
                   <DropdownMenuItem onClick={() => navigate("/leaderboard")} className="font-fredoka cursor-pointer hover:bg-accent/10">
                     <Trophy className="mr-2 h-5 w-5 text-accent" />
                     <span>Leaderboard 🏆</span>
@@ -183,6 +188,11 @@ export const Navigation = () => {
                     <Settings className="mr-2 h-5 w-5 text-primary" />
                     <span>Settings ⚙️</span>
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate(`/profile/${user.id}`)} className="font-fredoka cursor-pointer hover:bg-accent/10">
+                    <User className="mr-2 h-5 w-5 text-accent" />
+                    <span>Xem Profile Công Khai 👁️</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-primary/20" />
                   <DropdownMenuItem onClick={() => navigate("/leaderboard")} className="font-fredoka cursor-pointer hover:bg-accent/10">
                     <Trophy className="mr-2 h-5 w-5 text-accent" />
                     <span>Leaderboard 🏆</span>
