@@ -51,54 +51,60 @@ export default function Auth() {
       const walletEmail = `${address.toLowerCase()}@wallet.funplanet`;
       const walletPassword = address.toLowerCase();
 
-      // Kiểm tra xem user đã tồn tại chưa
-      const { data: existingProfile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("wallet_address", address.toLowerCase())
-        .single();
+      // Thử đăng nhập trước
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: walletEmail,
+        password: walletPassword,
+      });
 
-      if (existingProfile) {
-        // Đăng nhập với tài khoản đã có
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: walletEmail,
-          password: walletPassword,
-        });
-
-        if (error) throw error;
-
-        if (data.session) {
-          localStorage.setItem("funplanet_session", JSON.stringify(data.session));
-        }
-
-        toast.success(`🎉 Chào mừng trở lại, ${existingProfile.username}!`);
-        navigate("/");
-      } else {
-        // Tạo tài khoản mới
-        const { data, error } = await supabase.auth.signUp({
-          email: walletEmail,
-          password: walletPassword,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`,
-            data: {
-              username: username,
-              wallet_address: address.toLowerCase(),
+      if (signInError) {
+        // Nếu đăng nhập thất bại, có thể là tài khoản chưa tồn tại
+        if (signInError.message.includes("Invalid login credentials")) {
+          // Tạo tài khoản mới
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+            email: walletEmail,
+            password: walletPassword,
+            options: {
+              emailRedirectTo: `${window.location.origin}/`,
+              data: {
+                username: username,
+                wallet_address: address.toLowerCase(),
+              },
             },
-          },
-        });
+          });
 
-        if (error) throw error;
+          if (signUpError) throw signUpError;
 
-        if (data.session) {
-          localStorage.setItem("funplanet_session", JSON.stringify(data.session));
+          if (signUpData.session) {
+            localStorage.setItem("funplanet_session", JSON.stringify(signUpData.session));
+            
+            // Cập nhật wallet address trong profile
+            await supabase
+              .from("profiles")
+              .update({ wallet_address: address.toLowerCase() })
+              .eq("id", signUpData.user!.id);
+
+            toast.success("🎊 Chào mừng bạn đến với FUN Planet!");
+            navigate("/");
+          } else {
+            toast.error("Không thể tạo tài khoản. Vui lòng thử lại!");
+          }
+        } else {
+          throw signInError;
+        }
+      } else {
+        // Đăng nhập thành công
+        if (signInData.session) {
+          localStorage.setItem("funplanet_session", JSON.stringify(signInData.session));
           
-          // Cập nhật wallet address trong profile
-          await supabase
+          // Lấy thông tin profile
+          const { data: profile } = await supabase
             .from("profiles")
-            .update({ wallet_address: address.toLowerCase() })
-            .eq("id", data.user!.id);
+            .select("username")
+            .eq("id", signInData.user.id)
+            .maybeSingle();
 
-          toast.success("🎊 Chào mừng bạn đến với FUN Planet!");
+          toast.success(`🎉 Chào mừng trở lại, ${profile?.username || username}!`);
           navigate("/");
         }
       }
