@@ -1,1 +1,4 @@
 project_id = "epcjxoacajoaidglrvai"
+
+[functions.telegram-music-bot]
+verify_jwt = false

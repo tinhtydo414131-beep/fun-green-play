@@ -344,6 +344,28 @@ export default function PublicMusic() {
               Nghe, tải về và lưu trữ những bản nhạc yêu thích
             </p>
             
+            <Card className="mt-6 bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 border-2 border-primary/30">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-4 justify-center flex-wrap">
+                  <div className="text-4xl">🤖</div>
+                  <div className="text-left">
+                    <h3 className="font-fredoka text-xl font-bold text-primary mb-1">
+                      Telegram Music Bot
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Gửi file MP3 qua Telegram để tự động tải lên!
+                    </p>
+                  </div>
+                  <Button 
+                    onClick={() => window.open('https://t.me/YOUR_BOT_USERNAME', '_blank')}
+                    className="bg-gradient-to-r from-primary to-secondary hover:shadow-xl transition-all"
+                  >
+                    Mở Telegram Bot
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+            
             {user && (
               <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
                 <DialogTrigger asChild>
