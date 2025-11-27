@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
-import cCoinGlow from "@/assets/c-coin-glow.png";
-import cCoinRainbow from "@/assets/c-coin-rainbow.png";
 
 interface CelebrationNotificationProps {
   amount: number;
@@ -16,8 +14,8 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
   const [show, setShow] = useState(true);
   const [showBadge, setShowBadge] = useState(false);
   
-  // Use custom duration or default to 12000ms (for 5 times RICH)
-  const celebrationDuration = customDuration || 12000;
+  // Use custom duration or default to 25000ms
+  const celebrationDuration = customDuration || 25000;
   const badgeDuration = celebrationDuration * 2;
 
   useEffect(() => {
@@ -26,14 +24,13 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
       navigator.vibrate([200, 100, 200, 100, 200]);
     }
 
-    // Voice announcement "RICH" 5 times
+    // Voice announcement "FUN AND RICH!!!"
     if ('speechSynthesis' in window) {
-      const richText = "RICH! ".repeat(5);
-      const utterance = new SpeechSynthesisUtterance(richText);
-      utterance.rate = 1.0;
-      utterance.pitch = 1.3;
+      const utterance = new SpeechSynthesisUtterance("FUN AND RICH!!!");
+      utterance.rate = 0.9;
+      utterance.pitch = 1.2;
       utterance.volume = 1;
-      utterance.lang = 'en-US';
+      utterance.lang = 'vi-VN';
       speechSynthesis.speak(utterance);
     }
 
@@ -157,73 +154,26 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
           >
 
             <div className="text-center z-10">
-              {/* Main text with 2 glowing coins on sides */}
-              <div className="relative flex items-center justify-center gap-6 md:gap-12">
-                {/* Left coin - synchronized with RICH text */}
-                <motion.img
-                  src={cCoinRainbow}
-                  alt="coin"
-                  className="w-24 h-24 md:w-40 md:h-40 flex-shrink-0"
-                  initial={{ scale: 0, rotate: -180 }}
-                  animate={{ 
-                    scale: [1, 1.15, 1],
-                    rotate: 0,
-                    filter: [
-                      'brightness(1) drop-shadow(0 0 30px rgba(255,215,0,0.9))',
-                      'brightness(1.8) drop-shadow(0 0 60px rgba(255,215,0,1))',
-                      'brightness(1) drop-shadow(0 0 30px rgba(255,215,0,0.9))',
-                    ],
-                  }}
-                  transition={{ 
-                    scale: { repeat: Infinity, duration: 1.5, ease: "easeInOut" },
-                    rotate: { duration: 0.6, ease: "backOut" },
-                    filter: { repeat: Infinity, duration: 1.5, ease: "easeInOut" },
-                  }}
-                />
-                
-                {/* RICH text */}
-                <motion.h1
-                  initial={{ scale: 0 }}
-                  animate={{ 
-                    scale: [1, 1.15, 1],
-                  }}
-                  transition={{ 
-                    duration: 0.5,
-                    scale: { repeat: Infinity, duration: 1.5, ease: "easeInOut" }
-                  }}
-                  className="text-5xl md:text-7xl font-black mb-8 relative leading-tight"
-                  style={{
-                    color: '#FFD700',
-                    textShadow: '0 0 40px rgba(0,242,255,0.8), 0 0 80px rgba(0,242,255,0.5), 0 4px 20px rgba(0,0,0,0.3)',
-                    WebkitTextStroke: '3px #00F2FF',
-                    letterSpacing: '0.05em'
-                  }}
-                >
-                  RICH RICH RICH RICH RICH!!!
-                </motion.h1>
-
-                {/* Right coin - synchronized with RICH text */}
-                <motion.img
-                  src={cCoinRainbow}
-                  alt="coin"
-                  className="w-24 h-24 md:w-40 md:h-40 flex-shrink-0"
-                  initial={{ scale: 0, rotate: 180 }}
-                  animate={{ 
-                    scale: [1, 1.15, 1],
-                    rotate: 0,
-                    filter: [
-                      'brightness(1) drop-shadow(0 0 30px rgba(255,215,0,0.9))',
-                      'brightness(1.8) drop-shadow(0 0 60px rgba(255,215,0,1))',
-                      'brightness(1) drop-shadow(0 0 30px rgba(255,215,0,0.9))',
-                    ],
-                  }}
-                  transition={{ 
-                    scale: { repeat: Infinity, duration: 1.5, ease: "easeInOut" },
-                    rotate: { duration: 0.6, ease: "backOut" },
-                    filter: { repeat: Infinity, duration: 1.5, ease: "easeInOut" },
-                  }}
-                />
-              </div>
+              {/* Main text with clean neon effect */}
+              <motion.h1
+                initial={{ scale: 0 }}
+                animate={{ 
+                  scale: [1, 1.1, 1],
+                }}
+                transition={{ 
+                  duration: 0.5,
+                  scale: { repeat: Infinity, duration: 1.5 }
+                }}
+                className="text-8xl md:text-9xl font-black mb-8 relative"
+                style={{
+                  color: '#FFD700',
+                  textShadow: '0 0 40px rgba(0,242,255,0.8), 0 0 80px rgba(0,242,255,0.5), 0 4px 20px rgba(0,0,0,0.3)',
+                  WebkitTextStroke: '3px #00F2FF',
+                  letterSpacing: '0.05em'
+                }}
+              >
+                FUN AND RICH!!!
+              </motion.h1>
 
               {/* Amount display */}
               <motion.div
