@@ -494,8 +494,8 @@ export const FlowerFieldLevelSelector = ({
               </p>
             </motion.div>
 
-            {/* Level Grid - 5 columns */}
-            <div className="grid grid-cols-5 gap-x-6 gap-y-8 mb-12 justify-items-center max-w-[900px] mx-auto">
+            {/* Level Grid - Perfect Diamond Grid */}
+            <div className="level-grid">
               {levels.map((level, index) => {
                 const unlocked = isLevelUnlocked(level);
                 const completed = level <= highestLevelCompleted;
@@ -511,143 +511,77 @@ export const FlowerFieldLevelSelector = ({
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 + index * 0.08, duration: 0.5 }}
                     whileHover={unlocked ? { 
-                      scale: 1.18,
-                      rotate: [0, -5, 5, -5, 0],
-                      transition: { duration: 0.4 }
+                      scale: 1.1,
+                      transition: { duration: 0.3 }
                     } : {}}
-                    onHoverStart={() => {
-                      // Flower bloom effect on hover - handled by CSS
-                    }}
                     whileTap={unlocked ? { scale: 0.95 } : {}}
                     className={cn(
-                      "relative flex flex-col items-center justify-center rounded-2xl transition-all duration-500 group",
-                      "w-[130px] h-[130px] sm:w-[150px] sm:h-[150px]",
-                      "border-[3px]",
-                      unlocked && "bg-gradient-to-br from-[#6B46C1] via-[#9F7AEA] via-[#00D4FF] via-[#4FD1C7] via-[#3B82F6] to-[#00D4FF] border-[rgba(0,212,255,0.8)] shadow-[0_12px_40px_rgba(0,212,255,0.4),0_0_60px_rgba(107,70,193,0.3),inset_0_4px_12px_rgba(255,255,255,0.3)] hover:shadow-[0_20px_60px_rgba(0,212,255,0.6),0_0_80px_rgba(107,70,193,0.5),0_0_40px_rgba(255,255,255,0.8)] hover:scale-110 hover:border-white/80",
-                      selected && unlocked && "scale-115 shadow-[0_20px_60px_rgba(0,212,255,0.6),0_0_80px_rgba(107,70,193,0.5)] ring-4 ring-yellow-300",
-                      !unlocked && "bg-gray-400/50 border-gray-500/50 cursor-not-allowed opacity-40"
+                      "level-btn relative group",
+                      !unlocked && "!bg-gray-400/50 !border-gray-500/50 cursor-not-allowed opacity-50",
+                      selected && unlocked && "ring-4 ring-yellow-300 ring-offset-4 ring-offset-transparent shadow-[0_20px_60px_rgba(0,212,255,0.6),0_0_80px_rgba(102,126,234,0.5)]"
                     )}
                   >
 
-                    {/* Glowing aura for all levels */}
-                    {unlocked && (
-                      <>
-                        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/40 to-transparent opacity-60 animate-pulse" />
-                        <motion.div 
-                          className="absolute -inset-2 rounded-full bg-gradient-to-r from-pink-300/60 via-fuchsia-300/60 to-cyan-300/60 blur-xl"
-                          animate={{ 
-                            scale: [1, 1.1, 1],
-                            opacity: [0.6, 0.9, 0.6]
-                          }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                        />
-                      </>
-                    )}
-
-                    {/* Flower border around levels - blooms on hover */}
-                    {unlocked ? (
-                      <>
-                        <motion.div 
-                          className="absolute -top-3 -left-3 text-2xl sm:text-3xl transition-all duration-300 group-hover:text-4xl group-hover:sm:text-5xl"
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                        >
-                          🌸
-                        </motion.div>
-                        <motion.div 
-                          className="absolute -top-3 -right-3 text-2xl sm:text-3xl transition-all duration-300 group-hover:text-4xl group-hover:sm:text-5xl"
-                          animate={{ rotate: -360 }}
-                          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                        >
-                          🌺
-                        </motion.div>
-                        <motion.div 
-                          className="absolute -bottom-3 -left-3 text-2xl sm:text-3xl transition-all duration-300 group-hover:text-4xl group-hover:sm:text-5xl"
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                        >
-                          🌻
-                        </motion.div>
-                        <motion.div 
-                          className="absolute -bottom-3 -right-3 text-2xl sm:text-3xl transition-all duration-300 group-hover:text-4xl group-hover:sm:text-5xl"
-                          animate={{ rotate: -360 }}
-                          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                        >
-                          🌷
-                        </motion.div>
-                        {/* Extra flowers on sides - appear on hover */}
-                        <motion.div 
-                          className="absolute top-1/2 -left-4 text-2xl opacity-0 group-hover:opacity-100 transition-all duration-300"
-                          animate={{ scale: [1, 1.2, 1] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                        >
-                          🌹
-                        </motion.div>
-                        <motion.div 
-                          className="absolute top-1/2 -right-4 text-2xl opacity-0 group-hover:opacity-100 transition-all duration-300"
-                          animate={{ scale: [1, 1.2, 1] }}
-                          transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                        >
-                          💐
-                        </motion.div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="absolute -top-3 -left-3 text-xl sm:text-2xl opacity-30">🌸</div>
-                        <div className="absolute -top-3 -right-3 text-xl sm:text-2xl opacity-30">🌺</div>
-                        <div className="absolute -bottom-3 -left-3 text-xl sm:text-2xl opacity-30">🌻</div>
-                        <div className="absolute -bottom-3 -right-3 text-xl sm:text-2xl opacity-30">🌷</div>
-                      </>
+                    {/* Glowing aura for selected */}
+                    {selected && unlocked && (
+                      <motion.div 
+                        className="absolute inset-0 rounded-full bg-yellow-300/50 blur-xl"
+                        animate={{ 
+                          scale: [1, 1.2, 1],
+                          opacity: [0.5, 0.8, 0.5]
+                        }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
                     )}
 
                     {/* Level number */}
                     <div className={cn(
-                      "text-[64px] sm:text-[72px] font-fredoka font-black leading-none mb-1 relative z-10",
-                      unlocked ? "text-white drop-shadow-[0_6px_12px_rgba(0,0,0,0.6)]" : "text-gray-400"
+                      "level-number relative z-10",
+                      !unlocked && "text-gray-500"
                     )}>
                       {level}
                     </div>
 
                     {/* Lock icon */}
                     {!unlocked && (
-                      <Lock className="w-8 h-8 text-gray-500 mt-2" />
+                      <span className="text-3xl">🔒</span>
                     )}
 
                     {/* Coin reward */}
                     {unlocked && (
-                      <motion.div 
-                        className="flex items-center justify-center gap-1 font-comic font-black text-white drop-shadow-[0_3px_6px_rgba(0,0,0,0.7)] mt-1 relative z-10"
-                        animate={{ scale: [1, 1.1, 1] }}
-                        transition={{ duration: 1.5, repeat: Infinity }}
-                      >
-                        <span className="text-[18px] sm:text-[20px]">+{coinReward}</span>
-                        <motion.span 
-                          className="text-[26px] sm:text-[30px]"
-                          animate={{ rotate: [0, 10, -10, 0] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                        >
-                          🪙
-                        </motion.span>
-                      </motion.div>
+                      <span className="text-sm font-poppins font-bold text-white/95 relative z-10 drop-shadow-md mt-1">
+                        +{coinReward} 💰
+                      </span>
                     )}
 
                     {/* Completion star */}
                     {completed && (
-                      <motion.div
-                        className="absolute -top-3 -right-3 z-20"
-                        initial={{ scale: 0, rotate: -180 }}
-                        animate={{ scale: 1, rotate: 0 }}
-                        transition={{ delay: 0.8 + index * 0.08, type: "spring" }}
+                      <motion.span 
+                        className="absolute -top-2 -right-2 text-3xl z-20"
+                        animate={{ rotate: [0, 360], scale: [1, 1.2, 1] }}
+                        transition={{ duration: 3, repeat: Infinity }}
                       >
-                        <Star className="w-10 h-10 fill-yellow-300 text-yellow-400 drop-shadow-[0_0_12px_rgba(250,204,21,1)] animate-pulse" />
-                      </motion.div>
+                        ⭐
+                      </motion.span>
                     )}
 
                     {/* Sparkles for selected */}
                     {selected && unlocked && (
                       <>
-                        <Sparkles className="absolute top-2 right-2 w-6 h-6 text-yellow-300 animate-pulse" />
-                        <Sparkles className="absolute bottom-2 left-2 w-6 h-6 text-pink-300 animate-pulse" />
+                        <motion.span 
+                          className="absolute -top-3 -left-3 text-2xl"
+                          animate={{ rotate: 360, scale: [1, 1.5, 1] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        >
+                          ✨
+                        </motion.span>
+                        <motion.span 
+                          className="absolute -bottom-3 -right-3 text-2xl"
+                          animate={{ rotate: -360, scale: [1, 1.5, 1] }}
+                          transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+                        >
+                          ✨
+                        </motion.span>
                       </>
                     )}
                   </motion.button>

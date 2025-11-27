@@ -76,8 +76,8 @@ export const LevelSelector = ({
           </p>
         </div>
 
-        {/* Level Grid - 3x4 Perfect Grid */}
-        <div className="grid grid-cols-3 md:grid-cols-4 gap-5 max-w-4xl mx-auto">
+        {/* Level Grid - Perfect 3-column Diamond Grid */}
+        <div className="level-grid">
           {[...Array(10)].map((_, index) => {
             const level = index + 1;
             const isUnlocked = isLevelUnlocked(level);
@@ -93,25 +93,20 @@ export const LevelSelector = ({
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.1 + index * 0.08, duration: 0.5, ease: "backOut" }}
                 whileHover={isUnlocked ? { 
-                  scale: 1.05,
+                  scale: 1.1,
                   transition: { duration: 0.2 }
                 } : {}}
                 whileTap={isUnlocked ? { scale: 0.95 } : {}}
                 className={`
-                  relative rounded-2xl flex flex-col items-center justify-center gap-2 p-6 w-[120px] h-[120px]
-                  ${isUnlocked 
-                    ? 'bg-gradient-to-br from-[#6B46C1] via-[#9F7AEA] via-[#00D4FF] via-[#4FD1C7] via-[#3B82F6] to-[#00D4FF] border-[3px] border-[rgba(0,212,255,0.8)] shadow-[0_12px_40px_rgba(0,212,255,0.4),0_0_60px_rgba(107,70,193,0.3),inset_0_4px_12px_rgba(255,255,255,0.3)] cursor-pointer diamond-sparkle' 
-                    : 'bg-gray-400/50 border-[3px] border-gray-500/50 cursor-not-allowed opacity-50'
-                  }
-                  ${isCurrent ? 'ring-4 ring-yellow-300 ring-offset-4 ring-offset-white shadow-[0_20px_60px_rgba(0,212,255,0.6),0_0_80px_rgba(107,70,193,0.5)]' : ''}
-                  ${level === 10 ? 'col-span-3 md:col-start-2' : ''}
-                  transition-all duration-300
+                  level-btn relative
+                  ${!isUnlocked ? '!bg-gray-400/50 !border-gray-500/50 cursor-not-allowed opacity-50' : 'cursor-pointer'}
+                  ${isCurrent ? 'ring-4 ring-yellow-300 ring-offset-4 ring-offset-transparent shadow-[0_20px_60px_rgba(0,212,255,0.6),0_0_80px_rgba(102,126,234,0.5)]' : ''}
                 `}
               >
                 {/* Glow Effect for Current Level */}
                 {isCurrent && isUnlocked && (
                   <motion.div
-                    className="absolute inset-0 rounded-3xl bg-magic-gold/50 blur-xl"
+                    className="absolute inset-0 rounded-full bg-yellow-300/50 blur-xl"
                     animate={{
                       scale: [1, 1.2, 1],
                       opacity: [0.5, 0.8, 0.5],
@@ -128,17 +123,6 @@ export const LevelSelector = ({
                   {level}
                 </span>
                 
-                {/* Flower Crown for Level 10 */}
-                {level === 10 && isUnlocked && (
-                  <motion.div
-                    className="absolute -top-6 text-4xl"
-                    animate={{ rotate: [0, 5, -5, 0] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    👑
-                  </motion.div>
-                )}
-                
                 {/* Lock Icon */}
                 {!isUnlocked && (
                   <span className="text-3xl">🔒</span>
@@ -147,7 +131,7 @@ export const LevelSelector = ({
                 {/* Star for Completed */}
                 {isCompleted && (
                   <motion.span 
-                    className="absolute top-2 right-2 text-3xl"
+                    className="absolute -top-2 -right-2 text-3xl"
                     animate={{ rotate: [0, 360], scale: [1, 1.2, 1] }}
                     transition={{ duration: 3, repeat: Infinity }}
                   >
@@ -157,7 +141,7 @@ export const LevelSelector = ({
                 
                 {/* Coin Reward */}
                 {isUnlocked && (
-                  <span className="text-base font-poppins font-bold text-white/95 relative z-10 drop-shadow-md">
+                  <span className="text-sm font-poppins font-bold text-white/95 relative z-10 drop-shadow-md mt-1">
                     +{getCoinReward(level)} 💰
                   </span>
                 )}
@@ -166,14 +150,14 @@ export const LevelSelector = ({
                 {isCurrent && isUnlocked && (
                   <>
                     <motion.span 
-                      className="absolute -top-2 -left-2 text-2xl"
+                      className="absolute -top-3 -left-3 text-2xl"
                       animate={{ rotate: 360, scale: [1, 1.5, 1] }}
                       transition={{ duration: 2, repeat: Infinity }}
                     >
                       ✨
                     </motion.span>
                     <motion.span 
-                      className="absolute -bottom-2 -right-2 text-2xl"
+                      className="absolute -bottom-3 -right-3 text-2xl"
                       animate={{ rotate: -360, scale: [1, 1.5, 1] }}
                       transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
                     >
