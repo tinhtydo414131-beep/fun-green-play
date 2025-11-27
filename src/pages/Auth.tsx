@@ -192,6 +192,21 @@ export default function Auth() {
                   <p className="text-[10px] font-comic text-purple-700">ví khác</p>
                 </div>
               </div>
+              
+              {/* Mobile Instruction */}
+              <div className="p-4 bg-gradient-to-r from-primary/5 to-secondary/5 border-2 border-primary/20 rounded-xl">
+                <div className="flex items-start gap-3">
+                  <div className="text-2xl">📱</div>
+                  <div className="flex-1 text-left">
+                    <p className="text-sm font-bold font-fredoka text-primary mb-1">
+                      Dùng trên điện thoại?
+                    </p>
+                    <p className="text-xs font-comic text-muted-foreground leading-relaxed">
+                      Nhấn nút trên → Chọn ví → <span className="font-bold text-accent">Tự động mở app ví</span> trên điện thoại bạn! 🚀
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
