@@ -26,19 +26,14 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
       navigator.vibrate([200, 100, 200, 100, 200]);
     }
 
-    // Voice announcement "RICH" exactly 5 times - synchronized with visual
+    // Voice announcement "RICH" 5 times
     if ('speechSynthesis' in window) {
-      // Clear any pending speech
-      speechSynthesis.cancel();
-      
-      const richText = "RICH, RICH, RICH, RICH, RICH";
+      const richText = "RICH! ".repeat(5);
       const utterance = new SpeechSynthesisUtterance(richText);
-      utterance.rate = 1.0; // Normal speed
+      utterance.rate = 1.0;
       utterance.pitch = 1.3;
       utterance.volume = 1;
       utterance.lang = 'en-US';
-      
-      // Start speech immediately
       speechSynthesis.speak(utterance);
     }
 
@@ -67,8 +62,8 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
     setTimeout(playJackpotSound, 200);
     setTimeout(playJackpotSound, 400);
 
-    // Continuous confetti - exactly 5 seconds
-    const duration = celebrationDuration; // 5000ms
+    // Continuous confetti with custom duration
+    const duration = celebrationDuration;
     const animationEnd = Date.now() + duration;
     
     const randomInRange = (min: number, max: number) => {
@@ -123,20 +118,15 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
       });
     }, 800);
 
-    // Main celebration ends after exactly 5 seconds
+    // Main celebration ends after custom duration
     const mainTimeout = setTimeout(() => {
       setShow(false);
       setShowBadge(true);
       clearInterval(confettiInterval);
       clearInterval(fireworksInterval);
-      
-      // Stop speech if still playing
-      if ('speechSynthesis' in window) {
-        speechSynthesis.cancel();
-      }
     }, celebrationDuration);
  
-    // Badge disappears after 5 more seconds (total 10 seconds)
+    // Badge disappears after double the celebration duration
     const badgeTimeout = setTimeout(() => {
       setShowBadge(false);
       onComplete?.();
@@ -147,11 +137,6 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
       clearTimeout(badgeTimeout);
       clearInterval(confettiInterval);
       clearInterval(fireworksInterval);
-      
-      // Ensure speech is cancelled on cleanup
-      if ('speechSynthesis' in window) {
-        speechSynthesis.cancel();
-      }
     };
   }, [amount, token, onComplete, celebrationDuration, badgeDuration]);
 
