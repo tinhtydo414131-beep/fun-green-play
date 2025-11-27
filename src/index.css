@@ -88,26 +88,46 @@
 @layer base {
   * {
     @apply border-border;
+    font-family: 'Poppins', -apple-system, sans-serif !important;
+    text-rendering: optimizeLegibility !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
   }
   body {
     @apply bg-background text-foreground font-poppins;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-poppins font-bold;
+    font-size: 48px !important;
+    font-weight: 900 !important;
+    background: linear-gradient(45deg, #ffffff 0%, #ffd700 25%, #00d4ff 50%, #667eea 75%, #ffffff 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    text-shadow: 0 0 10px rgba(255,215,0,0.8), 0 0 20px rgba(0,212,255,0.6), 0 0 30px rgba(102,126,234,0.4), 2px 2px 4px rgba(0,0,0,0.3) !important;
+    letter-spacing: 2px !important;
+  }
+  
+  p, span, div, label {
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    color: #1a202c !important;
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.8) !important;
+    letter-spacing: 0.5px !important;
   }
 }
 
 /* Enchanted Garden Text Styles */
 @layer components {
-  .game-title {
-    font-size: 42px;
-    font-weight: 700;
-    background: linear-gradient(135deg, #00D4FF 0%, #6B46C1 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.5);
+  .game-title, [class*="title"] {
+    font-size: 48px !important;
+    font-weight: 900 !important;
+    background: linear-gradient(45deg, #ffffff 0%, #ffd700 25%, #00d4ff 50%, #667eea 75%, #ffffff 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    text-shadow: 0 0 10px rgba(255,215,0,0.8), 0 0 20px rgba(0,212,255,0.6), 0 0 30px rgba(102,126,234,0.4), 2px 2px 4px rgba(0,0,0,0.3) !important;
+    letter-spacing: 2px !important;
   }
   
   .level-title {
@@ -117,10 +137,13 @@
   }
   
   .level-number {
-    font-size: 56px;
-    font-weight: 900;
-    color: #FFD700;
-    text-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 30px rgba(255,215,0,0.6);
+    font-size: 64px !important;
+    font-weight: 900 !important;
+    background: linear-gradient(45deg, #ffd700, #ffed4e, #ffffff) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    text-shadow: 0 0 15px rgba(255,215,0,1), 0 0 25px rgba(255,215,0,0.7), 2px 2px 6px rgba(0,0,0,0.4) !important;
   }
   
   .description-text {
