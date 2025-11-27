@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
+import camlyCoinCelebration from "@/assets/camly-coin-celebration.png";
 
 interface CelebrationNotificationProps {
   amount: number;
@@ -235,7 +236,35 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
               </motion.div>
             ))}
 
-            <div className="text-center z-10">
+            <div className="text-center z-10 relative">
+              {/* Spinning Camly Coin - Large and Center */}
+              <motion.div
+                initial={{ scale: 0, rotateY: 0 }}
+                animate={{ 
+                  scale: 1,
+                  rotateY: 360
+                }}
+                transition={{ 
+                  scale: { duration: 0.5 },
+                  rotateY: { 
+                    repeat: Infinity, 
+                    duration: 3,
+                    ease: "linear"
+                  }
+                }}
+                className="mb-8 flex justify-center"
+              >
+                <img 
+                  src={camlyCoinCelebration}
+                  alt="Camly Coin"
+                  className="w-48 h-48 md:w-64 md:h-64 object-contain"
+                  style={{
+                    filter: 'drop-shadow(0 0 40px rgba(255,215,0,0.9)) drop-shadow(0 0 80px rgba(0,242,255,0.6))',
+                    transform: 'perspective(1000px)'
+                  }}
+                />
+              </motion.div>
+
               {/* Main text with clean neon effect */}
               <motion.h1
                 initial={{ scale: 0 }}
