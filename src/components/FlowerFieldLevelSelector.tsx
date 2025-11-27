@@ -227,40 +227,192 @@ export const FlowerFieldLevelSelector = ({
 
 
       {/* Rainbow */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 text-8xl opacity-20">
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 text-7xl sm:text-8xl opacity-20">
         🌈
       </div>
 
-      {/* Butterflies */}
+      {/* BUTTERFLY PARTICLE SYSTEM - Natural curved flight paths */}
+      {/* Butterfly 1 - Large figure-8 pattern */}
       <motion.div
-        className="absolute top-[20%] left-[15%] text-4xl"
+        className="absolute text-4xl sm:text-5xl z-20"
+        style={{ left: '15%', top: '20%' }}
         animate={{ 
-          x: [0, 100, 50, 150, 0],
-          y: [0, -50, 50, -30, 0]
+          x: [0, 120, 180, 120, 0, -80, -120, -80, 0],
+          y: [0, -60, 0, 60, 80, 60, 0, -60, 0],
+          rotate: [0, 15, 30, 15, 0, -15, -30, -15, 0]
         }}
-        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+        transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
       >
         🦋
       </motion.div>
+      
+      {/* Butterfly 2 - Diagonal swooping */}
       <motion.div
-        className="absolute top-[30%] right-[20%] text-4xl"
+        className="absolute text-4xl sm:text-5xl z-20"
+        style={{ right: '20%', top: '25%' }}
         animate={{ 
-          x: [0, -80, -40, -120, 0],
-          y: [0, 40, -40, 20, 0]
+          x: [0, -100, -140, -100, -60, 0],
+          y: [0, 80, 120, 60, 20, 0],
+          rotate: [0, -20, -10, 10, 20, 0],
+          scale: [1, 1.1, 1.2, 1.1, 1, 1]
         }}
-        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
       >
         🦋
       </motion.div>
 
-      {/* Bees */}
+      {/* Butterfly 3 - Spiral pattern */}
       <motion.div
-        className="absolute top-[40%] left-[25%] text-3xl"
+        className="absolute text-3xl sm:text-4xl z-20"
+        style={{ left: '40%', top: '15%' }}
         animate={{ 
-          x: [0, 60, 30, 90, 0],
-          y: [0, 30, -20, 40, 0]
+          x: [0, 60, 80, 60, 0, -60, -80, -60, 0],
+          y: [0, 40, 80, 120, 100, 80, 40, 0, 0],
+          rotate: [0, 45, 90, 135, 180, 225, 270, 315, 360]
         }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+      >
+        🦋
+      </motion.div>
+
+      {/* Butterfly 4 - Wave pattern across top */}
+      <motion.div
+        className="absolute text-4xl sm:text-5xl z-20"
+        style={{ left: '10%', top: '30%' }}
+        animate={{ 
+          x: [0, 200, 400, 600, 400, 200, 0],
+          y: [0, -40, -60, -40, 0, 40, 0],
+          rotate: [0, 10, -10, 10, -10, 5, 0]
+        }}
+        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+      >
+        🦋
+      </motion.div>
+
+      {/* Butterfly 5 - Small circles */}
+      <motion.div
+        className="absolute text-3xl sm:text-4xl z-20"
+        style={{ left: '70%', top: '35%' }}
+        animate={{ 
+          x: [0, 40, 40, 0, -40, -40, 0],
+          y: [0, -40, -80, -100, -80, -40, 0],
+          rotate: [0, 30, 60, 90, 120, 150, 180]
+        }}
+        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+      >
+        🦋
+      </motion.div>
+
+      {/* Butterfly 6 - Bottom corner sweep */}
+      <motion.div
+        className="absolute text-4xl sm:text-5xl z-20"
+        style={{ left: '5%', bottom: '25%' }}
+        animate={{ 
+          x: [0, 150, 200, 150, 0],
+          y: [0, -80, -120, -80, 0],
+          rotate: [0, 15, 0, -15, 0],
+          scale: [1, 1.15, 1, 1.15, 1]
+        }}
+        transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+      >
+        🦋
+      </motion.div>
+
+      {/* BEE PARTICLE SYSTEM - Busy zigzag patterns */}
+      {/* Bee 1 - Fast zigzag */}
+      <motion.div
+        className="absolute text-3xl sm:text-4xl z-20"
+        style={{ left: '25%', top: '40%' }}
+        animate={{ 
+          x: [0, 80, 40, 120, 60, 140, 80, 0],
+          y: [0, 30, -20, 40, -30, 20, -10, 0],
+          rotate: [0, 10, -10, 10, -10, 10, -10, 0]
+        }}
+        transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+      >
+        🐝
+      </motion.div>
+
+      {/* Bee 2 - Figure-8 near flowers */}
+      <motion.div
+        className="absolute text-3xl sm:text-4xl z-20"
+        style={{ right: '15%', top: '45%' }}
+        animate={{ 
+          x: [0, -60, -80, -60, 0, 60, 80, 60, 0],
+          y: [0, 40, 0, -40, -60, -40, 0, 40, 0],
+          rotate: [0, 15, 30, 15, 0, -15, -30, -15, 0]
+        }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+      >
+        🐝
+      </motion.div>
+
+      {/* Bee 3 - Horizontal patrol */}
+      <motion.div
+        className="absolute text-3xl sm:text-4xl z-20"
+        style={{ left: '30%', top: '50%' }}
+        animate={{ 
+          x: [0, 300, 500, 300, 0],
+          y: [0, -20, 0, 20, 0],
+          rotate: [0, 5, 0, -5, 0]
+        }}
+        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+      >
+        🐝
+      </motion.div>
+
+      {/* Bee 4 - Small rapid circles */}
+      <motion.div
+        className="absolute text-2xl sm:text-3xl z-20"
+        style={{ left: '55%', top: '42%' }}
+        animate={{ 
+          x: [0, 30, 30, 0, -30, -30, 0],
+          y: [0, -30, -60, -70, -60, -30, 0],
+          rotate: [0, 45, 90, 135, 180, 225, 270]
+        }}
+        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+      >
+        🐝
+      </motion.div>
+
+      {/* Bee 5 - Diagonal sweep */}
+      <motion.div
+        className="absolute text-3xl sm:text-4xl z-20"
+        style={{ left: '10%', top: '55%' }}
+        animate={{ 
+          x: [0, 150, 250, 150, 0],
+          y: [0, -100, -150, -100, 0],
+          rotate: [0, 20, 10, -10, 0]
+        }}
+        transition={{ duration: 13, repeat: Infinity, ease: "easeInOut" }}
+      >
+        🐝
+      </motion.div>
+
+      {/* Bee 6 - Near sun patrol */}
+      <motion.div
+        className="absolute text-3xl sm:text-4xl z-20"
+        style={{ right: '25%', top: '18%' }}
+        animate={{ 
+          x: [0, -50, -80, -50, 0, 50, 80, 50, 0],
+          y: [0, 30, 50, 30, 0, -30, -50, -30, 0],
+          rotate: [0, -15, -30, -15, 0, 15, 30, 15, 0]
+        }}
+        transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
+      >
+        🐝
+      </motion.div>
+
+      {/* Bee 7 - Bottom wanderer */}
+      <motion.div
+        className="absolute text-3xl sm:text-4xl z-20"
+        style={{ left: '45%', bottom: '20%' }}
+        animate={{ 
+          x: [0, 100, 150, 100, 0, -100, -150, -100, 0],
+          y: [0, -50, -80, -50, 0, -50, -80, -50, 0],
+          rotate: [0, 10, 0, -10, 0, 10, 0, -10, 0]
+        }}
+        transition={{ duration: 17, repeat: Infinity, ease: "easeInOut" }}
       >
         🐝
       </motion.div>
