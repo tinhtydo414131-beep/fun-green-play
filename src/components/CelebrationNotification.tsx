@@ -26,14 +26,14 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
       navigator.vibrate([200, 100, 200, 100, 200]);
     }
 
-    // Voice announcement "RICH" 5 times - synchronized with visual
+    // Voice announcement "RICH" exactly 5 times - synchronized with visual
     if ('speechSynthesis' in window) {
       // Clear any pending speech
       speechSynthesis.cancel();
       
-      const richText = "RICH! RICH! RICH! RICH! RICH!";
+      const richText = "RICH, RICH, RICH, RICH, RICH";
       const utterance = new SpeechSynthesisUtterance(richText);
-      utterance.rate = 1.2; // Slightly faster to fit in 5 seconds
+      utterance.rate = 1.0; // Normal speed
       utterance.pitch = 1.3;
       utterance.volume = 1;
       utterance.lang = 'en-US';
