@@ -313,7 +313,27 @@ body::before {
   z-index: -1 !important;
 }
 
-/* Mobile Perfection - 320px to 480px */
+/* EMERGENCY FORCE - APPLY DIAMOND EVERYWHERE */
+*, *::before, *::after {
+  --diamond-gradient: linear-gradient(135deg, #667eea, #764ba2, #00d4ff, #4facfe) !important;
+  --diamond-glow: 0 15px 35px rgba(0,212,255,0.5), 0 0 50px rgba(102,126,234,0.4) !important;
+}
+
+button, .btn, input[type="button"], input[type="submit"], [role="button"] {
+  background: var(--diamond-gradient) !important;
+  box-shadow: var(--diamond-glow) !important;
+  border: 3px solid rgba(0,212,255,0.8) !important;
+  color: #ffffff !important;
+  font-weight: 900 !important;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
+  border-radius: 18px !important;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+
+button:hover, .btn:hover, input[type="button"]:hover, input[type="submit"]:hover {
+  transform: scale(1.05) !important;
+  box-shadow: 0 25px 50px rgba(0,212,255,0.7), 0 0 100px rgba(102,126,234,0.6) !important;
+}
 @media (max-width: 480px) {
   body {
     background: 
