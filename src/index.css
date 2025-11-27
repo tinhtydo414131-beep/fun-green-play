@@ -171,3 +171,36 @@
 .level-button-last {
   grid-column: 2 / 3;
 }
+
+/* FORCE FIX GAME CARD FRAME - Mobile Perfect */
+.game-card,
+.level-container,
+[class*="card"],
+[class*="frame"] {
+  width: 96vw !important;
+  max-width: 380px !important;
+  margin: 8px auto !important;
+  border-radius: 36px !important;
+  padding: 24px 20px !important;
+  box-sizing: border-box !important;
+}
+
+/* Floating animation for balloons */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  25% {
+    transform: translateY(-20px) translateX(10px);
+  }
+  50% {
+    transform: translateY(-10px) translateX(-10px);
+  }
+  75% {
+    transform: translateY(-25px) translateX(5px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}

@@ -256,16 +256,16 @@ const GamePlay = () => {
     <div className="min-h-screen bg-gradient-to-br from-[#E0F2FF] via-[#F0E7FF] to-[#FAF5FF]">
       <Navigation />
       
-      <section className="pt-20 pb-8 px-[4%]">
-        <div className="container mx-auto max-w-6xl">
-          <div className="bg-white/95 backdrop-blur-lg rounded-[36px] border-3 border-primary/20 shadow-[0_8px_32px_rgba(139,70,255,0.15)] p-4 sm:p-8 space-y-4 animate-scale-in relative">
+      <section className="pt-20 pb-8 px-[2%]">
+        <div className="w-[96vw] max-w-[380px] mx-auto">
+          <div className="game-card bg-gradient-to-br from-white to-[#F8F9FF] backdrop-blur-lg rounded-[36px] border-0 shadow-[0_16px_40px_rgba(139,70,255,0.2)] p-[24px_20px] space-y-4 animate-scale-in relative">
             {/* Back button inside card - top left */}
-            <div className="absolute top-4 left-4 z-10">
+            <div className="absolute top-5 left-5 z-10">
               <Link to="/games">
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="font-fredoka font-bold border-2 border-primary/30 hover:border-primary hover:bg-primary/10 transform hover:scale-105 transition-all rounded-xl"
+                  className="font-fredoka font-bold border-2 border-primary/30 hover:border-primary hover:bg-primary/10 transform hover:scale-105 transition-all rounded-[20px]"
                 >
                   <ArrowLeft className="mr-1 h-4 w-4" />
                   Back
@@ -274,16 +274,16 @@ const GamePlay = () => {
             </div>
 
             {/* Game title section */}
-            <div className="text-center space-y-2 pt-8 sm:pt-4">
-              <h1 className="text-[42px] sm:text-5xl font-fredoka font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+            <div className="text-center space-y-2 pt-12">
+              <h1 className="text-[32px] sm:text-4xl font-fredoka font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
                 {game.title}
               </h1>
               <div className="text-3xl">🎮</div>
-              <p className="text-[17px] font-comic text-muted-foreground max-w-2xl mx-auto px-4">
+              <p className="text-[15px] font-comic text-muted-foreground max-w-sm mx-auto px-2">
                 {game.description}
               </p>
-              <p className="text-[15px] font-comic text-muted-foreground">
-                🎯 Played {game.total_plays} times! Keep it up! 🌟
+              <p className="text-[13px] font-comic text-muted-foreground">
+                🎯 Played {game.total_plays} times! 🌟
               </p>
             </div>
 
