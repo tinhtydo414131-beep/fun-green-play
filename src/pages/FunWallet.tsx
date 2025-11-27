@@ -1679,10 +1679,17 @@ export default function FunWallet() {
                         <div>
                           <label className="text-xs sm:text-sm text-muted-foreground mb-2 block font-medium">Recipient Address</label>
                           <Input
+                            type="text"
+                            inputMode="text"
+                            autoComplete="off"
+                            autoCorrect="off"
+                            spellCheck={false}
+                            autoCapitalize="off"
                             value={sendTo}
                             onChange={(e) => setSendTo(e.target.value)}
+                            onFocus={() => console.log("🔵 Focus recipient input")}
                             placeholder="0x..."
-                            className="bg-background/50 border-input h-12 sm:h-10 text-base sm:text-sm px-4 sm:px-3"
+                            className="bg-background/50 border-input h-12 sm:h-10 text-base sm:text-sm px-4 sm:px-3 touch-manipulation"
                           />
                         </div>
                         <div>
@@ -1855,11 +1862,10 @@ export default function FunWallet() {
                             setNeedsApproval(false);
                             setApprovalComplete(false);
                           }}
-                          placeholder="0x1234...
-0x5678...
-0x9abc..."
+                          onFocus={() => console.log("🔵 Focus bulk addresses textarea")}
+                          placeholder={`0x1234...\n0x5678...\n0x9abc...`}
                           rows={6}
-                          className="border-0 text-white placeholder:text-white/30 font-mono text-xs sm:text-sm px-4 sm:px-3 py-3 sm:py-2"
+                          className="border-0 text-white placeholder:text-white/30 font-mono text-xs sm:text-sm px-4 sm:px-3 py-3 sm:py-2 touch-manipulation"
                           style={{
                             background: 'rgba(255,255,255,0.05)',
                             backdropFilter: 'blur(10px)',
