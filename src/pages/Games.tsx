@@ -103,11 +103,11 @@ const Games = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F8F3FF] to-[#E0F8FF]">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
       <Navigation />
       
       <section className="pt-20 sm:pt-32 pb-12 sm:pb-20 px-4">
-        <div className="container mx-auto max-w-[1300px]">
+        <div className="container mx-auto">
           {/* Back to Home Button */}
           <div className="mb-6 sm:mb-8">
             <Button
@@ -193,7 +193,7 @@ const Games = () => {
                 </p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-8 justify-items-center">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                 {filteredGames.map((game) => (
                   <GameCard key={game.id} game={game} />
                 ))}

@@ -152,8 +152,8 @@ export const GameCard = ({ game }: GameCardProps) => {
   };
 
   return (
-    <Card className="group overflow-hidden w-full max-w-[320px] border-3 sm:border-4 border-primary/20 hover:border-primary transition-all duration-500 shadow-[0_12px_32px_rgba(139,70,255,0.18)] hover:shadow-[0_16px_48px_rgba(139,70,255,0.28)] animate-fade-in transform hover:-translate-y-2 hover:scale-[1.02] rounded-[28px]">
-      <div className="relative h-[180px] overflow-hidden rounded-t-[28px]">
+    <Card className="group overflow-hidden border-3 sm:border-4 border-primary/20 hover:border-primary transition-all duration-500 hover:shadow-[0_25px_60px_rgba(59,130,246,0.5)] animate-fade-in transform hover:-translate-y-3 sm:hover:-translate-y-6 hover:scale-105">
+      <div className="relative aspect-video overflow-hidden">
         {game.thumbnail_url && !imageError ? (
           <img 
             src={game.thumbnail_url} 
@@ -195,32 +195,31 @@ export const GameCard = ({ game }: GameCardProps) => {
         </div>
 
         {/* Stats */}
-        <div className="absolute bottom-3 left-3 flex gap-3">
-          <div className="bg-white/90 backdrop-blur-sm px-3 py-2 rounded-full border-2 border-red-200 flex items-center gap-2">
-            <span className="text-[36px]">❤️</span>
-            <span className="font-fredoka font-bold text-base text-foreground">{likes}</span>
+        <div className="absolute bottom-3 left-3 flex gap-2">
+          <div className="bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full border-2 border-primary/30 flex items-center gap-1">
+            <Heart className="w-4 h-4 text-red-500" />
+            <span className="font-fredoka font-bold text-sm">{likes}</span>
           </div>
-          <div className="bg-white/90 backdrop-blur-sm px-3 py-2 rounded-full border-2 border-accent/30 flex items-center gap-2">
-            <span className="text-[36px]">👁</span>
-            <span className="font-fredoka font-bold text-base text-foreground">{plays}</span>
+          <div className="bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full border-2 border-accent/30 flex items-center gap-1">
+            <TrendingUp className="w-4 h-4 text-accent" />
+            <span className="font-fredoka font-bold text-sm">{plays}</span>
           </div>
         </div>
       </div>
       
-      <CardContent className="p-6 space-y-4">
-        <h3 className="text-2xl font-fredoka font-bold bg-gradient-to-r from-[#8B46FF] to-[#00F2FF] bg-clip-text text-transparent line-clamp-1">
+      <CardContent className="p-4 sm:p-6 space-y-3 sm:space-y-4">
+        <h3 className="text-lg sm:text-2xl font-fredoka font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">
           {game.title}
         </h3>
-        <p className="text-muted-foreground text-[15px] font-comic line-clamp-2 leading-snug">
+        <p className="text-muted-foreground text-xs sm:text-sm font-comic line-clamp-2">
           {game.description}
         </p>
 
-        <div className="flex gap-3">
+        <div className="flex gap-2">
           <Link to={`/game/${game.id}`} className="flex-1">
-            <Button className="w-full group/btn font-fredoka font-bold text-base py-6 bg-gradient-to-r from-[#8B46FF] to-[#00F2FF] hover:shadow-2xl hover:brightness-110 transition-all rounded-full">
-              <span>Chơi ngay!</span>
-              <span className="ml-2 text-xl">🎮</span>
-              <Play className="ml-2 w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+            <Button className="w-full group/btn font-fredoka font-bold text-sm sm:text-base py-4 sm:py-6 bg-gradient-to-r from-primary to-secondary hover:shadow-lg transition-all rounded-[20px] sm:rounded-2xl">
+              Play Now! 🎮
+              <Play className="ml-2 w-3 h-3 sm:w-4 sm:h-4 transition-transform group-hover/btn:scale-125" />
             </Button>
           </Link>
 
