@@ -53,19 +53,31 @@ export const LevelSelector = ({
         {/* Title Section */}
         <div className="text-center space-y-3">
           <motion.h2 
-            className="text-5xl md:text-6xl font-poppins font-extrabold bg-gradient-to-r from-magic-purple via-magic-cyan to-magic-gold bg-clip-text text-transparent drop-shadow-lg"
+            className="level-title flex items-center justify-center gap-4"
             animate={{ scale: [1, 1.05, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            Chọn Level 🎮
+            <motion.span
+              animate={{ rotate: [0, 15, -15, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              🌸
+            </motion.span>
+            Chọn Level
+            <motion.span
+              animate={{ rotate: [0, -15, 15, 0] }}
+              transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+            >
+              🌺
+            </motion.span>
           </motion.h2>
-          <p className="text-2xl font-poppins font-semibold text-magic-purple">
+          <p className="description-text">
             Màn {currentLevel} - Phần thưởng: {getCoinReward(currentLevel)} Coins 💰
           </p>
         </div>
 
-        {/* Level Grid - 3 columns */}
-        <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto">
+        {/* Level Grid - 3x4 Perfect Grid */}
+        <div className="grid grid-cols-3 md:grid-cols-4 gap-5 max-w-4xl mx-auto">
           {[...Array(10)].map((_, index) => {
             const level = index + 1;
             const isUnlocked = isLevelUnlocked(level);
@@ -77,15 +89,22 @@ export const LevelSelector = ({
                 key={level}
                 onClick={() => isUnlocked && onLevelSelect(level)}
                 disabled={!isUnlocked}
-                whileHover={isUnlocked ? { scale: 1.08 } : {}}
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.1 + index * 0.08, duration: 0.5, ease: "backOut" }}
+                whileHover={isUnlocked ? { 
+                  scale: 1.05,
+                  transition: { duration: 0.2 }
+                } : {}}
                 whileTap={isUnlocked ? { scale: 0.95 } : {}}
                 className={`
-                  relative aspect-square rounded-2xl flex flex-col items-center justify-center gap-2 p-4
+                  relative rounded-2xl flex flex-col items-center justify-center gap-2 p-6 w-[120px] h-[120px]
                   ${isUnlocked 
-                    ? 'bg-gradient-to-br from-[#6B46C1] via-[#9F7AEA] via-[#00D4FF] via-[#4FD1C7] via-[#3B82F6] to-[#00D4FF] border-[3px] border-[rgba(0,212,255,0.8)] shadow-[0_12px_40px_rgba(0,212,255,0.4),0_0_60px_rgba(107,70,193,0.3),inset_0_4px_12px_rgba(255,255,255,0.3)] cursor-pointer' 
+                    ? 'bg-gradient-to-br from-[#6B46C1] via-[#9F7AEA] via-[#00D4FF] via-[#4FD1C7] via-[#3B82F6] to-[#00D4FF] border-[3px] border-[rgba(0,212,255,0.8)] shadow-[0_12px_40px_rgba(0,212,255,0.4),0_0_60px_rgba(107,70,193,0.3),inset_0_4px_12px_rgba(255,255,255,0.3)] cursor-pointer diamond-sparkle' 
                     : 'bg-gray-400/50 border-[3px] border-gray-500/50 cursor-not-allowed opacity-50'
                   }
                   ${isCurrent ? 'ring-4 ring-yellow-300 ring-offset-4 ring-offset-white shadow-[0_20px_60px_rgba(0,212,255,0.6),0_0_80px_rgba(107,70,193,0.5)]' : ''}
+                  ${level === 10 ? 'col-span-3 md:col-start-2' : ''}
                   transition-all duration-300
                 `}
               >
@@ -105,9 +124,20 @@ export const LevelSelector = ({
                 )}
 
                 {/* Level Number */}
-                <span className={`text-5xl font-poppins font-extrabold relative z-10 ${isUnlocked ? 'text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)]' : 'text-gray-500'}`}>
+                <span className={`level-number relative z-10 ${!isUnlocked ? 'text-gray-500' : ''}`}>
                   {level}
                 </span>
+                
+                {/* Flower Crown for Level 10 */}
+                {level === 10 && isUnlocked && (
+                  <motion.div
+                    className="absolute -top-6 text-4xl"
+                    animate={{ rotate: [0, 5, -5, 0] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    👑
+                  </motion.div>
+                )}
                 
                 {/* Lock Icon */}
                 {!isUnlocked && (
@@ -156,22 +186,31 @@ export const LevelSelector = ({
           })}
         </div>
 
-        {/* Level Info Panel */}
+        {/* Level Info Panel - Rainbow Glow */}
         <motion.div 
-          className="bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 rounded-3xl p-8 text-white text-center space-y-4 shadow-[0_12px_40px_rgba(0,212,255,0.4),0_0_60px_rgba(107,70,193,0.3)] border-[3px] border-white/40"
-          animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
-          transition={{ duration: 5, repeat: Infinity }}
-          style={{ backgroundSize: '200% 200%' }}
+          className="rounded-[36px] p-8 text-white text-center space-y-4 border-[3px] relative overflow-hidden bg-white/85 backdrop-blur-[25px]"
+          style={{
+            borderImage: 'linear-gradient(135deg, #FFD700, #FF6B9D, #C084FC, #00F2FF) 1',
+            boxShadow: '0 20px 40px rgba(255,215,0,0.2), 0 0 60px rgba(192,132,252,0.3)'
+          }}
         >
-          <h3 className="text-4xl font-poppins font-black drop-shadow-lg">
-            Level {currentLevel} 🎯
-          </h3>
-          <div className="flex items-center justify-center gap-3 text-2xl font-poppins font-black">
-            <span>Phần thưởng: {getCoinReward(currentLevel)} Coins 💰</span>
+          <div className="absolute inset-0 bg-gradient-to-r from-yellow-300/20 via-pink-300/20 via-purple-300/20 to-cyan-300/20 animate-gradient" 
+            style={{ 
+              backgroundSize: '200% 200%',
+              animation: 'gradient 5s ease infinite'
+            }}
+          />
+          <div className="relative z-10">
+            <h3 className="text-4xl font-poppins font-black bg-gradient-to-r from-purple-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-lg">
+              Level {currentLevel} 🎯
+            </h3>
+            <div className="flex items-center justify-center gap-3 text-2xl font-poppins font-black text-gray-800">
+              <span>Phần thưởng: {getCoinReward(currentLevel)} Coins 💰</span>
+            </div>
+            <p className="text-xl font-poppins font-bold text-gray-700">
+              Độ khó: {currentLevel <= 3 ? 'Dễ 😊' : currentLevel <= 6 ? 'Trung bình 😎' : 'Khó 🔥'}
+            </p>
           </div>
-          <p className="text-xl font-poppins font-bold">
-            Độ khó: {currentLevel <= 3 ? 'Dễ 😊' : currentLevel <= 6 ? 'Trung bình 😎' : 'Khó 🔥'}
-          </p>
         </motion.div>
 
         {/* Diamond Start Button */}
