@@ -167,7 +167,7 @@ export const GameCard = ({ game }: GameCardProps) => {
       style={{
         background: 'linear-gradient(90deg, hsl(262, 100%, 64%), hsl(186, 100%, 50%), hsl(262, 100%, 64%), hsl(186, 100%, 50%))',
         backgroundSize: '300% 300%',
-        animation: 'gradient-flow 3s ease infinite, border-glow 2s ease-in-out infinite',
+        animation: 'gradient-flow 3s ease infinite',
         padding: '4px',
       }}
       onMouseMove={handleMouseMove}
@@ -176,7 +176,7 @@ export const GameCard = ({ game }: GameCardProps) => {
     >
       <div className="bg-white rounded-[calc(1rem-4px)] h-full flex flex-col">
       <div 
-        className="relative aspect-video overflow-hidden border-4 border-primary/30 shadow-[0_8px_24px_rgba(102,126,234,0.3),inset_0_2px_8px_rgba(255,255,255,0.2)] group-hover:border-primary group-hover:shadow-[0_0_30px_rgba(168,85,247,0.8),0_0_60px_rgba(59,130,246,0.6),0_0_90px_rgba(14,165,233,0.4),inset_0_0_20px_rgba(168,85,247,0.3)] transition-all duration-500"
+        className="relative aspect-video overflow-hidden transition-all duration-500"
         style={{
           transform: isHovered 
             ? `perspective(1000px) rotateX(${(mousePosition.y - 0.5) * 10}deg) rotateY(${(mousePosition.x - 0.5) * -10}deg) translateZ(20px)` 
