@@ -35,80 +35,109 @@ export const FlowerFieldLevelSelector = ({
     <div 
       className="relative min-h-[800px] w-full rounded-[40px] overflow-hidden"
       style={{
-        backgroundImage: `url(${flowerBg})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        background: 'linear-gradient(180deg, #87CEEB 0%, #98D8E8 30%, #B4E7CE 60%, #90EE90 100%)',
       }}
     >
-      {/* Animated parallax overlay */}
+      {/* Morning mist overlay */}
       <div 
-        className="absolute inset-0 opacity-30"
+        className="absolute inset-0 opacity-20"
         style={{
-          backgroundImage: `url(${flowerMagical})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          animation: 'parallax 20s ease-in-out infinite',
+          background: 'radial-gradient(circle at 50% 80%, rgba(255,255,255,0.6) 0%, transparent 70%)',
+          animation: 'mist 15s ease-in-out infinite',
         }}
       />
+      
+      {/* Grass and flowers at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-green-500/60 to-transparent">
+        <motion.div className="absolute bottom-4 left-[10%] text-4xl" animate={{ rotate: [0, 5, -5, 0] }} transition={{ duration: 2, repeat: Infinity }}>🌸</motion.div>
+        <motion.div className="absolute bottom-6 left-[25%] text-5xl" animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 2.5, repeat: Infinity }}>🌺</motion.div>
+        <motion.div className="absolute bottom-3 left-[40%] text-4xl" animate={{ rotate: [0, -8, 8, 0] }} transition={{ duration: 2.2, repeat: Infinity }}>🌻</motion.div>
+        <motion.div className="absolute bottom-5 left-[55%] text-5xl" animate={{ y: [0, -5, 0] }} transition={{ duration: 2.8, repeat: Infinity }}>🌷</motion.div>
+        <motion.div className="absolute bottom-4 left-[70%] text-4xl" animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 2.3, repeat: Infinity }}>🌹</motion.div>
+        <motion.div className="absolute bottom-7 left-[85%] text-5xl" animate={{ rotate: [0, 10, -10, 0] }} transition={{ duration: 2.6, repeat: Infinity }}>💐</motion.div>
+      </div>
 
-      {/* Sunrise Sun with Happy Face */}
+      {/* BIG HAPPY SUNRISE SUN - Top Right */}
       <motion.div
-        className="absolute top-8 right-12 z-5"
+        className="absolute top-4 right-8 sm:top-6 sm:right-12 z-5"
         animate={{ 
-          rotate: [0, 5, -5, 0],
-          scale: [1, 1.05, 1]
+          rotate: [0, 3, -3, 0],
+          scale: [1, 1.03, 1]
         }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
       >
-        {/* Sun circle with glow */}
+        {/* Sun glow aura */}
         <div className="relative">
           <motion.div 
-            className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-300 via-orange-300 to-yellow-400 blur-3xl"
+            className="absolute -inset-8 rounded-full bg-gradient-to-br from-yellow-200 via-orange-200 to-yellow-300 blur-3xl"
             animate={{ 
-              scale: [1, 1.2, 1],
-              opacity: [0.6, 0.9, 0.6]
+              scale: [1, 1.3, 1],
+              opacity: [0.5, 0.8, 0.5]
             }}
-            transition={{ duration: 3, repeat: Infinity }}
+            transition={{ duration: 4, repeat: Infinity }}
           />
-          <div className="relative w-32 h-32 rounded-full bg-gradient-to-br from-yellow-200 via-yellow-300 to-orange-400 shadow-[0_0_60px_rgba(251,191,36,0.9)]">
-            {/* Eyes */}
+          
+          {/* Main sun body */}
+          <div className="relative w-28 h-28 sm:w-40 sm:h-40 rounded-full bg-gradient-to-br from-yellow-100 via-yellow-300 to-orange-400 shadow-[0_0_80px_rgba(251,191,36,1),0_0_120px_rgba(251,146,60,0.7)]">
+            {/* Shiny spots on sun */}
+            <div className="absolute top-6 left-8 w-6 h-6 bg-white/60 rounded-full blur-sm" />
+            <div className="absolute top-10 right-10 w-4 h-4 bg-white/50 rounded-full blur-sm" />
+            
+            {/* BIG SPARKLING EYES */}
             <motion.div 
-              className="absolute top-10 left-8 w-4 h-5 bg-black rounded-full"
+              className="absolute top-[35%] left-[22%] sm:top-12 sm:left-10"
               animate={{ scaleY: [1, 0.1, 1] }}
-              transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
-            />
+              transition={{ duration: 4, repeat: Infinity, repeatDelay: 3 }}
+            >
+              <div className="relative w-5 h-6 sm:w-6 sm:h-7 bg-black rounded-full">
+                <div className="absolute top-1 left-1 w-2 h-2 bg-white rounded-full animate-pulse" />
+              </div>
+            </motion.div>
             <motion.div 
-              className="absolute top-10 right-8 w-4 h-5 bg-black rounded-full"
+              className="absolute top-[35%] right-[22%] sm:top-12 sm:right-10"
               animate={{ scaleY: [1, 0.1, 1] }}
-              transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
-            />
-            {/* Nose */}
-            <div className="absolute top-[52px] left-1/2 -translate-x-1/2 w-2 h-3 bg-orange-600 rounded-full" />
-            {/* Happy Smile */}
+              transition={{ duration: 4, repeat: Infinity, repeatDelay: 3 }}
+            >
+              <div className="relative w-5 h-6 sm:w-6 sm:h-7 bg-black rounded-full">
+                <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full animate-pulse" />
+              </div>
+            </motion.div>
+            
+            {/* Cute little nose */}
+            <div className="absolute top-[52%] sm:top-[54%] left-1/2 -translate-x-1/2 w-2 h-3 sm:w-3 sm:h-4 bg-orange-700 rounded-full" />
+            
+            {/* BIG HAPPY SMILE - Toe toét */}
             <motion.div 
-              className="absolute bottom-8 left-1/2 -translate-x-1/2 w-16 h-8 border-b-4 border-black rounded-b-full"
-              animate={{ scaleX: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
+              className="absolute bottom-[22%] sm:bottom-8 left-1/2 -translate-x-1/2 w-14 h-9 sm:w-20 sm:h-12 border-b-[5px] border-black rounded-b-full"
+              animate={{ 
+                scaleX: [1, 1.15, 1],
+                scaleY: [1, 1.1, 1]
+              }}
+              transition={{ duration: 2.5, repeat: Infinity }}
             />
-            {/* Sun rays */}
-            {[...Array(8)].map((_, i) => (
+            {/* Smile corners - rosy cheeks effect */}
+            <div className="absolute bottom-[28%] sm:bottom-10 left-[15%] w-4 h-2 sm:w-5 sm:h-3 bg-pink-400/60 rounded-full blur-sm" />
+            <div className="absolute bottom-[28%] sm:bottom-10 right-[15%] w-4 h-2 sm:w-5 sm:h-3 bg-pink-400/60 rounded-full blur-sm" />
+            
+            {/* SUN RAYS - 12 rays */}
+            {[...Array(12)].map((_, i) => (
               <motion.div
                 key={i}
-                className="absolute w-1 h-6 bg-gradient-to-b from-yellow-300 to-transparent rounded-full"
+                className="absolute w-1.5 sm:w-2 h-8 sm:h-12 bg-gradient-to-b from-yellow-300 via-yellow-400 to-transparent rounded-full"
                 style={{
                   top: '50%',
                   left: '50%',
                   transformOrigin: '0 0',
-                  transform: `rotate(${i * 45}deg) translate(70px, -3px)`,
+                  transform: `rotate(${i * 30}deg) translate(${window.innerWidth < 640 ? '58px' : '85px'}, -4px)`,
                 }}
                 animate={{ 
-                  height: [24, 32, 24],
-                  opacity: [0.7, 1, 0.7]
+                  height: [32, 48, 32],
+                  opacity: [0.6, 1, 0.6]
                 }}
                 transition={{ 
-                  duration: 2,
+                  duration: 2.5,
                   repeat: Infinity,
-                  delay: i * 0.1
+                  delay: i * 0.15
                 }}
               />
             ))}
@@ -116,38 +145,86 @@ export const FlowerFieldLevelSelector = ({
         </div>
       </motion.div>
 
-      {/* Scattered Colorful Flowers */}
-      <motion.div className="absolute top-[15%] left-[8%] text-4xl" animate={{ rotate: [0, 10, -10, 0], y: [0, -5, 0] }} transition={{ duration: 3, repeat: Infinity }}>🌸</motion.div>
-      <motion.div className="absolute top-[12%] left-[20%] text-5xl" animate={{ rotate: [0, -10, 10, 0], scale: [1, 1.1, 1] }} transition={{ duration: 4, repeat: Infinity }}>🌺</motion.div>
-      <motion.div className="absolute top-[25%] left-[5%] text-4xl" animate={{ y: [0, -8, 0], rotate: [0, 15, 0] }} transition={{ duration: 3.5, repeat: Infinity }}>🌻</motion.div>
-      <motion.div className="absolute top-[35%] left-[12%] text-5xl" animate={{ rotate: [0, 12, -12, 0] }} transition={{ duration: 4.5, repeat: Infinity }}>🌷</motion.div>
-      <motion.div className="absolute top-[48%] left-[7%] text-4xl" animate={{ scale: [1, 1.15, 1], rotate: [0, -8, 0] }} transition={{ duration: 3, repeat: Infinity }}>🌹</motion.div>
-      
-      <motion.div className="absolute top-[18%] right-[8%] text-4xl" animate={{ rotate: [0, -12, 12, 0], y: [0, -6, 0] }} transition={{ duration: 3.2, repeat: Infinity }}>💐</motion.div>
-      <motion.div className="absolute top-[28%] right-[15%] text-5xl" animate={{ scale: [1, 1.12, 1], rotate: [0, 8, 0] }} transition={{ duration: 4.2, repeat: Infinity }}>🏵️</motion.div>
-      <motion.div className="absolute top-[42%] right-[6%] text-4xl" animate={{ y: [0, -7, 0], rotate: [0, -10, 0] }} transition={{ duration: 3.8, repeat: Infinity }}>🌼</motion.div>
-      <motion.div className="absolute top-[55%] right-[12%] text-5xl" animate={{ rotate: [0, 15, -15, 0], scale: [1, 1.08, 1] }} transition={{ duration: 4, repeat: Infinity }}>🌸</motion.div>
-      
-      <motion.div className="absolute bottom-[15%] left-[10%] text-5xl" animate={{ rotate: [0, -15, 15, 0] }} transition={{ duration: 4.5, repeat: Infinity }}>🌺</motion.div>
-      <motion.div className="absolute bottom-[25%] left-[18%] text-4xl" animate={{ y: [0, -6, 0], scale: [1, 1.1, 1] }} transition={{ duration: 3.5, repeat: Infinity }}>🌻</motion.div>
-      <motion.div className="absolute bottom-[18%] right-[15%] text-5xl" animate={{ rotate: [0, 10, -10, 0] }} transition={{ duration: 4, repeat: Infinity }}>🌷</motion.div>
-      <motion.div className="absolute bottom-[28%] right-[8%] text-4xl" animate={{ scale: [1, 1.12, 1], y: [0, -5, 0] }} transition={{ duration: 3.3, repeat: Infinity }}>🌹</motion.div>
+      {/* COLORFUL FLOWERS around Sun - Floating */}
+      <motion.div className="absolute top-[8%] right-[28%] text-3xl sm:text-4xl" animate={{ y: [0, -12, 0], rotate: [0, 15, 0] }} transition={{ duration: 3, repeat: Infinity }}>🌸</motion.div>
+      <motion.div className="absolute top-[5%] right-[22%] text-4xl sm:text-5xl" animate={{ scale: [1, 1.2, 1], rotate: [0, -10, 0] }} transition={{ duration: 3.5, repeat: Infinity }}>🌺</motion.div>
+      <motion.div className="absolute top-[15%] right-[35%] text-3xl sm:text-4xl" animate={{ y: [0, -10, 0], x: [0, 5, 0] }} transition={{ duration: 2.8, repeat: Infinity }}>🌻</motion.div>
+      <motion.div className="absolute top-[12%] right-[15%] text-4xl sm:text-5xl" animate={{ rotate: [0, 20, -20, 0] }} transition={{ duration: 4, repeat: Infinity }}>🌷</motion.div>
+      <motion.div className="absolute top-[22%] right-[40%] text-3xl sm:text-4xl" animate={{ scale: [1, 1.15, 1], y: [0, -8, 0] }} transition={{ duration: 3.2, repeat: Infinity }}>🌹</motion.div>
+      <motion.div className="absolute top-[18%] right-[8%] text-4xl sm:text-5xl" animate={{ rotate: [0, -15, 15, 0] }} transition={{ duration: 3.8, repeat: Infinity }}>💐</motion.div>
+      <motion.div className="absolute top-[25%] right-[25%] text-3xl sm:text-4xl" animate={{ y: [0, -15, 0], scale: [1, 1.1, 1] }} transition={{ duration: 3.3, repeat: Infinity }}>🏵️</motion.div>
+      <motion.div className="absolute top-[28%] right-[12%] text-4xl sm:text-5xl" animate={{ rotate: [0, 12, -12, 0] }} transition={{ duration: 4.2, repeat: Infinity }}>🌼</motion.div>
 
-      {/* Clouds */}
+      {/* MORE SCATTERED FLOWERS - All around */}
+      <motion.div className="absolute top-[15%] left-[8%] text-3xl sm:text-4xl" animate={{ rotate: [0, 10, -10, 0], y: [0, -5, 0] }} transition={{ duration: 3, repeat: Infinity }}>🌸</motion.div>
+      <motion.div className="absolute top-[12%] left-[20%] text-4xl sm:text-5xl" animate={{ rotate: [0, -10, 10, 0], scale: [1, 1.1, 1] }} transition={{ duration: 4, repeat: Infinity }}>🌺</motion.div>
+      <motion.div className="absolute top-[25%] left-[5%] text-3xl sm:text-4xl" animate={{ y: [0, -8, 0], rotate: [0, 15, 0] }} transition={{ duration: 3.5, repeat: Infinity }}>🌻</motion.div>
+      <motion.div className="absolute top-[35%] left-[12%] text-4xl sm:text-5xl" animate={{ rotate: [0, 12, -12, 0] }} transition={{ duration: 4.5, repeat: Infinity }}>🌷</motion.div>
+      <motion.div className="absolute top-[48%] left-[7%] text-3xl sm:text-4xl" animate={{ scale: [1, 1.15, 1], rotate: [0, -8, 0] }} transition={{ duration: 3, repeat: Infinity }}>🌹</motion.div>
+      
+      <motion.div className="absolute top-[38%] right-[6%] text-4xl sm:text-5xl" animate={{ y: [0, -7, 0], rotate: [0, -10, 0] }} transition={{ duration: 3.8, repeat: Infinity }}>🌼</motion.div>
+      <motion.div className="absolute top-[52%] right-[12%] text-3xl sm:text-4xl" animate={{ rotate: [0, 15, -15, 0], scale: [1, 1.08, 1] }} transition={{ duration: 4, repeat: Infinity }}>🌸</motion.div>
+      
+      <motion.div className="absolute bottom-[35%] left-[18%] text-4xl sm:text-5xl" animate={{ y: [0, -6, 0], scale: [1, 1.1, 1] }} transition={{ duration: 3.5, repeat: Infinity }}>🌻</motion.div>
+      <motion.div className="absolute bottom-[38%] right-[15%] text-3xl sm:text-4xl" animate={{ rotate: [0, 10, -10, 0] }} transition={{ duration: 4, repeat: Infinity }}>🌷</motion.div>
+
+      {/* CUTE CLOUDS with Faces - Moving slowly */}
       <motion.div
-        className="absolute top-8 left-[10%] text-6xl opacity-60"
-        animate={{ x: [0, 50, 0] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-12 left-[8%] z-10"
+        animate={{ x: [0, 60, 0] }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
       >
-        ☁️
+        <div className="relative text-6xl sm:text-7xl">☁️
+          <div className="absolute top-[45%] left-[40%] flex gap-2 text-black">
+            <div className="w-1.5 h-2 bg-black rounded-full" />
+            <div className="w-1.5 h-2 bg-black rounded-full" />
+          </div>
+          <div className="absolute top-[58%] left-[45%] w-3 h-1.5 border-b-2 border-black rounded-b-full" />
+        </div>
       </motion.div>
+      
       <motion.div
-        className="absolute top-12 left-[25%] text-5xl opacity-50"
-        animate={{ x: [0, -30, 0] }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-16 left-[30%] z-10"
+        animate={{ x: [0, -50, 0] }}
+        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
       >
-        ☁️
+        <div className="relative text-5xl sm:text-6xl opacity-80">☁️
+          <div className="absolute top-[45%] left-[40%] flex gap-1.5 text-black">
+            <div className="w-1 h-1.5 bg-black rounded-full" />
+            <div className="w-1 h-1.5 bg-black rounded-full" />
+          </div>
+          <div className="absolute top-[58%] left-[43%] w-2.5 h-1 border-b-2 border-black rounded-b-full" />
+        </div>
       </motion.div>
+      
+      <motion.div
+        className="absolute top-8 right-[45%] z-10"
+        animate={{ x: [0, 40, 0] }}
+        transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <div className="relative text-6xl sm:text-7xl opacity-90">☁️
+          <div className="absolute top-[45%] left-[38%] flex gap-2 text-black">
+            <div className="w-1.5 h-2 bg-black rounded-full" />
+            <div className="w-1.5 h-2 bg-black rounded-full" />
+          </div>
+          <div className="absolute top-[58%] left-[43%] w-3 h-1.5 border-b-2 border-black rounded-b-full" />
+        </div>
+      </motion.div>
+      
+      <motion.div
+        className="absolute top-20 left-[55%] z-10"
+        animate={{ x: [0, -45, 0] }}
+        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <div className="relative text-5xl sm:text-6xl opacity-75">☁️
+          <div className="absolute top-[45%] left-[40%] flex gap-1.5 text-black">
+            <div className="w-1 h-1.5 bg-black rounded-full" />
+            <div className="w-1 h-1.5 bg-black rounded-full" />
+          </div>
+          <div className="absolute top-[58%] left-[45%] w-2.5 h-1 border-b-2 border-black rounded-b-full" />
+        </div>
+      </motion.div>
+
 
       {/* Rainbow */}
       <div className="absolute top-4 left-1/2 -translate-x-1/2 text-8xl opacity-20">
@@ -201,13 +278,13 @@ export const FlowerFieldLevelSelector = ({
               background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,192,203,0.2) 50%, rgba(218,112,214,0.15) 100%)',
             }}
           >
-            {/* Falling flowers decoration */}
-            {[...Array(8)].map((_, i) => (
+            {/* Falling flowers decoration - from title */}
+            {[...Array(12)].map((_, i) => (
               <motion.div
                 key={i}
-                className="absolute text-3xl pointer-events-none"
+                className="absolute text-2xl sm:text-3xl pointer-events-none"
                 style={{ 
-                  left: `${(i + 1) * 12}%`,
+                  left: `${(i + 1) * 8}%`,
                   top: '-50px'
                 }}
                 animate={{ 
@@ -216,9 +293,9 @@ export const FlowerFieldLevelSelector = ({
                   opacity: [0, 1, 1, 0]
                 }}
                 transition={{ 
-                  duration: 8 + i,
+                  duration: 7 + i * 0.5,
                   repeat: Infinity,
-                  delay: i * 0.8,
+                  delay: i * 0.6,
                   ease: "linear"
                 }}
               >
@@ -274,15 +351,19 @@ export const FlowerFieldLevelSelector = ({
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 + index * 0.08, duration: 0.5 }}
                     whileHover={unlocked ? { 
-                      scale: 1.15,
+                      scale: 1.18,
                       rotate: [0, -5, 5, -5, 0],
                       transition: { duration: 0.4 }
                     } : {}}
+                    onHoverStart={() => {
+                      // Flower bloom effect on hover - handled by CSS
+                    }}
                     whileTap={unlocked ? { scale: 0.95 } : {}}
                     className={cn(
-                      "relative flex flex-col items-center justify-center rounded-full transition-all duration-500",
+                      "relative flex flex-col items-center justify-center rounded-full transition-all duration-500 group",
                       "w-[130px] h-[130px] sm:w-[150px] sm:h-[150px]",
-                      unlocked && "bg-gradient-to-br from-pink-300 via-fuchsia-400 to-cyan-300 shadow-[0_8px_35px_rgba(236,72,153,0.7),0_0_60px_rgba(168,85,247,0.6),inset_0_3px_20px_rgba(255,255,255,0.6)] hover:shadow-[0_12px_50px_rgba(236,72,153,0.9),0_0_90px_rgba(168,85,247,0.8)] hover:scale-110",
+                      "border-4 border-white/30",
+                      unlocked && "bg-gradient-to-br from-pink-300 via-fuchsia-400 to-cyan-300 shadow-[0_8px_35px_rgba(236,72,153,0.7),0_0_60px_rgba(168,85,247,0.6),inset_0_3px_20px_rgba(255,255,255,0.6)] hover:shadow-[0_15px_60px_rgba(236,72,153,1),0_0_100px_rgba(168,85,247,0.9),0_0_40px_rgba(255,255,255,0.8)] hover:scale-110 hover:border-white/60",
                       selected && unlocked && "scale-115 animate-pulse shadow-[0_0_80px_rgba(236,72,153,1),0_0_120px_rgba(168,85,247,0.9)]",
                       !unlocked && "bg-gradient-to-br from-gray-300 to-gray-200 cursor-not-allowed opacity-40"
                     )}
@@ -303,44 +384,59 @@ export const FlowerFieldLevelSelector = ({
                       </>
                     )}
 
-                    {/* Flower petals around ALL levels - unlocked get animated flowers */}
+                    {/* Flower border around levels - blooms on hover */}
                     {unlocked ? (
                       <>
                         <motion.div 
-                          className="absolute -top-3 -left-3 text-3xl"
+                          className="absolute -top-3 -left-3 text-2xl sm:text-3xl transition-all duration-300 group-hover:text-4xl group-hover:sm:text-5xl"
                           animate={{ rotate: 360 }}
                           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                         >
                           🌸
                         </motion.div>
                         <motion.div 
-                          className="absolute -top-3 -right-3 text-3xl"
+                          className="absolute -top-3 -right-3 text-2xl sm:text-3xl transition-all duration-300 group-hover:text-4xl group-hover:sm:text-5xl"
                           animate={{ rotate: -360 }}
                           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                         >
                           🌺
                         </motion.div>
                         <motion.div 
-                          className="absolute -bottom-3 -left-3 text-3xl"
+                          className="absolute -bottom-3 -left-3 text-2xl sm:text-3xl transition-all duration-300 group-hover:text-4xl group-hover:sm:text-5xl"
                           animate={{ rotate: 360 }}
                           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                         >
                           🌻
                         </motion.div>
                         <motion.div 
-                          className="absolute -bottom-3 -right-3 text-3xl"
+                          className="absolute -bottom-3 -right-3 text-2xl sm:text-3xl transition-all duration-300 group-hover:text-4xl group-hover:sm:text-5xl"
                           animate={{ rotate: -360 }}
                           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                         >
                           🌷
                         </motion.div>
+                        {/* Extra flowers on sides - appear on hover */}
+                        <motion.div 
+                          className="absolute top-1/2 -left-4 text-2xl opacity-0 group-hover:opacity-100 transition-all duration-300"
+                          animate={{ scale: [1, 1.2, 1] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        >
+                          🌹
+                        </motion.div>
+                        <motion.div 
+                          className="absolute top-1/2 -right-4 text-2xl opacity-0 group-hover:opacity-100 transition-all duration-300"
+                          animate={{ scale: [1, 1.2, 1] }}
+                          transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+                        >
+                          💐
+                        </motion.div>
                       </>
                     ) : (
                       <>
-                        <div className="absolute -top-3 -left-3 text-2xl opacity-30">🌸</div>
-                        <div className="absolute -top-3 -right-3 text-2xl opacity-30">🌺</div>
-                        <div className="absolute -bottom-3 -left-3 text-2xl opacity-30">🌻</div>
-                        <div className="absolute -bottom-3 -right-3 text-2xl opacity-30">🌷</div>
+                        <div className="absolute -top-3 -left-3 text-xl sm:text-2xl opacity-30">🌸</div>
+                        <div className="absolute -top-3 -right-3 text-xl sm:text-2xl opacity-30">🌺</div>
+                        <div className="absolute -bottom-3 -left-3 text-xl sm:text-2xl opacity-30">🌻</div>
+                        <div className="absolute -bottom-3 -right-3 text-xl sm:text-2xl opacity-30">🌷</div>
                       </>
                     )}
 
@@ -490,6 +586,10 @@ export const FlowerFieldLevelSelector = ({
         @keyframes parallax {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-20px); }
+        }
+        @keyframes mist {
+          0%, 100% { opacity: 0.2; }
+          50% { opacity: 0.35; }
         }
       `}</style>
     </div>
