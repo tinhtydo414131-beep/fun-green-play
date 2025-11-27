@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Gamepad2, User, Wallet, Mail, Lock } from "lucide-react";
 import { web3Modal } from '@/lib/web3';
@@ -26,6 +27,7 @@ export default function Auth() {
   const [step, setStep] = useState<"connect" | "register">("connect");
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
   
   const { address, isConnected } = useAccount();
@@ -106,6 +108,14 @@ export default function Auth() {
         });
 
         if (error) throw error;
+
+        // Save session to localStorage if Remember Me is checked
+        if (rememberMe && data.session) {
+          localStorage.setItem("funplanet_session", JSON.stringify({
+            access_token: data.session.access_token,
+            refresh_token: data.session.refresh_token,
+          }));
+        }
 
         const { data: profile } = await supabase
           .from("profiles")
@@ -378,6 +388,22 @@ export default function Auth() {
                         className="h-12 border-2 border-primary/30 focus:border-primary"
                         required
                       />
+                    </div>
+                  )}
+
+                  {authMode === "login" && (
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="remember"
+                        checked={rememberMe}
+                        onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                      />
+                      <label
+                        htmlFor="remember"
+                        className="text-sm font-comic leading-none cursor-pointer select-none"
+                      >
+                        Ghi nhớ đăng nhập
+                      </label>
                     </div>
                   )}
 
