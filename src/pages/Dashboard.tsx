@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Gamepad2, Users, MessageCircle, Trophy, Home } from "lucide-react";
 import { toast } from "sonner";
 import { WalletConnect } from "@/components/WalletConnect";
+import { AvatarUpload } from "@/components/AvatarUpload";
 
 interface Profile {
   id: string;
@@ -104,9 +105,10 @@ export default function Dashboard() {
           <Card className="mb-8 border-4 border-primary/30 shadow-xl bg-gradient-to-br from-background to-primary/5">
             <CardContent className="p-8">
               <div className="flex flex-col md:flex-row items-center gap-6">
-                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-6xl font-bold text-white shadow-lg">
-                  {profile.username[0].toUpperCase()}
-                </div>
+                <AvatarUpload 
+                  currentAvatarUrl={profile.avatar_url}
+                  onAvatarUpdate={(url) => setProfile({ ...profile, avatar_url: url })}
+                />
                 <div className="flex-1 text-center md:text-left">
                   <h1 className="text-4xl md:text-5xl font-fredoka font-bold text-primary mb-2">
                     {profile.username} 🎮
