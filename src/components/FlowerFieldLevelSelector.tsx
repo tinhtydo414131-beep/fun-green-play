@@ -51,6 +51,88 @@ export const FlowerFieldLevelSelector = ({
         }}
       />
 
+      {/* Sunrise Sun with Happy Face */}
+      <motion.div
+        className="absolute top-8 right-12 z-5"
+        animate={{ 
+          rotate: [0, 5, -5, 0],
+          scale: [1, 1.05, 1]
+        }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+      >
+        {/* Sun circle with glow */}
+        <div className="relative">
+          <motion.div 
+            className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-300 via-orange-300 to-yellow-400 blur-3xl"
+            animate={{ 
+              scale: [1, 1.2, 1],
+              opacity: [0.6, 0.9, 0.6]
+            }}
+            transition={{ duration: 3, repeat: Infinity }}
+          />
+          <div className="relative w-32 h-32 rounded-full bg-gradient-to-br from-yellow-200 via-yellow-300 to-orange-400 shadow-[0_0_60px_rgba(251,191,36,0.9)]">
+            {/* Eyes */}
+            <motion.div 
+              className="absolute top-10 left-8 w-4 h-5 bg-black rounded-full"
+              animate={{ scaleY: [1, 0.1, 1] }}
+              transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
+            />
+            <motion.div 
+              className="absolute top-10 right-8 w-4 h-5 bg-black rounded-full"
+              animate={{ scaleY: [1, 0.1, 1] }}
+              transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
+            />
+            {/* Nose */}
+            <div className="absolute top-[52px] left-1/2 -translate-x-1/2 w-2 h-3 bg-orange-600 rounded-full" />
+            {/* Happy Smile */}
+            <motion.div 
+              className="absolute bottom-8 left-1/2 -translate-x-1/2 w-16 h-8 border-b-4 border-black rounded-b-full"
+              animate={{ scaleX: [1, 1.1, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+            {/* Sun rays */}
+            {[...Array(8)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-1 h-6 bg-gradient-to-b from-yellow-300 to-transparent rounded-full"
+                style={{
+                  top: '50%',
+                  left: '50%',
+                  transformOrigin: '0 0',
+                  transform: `rotate(${i * 45}deg) translate(70px, -3px)`,
+                }}
+                animate={{ 
+                  height: [24, 32, 24],
+                  opacity: [0.7, 1, 0.7]
+                }}
+                transition={{ 
+                  duration: 2,
+                  repeat: Infinity,
+                  delay: i * 0.1
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Scattered Colorful Flowers */}
+      <motion.div className="absolute top-[15%] left-[8%] text-4xl" animate={{ rotate: [0, 10, -10, 0], y: [0, -5, 0] }} transition={{ duration: 3, repeat: Infinity }}>🌸</motion.div>
+      <motion.div className="absolute top-[12%] left-[20%] text-5xl" animate={{ rotate: [0, -10, 10, 0], scale: [1, 1.1, 1] }} transition={{ duration: 4, repeat: Infinity }}>🌺</motion.div>
+      <motion.div className="absolute top-[25%] left-[5%] text-4xl" animate={{ y: [0, -8, 0], rotate: [0, 15, 0] }} transition={{ duration: 3.5, repeat: Infinity }}>🌻</motion.div>
+      <motion.div className="absolute top-[35%] left-[12%] text-5xl" animate={{ rotate: [0, 12, -12, 0] }} transition={{ duration: 4.5, repeat: Infinity }}>🌷</motion.div>
+      <motion.div className="absolute top-[48%] left-[7%] text-4xl" animate={{ scale: [1, 1.15, 1], rotate: [0, -8, 0] }} transition={{ duration: 3, repeat: Infinity }}>🌹</motion.div>
+      
+      <motion.div className="absolute top-[18%] right-[8%] text-4xl" animate={{ rotate: [0, -12, 12, 0], y: [0, -6, 0] }} transition={{ duration: 3.2, repeat: Infinity }}>💐</motion.div>
+      <motion.div className="absolute top-[28%] right-[15%] text-5xl" animate={{ scale: [1, 1.12, 1], rotate: [0, 8, 0] }} transition={{ duration: 4.2, repeat: Infinity }}>🏵️</motion.div>
+      <motion.div className="absolute top-[42%] right-[6%] text-4xl" animate={{ y: [0, -7, 0], rotate: [0, -10, 0] }} transition={{ duration: 3.8, repeat: Infinity }}>🌼</motion.div>
+      <motion.div className="absolute top-[55%] right-[12%] text-5xl" animate={{ rotate: [0, 15, -15, 0], scale: [1, 1.08, 1] }} transition={{ duration: 4, repeat: Infinity }}>🌸</motion.div>
+      
+      <motion.div className="absolute bottom-[15%] left-[10%] text-5xl" animate={{ rotate: [0, -15, 15, 0] }} transition={{ duration: 4.5, repeat: Infinity }}>🌺</motion.div>
+      <motion.div className="absolute bottom-[25%] left-[18%] text-4xl" animate={{ y: [0, -6, 0], scale: [1, 1.1, 1] }} transition={{ duration: 3.5, repeat: Infinity }}>🌻</motion.div>
+      <motion.div className="absolute bottom-[18%] right-[15%] text-5xl" animate={{ rotate: [0, 10, -10, 0] }} transition={{ duration: 4, repeat: Infinity }}>🌷</motion.div>
+      <motion.div className="absolute bottom-[28%] right-[8%] text-4xl" animate={{ scale: [1, 1.12, 1], y: [0, -5, 0] }} transition={{ duration: 3.3, repeat: Infinity }}>🌹</motion.div>
+
       {/* Clouds */}
       <motion.div
         className="absolute top-8 left-[10%] text-6xl opacity-60"
@@ -60,7 +142,7 @@ export const FlowerFieldLevelSelector = ({
         ☁️
       </motion.div>
       <motion.div
-        className="absolute top-12 right-[15%] text-5xl opacity-50"
+        className="absolute top-12 left-[25%] text-5xl opacity-50"
         animate={{ x: [0, -30, 0] }}
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
       >
