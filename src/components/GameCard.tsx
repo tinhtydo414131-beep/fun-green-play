@@ -38,32 +38,6 @@ export const GameCard = ({ game }: GameCardProps) => {
   const [likes, setLikes] = useState(game.total_likes);
   const [plays, setPlays] = useState(game.total_plays);
   const [imageError, setImageError] = useState(false);
-  const [tiltStyle, setTiltStyle] = useState({});
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const card = e.currentTarget;
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    
-    const rotateX = (y - centerY) / 10;
-    const rotateY = (centerX - x) / 10;
-    
-    setTiltStyle({
-      transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`,
-      transition: 'transform 0.1s ease-out',
-    });
-  };
-
-  const handleMouseLeave = () => {
-    setTiltStyle({
-      transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)',
-      transition: 'transform 0.5s ease-out',
-    });
-  };
 
   useEffect(() => {
     if (user) {
@@ -181,11 +155,8 @@ export const GameCard = ({ game }: GameCardProps) => {
   return (
     <Card 
       className="group overflow-hidden border-3 border-primary/20 hover:border-primary transition-all duration-500 hover:shadow-[0_25px_60px_rgba(59,130,246,0.5),0_15px_40px_rgba(102,126,234,0.4)] animate-fade-in h-full flex flex-col"
-      style={tiltStyle}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
     >
-      <div className="relative aspect-video overflow-hidden border-4 border-primary/30 shadow-[0_8px_24px_rgba(102,126,234,0.3),inset_0_2px_8px_rgba(255,255,255,0.2)] group-hover:border-primary group-hover:shadow-[0_0_30px_rgba(168,85,247,0.8),0_0_60px_rgba(59,130,246,0.6),0_0_90px_rgba(14,165,233,0.4),inset_0_0_20px_rgba(168,85,247,0.3)] transition-all duration-500" style={{ transformStyle: 'preserve-3d' }}>
+      <div className="relative aspect-video overflow-hidden border-4 border-primary/30 shadow-[0_8px_24px_rgba(102,126,234,0.3),inset_0_2px_8px_rgba(255,255,255,0.2)] group-hover:border-primary group-hover:shadow-[0_0_30px_rgba(168,85,247,0.8),0_0_60px_rgba(59,130,246,0.6),0_0_90px_rgba(14,165,233,0.4),inset_0_0_20px_rgba(168,85,247,0.3)] transition-all duration-500">
         {game.thumbnail_url && !imageError ? (
           <img 
             src={game.thumbnail_url} 
@@ -193,8 +164,6 @@ export const GameCard = ({ game }: GameCardProps) => {
             className="w-full h-full object-cover transition-all duration-500 group-hover:scale-115 group-hover:rotate-2"
             style={{
               filter: 'contrast(1.45) saturate(1.8) brightness(1.25) drop-shadow(0 8px 20px rgba(0,0,0,0.5)) sharpen(1.2)',
-              transform: 'translateZ(20px)',
-              transformStyle: 'preserve-3d',
               imageRendering: 'crisp-edges'
             }}
             onError={() => setImageError(true)}
@@ -219,21 +188,21 @@ export const GameCard = ({ game }: GameCardProps) => {
         <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent opacity-40 group-hover:opacity-60 transition-opacity" />
         
         {/* Play Icon Overlay */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" style={{ transform: 'translateZ(40px)', transformStyle: 'preserve-3d' }}>
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
           <div className="bg-primary/90 p-6 rounded-full shadow-2xl transform scale-0 group-hover:scale-100 transition-transform duration-300">
             <Play className="w-12 h-12 text-white" />
           </div>
         </div>
 
         {/* Badges */}
-        <div className="absolute top-3 right-3 flex gap-2" style={{ transform: 'translateZ(30px)', transformStyle: 'preserve-3d' }}>
+        <div className="absolute top-3 right-3 flex gap-2">
           <Badge className={`${difficultyColors[game.difficulty as keyof typeof difficultyColors]} border backdrop-blur-sm font-fredoka font-bold`}>
             {difficultyEmoji[game.difficulty as keyof typeof difficultyEmoji]} {game.difficulty}
           </Badge>
         </div>
 
         {/* Stats */}
-        <div className="absolute bottom-3 left-3 flex gap-2" style={{ transform: 'translateZ(30px)', transformStyle: 'preserve-3d' }}>
+        <div className="absolute bottom-3 left-3 flex gap-2">
           <div className="bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full border-2 border-primary/30 flex items-center gap-1">
             <Heart className="w-4 h-4 text-red-500" />
             <span className="font-fredoka font-bold text-sm">{likes}</span>
@@ -245,7 +214,7 @@ export const GameCard = ({ game }: GameCardProps) => {
         </div>
       </div>
       
-      <CardContent className="p-6 space-y-4 flex-1 flex flex-col" style={{ transform: 'translateZ(10px)', transformStyle: 'preserve-3d' }}>
+      <CardContent className="p-6 space-y-4 flex-1 flex flex-col">
         <h3 className="text-xl font-fredoka font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">
           {game.title}
         </h3>
