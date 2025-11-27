@@ -187,6 +187,28 @@ export default {
             backgroundPosition: "100% 50%",
           },
         },
+        "diamond-light": {
+          "0%": {
+            backgroundPosition: "0% 50%",
+            filter: "hue-rotate(0deg) brightness(1)",
+          },
+          "25%": {
+            backgroundPosition: "50% 0%",
+            filter: "hue-rotate(90deg) brightness(1.2)",
+          },
+          "50%": {
+            backgroundPosition: "100% 50%",
+            filter: "hue-rotate(180deg) brightness(1.3)",
+          },
+          "75%": {
+            backgroundPosition: "50% 100%",
+            filter: "hue-rotate(270deg) brightness(1.2)",
+          },
+          "100%": {
+            backgroundPosition: "0% 50%",
+            filter: "hue-rotate(360deg) brightness(1)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -202,6 +224,7 @@ export default {
         "pulse-glow": "pulse-glow 3s ease-in-out infinite",
         "neon-pulse": "neon-pulse 2s ease-in-out infinite",
         "golden-shimmer": "golden-shimmer 12s ease-in-out infinite",
+        "diamond-light": "diamond-light 15s ease-in-out infinite",
       },
     },
   },
