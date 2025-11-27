@@ -18,6 +18,12 @@ export const wagmiConfig = defaultWagmiConfig({
   chains,
   projectId,
   metadata,
+  auth: {
+    email: false,
+    socials: [],
+    showWallets: true,
+    walletFeatures: true,
+  },
 });
 
 // 3. Create modal with featured wallets (MetaMask first) - Hide "All Wallets"
