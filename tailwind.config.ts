@@ -209,6 +209,14 @@ export default {
             filter: "hue-rotate(360deg) brightness(1)",
           },
         },
+        "gradient-shift": {
+          "0%, 100%": {
+            backgroundPosition: "0% 50%",
+          },
+          "50%": {
+            backgroundPosition: "100% 50%",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -225,6 +233,7 @@ export default {
         "neon-pulse": "neon-pulse 2s ease-in-out infinite",
         "golden-shimmer": "golden-shimmer 12s ease-in-out infinite",
         "diamond-light": "diamond-light 15s ease-in-out infinite",
+        "gradient-shift": "gradient-shift 4s ease-in-out infinite",
       },
     },
   },
