@@ -1,4 +1,4 @@
-import { Gamepad2, User, LogOut, Trophy, Users, MessageCircle, Wallet, Music } from "lucide-react";
+import { Gamepad2, User, LogOut, Trophy, Users, MessageCircle, Wallet, Music, Settings } from "lucide-react";
 import { NavLink } from "./NavLink";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -111,6 +111,10 @@ export const Navigation = () => {
                     <User className="mr-2 h-5 w-5 text-primary" />
                     <span>Dashboard 📊</span>
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/settings")} className="font-fredoka cursor-pointer hover:bg-primary/10">
+                    <Settings className="mr-2 h-5 w-5 text-primary" />
+                    <span>Settings ⚙️</span>
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate("/leaderboard")} className="font-fredoka cursor-pointer hover:bg-accent/10">
                     <Trophy className="mr-2 h-5 w-5 text-accent" />
                     <span>Leaderboard 🏆</span>
@@ -174,6 +178,10 @@ export const Navigation = () => {
                   <DropdownMenuItem onClick={() => navigate("/dashboard")} className="font-fredoka cursor-pointer hover:bg-primary/10">
                     <User className="mr-2 h-5 w-5 text-primary" />
                     <span>Dashboard 📊</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/settings")} className="font-fredoka cursor-pointer hover:bg-primary/10">
+                    <Settings className="mr-2 h-5 w-5 text-primary" />
+                    <span>Settings ⚙️</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate("/leaderboard")} className="font-fredoka cursor-pointer hover:bg-accent/10">
                     <Trophy className="mr-2 h-5 w-5 text-accent" />
