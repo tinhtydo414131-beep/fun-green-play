@@ -253,37 +253,42 @@ const GamePlay = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
+    <div className="min-h-screen bg-gradient-to-br from-[#E0F2FF] via-[#F0E7FF] to-[#FAF5FF]">
       <Navigation />
       
-      <section className="pt-24 pb-12 px-4">
+      <section className="pt-20 pb-8 px-[4%]">
         <div className="container mx-auto max-w-6xl">
-          <div className="mb-8 flex items-center justify-between animate-fade-in">
-            <Link to="/games">
-              <Button 
-                variant="outline" 
-                className="font-fredoka font-bold border-4 border-primary/30 hover:border-primary hover:bg-primary/10 transform hover:scale-105 transition-all"
-              >
-                <ArrowLeft className="mr-2 h-5 w-5" />
-                Back to Games
-              </Button>
-            </Link>
-          </div>
+          <div className="bg-white/95 backdrop-blur-lg rounded-[36px] border-3 border-primary/20 shadow-[0_8px_32px_rgba(139,70,255,0.15)] p-4 sm:p-8 space-y-4 animate-scale-in relative">
+            {/* Back button inside card - top left */}
+            <div className="absolute top-4 left-4 z-10">
+              <Link to="/games">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="font-fredoka font-bold border-2 border-primary/30 hover:border-primary hover:bg-primary/10 transform hover:scale-105 transition-all rounded-xl"
+                >
+                  <ArrowLeft className="mr-1 h-4 w-4" />
+                  Back
+                </Button>
+              </Link>
+            </div>
 
-          <div className="bg-background/80 backdrop-blur-lg rounded-3xl border-4 border-primary/30 shadow-2xl p-8 space-y-6 animate-scale-in">
-            <div className="text-center space-y-2">
-              <h1 className="text-4xl md:text-5xl font-fredoka font-bold text-primary">
-                {game.title} 🎮
+            {/* Game title section */}
+            <div className="text-center space-y-2 pt-8 sm:pt-4">
+              <h1 className="text-[42px] sm:text-5xl font-fredoka font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+                {game.title}
               </h1>
-              <p className="text-lg font-comic text-muted-foreground max-w-2xl mx-auto">
+              <div className="text-3xl">🎮</div>
+              <p className="text-[17px] font-comic text-muted-foreground max-w-2xl mx-auto px-4">
                 {game.description}
               </p>
-              <p className="text-sm font-comic text-muted-foreground">
+              <p className="text-[15px] font-comic text-muted-foreground">
                 🎯 Played {game.total_plays} times! Keep it up! 🌟
               </p>
             </div>
 
-            <div className="w-full">
+            {/* Game content */}
+            <div className="w-full pt-2">
               {showLevelSelector && !gameStarted ? (
                 <LevelSelector
                   highestLevelCompleted={highestLevelCompleted}
