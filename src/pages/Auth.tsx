@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Gamepad2, User, Wallet } from "lucide-react";
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { web3Modal } from '@/lib/web3';
+import { useAccount, useDisconnect } from 'wagmi';
 
 export default function Auth() {
   const [username, setUsername] = useState("");
@@ -15,7 +16,6 @@ export default function Auth() {
   const navigate = useNavigate();
   
   const { address, isConnected } = useAccount();
-  const { connectAsync, connectors } = useConnect();
   const { disconnect } = useDisconnect();
 
   // Auto-proceed to register step when wallet connects
@@ -40,24 +40,16 @@ export default function Auth() {
     try {
       setLoading(true);
       
-      // Find WalletConnect or Injected connector
-      const connector = connectors.find(c => 
-        c.id === "walletConnect" || c.id === "injected"
-      ) || connectors[0];
-
-      if (!connector) {
-        toast.error("Không tìm thấy connector ví. Vui lòng thử lại!");
-        return;
-      }
-
-      await connectAsync({ connector });
-      toast.success("🎉 Kết nối ví thành công!");
+      // Open Web3Modal for wallet selection
+      await web3Modal.open();
+      
+      toast.success("🎉 Vui lòng chọn ví trong popup!");
     } catch (error: any) {
       console.error("Wallet connect error:", error);
       if (error.message?.includes("User rejected")) {
         toast.error("Bạn đã từ chối kết nối ví!");
       } else {
-        toast.error("Không thể kết nối ví. Vui lòng thử lại!");
+        toast.error("Không thể mở modal kết nối ví. Vui lòng thử lại!");
       }
     } finally {
       setLoading(false);
