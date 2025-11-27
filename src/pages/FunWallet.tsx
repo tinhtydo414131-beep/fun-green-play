@@ -1110,7 +1110,11 @@ export default function FunWallet() {
               onClick={() => navigate(-1)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="w-14 h-14 rounded-full font-bold flex items-center justify-center transition-all duration-300 shadow-2xl border-0 gradient-animated"
+              className="w-14 h-14 rounded-full font-bold flex items-center justify-center transition-all duration-300 shadow-2xl border-0"
+              style={{
+                background: 'linear-gradient(135deg, #8B46FF 0%, #00F2FF 100%)',
+                boxShadow: '0 8px 32px rgba(0, 245, 255, 0.4), 0 4px 16px rgba(139, 70, 255, 0.3)',
+              }}
             >
               <ArrowLeft className="w-6 h-6 text-white" />
             </motion.button>
@@ -1120,7 +1124,11 @@ export default function FunWallet() {
               onClick={() => navigate("/")}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.95 }}
-              className="flex-1 max-w-md h-14 rounded-[28px] font-bold flex items-center justify-center gap-3 transition-all duration-300 shadow-2xl border-0 gradient-animated text-white text-lg"
+              className="flex-1 max-w-md h-14 rounded-[28px] font-bold flex items-center justify-center gap-3 transition-all duration-300 shadow-2xl border-0 text-white text-lg"
+              style={{
+                background: 'linear-gradient(135deg, #8B46FF 0%, #00F2FF 100%)',
+                boxShadow: '0 8px 32px rgba(0, 245, 255, 0.4), 0 4px 16px rgba(139, 70, 255, 0.3)',
+              }}
             >
               <Home className="w-7 h-7 text-white" />
               <span>Về Trang Chủ</span>
