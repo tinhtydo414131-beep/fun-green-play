@@ -17,11 +17,18 @@ export default function Auth() {
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
 
+  // Monitor wallet connection status
+  useEffect(() => {
+    console.log('🔵 Wallet Status Changed:', { address, isConnected });
+  }, [address, isConnected]);
+
   const openWalletModal = async () => {
     try {
+      console.log('🔵 Opening Web3Modal...');
       await web3Modal.open();
+      console.log('✅ Web3Modal opened successfully');
     } catch (error) {
-      console.error("Error opening wallet modal:", error);
+      console.error("❌ Error opening wallet modal:", error);
       toast.error("Không thể mở modal chọn ví!");
     }
   };
@@ -33,6 +40,8 @@ export default function Auth() {
 
   const handleWalletAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    console.log('🔵 Starting wallet auth...', { address, isConnected });
 
     if (!address) {
       toast.error("Vui lòng kết nối ví trước!");
@@ -51,6 +60,8 @@ export default function Auth() {
       const walletEmail = `${address.toLowerCase()}@wallet.funplanet`;
       const walletPassword = address.toLowerCase();
 
+      console.log('🔵 Attempting sign in with wallet:', address);
+
       // Thử đăng nhập trước
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email: walletEmail,
@@ -58,6 +69,7 @@ export default function Auth() {
       });
 
       if (signInError) {
+        console.log('⚠️ Sign in failed, attempting sign up...', signInError.message);
         // Nếu đăng nhập thất bại, có thể là tài khoản chưa tồn tại
         if (signInError.message.includes("Invalid login credentials")) {
           // Tạo tài khoản mới
@@ -73,9 +85,13 @@ export default function Auth() {
             },
           });
 
-          if (signUpError) throw signUpError;
+          if (signUpError) {
+            console.error('❌ Sign up error:', signUpError);
+            throw signUpError;
+          }
 
           if (signUpData.session) {
+            console.log('✅ Sign up successful!');
             localStorage.setItem("funplanet_session", JSON.stringify(signUpData.session));
             
             // Cập nhật wallet address trong profile
@@ -87,6 +103,7 @@ export default function Auth() {
             toast.success("🎊 Chào mừng bạn đến với FUN Planet!");
             navigate("/");
           } else {
+            console.error('❌ No session after sign up');
             toast.error("Không thể tạo tài khoản. Vui lòng thử lại!");
           }
         } else {
@@ -94,6 +111,7 @@ export default function Auth() {
         }
       } else {
         // Đăng nhập thành công
+        console.log('✅ Sign in successful!');
         if (signInData.session) {
           localStorage.setItem("funplanet_session", JSON.stringify(signInData.session));
           
@@ -109,7 +127,7 @@ export default function Auth() {
         }
       }
     } catch (error: any) {
-      console.error("Auth error:", error);
+      console.error("❌ Auth error:", error);
       toast.error(error.message || "Có lỗi xảy ra! Vui lòng thử lại!");
     } finally {
       setLoading(false);

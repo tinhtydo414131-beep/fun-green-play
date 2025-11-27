@@ -78,11 +78,12 @@ export const Hero = () => {
           </form>
 
           <div className="flex flex-wrap justify-center gap-4 pt-4">
+            {/* Hide MetaMask button on mobile - only show on desktop */}
             {!user && (
               <Button
                 onClick={() => navigate("/auth")}
                 size="lg"
-                className="font-fredoka font-bold text-2xl px-12 py-10 gradient-animated text-white border-0 shadow-2xl transform hover:scale-110 transition-all rainbow-glow relative overflow-hidden"
+                className="hidden md:flex font-fredoka font-bold text-2xl px-12 py-10 gradient-animated text-white border-0 shadow-2xl transform hover:scale-110 transition-all rainbow-glow relative overflow-hidden"
               >
                 <Wallet className="w-8 h-8 mr-3 animate-pulse" />
                 <span className="relative z-10">Kết nối ví MetaMask 🦊✨</span>
