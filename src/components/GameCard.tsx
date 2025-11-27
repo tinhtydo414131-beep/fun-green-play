@@ -38,6 +38,15 @@ export const GameCard = ({ game }: GameCardProps) => {
   const [likes, setLikes] = useState(game.total_likes);
   const [plays, setPlays] = useState(game.total_plays);
   const [imageError, setImageError] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    setMousePosition({ x, y });
+  };
 
   useEffect(() => {
     if (user) {
@@ -155,19 +164,58 @@ export const GameCard = ({ game }: GameCardProps) => {
   return (
     <Card 
       className="group overflow-hidden border-3 border-primary/20 hover:border-primary transition-all duration-500 hover:shadow-[0_25px_60px_rgba(59,130,246,0.5),0_15px_40px_rgba(102,126,234,0.4)] animate-fade-in h-full flex flex-col"
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="relative aspect-video overflow-hidden border-4 border-primary/30 shadow-[0_8px_24px_rgba(102,126,234,0.3),inset_0_2px_8px_rgba(255,255,255,0.2)] group-hover:border-primary group-hover:shadow-[0_0_30px_rgba(168,85,247,0.8),0_0_60px_rgba(59,130,246,0.6),0_0_90px_rgba(14,165,233,0.4),inset_0_0_20px_rgba(168,85,247,0.3)] transition-all duration-500">
+      <div 
+        className="relative aspect-video overflow-hidden border-4 border-primary/30 shadow-[0_8px_24px_rgba(102,126,234,0.3),inset_0_2px_8px_rgba(255,255,255,0.2)] group-hover:border-primary group-hover:shadow-[0_0_30px_rgba(168,85,247,0.8),0_0_60px_rgba(59,130,246,0.6),0_0_90px_rgba(14,165,233,0.4),inset_0_0_20px_rgba(168,85,247,0.3)] transition-all duration-500"
+        style={{
+          transform: isHovered 
+            ? `perspective(1000px) rotateX(${(mousePosition.y - 0.5) * 10}deg) rotateY(${(mousePosition.x - 0.5) * -10}deg) translateZ(20px)` 
+            : 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)',
+          transformStyle: 'preserve-3d',
+        }}
+      >
         {game.thumbnail_url && !imageError ? (
-          <img 
-            src={game.thumbnail_url} 
-            alt={game.title}
-            className="w-full h-full object-cover transition-all duration-500 group-hover:scale-115 group-hover:rotate-2"
-            style={{
-              filter: 'contrast(1.45) saturate(1.8) brightness(1.25) drop-shadow(0 8px 20px rgba(0,0,0,0.5)) sharpen(1.2)',
-              imageRendering: 'crisp-edges'
-            }}
-            onError={() => setImageError(true)}
-          />
+          <>
+            <img 
+              src={game.thumbnail_url} 
+              alt={game.title}
+              className="w-full h-full object-cover transition-all duration-700"
+              style={{
+                filter: 'contrast(1.45) saturate(1.8) brightness(1.25) drop-shadow(0 8px 20px rgba(0,0,0,0.5)) sharpen(1.2)',
+                imageRendering: 'crisp-edges',
+                transform: isHovered 
+                  ? `scale(1.15) translateX(${(mousePosition.x - 0.5) * 20}px) translateY(${(mousePosition.y - 0.5) * 20}px) translateZ(30px)` 
+                  : 'scale(1) translateX(0) translateY(0) translateZ(0)',
+                transformStyle: 'preserve-3d',
+                animation: 'breathing 4s ease-in-out infinite',
+              }}
+              onError={() => setImageError(true)}
+            />
+            {/* Animated light overlay */}
+            <div 
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: `radial-gradient(circle at ${mousePosition.x * 100}% ${mousePosition.y * 100}%, rgba(255,255,255,0.3) 0%, transparent 50%)`,
+                opacity: isHovered ? 1 : 0,
+                transition: 'opacity 0.3s ease',
+                mixBlendMode: 'overlay',
+                transformStyle: 'preserve-3d',
+                transform: 'translateZ(40px)',
+              }}
+            />
+            {/* Particle effects */}
+            {isHovered && (
+              <>
+                <div className="absolute top-[10%] left-[20%] w-2 h-2 bg-primary/60 rounded-full animate-ping" style={{ animationDelay: '0s' }} />
+                <div className="absolute top-[60%] left-[80%] w-2 h-2 bg-secondary/60 rounded-full animate-ping" style={{ animationDelay: '0.5s' }} />
+                <div className="absolute top-[30%] left-[60%] w-2 h-2 bg-accent/60 rounded-full animate-ping" style={{ animationDelay: '1s' }} />
+                <div className="absolute top-[80%] left-[30%] w-2 h-2 bg-primary/60 rounded-full animate-ping" style={{ animationDelay: '1.5s' }} />
+              </>
+            )}
+          </>
         ) : (
           <div className={`w-full h-full bg-gradient-to-br ${genreColors[game.genre as keyof typeof genreColors] || 'from-primary to-secondary'} flex flex-col items-center justify-center gap-4 relative overflow-hidden`}>
             {/* Animated Background Circles */}
