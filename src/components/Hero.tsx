@@ -17,12 +17,12 @@ export const Hero = () => {
   };
 
   return (
-    <section className="relative pt-32 pb-20 px-4 overflow-hidden">
+    <section className="relative pt-32 pb-20 px-4 overflow-hidden bg-white">
       {/* Animated background shapes */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-40 right-1/4 w-64 h-64 bg-accent/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-40 right-1/4 w-64 h-64 bg-accent/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
 
       <div className="container mx-auto max-w-6xl">
@@ -64,7 +64,7 @@ export const Hero = () => {
                 placeholder="Search for your favorite game... 🔍"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-14 pr-4 py-8 text-lg font-comic border-4 border-primary/30 focus:border-primary rounded-2xl shadow-lg hover:shadow-xl transition-all"
+                className="pl-14 pr-4 py-8 text-lg font-comic border-4 border-primary/60 focus:border-primary rounded-2xl shadow-lg hover:shadow-xl transition-all"
               />
               <Button 
                 type="submit"
@@ -87,7 +87,7 @@ export const Hero = () => {
               onClick={() => navigate("/leaderboard")}
               size="lg"
               variant="outline"
-              className="font-fredoka font-bold text-xl px-10 py-8 border-4 border-accent/30 hover:border-accent hover:bg-accent/10 transform hover:scale-110 transition-all"
+              className="font-fredoka font-bold text-xl px-10 py-8 border-4 border-accent/60 hover:border-accent hover:bg-accent/10 transform hover:scale-110 transition-all"
             >
               View Leaderboard 🏆
             </Button>

@@ -82,7 +82,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-green-100 to-green-50 relative overflow-hidden">
+    <div className="min-h-screen bg-white relative overflow-hidden">
       <Navigation />
       <Hero />
       
@@ -102,7 +102,7 @@ const Index = () => {
             {features.map((feature, index) => (
               <Card 
                 key={feature.title}
-                className="overflow-hidden border-4 border-primary/20 hover:border-primary transition-all hover:shadow-2xl transform hover:scale-105 animate-fade-in group"
+                className="overflow-hidden border-4 border-primary/50 hover:border-primary transition-all hover:shadow-2xl transform hover:scale-105 animate-fade-in group"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <div className="relative aspect-[4/3] overflow-hidden">
@@ -147,7 +147,7 @@ const Index = () => {
               <button
                 key={category.name}
                 onClick={() => navigate("/games")}
-                className="relative overflow-hidden rounded-3xl border-4 border-white/30 shadow-xl hover:shadow-2xl transform hover:scale-110 transition-all group animate-fade-in"
+                className="relative overflow-hidden rounded-3xl border-4 border-primary/50 shadow-xl hover:shadow-2xl transform hover:scale-110 transition-all group animate-fade-in"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <div className="relative aspect-[4/3]">
@@ -174,7 +174,7 @@ const Index = () => {
       {/* CTA Section */}
       <section className="py-20 px-4">
         <div className="container mx-auto max-w-4xl">
-          <Card className="p-12 border-4 border-primary/30 shadow-2xl bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 text-center space-y-8">
+          <Card className="p-12 border-4 border-primary/60 shadow-2xl bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 text-center space-y-8">
             <h2 className="text-4xl md:text-5xl font-fredoka font-bold text-primary">
               Ready to Start Playing? 🚀
             </h2>
@@ -203,7 +203,7 @@ const Index = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gradient-to-r from-primary/10 to-secondary/10 border-t-4 border-primary/30 py-12 px-4">
+      <footer className="bg-gradient-to-r from-primary/10 to-secondary/10 border-t-4 border-primary/60 py-12 px-4">
         <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
             <div>
