@@ -236,58 +236,54 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
               </motion.div>
             ))}
 
-            <div className="text-center z-10 relative flex items-center justify-center gap-8 px-4">
-              {/* Spinning Camly Coin - Left side */}
+            <div className="text-center z-10 relative flex flex-col items-center justify-center gap-4 md:gap-6 px-4 max-w-full">
+              {/* Spinning Camly Coin - Top */}
               <motion.div
-                initial={{ scale: 0, rotateY: 0, x: -100 }}
+                initial={{ scale: 0, rotateY: 0 }}
                 animate={{ 
                   scale: 1,
-                  x: 0,
                   rotateY: 360
                 }}
                 transition={{ 
                   scale: { duration: 0.5 },
-                  x: { duration: 0.5 },
                   rotateY: { 
                     repeat: Infinity, 
                     duration: 3,
                     ease: "linear"
                   }
                 }}
-                className="flex-shrink-0"
               >
                 <img 
                   src={camlyCoinCelebration}
                   alt="Camly Coin"
-                  className="w-32 h-32 md:w-48 md:h-48 object-contain"
+                  className="w-24 h-24 md:w-40 md:h-40 object-contain"
                   style={{
-                    filter: 'drop-shadow(0 0 40px rgba(255,215,0,0.9)) drop-shadow(0 0 80px rgba(0,242,255,0.6))',
+                    filter: 'drop-shadow(0 0 30px rgba(255,215,0,0.9)) drop-shadow(0 0 60px rgba(0,242,255,0.6))',
                     transform: 'perspective(1000px)'
                   }}
                 />
               </motion.div>
 
-              <div className="flex flex-col items-center">
-                {/* Main text with clean neon effect */}
-                <motion.h1
-                  initial={{ scale: 0 }}
-                  animate={{ 
-                    scale: [1, 1.1, 1],
-                  }}
-                  transition={{ 
-                    duration: 0.5,
-                    scale: { repeat: Infinity, duration: 1.5 }
-                  }}
-                  className="text-5xl md:text-7xl font-black mb-4 relative"
-                  style={{
-                    color: '#FFD700',
-                    textShadow: '0 0 40px rgba(0,242,255,0.8), 0 0 80px rgba(0,242,255,0.5), 0 4px 20px rgba(0,0,0,0.3)',
-                    WebkitTextStroke: '2px #00F2FF',
-                    letterSpacing: '0.05em'
-                  }}
-                >
-                  💰 RICH! RICH! RICH! 💰
-                </motion.h1>
+              {/* Main text with clean neon effect */}
+              <motion.h1
+                initial={{ scale: 0 }}
+                animate={{ 
+                  scale: [1, 1.1, 1],
+                }}
+                transition={{ 
+                  duration: 0.5,
+                  scale: { repeat: Infinity, duration: 1.5 }
+                }}
+                className="text-3xl md:text-6xl font-black relative whitespace-nowrap"
+                style={{
+                  color: '#FFD700',
+                  textShadow: '0 0 30px rgba(0,242,255,0.8), 0 0 60px rgba(0,242,255,0.5)',
+                  WebkitTextStroke: '1.5px #00F2FF',
+                  letterSpacing: '0.05em'
+                }}
+              >
+                💰 RICH! RICH! RICH! 💰
+              </motion.h1>
 
               {/* Amount display */}
               <motion.div
@@ -300,11 +296,11 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
                   delay: 0.2,
                   scale: { repeat: Infinity, duration: 1.2 }
                 }}
-                className="flex items-center justify-center gap-4 text-5xl md:text-7xl font-black"
+                className="flex items-center justify-center gap-3 text-4xl md:text-6xl font-black"
                 style={{
                   color: '#FFD700',
-                  textShadow: '0 0 30px rgba(0,242,255,0.7), 0 0 60px rgba(0,242,255,0.4)',
-                  WebkitTextStroke: '2px #00F2FF'
+                  textShadow: '0 0 25px rgba(0,242,255,0.7), 0 0 50px rgba(0,242,255,0.4)',
+                  WebkitTextStroke: '1.5px #00F2FF'
                 }}
               >
                 <span>+{amount}</span>
@@ -312,17 +308,16 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
                   <img 
                     src={tokenImage} 
                     alt={token} 
-                    className="w-16 h-16 md:w-20 md:h-20 object-contain rounded-full"
+                    className="w-12 h-12 md:w-16 md:h-16 object-contain rounded-full"
                     style={{
-                      filter: 'drop-shadow(0 0 20px rgba(255,215,0,0.8))',
-                      boxShadow: '0 0 40px rgba(255,215,0,0.5)'
+                      filter: 'drop-shadow(0 0 15px rgba(255,215,0,0.8))',
+                      boxShadow: '0 0 30px rgba(255,215,0,0.5)'
                     }}
                   />
                 ) : (
-                  <span className="text-4xl md:text-5xl">{token}</span>
+                  <span className="text-3xl md:text-4xl">{token}</span>
                 )}
               </motion.div>
-              </div>
             </div>
           </motion.div>
         )}
