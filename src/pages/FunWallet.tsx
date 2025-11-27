@@ -133,6 +133,7 @@ export default function FunWallet() {
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationAmount, setCelebrationAmount] = useState(0);
   const [celebrationToken, setCelebrationToken] = useState("CAMLY");
+  const [celebrationTokenImage, setCelebrationTokenImage] = useState<string | undefined>(undefined);
   const [processedCoinImage, setProcessedCoinImage] = useState<string | null>(null);
   const [selectedChartCoin, setSelectedChartCoin] = useState<string | null>(null);
   const [chartTimeframe, setChartTimeframe] = useState<'1H' | '4H' | '1D' | '1W' | '1M'>('1D');
@@ -167,6 +168,13 @@ export default function FunWallet() {
   
   // Token balances and prices
   const [tokenBalances, setTokenBalances] = useState<{[key: string]: string}>({
+    BNB: "0",
+    CAMLY: "0",
+    ETH: "0",
+    USDT: "0",
+    FUN: "0"
+  });
+  const [previousBalances, setPreviousBalances] = useState<{[key: string]: string}>({
     BNB: "0",
     CAMLY: "0",
     ETH: "0",
@@ -214,6 +222,14 @@ export default function FunWallet() {
   useEffect(() => {
     if (account) {
       fetchTransactionHistory();
+      
+      // Check for incoming transactions every 10 seconds
+      const balanceCheckInterval = setInterval(() => {
+        console.log("🔄 Checking for incoming transactions...");
+        getBalance(account);
+      }, 10000);
+      
+      return () => clearInterval(balanceCheckInterval);
     }
     fetchTokenPrices();
     // Refresh prices every 5 minutes
@@ -294,10 +310,22 @@ export default function FunWallet() {
       const balanceWei = await provider.getBalance(address);
       const balanceEth = ethers.formatEther(balanceWei);
       const formattedBalance = parseFloat(balanceEth).toFixed(6);
-      setBalance(formattedBalance);
       
-      // Update BNB balance in tokenBalances
+      // Check if BNB balance increased (money received)
+      const prevBNB = parseFloat(previousBalances.BNB || "0");
+      const newBNB = parseFloat(formattedBalance);
+      if (newBNB > prevBNB && prevBNB > 0) {
+        const receivedAmount = newBNB - prevBNB;
+        console.log("💰 BNB Received:", receivedAmount);
+        setCelebrationAmount(receivedAmount);
+        setCelebrationToken("BNB");
+        setCelebrationTokenImage(bnbLogo);
+        setShowCelebration(true);
+      }
+      
+      setBalance(formattedBalance);
       setTokenBalances(prev => ({ ...prev, BNB: formattedBalance }));
+      setPreviousBalances(prev => ({ ...prev, BNB: formattedBalance }));
       
       await getCamlyBalance(address);
       await getUSDTBalance(address);
@@ -327,8 +355,23 @@ export default function FunWallet() {
       const formatted = ethers.formatUnits(balance, decimals);
       console.log("CAMLY Balance (formatted):", formatted);
       
-      setCamlyBalance(parseFloat(formatted).toFixed(2));
-      setTokenBalances(prev => ({ ...prev, CAMLY: parseFloat(formatted).toFixed(2) }));
+      const formattedBalance = parseFloat(formatted).toFixed(2);
+      
+      // Check if CAMLY balance increased (money received)
+      const prevCAMLY = parseFloat(previousBalances.CAMLY || "0");
+      const newCAMLY = parseFloat(formattedBalance);
+      if (newCAMLY > prevCAMLY && prevCAMLY > 0) {
+        const receivedAmount = newCAMLY - prevCAMLY;
+        console.log("💰 CAMLY Received:", receivedAmount);
+        setCelebrationAmount(receivedAmount);
+        setCelebrationToken("CAMLY");
+        setCelebrationTokenImage(camlyCoinPro);
+        setShowCelebration(true);
+      }
+      
+      setCamlyBalance(formattedBalance);
+      setTokenBalances(prev => ({ ...prev, CAMLY: formattedBalance }));
+      setPreviousBalances(prev => ({ ...prev, CAMLY: formattedBalance }));
     } catch (error) {
       console.error("Error getting CAMLY balance:", error);
       setCamlyBalance("0.00");
@@ -356,7 +399,22 @@ export default function FunWallet() {
       const formatted = ethers.formatUnits(balance, decimals);
       console.log("USDT Balance (formatted):", formatted);
       
-      setTokenBalances(prev => ({ ...prev, USDT: parseFloat(formatted).toFixed(2) }));
+      const formattedBalance = parseFloat(formatted).toFixed(2);
+      
+      // Check if USDT balance increased (money received)
+      const prevUSDT = parseFloat(previousBalances.USDT || "0");
+      const newUSDT = parseFloat(formattedBalance);
+      if (newUSDT > prevUSDT && prevUSDT > 0) {
+        const receivedAmount = newUSDT - prevUSDT;
+        console.log("💰 USDT Received:", receivedAmount);
+        setCelebrationAmount(receivedAmount);
+        setCelebrationToken("USDT");
+        setCelebrationTokenImage(usdtLogo);
+        setShowCelebration(true);
+      }
+      
+      setTokenBalances(prev => ({ ...prev, USDT: formattedBalance }));
+      setPreviousBalances(prev => ({ ...prev, USDT: formattedBalance }));
     } catch (error) {
       console.error("Error getting USDT balance:", error);
       setTokenBalances(prev => ({ ...prev, USDT: "0.00" }));
@@ -2154,13 +2212,13 @@ export default function FunWallet() {
           <CelebrationNotification
             amount={celebrationAmount}
             token={celebrationToken}
-            tokenImage={
+            tokenImage={celebrationTokenImage || (
               celebrationToken === "CAMLY" 
                 ? (processedCoinImage || camlyCoinPro)
                 : tokens.find(t => t.symbol === celebrationToken)?.image
-            }
+            )}
             onComplete={() => setShowCelebration(false)}
-            duration={celebrationToken === "CAMLY" && celebrationAmount > 1000 ? 25000 : 15000}
+            duration={12000}
           />
         )}
       </AnimatePresence>
