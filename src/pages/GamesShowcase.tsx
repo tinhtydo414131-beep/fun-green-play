@@ -68,15 +68,33 @@ export const GamesShowcase = () => {
         {/* Section Title */}
         <motion.div 
           className="text-center mb-16 space-y-4"
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 2, ease: "easeOut" }}
         >
-          <h2 className="text-5xl md:text-6xl font-poppins font-extrabold bg-gradient-to-r from-magic-purple via-magic-cyan to-magic-purple bg-clip-text text-transparent drop-shadow-lg">
-            🎮 GAME SIÊU VUI! 🎮
+          <h2 className="game-title flex items-center justify-center gap-4">
+            <motion.span
+              animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              🌸
+            </motion.span>
+            GAME SIÊU VUI!
+            <motion.span
+              animate={{ rotate: [0, -10, 10, 0], scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+            >
+              🌺
+            </motion.span>
           </h2>
-          <p className="text-2xl font-poppins font-semibold text-magic-purple">
-            Chọn game yêu thích & chơi ngay! 🚀
+          <p className="description-text flex items-center justify-center gap-2">
+            Chọn game yêu thích & chơi ngay!
+            <motion.span
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              🚀
+            </motion.span>
           </p>
         </motion.div>
 
@@ -85,18 +103,24 @@ export const GamesShowcase = () => {
           {games.map((game, index) => (
             <motion.div
               key={game.id}
-              initial={{ opacity: 0, scale: 0.8, y: 50 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
+              initial={{ opacity: 0, y: 50, scale: 0.8 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ 
-                duration: 0.5, 
-                delay: index * 0.2,
-                type: "spring",
-                stiffness: 100
+                duration: 2,
+                delay: index * 0.3,
+                ease: "easeOut"
               }}
-              whileHover={{ scale: 1.05, rotate: [0, -2, 2, 0] }}
-              className="group"
+              whileHover={{ 
+                scale: 1.05,
+                transition: { duration: 0.3 }
+              }}
+              className="group flower-bloom"
             >
-              <Card className="overflow-hidden border-4 border-magic-purple/30 bg-white/90 backdrop-blur-md rounded-[32px] shadow-xl hover:shadow-2xl transition-all duration-300 hover:border-magic-cyan">
+              <Card className="overflow-hidden bg-white/85 backdrop-blur-[25px] rounded-[36px] border-[3px] border-transparent shadow-[0_20px_40px_rgba(0,212,255,0.15)] hover:shadow-[0_25px_50px_rgba(0,212,255,0.25)] transition-all duration-300 relative"
+                style={{
+                  borderImage: 'linear-gradient(135deg, #6B46C1, #00D4FF, #4FD1C7, #3B82F6) 1'
+                }}
+              >
                 {/* Thumbnail */}
                 <div className="relative aspect-[4/3] overflow-hidden">
                   <img 
@@ -136,13 +160,19 @@ export const GamesShowcase = () => {
                 {/* Content */}
                 <div className="p-8 space-y-6">
                   {/* Title */}
-                  <h3 className="text-3xl font-poppins font-bold bg-gradient-to-r from-magic-purple to-magic-cyan bg-clip-text text-transparent flex items-center gap-3">
-                    <span className="text-2xl">🎮</span>
+                  <h3 className="game-title flex items-center gap-3">
+                    <motion.span 
+                      className="text-3xl"
+                      animate={{ rotate: [0, 15, -15, 0] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      🎮
+                    </motion.span>
                     {game.title}
                   </h3>
 
                   {/* Description */}
-                  <p className="text-lg font-poppins text-gray-700 leading-relaxed">
+                  <p className="text-xl font-poppins font-medium text-gray-700 leading-relaxed">
                     {game.description}
                   </p>
 
