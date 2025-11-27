@@ -75,3 +75,39 @@
     @apply font-fredoka font-bold;
   }
 }
+
+/* Mobile Perfection - 320px to 480px */
+@media (max-width: 480px) {
+  /* Smooth background gradient */
+  body {
+    background: linear-gradient(180deg, hsl(270, 100%, 98%) 0%, hsl(186, 100%, 95%) 100%);
+  }
+
+  /* Typography optimization for mobile */
+  html {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  /* Touch target optimization - minimum 48px */
+  button, a, input, select, textarea {
+    min-height: 48px;
+  }
+
+  /* Prevent text overflow */
+  h1, h2, h3, h4, h5, h6, p, span {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  /* Mobile spacing improvements */
+  section {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  /* Card spacing on mobile */
+  .card {
+    margin-bottom: 1rem;
+  }
+}

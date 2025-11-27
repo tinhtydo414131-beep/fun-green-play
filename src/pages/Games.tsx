@@ -106,94 +106,94 @@ const Games = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
       <Navigation />
       
-      <section className="pt-32 pb-20 px-4">
+      <section className="pt-20 sm:pt-32 pb-12 sm:pb-20 px-4">
         <div className="container mx-auto">
           {/* Back to Home Button */}
-          <div className="mb-8">
+          <div className="mb-6 sm:mb-8">
             <Button
               onClick={() => window.location.href = '/'}
               variant="outline"
               size="lg"
-              className="font-bold group"
+              className="font-bold group min-w-[48px] rounded-[20px] sm:rounded-2xl"
             >
-              <Home className="w-5 h-5 mr-2 text-primary group-hover:scale-110 transition-transform" />
-              <span>Về Trang Chính</span>
+              <Home className="w-4 h-4 sm:w-5 sm:h-5 mr-0 sm:mr-2 text-primary group-hover:scale-110 transition-transform" />
+              <span className="hidden xs:inline sm:inline">Về Trang Chính</span>
             </Button>
           </div>
 
-          <div className="text-center mb-12 space-y-4 animate-fade-in">
-            <h1 className="text-5xl md:text-6xl font-fredoka font-bold text-primary">
+          <div className="text-center mb-8 sm:mb-12 space-y-3 sm:space-y-4 animate-fade-in">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-fredoka font-bold text-primary">
               Game Library 🎮
             </h1>
-            <p className="text-xl text-muted-foreground font-comic max-w-2xl mx-auto">
+            <p className="text-base sm:text-xl text-muted-foreground font-comic max-w-2xl mx-auto">
               {games.length} amazing games waiting for you! 🌟
             </p>
           </div>
 
-          {/* Search Bar */}
-          <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-12">
+          {/* Search Bar - Mobile Optimized */}
+          <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-8 sm:mb-12">
             <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+              <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground group-hover:text-primary transition-colors" />
               <Input
                 type="text"
                 placeholder="Search for games... 🔍"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-14 pr-4 py-6 text-lg font-comic border-4 border-primary/30 focus:border-primary rounded-2xl shadow-lg hover:shadow-xl transition-all"
+                className="pl-11 sm:pl-14 pr-20 sm:pr-4 py-4 sm:py-6 text-base sm:text-lg font-comic border-4 border-primary/30 focus:border-primary rounded-2xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all"
               />
               <Button 
                 type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 font-fredoka font-bold px-6 py-5 bg-gradient-to-r from-primary to-secondary hover:shadow-lg transform hover:scale-105 transition-all"
+                className="absolute right-2 top-1/2 -translate-y-1/2 font-fredoka font-bold px-4 sm:px-6 py-3 sm:py-5 text-sm sm:text-base bg-gradient-to-r from-primary to-secondary hover:shadow-lg transform hover:scale-105 transition-all rounded-xl sm:rounded-2xl"
               >
                 Search
               </Button>
             </div>
           </form>
           
-          {/* Category Filters */}
-          <div className="flex flex-wrap justify-center gap-4 mb-12">
+          {/* Category Filters - Mobile Optimized */}
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-8 sm:mb-12">
             {categories.map((category) => (
               <Button
                 key={category.id}
                 variant={selectedCategory === category.id ? 'default' : 'outline'}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`font-fredoka font-bold text-lg px-8 py-6 border-4 transform hover:scale-110 transition-all ${
+                className={`font-fredoka font-bold text-sm sm:text-lg px-4 sm:px-8 py-3 sm:py-6 border-3 sm:border-4 transform hover:scale-105 sm:hover:scale-110 transition-all rounded-[20px] sm:rounded-2xl ${
                   selectedCategory === category.id
                     ? 'bg-gradient-to-r from-primary to-secondary shadow-lg'
                     : 'border-primary/30 hover:border-primary hover:bg-primary/10'
                 }`}
               >
-                <span className="mr-2">{category.emoji}</span>
-                {category.label}
+                <span className="mr-1 sm:mr-2">{category.emoji}</span>
+                <span className="hidden xs:inline">{category.label}</span>
               </Button>
             ))}
           </div>
 
-          {/* Games Grid */}
+          {/* Games Grid - Mobile Optimized */}
           {filteredGames.length === 0 ? (
-            <div className="text-center py-20">
-              <div className="text-6xl mb-4">😢</div>
-              <p className="text-2xl font-fredoka text-muted-foreground mb-2">No games found!</p>
-              <p className="text-lg font-comic text-muted-foreground">Try a different search or category</p>
+            <div className="text-center py-12 sm:py-20 px-4">
+              <div className="text-5xl sm:text-6xl mb-4">😢</div>
+              <p className="text-xl sm:text-2xl font-fredoka text-muted-foreground mb-2">No games found!</p>
+              <p className="text-base sm:text-lg font-comic text-muted-foreground">Try a different search or category</p>
               <Button
                 onClick={() => {
                   setSearchQuery('');
                   setSelectedCategory('all');
                 }}
-                className="mt-6 font-fredoka font-bold px-8 py-6 bg-gradient-to-r from-primary to-secondary"
+                className="mt-4 sm:mt-6 font-fredoka font-bold px-6 sm:px-8 py-4 sm:py-6 text-base sm:text-lg bg-gradient-to-r from-primary to-secondary rounded-[30px]"
               >
                 Show All Games
               </Button>
             </div>
           ) : (
             <>
-              <div className="text-center mb-8">
-                <p className="text-lg font-comic text-muted-foreground">
-                  Showing <span className="font-fredoka font-bold text-primary text-xl">{filteredGames.length}</span> game{filteredGames.length !== 1 ? 's' : ''}
+              <div className="text-center mb-6 sm:mb-8">
+                <p className="text-base sm:text-lg font-comic text-muted-foreground">
+                  Showing <span className="font-fredoka font-bold text-primary text-lg sm:text-xl">{filteredGames.length}</span> game{filteredGames.length !== 1 ? 's' : ''}
                 </p>
               </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                 {filteredGames.map((game) => (
                   <GameCard key={game.id} game={game} />
                 ))}

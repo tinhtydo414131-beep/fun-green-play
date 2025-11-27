@@ -152,7 +152,7 @@ export const GameCard = ({ game }: GameCardProps) => {
   };
 
   return (
-    <Card className="group overflow-hidden border-4 border-primary/20 hover:border-primary transition-all duration-500 hover:shadow-[0_25px_60px_rgba(59,130,246,0.5)] animate-fade-in transform hover:-translate-y-6 hover:scale-105">
+    <Card className="group overflow-hidden border-3 sm:border-4 border-primary/20 hover:border-primary transition-all duration-500 hover:shadow-[0_25px_60px_rgba(59,130,246,0.5)] animate-fade-in transform hover:-translate-y-3 sm:hover:-translate-y-6 hover:scale-105">
       <div className="relative aspect-video overflow-hidden">
         {game.thumbnail_url && !imageError ? (
           <img 
@@ -207,19 +207,19 @@ export const GameCard = ({ game }: GameCardProps) => {
         </div>
       </div>
       
-      <CardContent className="p-6 space-y-4">
-        <h3 className="text-2xl font-fredoka font-bold text-foreground group-hover:text-primary transition-colors">
+      <CardContent className="p-4 sm:p-6 space-y-3 sm:space-y-4">
+        <h3 className="text-lg sm:text-2xl font-fredoka font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">
           {game.title}
         </h3>
-        <p className="text-muted-foreground text-sm font-comic line-clamp-2">
+        <p className="text-muted-foreground text-xs sm:text-sm font-comic line-clamp-2">
           {game.description}
         </p>
 
         <div className="flex gap-2">
           <Link to={`/game/${game.id}`} className="flex-1">
-            <Button className="w-full group/btn font-fredoka font-bold bg-gradient-to-r from-primary to-secondary hover:shadow-lg transition-all">
+            <Button className="w-full group/btn font-fredoka font-bold text-sm sm:text-base py-4 sm:py-6 bg-gradient-to-r from-primary to-secondary hover:shadow-lg transition-all rounded-[20px] sm:rounded-2xl">
               Play Now! 🎮
-              <Play className="ml-2 w-4 h-4 transition-transform group-hover/btn:scale-125" />
+              <Play className="ml-2 w-3 h-3 sm:w-4 sm:h-4 transition-transform group-hover/btn:scale-125" />
             </Button>
           </Link>
 
@@ -227,13 +227,13 @@ export const GameCard = ({ game }: GameCardProps) => {
             variant="outline"
             size="icon"
             onClick={handleLike}
-            className={`border-4 transition-all transform hover:scale-110 ${
+            className={`border-3 sm:border-4 transition-all transform hover:scale-110 min-w-[48px] min-h-[48px] rounded-[16px] sm:rounded-2xl ${
               liked 
                 ? 'bg-red-500 border-red-500 hover:bg-red-600 hover:border-red-600' 
                 : 'border-primary/30 hover:border-red-500 hover:bg-red-500/10'
             }`}
           >
-            <Heart className={`w-5 h-5 ${liked ? 'fill-white text-white' : 'text-red-500'}`} />
+            <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${liked ? 'fill-white text-white' : 'text-red-500'}`} />
           </Button>
 
           <Dialog>
@@ -241,17 +241,17 @@ export const GameCard = ({ game }: GameCardProps) => {
               <Button
                 variant="outline"
                 size="icon"
-                className="border-4 border-accent/30 hover:border-accent hover:bg-accent/10 transition-all transform hover:scale-110"
+                className="border-3 sm:border-4 border-accent/30 hover:border-accent hover:bg-accent/10 transition-all transform hover:scale-110 min-w-[48px] min-h-[48px] rounded-[16px] sm:rounded-2xl"
               >
-                <Info className="w-5 h-5 text-accent" />
+                <Info className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
               </Button>
             </DialogTrigger>
-            <DialogContent className="border-4 border-primary/30 max-w-2xl">
+            <DialogContent className="border-4 border-primary/30 max-w-[calc(100vw-2rem)] sm:max-w-2xl mx-4">
               <DialogHeader>
-                <DialogTitle className="font-fredoka text-3xl text-primary">
+                <DialogTitle className="font-fredoka text-xl sm:text-3xl text-primary">
                   How to Play {game.title} 🎮
                 </DialogTitle>
-                <DialogDescription className="font-comic text-lg pt-4">
+                <DialogDescription className="font-comic text-sm sm:text-lg pt-4">
                   {game.how_to_play ? (
                     <div className="space-y-2 text-left">
                       {game.how_to_play.split('\n').map((line, i) => (
