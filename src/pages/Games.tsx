@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { Search, Home, ArrowUpDown } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 interface Game {
@@ -23,9 +24,11 @@ interface Game {
 }
 
 const Games = () => {
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [games, setGames] = useState<Game[]>([]);
   const [filteredGames, setFilteredGames] = useState<Game[]>([]);
+  const [favoriteGameIds, setFavoriteGameIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
@@ -33,6 +36,7 @@ const Games = () => {
   
   const categories = [
     { id: 'all', label: 'All Games 🎮', emoji: '🎮' },
+    { id: 'favorites', label: 'My Favorites', emoji: '❤️', requiresAuth: true },
     { id: 'casual', label: 'Casual', emoji: '🎯' },
     { id: 'brain', label: 'Brain', emoji: '🧠' },
     { id: 'adventure', label: 'Adventure', emoji: '🗺️' },
@@ -45,8 +49,14 @@ const Games = () => {
   }, []);
 
   useEffect(() => {
+    if (user) {
+      fetchFavorites();
+    }
+  }, [user]);
+
+  useEffect(() => {
     filterGames();
-  }, [games, selectedCategory, searchQuery, sortBy]);
+  }, [games, selectedCategory, searchQuery, sortBy, favoriteGameIds]);
 
   const fetchGames = async () => {
     try {
@@ -66,11 +76,33 @@ const Games = () => {
     }
   };
 
+  const fetchFavorites = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("game_ratings")
+        .select("game_id")
+        .eq("user_id", user.id)
+        .eq("liked", true);
+
+      if (error) throw error;
+      
+      const favoriteIds = new Set(data?.map(rating => rating.game_id) || []);
+      setFavoriteGameIds(favoriteIds);
+    } catch (error: any) {
+      console.error("Error fetching favorites:", error);
+    }
+  };
+
   const filterGames = () => {
     let filtered = games;
 
     // Filter by category
-    if (selectedCategory !== 'all') {
+    if (selectedCategory === 'favorites') {
+      // Show only favorite games
+      filtered = filtered.filter(game => favoriteGameIds.has(game.id));
+    } else if (selectedCategory !== 'all') {
       filtered = filtered.filter(game => game.genre === selectedCategory);
     }
 
@@ -101,6 +133,17 @@ const Games = () => {
     });
 
     setFilteredGames(sorted);
+  };
+
+  const handleCategoryChange = (categoryId: string) => {
+    const category = categories.find(c => c.id === categoryId);
+    
+    if (category?.requiresAuth && !user) {
+      toast.error("Please log in to view your favorites! 😊");
+      return;
+    }
+    
+    setSelectedCategory(categoryId);
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -170,21 +213,34 @@ const Games = () => {
           
           {/* Category Filters - Mobile Optimized */}
           <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-8 sm:mb-12">
-            {categories.map((category) => (
-              <Button
-                key={category.id}
-                variant={selectedCategory === category.id ? 'default' : 'outline'}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`font-fredoka font-bold text-sm sm:text-lg px-4 sm:px-8 py-3 sm:py-6 border-3 sm:border-4 transform hover:scale-105 sm:hover:scale-110 transition-all rounded-[20px] sm:rounded-2xl ${
-                  selectedCategory === category.id
-                    ? 'bg-gradient-to-r from-primary to-secondary shadow-lg'
-                    : 'border-primary/30 hover:border-primary hover:bg-primary/10'
-                }`}
-              >
-                <span className="mr-1 sm:mr-2">{category.emoji}</span>
-                <span className="hidden xs:inline">{category.label}</span>
-              </Button>
-            ))}
+            {categories.map((category) => {
+              const isFavorites = category.id === 'favorites';
+              const isDisabled = isFavorites && !user;
+              
+              return (
+                <Button
+                  key={category.id}
+                  variant={selectedCategory === category.id ? 'default' : 'outline'}
+                  onClick={() => handleCategoryChange(category.id)}
+                  disabled={isDisabled}
+                  className={`font-fredoka font-bold text-sm sm:text-lg px-4 sm:px-8 py-3 sm:py-6 border-3 sm:border-4 transform hover:scale-105 sm:hover:scale-110 transition-all rounded-[20px] sm:rounded-2xl ${
+                    selectedCategory === category.id
+                      ? 'bg-gradient-to-r from-primary to-secondary shadow-lg'
+                      : isDisabled
+                      ? 'border-muted-foreground/20 opacity-50 cursor-not-allowed'
+                      : 'border-primary/30 hover:border-primary hover:bg-primary/10'
+                  }`}
+                >
+                  <span className="mr-1 sm:mr-2">{category.emoji}</span>
+                  <span className="hidden xs:inline">{category.label}</span>
+                  {isFavorites && favoriteGameIds.size > 0 && (
+                    <span className="ml-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                      {favoriteGameIds.size}
+                    </span>
+                  )}
+                </Button>
+              );
+            })}
           </div>
 
           {/* Sort Options */}
@@ -209,9 +265,17 @@ const Games = () => {
           {/* Games Grid - Mobile Optimized */}
           {filteredGames.length === 0 ? (
             <div className="text-center py-12 sm:py-20 px-4">
-              <div className="text-5xl sm:text-6xl mb-4">😢</div>
-              <p className="text-xl sm:text-2xl font-fredoka text-muted-foreground mb-2">No games found!</p>
-              <p className="text-base sm:text-lg font-comic text-muted-foreground">Try a different search or category</p>
+              <div className="text-5xl sm:text-6xl mb-4">
+                {selectedCategory === 'favorites' ? '❤️' : '😢'}
+              </div>
+              <p className="text-xl sm:text-2xl font-fredoka text-muted-foreground mb-2">
+                {selectedCategory === 'favorites' ? 'No favorite games yet!' : 'No games found!'}
+              </p>
+              <p className="text-base sm:text-lg font-comic text-muted-foreground">
+                {selectedCategory === 'favorites' 
+                  ? 'Start adding games to your favorites by clicking the ❤️ button!' 
+                  : 'Try a different search or category'}
+              </p>
               <Button
                 onClick={() => {
                   setSearchQuery('');
