@@ -1,4 +1,4 @@
-import { Home, Gamepad2, Trophy, Users, User } from "lucide-react";
+import { Home, Gamepad2, Trophy, Wallet, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,8 +10,8 @@ export const MobileBottomNav = () => {
   const navItems = [
     { icon: Home, label: "Trang chủ", path: "/" },
     { icon: Gamepad2, label: "Trò chơi", path: "/games" },
+    { icon: Wallet, label: "Ví", path: user ? "/wallet" : "/auth" },
     { icon: Trophy, label: "Xếp hạng", path: "/leaderboard" },
-    { icon: Users, label: "Bạn bè", path: user ? "/friends" : "/auth" },
     { icon: User, label: "Cá nhân", path: user ? "/dashboard" : "/auth" },
   ];
 
