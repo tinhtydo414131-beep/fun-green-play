@@ -111,3 +111,37 @@
     margin-bottom: 1rem;
   }
 }
+
+/* Level grid hard constraints for perfect mobile layout */
+.level-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 100px) !important;
+  gap: 16px 14px !important;
+  justify-content: center !important;
+  padding: 0 20px !important;
+}
+
+.level-button {
+  width: 100px !important;
+  height: 100px !important;
+  border-radius: 28px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.level-button-unlocked {
+  background: linear-gradient(135deg, #8B46FF, #00F2FF) !important;
+}
+
+.level-button-locked {
+  background: #ffffff !important;
+  border: 2px solid #E8E8E8 !important;
+  color: #999999 !important;
+}
+
+.level-button-last {
+  grid-column: 2 / 3 !important;
+}

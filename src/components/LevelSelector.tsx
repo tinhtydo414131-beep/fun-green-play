@@ -26,7 +26,7 @@ export const LevelSelector = ({
   };
 
   return (
-    <div className="w-[92vw] max-w-[420px] mx-auto my-4 px-0">
+    <div className="w-[92vw] max-w-[420px] mx-auto my-4">
       <Card className="p-6 border-0 bg-transparent shadow-none">
         <div className="text-center mb-6 space-y-2">
           <h2 className="text-[36px] sm:text-4xl font-fredoka font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
@@ -38,15 +38,7 @@ export const LevelSelector = ({
         </div>
 
         {/* Mobile: 3 columns exactly using CSS Grid */}
-        <div 
-          className="mb-8 px-5"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr 1fr',
-            gap: '18px 16px',
-            justifyItems: 'center',
-          }}
-        >
+        <div className="level-grid mb-8">
         {levels.map((level) => {
           const unlocked = isLevelUnlocked(level);
           const completed = level <= highestLevelCompleted;
@@ -58,22 +50,17 @@ export const LevelSelector = ({
               key={level}
               onClick={() => unlocked && onLevelSelect(level)}
               disabled={!unlocked}
-              style={{
-                width: '102px',
-                height: '102px',
-                boxSizing: 'border-box',
-                position: 'static',
-              }}
               className={cn(
-                "flex flex-col items-center justify-center rounded-[26px] transition-all overflow-hidden shrink-0",
-                selected && unlocked && "bg-gradient-to-br from-[#8B46FF] via-secondary to-[#00F2FF] border-[3px] border-[#00F2FF] shadow-[0_0_30px_rgba(0,242,255,0.5),0_8px_20px_rgba(139,70,255,0.4)]",
-                !selected && unlocked && "bg-gradient-to-br from-[#8B46FF] to-[#00F2FF] border-[2px] border-white/50 shadow-[0_4px_15px_rgba(139,70,255,0.3)] hover:shadow-[0_6px_20px_rgba(139,70,255,0.4)]",
-                !unlocked && "bg-white border-[2px] border-[#E0E0E0] cursor-not-allowed opacity-60"
+                "level-button flex flex-col items-center justify-center overflow-hidden transition-all",
+                unlocked && "level-button-unlocked",
+                !unlocked && "level-button-locked cursor-not-allowed opacity-60",
+                selected && unlocked && "border-[3px] border-[#00F2FF] shadow-[0_0_30px_rgba(0,242,255,0.5),0_8px_20px_rgba(139,70,255,0.4)]",
+                level === 10 && "level-button-last"
               )}
             >
               {/* Level number */}
               <div className={cn(
-                "text-[52px] font-fredoka font-bold leading-none",
+                "text-[48px] font-fredoka font-bold leading-none",
                 unlocked ? "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]" : "text-gray-500"
               )}>
                 {level}
@@ -86,9 +73,9 @@ export const LevelSelector = ({
 
               {/* Coin reward - Compact and centered under number */}
               {unlocked && (
-                <div className="flex items-center justify-center gap-0.5 font-comic font-bold text-white drop-shadow-md">
-                  <span className="text-[11px]">+{coinReward}</span>
-                  <span className="text-[18px]">🪙</span>
+                <div className="flex items-center justify-center gap-0.5 font-comic font-bold text-white drop-shadow-md mt-1">
+                  <span className="text-[20px]">+{coinReward}</span>
+                  <span className="text-[20px]">🪙</span>
                 </div>
               )}
             </button>
