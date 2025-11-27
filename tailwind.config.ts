@@ -14,9 +14,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        'fredoka': ['Fredoka', 'sans-serif'],
-        'comic': ['Comic Neue', 'cursive'],
-        'sans': ["Poppins", "sans-serif"],
+        poppins: ["Poppins", "sans-serif"],
+        fredoka: ["Fredoka", "sans-serif"],
+        comic: ["Comic Neue", "cursive"],
+        sans: ["Poppins", "Inter", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -28,6 +29,13 @@ export default {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
           light: "hsl(var(--primary-light))",
+          glow: "hsl(var(--primary-glow))",
+        },
+        magic: {
+          purple: "#8B46FF",
+          cyan: "#00F2FF",
+          gold: "#FFD700",
+          pink: "#FF6B9D",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",

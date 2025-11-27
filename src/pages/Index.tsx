@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Hero } from "@/components/Hero";
+import { GamesShowcase } from "./GamesShowcase";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Gamepad2, Trophy, Users, Sparkles, Shield, Gift } from "lucide-react";
@@ -82,9 +83,12 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-green-100 to-green-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-magic-purple via-magic-cyan to-magic-purple relative overflow-hidden">
       <Navigation />
       <Hero />
+      
+      {/* Games Showcase Section */}
+      <GamesShowcase />
       
       {/* Features Section */}
       <section className="py-20 px-4">

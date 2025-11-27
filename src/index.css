@@ -6,59 +6,81 @@
 
 @layer base {
   :root {
-    --background: 270 100% 98%;
-    --foreground: 0 0% 20%;
+    /* KIDS SUPER PREMIUM Theme - Purple-Cyan Magic */
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 20%;
+    --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 20%;
+    --popover-foreground: 240 10% 3.9%;
+    
+    /* Primary Colors - Magic Purple */
     --primary: 262 100% 64%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 262 100% 87%;
+    --primary-light: 270 95% 75%;
+    --primary-glow: 262 100% 70%;
+    
+    /* Secondary Colors - Electric Cyan */
     --secondary: 186 100% 50%;
     --secondary-foreground: 0 0% 100%;
-    --accent: 186 100% 50%;
-    --accent-foreground: 0 0% 20%;
+    --secondary-glow: 186 100% 60%;
+    
+    /* Accent Colors - Golden Yellow */
+    --accent: 45 100% 50%;
+    --accent-foreground: 240 10% 3.9%;
     --success: 186 100% 50%;
-    --muted: 270 100% 95%;
-    --muted-foreground: 0 0% 45%;
+    
+    /* Muted Colors */
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    
+    /* Destructive */
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 262 100% 87%;
-    --input: 262 100% 87%;
-    --ring: 262 100% 64%;
-    --radius: 1rem;
     
-    /* Fun Planet Gradients */
+    /* Border & Input */
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 262 100% 64%;
+    --radius: 2rem;
+    
+    /* Fun Planet Premium Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(262, 100%, 64%) 0%, hsl(186, 100%, 50%) 100%);
+    --gradient-magic: linear-gradient(135deg, #8B46FF 0%, #00F2FF 100%);
+    --gradient-diamond: linear-gradient(135deg, #FFD700 0%, #8B46FF 100%);
+    --gradient-rainbow: linear-gradient(90deg, #FFD700, #FF6B9D, #C084FC, #00F2FF);
     --gradient-celebration: linear-gradient(135deg, hsl(45, 100%, 50%) 0%, hsl(186, 100%, 50%) 100%);
     
-    /* Shadows */
+    /* Glow Effects & Shadows */
+    --glow-purple: 0 0 20px hsla(262, 100%, 64%, 0.6), 0 0 40px hsla(262, 100%, 64%, 0.4);
+    --glow-cyan: 0 0 20px hsla(186, 100%, 50%, 0.6), 0 0 40px hsla(186, 100%, 50%, 0.4);
+    --glow-gold: 0 0 20px hsla(45, 100%, 50%, 0.6), 0 0 40px hsla(45, 100%, 50%, 0.4);
+    --shadow-diamond: 0 10px 40px hsla(262, 100%, 64%, 0.5);
     --shadow-card: 0 4px 16px hsla(262, 100%, 64%, 0.1);
     --shadow-button: 0 4px 12px hsla(262, 100%, 64%, 0.2);
     --shadow-button-hover: 0 6px 20px hsla(262, 100%, 64%, 0.3);
   }
 
   .dark {
-    --background: 270 100% 98%;
-    --foreground: 0 0% 20%;
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 20%;
+    --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 20%;
+    --popover-foreground: 240 10% 3.9%;
     --primary: 262 100% 64%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 262 100% 87%;
+    --primary-light: 270 95% 75%;
     --secondary: 186 100% 50%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 270 100% 95%;
-    --muted-foreground: 0 0% 45%;
-    --accent: 186 100% 50%;
-    --accent-foreground: 0 0% 20%;
-    --destructive: 0 62.8% 30.6%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 45 100% 50%;
+    --accent-foreground: 240 10% 3.9%;
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 262 100% 87%;
-    --input: 262 100% 87%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
     --ring: 262 100% 64%;
   }
 }
@@ -68,11 +90,11 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-fredoka;
+    @apply bg-background text-foreground font-poppins;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-fredoka font-bold;
+    @apply font-poppins font-bold;
   }
 }
 
