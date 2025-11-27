@@ -112,36 +112,62 @@
   }
 }
 
-/* Level grid hard constraints for perfect mobile layout */
+/* Level grid & buttons - global mobile-friendly layout */
 .level-grid {
-  display: grid !important;
-  grid-template-columns: repeat(3, 100px) !important;
-  gap: 16px 14px !important;
-  justify-content: center !important;
-  padding: 0 20px !important;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  justify-items: center;
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
 }
 
 .level-button {
-  width: 100px !important;
-  height: 100px !important;
-  border-radius: 28px !important;
-  box-sizing: border-box !important;
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: center !important;
-  align-items: center !important;
+  width: 100%;
+  min-width: 82px;
+  max-width: 108px;
+  aspect-ratio: 1 / 1;
+  border-radius: 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-weight: 700;
+  overflow: hidden;
+}
+
+/* Size steps by viewport width */
+@media (max-width: 359px) {
+  .level-button {
+    height: 82px;
+  }
+}
+
+@media (min-width: 360px) and (max-width: 420px) {
+  .level-button {
+    height: 94px;
+  }
+}
+
+@media (min-width: 421px) {
+  .level-button {
+    height: 104px;
+  }
 }
 
 .level-button-unlocked {
-  background: linear-gradient(135deg, #8B46FF, #00F2FF) !important;
+  background: linear-gradient(135deg, hsl(262, 100%, 64%), hsl(186, 100%, 50%));
+  color: hsl(0, 0%, 100%);
 }
 
 .level-button-locked {
-  background: #ffffff !important;
-  border: 2px solid #E8E8E8 !important;
-  color: #999999 !important;
+  background: hsl(0, 0%, 100%);
+  border: 2.5px solid hsl(0, 0%, 90%);
+  color: hsl(0, 0%, 67%);
 }
 
 .level-button-last {
-  grid-column: 2 / 3 !important;
+  grid-column: 2 / 3;
 }

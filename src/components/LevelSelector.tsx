@@ -26,8 +26,8 @@ export const LevelSelector = ({
   };
 
   return (
-    <div className="w-[92vw] max-w-[420px] mx-auto my-4">
-      <Card className="p-6 border-0 bg-transparent shadow-none">
+    <div className="w-[94vw] max-w-[420px] mx-auto my-3">
+      <Card className="border-0 rounded-[32px] bg-card shadow-[0_10px_30px_hsla(262,100%,64%,0.15)] px-4 py-5 overflow-hidden">
         <div className="text-center mb-6 space-y-2">
           <h2 className="text-[36px] sm:text-4xl font-fredoka font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
             Chọn Level 🎮
@@ -60,7 +60,7 @@ export const LevelSelector = ({
             >
               {/* Level number */}
               <div className={cn(
-                "text-[48px] font-fredoka font-bold leading-none",
+                "text-[42px] font-fredoka font-bold leading-none",
                 unlocked ? "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]" : "text-gray-500"
               )}>
                 {level}
@@ -74,8 +74,8 @@ export const LevelSelector = ({
               {/* Coin reward - Compact and centered under number */}
               {unlocked && (
                 <div className="flex items-center justify-center gap-0.5 font-comic font-bold text-white drop-shadow-md mt-1">
-                  <span className="text-[20px]">+{coinReward}</span>
-                  <span className="text-[20px]">🪙</span>
+                  <span className="text-[18px]">+{coinReward}</span>
+                  <span className="text-[18px]">🪙</span>
                 </div>
               )}
             </button>
