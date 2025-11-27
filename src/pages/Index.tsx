@@ -82,7 +82,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
+    <div className="min-h-screen bg-white relative overflow-hidden pb-safe">
       <Navigation />
       <Hero />
       

@@ -199,55 +199,62 @@
   }
 }
 
-/* Mobile Perfection - 320px to 480px */
-@media (max-width: 480px) {
-  /* Clean white background */
+/* Mobile Optimizations */
+@media (max-width: 768px) {
   body {
-    background: hsl(0, 0%, 100%);
+    font-size: 14px;
+    padding-bottom: env(safe-area-inset-bottom, 0);
     -webkit-tap-highlight-color: transparent;
   }
-
-  /* Typography optimization for mobile */
-  html {
-    font-size: 16px;
-    line-height: 1.5;
-    -webkit-text-size-adjust: 100%;
+  
+  h1 {
+    font-size: 1.75rem;
   }
-
-  /* Touch target optimization - minimum 44px for better UX */
-  button, a, input, select, textarea {
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  /* Touch-friendly buttons and interactive elements */
+  button, a, [role="button"] {
     min-height: 44px;
+    min-width: 44px;
   }
-
-  /* Prevent text overflow */
-  h1, h2, h3, h4, h5, h6, p, span {
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    hyphens: auto;
+  
+  /* Add padding for bottom navigation */
+  main, .main-content, body > div {
+    padding-bottom: 80px !important;
   }
-
-  /* Mobile spacing improvements */
-  section {
-    padding-top: 1.5rem;
-    padding-bottom: 1.5rem;
+  
+  /* Improve touch targets for game controls */
+  .game-control,
+  .game-button {
+    min-height: 56px;
+    min-width: 56px;
+    font-size: 16px;
   }
-
-  /* Card spacing on mobile */
-  .card {
-    margin-bottom: 1rem;
-  }
-
-  /* Prevent zoom on input focus (iOS) */
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="number"],
-  textarea,
-  select {
+  
+  /* Prevent zoom on input focus */
+  input, select, textarea {
     font-size: 16px !important;
   }
+  
+  /* Full width cards on mobile */
+  .card {
+    border-radius: 12px;
+  }
+  
+  /* Optimize spacing */
+  .container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
 
-  /* Better touch feedback */
+  /* Ensure safe area for bottom nav */
+  .pb-safe {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0)) !important;
+  }
+
   .touch-manipulation {
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
