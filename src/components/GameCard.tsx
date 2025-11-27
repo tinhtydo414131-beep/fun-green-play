@@ -243,7 +243,7 @@ export const GameCard = ({ game }: GameCardProps) => {
                 size="icon"
                 className="border-2 border-primary/30 hover:border-primary hover:bg-primary/5 transition-all transform hover:scale-110 w-12 h-12 rounded-[16px] flex-shrink-0"
               >
-                <TrendingUp className="w-5 h-5 text-primary" />
+                <Info className="w-5 h-5 text-primary" />
               </Button>
             </DialogTrigger>
             <DialogContent className="border-4 border-primary/30 max-w-[calc(100vw-2rem)] sm:max-w-2xl mx-4 rounded-[24px]">
