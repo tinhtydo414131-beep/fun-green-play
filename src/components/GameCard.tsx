@@ -163,11 +163,18 @@ export const GameCard = ({ game }: GameCardProps) => {
 
   return (
     <Card 
-      className="group overflow-hidden border-3 border-primary/20 hover:border-primary transition-all duration-500 hover:shadow-[0_25px_60px_rgba(59,130,246,0.5),0_15px_40px_rgba(102,126,234,0.4)] animate-fade-in h-full flex flex-col"
+      className="group overflow-hidden border-0 animate-fade-in h-full flex flex-col relative"
+      style={{
+        background: 'linear-gradient(90deg, hsl(262, 100%, 64%), hsl(186, 100%, 50%), hsl(262, 100%, 64%), hsl(186, 100%, 50%))',
+        backgroundSize: '300% 300%',
+        animation: 'gradient-flow 3s ease infinite, border-glow 2s ease-in-out infinite',
+        padding: '4px',
+      }}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      <div className="bg-white rounded-[calc(1rem-4px)] h-full flex flex-col">
       <div 
         className="relative aspect-video overflow-hidden border-4 border-primary/30 shadow-[0_8px_24px_rgba(102,126,234,0.3),inset_0_2px_8px_rgba(255,255,255,0.2)] group-hover:border-primary group-hover:shadow-[0_0_30px_rgba(168,85,247,0.8),0_0_60px_rgba(59,130,246,0.6),0_0_90px_rgba(14,165,233,0.4),inset_0_0_20px_rgba(168,85,247,0.3)] transition-all duration-500"
         style={{
@@ -325,6 +332,7 @@ export const GameCard = ({ game }: GameCardProps) => {
           </Dialog>
         </div>
       </CardContent>
+      </div>
     </Card>
   );
 };
