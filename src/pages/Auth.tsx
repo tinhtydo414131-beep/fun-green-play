@@ -4,15 +4,26 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Gamepad2, User, Wallet } from "lucide-react";
+import { Gamepad2, User, Wallet, Mail, Lock } from "lucide-react";
 import { web3Modal } from '@/lib/web3';
 import { useAccount, useDisconnect } from 'wagmi';
+import { z } from "zod";
+
+// Email/Password validation schema
+const emailSchema = z.string().email("Email không hợp lệ").max(255, "Email quá dài");
+const passwordSchema = z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự").max(100, "Mật khẩu quá dài");
+const usernameSchema = z.string().min(3, "Tên người dùng phải có ít nhất 3 ký tự").max(20, "Tên người dùng quá dài");
 
 export default function Auth() {
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<"connect" | "register">("connect");
+  const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const navigate = useNavigate();
   
   const { address, isConnected } = useAccount();
@@ -61,6 +72,81 @@ export default function Auth() {
     setStep("connect");
     setUsername("");
     toast.info("Đã ngắt kết nối ví");
+  };
+
+  const handleEmailAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validate inputs
+    try {
+      emailSchema.parse(email);
+      passwordSchema.parse(password);
+      if (authMode === "signup") {
+        usernameSchema.parse(username);
+        if (password !== confirmPassword) {
+          toast.error("Mật khẩu xác nhận không khớp!");
+          return;
+        }
+      }
+    } catch (error: any) {
+      toast.error(error.errors?.[0]?.message || "Dữ liệu không hợp lệ!");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      if (authMode === "login") {
+        // Login
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
+
+        if (error) throw error;
+
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("username")
+          .eq("id", data.user.id)
+          .single();
+
+        toast.success(`🎉 Chào mừng trở lại, ${profile?.username || "bạn"}!`);
+        navigate("/");
+      } else {
+        // Signup
+        const { data, error } = await supabase.auth.signUp({
+          email: email.trim(),
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+            data: {
+              username: username.trim(),
+            },
+          },
+        });
+
+        if (error) throw error;
+
+        if (!data.session) {
+          toast.success("🎊 Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản.");
+        } else {
+          toast.success("🎊 Chào mừng đến với FUN Planet!");
+          navigate("/");
+        }
+      }
+    } catch (error: any) {
+      console.error("Auth error:", error);
+      if (error.message?.includes("already registered")) {
+        toast.error("Email này đã được đăng ký!");
+      } else if (error.message?.includes("Invalid login credentials")) {
+        toast.error("Email hoặc mật khẩu không đúng!");
+      } else {
+        toast.error(error.message || "Có lỗi xảy ra. Vui lòng thử lại!");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -162,25 +248,135 @@ export default function Auth() {
               Chào mừng! 🎮
             </CardTitle>
             <CardDescription className="text-base font-comic">
-              Kết nối ví để bắt đầu
+              Chọn cách đăng nhập
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="space-y-4 px-6 pb-6">
-            <Button
-              onClick={handleConnect}
-              disabled={loading}
-              className="w-full h-16 text-lg font-fredoka font-bold bg-gradient-to-r from-primary to-secondary hover:shadow-xl transition-all"
-            >
-              {loading ? "Đang kết nối... ⏳" : "🦊 Kết nối ví"}
-            </Button>
+          <CardContent className="space-y-6 px-6 pb-6">
+            <Tabs defaultValue="email" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="email" className="font-fredoka">
+                  <Mail className="w-4 h-4 mr-2" />
+                  Email
+                </TabsTrigger>
+                <TabsTrigger value="wallet" className="font-fredoka">
+                  <Wallet className="w-4 h-4 mr-2" />
+                  Ví Crypto
+                </TabsTrigger>
+              </TabsList>
 
-            <div className="p-4 bg-muted/50 rounded-xl space-y-2 text-sm font-comic text-muted-foreground">
-              <p className="font-bold text-foreground">📱 Hỗ trợ:</p>
-              <p>• MetaMask • Trust Wallet</p>
-              <p>• Coinbase • WalletConnect</p>
-              <p className="text-xs pt-2 border-t">Hoạt động trên web & mobile</p>
-            </div>
+              {/* Email/Password Tab */}
+              <TabsContent value="email" className="space-y-4">
+                <div className="flex justify-center gap-2 mb-4">
+                  <Button
+                    variant={authMode === "login" ? "default" : "outline"}
+                    onClick={() => setAuthMode("login")}
+                    className="font-fredoka flex-1"
+                  >
+                    Đăng nhập
+                  </Button>
+                  <Button
+                    variant={authMode === "signup" ? "default" : "outline"}
+                    onClick={() => setAuthMode("signup")}
+                    className="font-fredoka flex-1"
+                  >
+                    Đăng ký
+                  </Button>
+                </div>
+
+                <form onSubmit={handleEmailAuth} className="space-y-4">
+                  {authMode === "signup" && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-comic text-muted-foreground flex items-center gap-2">
+                        <User className="w-4 h-4" />
+                        Tên người dùng
+                      </label>
+                      <Input
+                        type="text"
+                        placeholder="Nhập tên người dùng"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className="h-12 border-2 border-primary/30 focus:border-primary"
+                        required
+                      />
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-comic text-muted-foreground flex items-center gap-2">
+                      <Mail className="w-4 h-4" />
+                      Email
+                    </label>
+                    <Input
+                      type="email"
+                      placeholder="your@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="h-12 border-2 border-primary/30 focus:border-primary"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-comic text-muted-foreground flex items-center gap-2">
+                      <Lock className="w-4 h-4" />
+                      Mật khẩu
+                    </label>
+                    <Input
+                      type="password"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="h-12 border-2 border-primary/30 focus:border-primary"
+                      required
+                    />
+                  </div>
+
+                  {authMode === "signup" && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-comic text-muted-foreground flex items-center gap-2">
+                        <Lock className="w-4 h-4" />
+                        Xác nhận mật khẩu
+                      </label>
+                      <Input
+                        type="password"
+                        placeholder="••••••••"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="h-12 border-2 border-primary/30 focus:border-primary"
+                        required
+                      />
+                    </div>
+                  )}
+
+                  <Button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full h-14 text-lg font-fredoka font-bold bg-gradient-to-r from-primary to-secondary hover:shadow-xl transition-all"
+                  >
+                    {loading ? "Đang xử lý... ⏳" : authMode === "login" ? "Đăng nhập 🚀" : "Đăng ký 🎉"}
+                  </Button>
+                </form>
+              </TabsContent>
+
+              {/* Wallet Tab */}
+              <TabsContent value="wallet" className="space-y-4">
+                <Button
+                  onClick={handleConnect}
+                  disabled={loading}
+                  className="w-full h-16 text-lg font-fredoka font-bold bg-gradient-to-r from-accent to-secondary hover:shadow-xl transition-all"
+                >
+                  {loading ? "Đang kết nối... ⏳" : "🦊 Kết nối ví"}
+                </Button>
+
+                <div className="p-4 bg-muted/50 rounded-xl space-y-2 text-sm font-comic text-muted-foreground">
+                  <p className="font-bold text-foreground">📱 Hỗ trợ:</p>
+                  <p>• MetaMask • Trust Wallet</p>
+                  <p>• Coinbase • WalletConnect</p>
+                  <p className="text-xs pt-2 border-t">Hoạt động trên web & mobile</p>
+                </div>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       </div>
