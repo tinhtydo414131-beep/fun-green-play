@@ -110,15 +110,24 @@ const Games = () => {
         <div className="container mx-auto">
           {/* Back to Home Button */}
           <div className="mb-6 sm:mb-8">
-            <Button
-              onClick={() => window.location.href = '/'}
-              variant="outline"
-              size="lg"
-              className="font-bold group min-w-[48px] rounded-[20px] sm:rounded-2xl"
+            <div
+              className="inline-block rounded-[20px] sm:rounded-2xl p-[3px]"
+              style={{
+                background: 'linear-gradient(90deg, hsl(262, 100%, 64%), hsl(186, 100%, 50%), hsl(262, 100%, 64%), hsl(186, 100%, 50%))',
+                backgroundSize: '300% 300%',
+                animation: 'gradient-flow 3s ease infinite',
+              }}
             >
-              <Home className="w-4 h-4 sm:w-5 sm:h-5 mr-0 sm:mr-2 text-primary group-hover:scale-110 transition-transform" />
-              <span className="hidden xs:inline sm:inline">Về Trang Chính</span>
-            </Button>
+              <Button
+                onClick={() => window.location.href = '/'}
+                variant="outline"
+                size="lg"
+                className="font-bold group min-w-[48px] rounded-[18px] sm:rounded-[22px] bg-white border-0 hover:bg-white/90"
+              >
+                <Home className="w-4 h-4 sm:w-5 sm:h-5 mr-0 sm:mr-2 text-primary group-hover:scale-110 transition-transform" />
+                <span className="hidden xs:inline sm:inline">Về Trang Chính</span>
+              </Button>
+            </div>
           </div>
 
           <div className="text-center mb-8 sm:mb-12 space-y-3 sm:space-y-4 animate-fade-in">
@@ -133,17 +142,29 @@ const Games = () => {
           {/* Search Bar - Mobile Optimized */}
           <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-8 sm:mb-12">
             <div className="relative group">
-              <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+              <div
+                className="absolute inset-0 rounded-2xl pointer-events-none"
+                style={{
+                  background: 'linear-gradient(90deg, hsl(262, 100%, 64%), hsl(186, 100%, 50%), hsl(262, 100%, 64%), hsl(186, 100%, 50%))',
+                  backgroundSize: '300% 300%',
+                  animation: 'gradient-flow 3s ease infinite',
+                  padding: '3px',
+                  WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                  WebkitMaskComposite: 'xor',
+                  maskComposite: 'exclude',
+                }}
+              />
+              <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground group-hover:text-primary transition-colors z-10" />
               <Input
                 type="text"
                 placeholder="Search for games... 🔍"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-11 sm:pl-14 pr-20 sm:pr-4 py-4 sm:py-6 text-base sm:text-lg font-comic border-4 border-primary/30 focus:border-primary rounded-2xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all"
+                className="pl-11 sm:pl-14 pr-20 sm:pr-4 py-4 sm:py-6 text-base sm:text-lg font-comic border-[3px] border-transparent rounded-2xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all relative bg-white"
               />
               <Button 
                 type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 font-fredoka font-bold px-4 sm:px-6 py-3 sm:py-5 text-sm sm:text-base bg-gradient-to-r from-primary to-secondary hover:shadow-lg transform hover:scale-105 transition-all rounded-xl sm:rounded-2xl"
+                className="absolute right-2 top-1/2 -translate-y-1/2 font-fredoka font-bold px-4 sm:px-6 py-3 sm:py-5 text-sm sm:text-base bg-gradient-to-r from-primary to-secondary hover:shadow-lg transform hover:scale-105 transition-all rounded-xl sm:rounded-2xl z-10"
               >
                 Search
               </Button>
@@ -153,19 +174,36 @@ const Games = () => {
           {/* Category Filters - Mobile Optimized */}
           <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-8 sm:mb-12">
             {categories.map((category) => (
-              <Button
-                key={category.id}
-                variant={selectedCategory === category.id ? 'default' : 'outline'}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`font-fredoka font-bold text-sm sm:text-lg px-4 sm:px-8 py-3 sm:py-6 border-3 sm:border-4 transform hover:scale-105 sm:hover:scale-110 transition-all rounded-[20px] sm:rounded-2xl ${
-                  selectedCategory === category.id
-                    ? 'bg-gradient-to-r from-primary to-secondary shadow-lg'
-                    : 'border-primary/30 hover:border-primary hover:bg-primary/10'
-                }`}
-              >
-                <span className="mr-1 sm:mr-2">{category.emoji}</span>
-                <span className="hidden xs:inline">{category.label}</span>
-              </Button>
+              selectedCategory === category.id ? (
+                <Button
+                  key={category.id}
+                  variant="default"
+                  onClick={() => setSelectedCategory(category.id)}
+                  className="font-fredoka font-bold text-sm sm:text-lg px-4 sm:px-8 py-3 sm:py-6 transform hover:scale-105 sm:hover:scale-110 transition-all rounded-[20px] sm:rounded-2xl bg-gradient-to-r from-primary to-secondary shadow-lg border-0"
+                >
+                  <span className="mr-1 sm:mr-2">{category.emoji}</span>
+                  <span className="hidden xs:inline">{category.label}</span>
+                </Button>
+              ) : (
+                <div
+                  key={category.id}
+                  className="inline-block rounded-[20px] sm:rounded-2xl p-[3px]"
+                  style={{
+                    background: 'linear-gradient(90deg, hsl(262, 100%, 64%), hsl(186, 100%, 50%), hsl(262, 100%, 64%), hsl(186, 100%, 50%))',
+                    backgroundSize: '300% 300%',
+                    animation: 'gradient-flow 3s ease infinite',
+                  }}
+                >
+                  <Button
+                    variant="outline"
+                    onClick={() => setSelectedCategory(category.id)}
+                    className="font-fredoka font-bold text-sm sm:text-lg px-4 sm:px-8 py-3 sm:py-6 transform hover:scale-105 sm:hover:scale-110 transition-all rounded-[18px] sm:rounded-[22px] bg-white border-0 hover:bg-white/90"
+                  >
+                    <span className="mr-1 sm:mr-2">{category.emoji}</span>
+                    <span className="hidden xs:inline">{category.label}</span>
+                  </Button>
+                </div>
+              )
             ))}
           </div>
 
