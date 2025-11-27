@@ -153,13 +153,14 @@
     text-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.5);
   }
   
-  .glass-card {
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(25px);
-    border-radius: 36px;
-    border: 3px solid;
-    border-image: linear-gradient(135deg, #6B46C1, #00D4FF, #4FD1C7, #3B82F6) 1;
-    box-shadow: 0 20px 40px rgba(0,212,255,0.15);
+  .glass-card, .game-card, .level-card, .modal {
+    background: rgba(255,255,255,0.92) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    border-radius: 24px !important;
+    border: 2px solid transparent !important;
+    background-clip: padding-box !important;
+    box-shadow: 0 20px 40px rgba(0,212,255,0.15), 0 0 0 1px rgba(255,255,255,0.5), 0 10px 20px rgba(102,126,234,0.1), inset 0 1px 0 rgba(255,255,255,0.6) !important;
   }
 }
 
