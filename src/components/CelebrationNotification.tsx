@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
+import cCoinGlow from "@/assets/c-coin-glow.png";
 
 interface CelebrationNotificationProps {
   amount: number;
@@ -155,26 +156,57 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
           >
 
             <div className="text-center z-10">
-              {/* Main text with clean neon effect */}
-              <motion.h1
-                initial={{ scale: 0 }}
-                animate={{ 
-                  scale: [1, 1.1, 1],
-                }}
-                transition={{ 
-                  duration: 0.5,
-                  scale: { repeat: Infinity, duration: 1.5 }
-                }}
-                className="text-6xl md:text-8xl font-black mb-8 relative leading-tight"
-                style={{
-                  color: '#FFD700',
-                  textShadow: '0 0 40px rgba(0,242,255,0.8), 0 0 80px rgba(0,242,255,0.5), 0 4px 20px rgba(0,0,0,0.3)',
-                  WebkitTextStroke: '3px #00F2FF',
-                  letterSpacing: '0.05em'
-                }}
-              >
-                RICH RICH RICH RICH RICH RICH RICH RICH RICH RICH!!!
-              </motion.h1>
+              {/* Main text with clean neon effect and spinning coins */}
+              <div className="relative">
+                {/* Spinning coins around text */}
+                {[...Array(6)].map((_, i) => (
+                  <motion.img
+                    key={i}
+                    src={cCoinGlow}
+                    alt="coin"
+                    className="absolute w-20 h-20 md:w-28 md:h-28"
+                    style={{
+                      left: `${15 + i * 15}%`,
+                      top: i % 2 === 0 ? '-40px' : 'calc(100% + 10px)',
+                    }}
+                    animate={{
+                      rotate: [0, 360],
+                      scale: [1, 1.2, 1],
+                      filter: [
+                        'brightness(1) drop-shadow(0 0 20px rgba(255,215,0,0.8))',
+                        'brightness(1.5) drop-shadow(0 0 40px rgba(255,215,0,1))',
+                        'brightness(1) drop-shadow(0 0 20px rgba(255,215,0,0.8))',
+                      ],
+                    }}
+                    transition={{
+                      rotate: { duration: 2, repeat: Infinity, ease: "linear" },
+                      scale: { duration: 1, repeat: Infinity, ease: "easeInOut" },
+                      filter: { duration: 0.5, repeat: Infinity, ease: "easeInOut" },
+                      delay: i * 0.2,
+                    }}
+                  />
+                ))}
+                
+                <motion.h1
+                  initial={{ scale: 0 }}
+                  animate={{ 
+                    scale: [1, 1.1, 1],
+                  }}
+                  transition={{ 
+                    duration: 0.5,
+                    scale: { repeat: Infinity, duration: 1.5 }
+                  }}
+                  className="text-6xl md:text-8xl font-black mb-8 relative leading-tight"
+                  style={{
+                    color: '#FFD700',
+                    textShadow: '0 0 40px rgba(0,242,255,0.8), 0 0 80px rgba(0,242,255,0.5), 0 4px 20px rgba(0,0,0,0.3)',
+                    WebkitTextStroke: '3px #00F2FF',
+                    letterSpacing: '0.05em'
+                  }}
+                >
+                  RICH RICH RICH RICH RICH RICH RICH RICH RICH RICH!!!
+                </motion.h1>
+              </div>
 
               {/* Amount display */}
               <motion.div
