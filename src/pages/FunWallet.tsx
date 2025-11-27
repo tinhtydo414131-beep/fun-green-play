@@ -74,7 +74,7 @@ const tokens = [
     gradient: "from-green-400 to-green-600", 
     emoji: "💵", 
     image: usdtLogo,
-    contract: null 
+    contract: "0x55d398326f99059fF775485246999027B3197955" // USDT on BSC
   },
   { 
     symbol: "FUN", 
@@ -300,6 +300,7 @@ export default function FunWallet() {
       setTokenBalances(prev => ({ ...prev, BNB: formattedBalance }));
       
       await getCamlyBalance(address);
+      await getUSDTBalance(address);
       await fetchTokenPrices();
     } catch (error) {
       console.error("Error getting balance:", error);
@@ -332,6 +333,33 @@ export default function FunWallet() {
       console.error("Error getting CAMLY balance:", error);
       setCamlyBalance("0.00");
       setTokenBalances(prev => ({ ...prev, CAMLY: "0.00" }));
+    }
+  };
+
+  const getUSDTBalance = async (address: string) => {
+    try {
+      const usdtToken = tokens.find(t => t.symbol === "USDT");
+      if (!usdtToken?.contract) return;
+
+      console.log("Fetching USDT balance for:", address);
+      console.log("USDT Contract:", usdtToken.contract);
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const contract = new ethers.Contract(usdtToken.contract, ERC20_ABI, provider);
+      
+      const balance = await contract.balanceOf(address);
+      const decimals = await contract.decimals();
+      
+      console.log("USDT Balance (raw):", balance.toString());
+      console.log("USDT Decimals:", decimals.toString());
+      
+      const formatted = ethers.formatUnits(balance, decimals);
+      console.log("USDT Balance (formatted):", formatted);
+      
+      setTokenBalances(prev => ({ ...prev, USDT: parseFloat(formatted).toFixed(2) }));
+    } catch (error) {
+      console.error("Error getting USDT balance:", error);
+      setTokenBalances(prev => ({ ...prev, USDT: "0.00" }));
     }
   };
 
