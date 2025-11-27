@@ -189,11 +189,12 @@ export const GameCard = ({ game }: GameCardProps) => {
           <img 
             src={game.thumbnail_url} 
             alt={game.title}
-            className="w-full h-full object-cover transition-all duration-500 group-hover:scale-115 group-hover:rotate-2 brightness-110 contrast-125 saturate-150 shadow-[inset_0_0_60px_rgba(0,0,0,0.3)] group-hover:brightness-125 group-hover:contrast-150 group-hover:saturate-[1.7]"
+            className="w-full h-full object-cover transition-all duration-500 group-hover:scale-115 group-hover:rotate-2"
             style={{
-              filter: 'contrast(1.25) saturate(1.5) brightness(1.1) drop-shadow(0 8px 16px rgba(0,0,0,0.4))',
+              filter: 'contrast(1.45) saturate(1.8) brightness(1.25) drop-shadow(0 8px 20px rgba(0,0,0,0.5)) sharpen(1.2)',
               transform: 'translateZ(20px)',
-              transformStyle: 'preserve-3d'
+              transformStyle: 'preserve-3d',
+              imageRendering: 'crisp-edges'
             }}
             onError={() => setImageError(true)}
           />
@@ -214,7 +215,7 @@ export const GameCard = ({ game }: GameCardProps) => {
             </div>
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent opacity-40 group-hover:opacity-60 transition-opacity" />
         
         {/* Play Icon Overlay */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" style={{ transform: 'translateZ(40px)', transformStyle: 'preserve-3d' }}>
