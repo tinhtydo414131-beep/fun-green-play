@@ -3,6 +3,8 @@ import { NavLink } from "./NavLink";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,11 +13,36 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const Navigation = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      fetchProfile();
+    }
+  }, [user]);
+
+  const fetchProfile = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("avatar_url")
+        .eq("id", user.id)
+        .single();
+
+      if (!error && data) {
+        setAvatarUrl(data.avatar_url);
+      }
+    } catch (error) {
+      console.error("Error fetching avatar:", error);
+    }
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -65,6 +92,7 @@ export const Navigation = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-12 w-12 rounded-full border-4 border-primary/30 hover:border-primary transition-all hover:shadow-lg transform hover:scale-110">
                     <Avatar className="h-12 w-12">
+                      <AvatarImage src={avatarUrl || undefined} alt="Avatar" />
                       <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-fredoka font-bold text-xl">
                         {user.email?.[0].toUpperCase()}
                       </AvatarFallback>
@@ -128,6 +156,7 @@ export const Navigation = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full border-3 border-primary/30 hover:border-primary transition-all">
                     <Avatar className="h-10 w-10">
+                      <AvatarImage src={avatarUrl || undefined} alt="Avatar" />
                       <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-fredoka font-bold text-lg">
                         {user.email?.[0].toUpperCase()}
                       </AvatarFallback>
