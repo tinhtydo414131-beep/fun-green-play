@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ArrowLeft } from "lucide-react";
 
 interface PetParadiseProps {
   level: number;
   onLevelComplete: () => void;
+  onBack?: () => void;
 }
 
 interface Pet {
@@ -17,7 +19,7 @@ interface Pet {
 
 const petEmojis = ['🐶', '🐱', '🐰', '🐹', '🐻', '🦊', '🐼'];
 
-const PetParadise = ({ level, onLevelComplete }: PetParadiseProps) => {
+const PetParadise = ({ level, onLevelComplete, onBack }: PetParadiseProps) => {
   const [pets, setPets] = useState<Pet[]>([]);
   const [happyCount, setHappyCount] = useState(0);
   const targetPets = level * 3;
@@ -99,6 +101,16 @@ const PetParadise = ({ level, onLevelComplete }: PetParadiseProps) => {
         </div>
 
         <div className="flex justify-center gap-4">
+          {onBack && (
+            <Button
+              onClick={onBack}
+              variant="outline"
+              className="font-fredoka font-bold px-8 py-6 text-lg"
+            >
+              <ArrowLeft className="mr-2" />
+              Quay lại
+            </Button>
+          )}
           <Button
             onClick={resetGame}
             variant="outline"

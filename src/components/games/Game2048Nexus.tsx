@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Wallet, Coins, Trophy, Zap, Award, Share2 } from "lucide-react";
+import { Wallet, Coins, Trophy, Zap, Award, Share2, ArrowLeft } from "lucide-react";
 import confetti from "canvas-confetti";
 
 interface Game2048NexusProps {
@@ -18,7 +18,8 @@ interface Game2048NexusProps {
 export const Game2048Nexus = ({
   level = 1,
   difficultyMultiplier = 1.0,
-  onLevelComplete
+  onLevelComplete,
+  onBack
 }: Game2048NexusProps) => {
   const { user } = useAuth();
   const [board, setBoard] = useState<number[][]>([]);
@@ -338,6 +339,18 @@ export const Game2048Nexus = ({
 
         {/* Controls */}
         <div className="flex gap-4 justify-center flex-wrap">
+          {onBack && (
+            <Button 
+              onClick={onBack}
+              size="lg"
+              variant="outline"
+              className="border-primary/30 hover:scale-105 transition-transform"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Quay lại
+            </Button>
+          )}
+          
           <Button 
             onClick={initializeGame} 
             size="lg"

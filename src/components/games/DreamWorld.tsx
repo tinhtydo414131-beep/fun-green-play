@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ArrowLeft } from "lucide-react";
 
 interface DreamWorldProps {
   level: number;
   onLevelComplete: () => void;
+  onBack?: () => void;
 }
 
 type ElementType = 'castle' | 'unicorn' | 'rainbow' | 'cloud' | 'star';
@@ -25,7 +27,7 @@ const elementEmojis: Record<ElementType, string> = {
   star: '⭐',
 };
 
-const DreamWorld = ({ level, onLevelComplete }: DreamWorldProps) => {
+const DreamWorld = ({ level, onLevelComplete, onBack }: DreamWorldProps) => {
   const [elements, setElements] = useState<Element[]>([]);
   const [selectedType, setSelectedType] = useState<ElementType>('castle');
   const [elementCount, setElementCount] = useState(0);
@@ -108,6 +110,16 @@ const DreamWorld = ({ level, onLevelComplete }: DreamWorldProps) => {
         </div>
 
         <div className="flex justify-center gap-4">
+          {onBack && (
+            <Button
+              onClick={onBack}
+              variant="outline"
+              className="font-fredoka font-bold px-8 py-6 text-lg"
+            >
+              <ArrowLeft className="mr-2" />
+              Quay lại
+            </Button>
+          )}
           <Button
             onClick={resetGame}
             variant="outline"

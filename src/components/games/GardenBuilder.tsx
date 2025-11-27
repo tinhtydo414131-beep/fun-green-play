@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ArrowLeft } from "lucide-react";
 
 interface GardenBuilderProps {
   level: number;
   onLevelComplete: () => void;
+  onBack?: () => void;
 }
 
 type PlantType = 'flower' | 'tree' | 'bush' | 'butterfly' | 'bee';
@@ -25,7 +27,7 @@ const plantEmojis: Record<PlantType, string> = {
   bee: '🐝',
 };
 
-const GardenBuilder = ({ level, onLevelComplete }: GardenBuilderProps) => {
+const GardenBuilder = ({ level, onLevelComplete, onBack }: GardenBuilderProps) => {
   const [plants, setPlants] = useState<Plant[]>([]);
   const [selectedType, setSelectedType] = useState<PlantType>('flower');
   const [plantCount, setPlantCount] = useState(0);
@@ -110,6 +112,16 @@ const GardenBuilder = ({ level, onLevelComplete }: GardenBuilderProps) => {
         </div>
 
         <div className="flex justify-center gap-4">
+          {onBack && (
+            <Button
+              onClick={onBack}
+              variant="outline"
+              className="font-fredoka font-bold px-8 py-6 text-lg"
+            >
+              <ArrowLeft className="mr-2" />
+              Quay lại
+            </Button>
+          )}
           <Button
             onClick={resetGame}
             variant="outline"

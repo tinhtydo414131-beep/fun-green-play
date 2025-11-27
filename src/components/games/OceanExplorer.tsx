@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ArrowLeft } from "lucide-react";
 
 interface OceanExplorerProps {
   level: number;
   onLevelComplete: () => void;
+  onBack?: () => void;
 }
 
 interface Fish {
@@ -17,7 +19,7 @@ interface Fish {
 
 const fishEmojis = ['🐠', '🐟', '🐡', '🦈', '🐙', '🦑', '🐳'];
 
-const OceanExplorer = ({ level, onLevelComplete }: OceanExplorerProps) => {
+const OceanExplorer = ({ level, onLevelComplete, onBack }: OceanExplorerProps) => {
   const [submarineX, setSubmarineX] = useState(50);
   const [submarineY, setSubmarineY] = useState(50);
   const [fish, setFish] = useState<Fish[]>([]);
@@ -141,13 +143,24 @@ const OceanExplorer = ({ level, onLevelComplete }: OceanExplorerProps) => {
           >
             ⬅️
           </Button>
-          <Button
-            onClick={resetGame}
-            variant="outline"
-            className="font-fredoka font-bold text-lg"
-          >
-            🔄
-          </Button>
+          {onBack ? (
+            <Button
+              onClick={onBack}
+              variant="outline"
+              className="font-fredoka font-bold text-sm"
+            >
+              <ArrowLeft className="mr-1" />
+              Quay lại
+            </Button>
+          ) : (
+            <Button
+              onClick={resetGame}
+              variant="outline"
+              className="font-fredoka font-bold text-lg"
+            >
+              🔄
+            </Button>
+          )}
           <Button
             onClick={() => moveSubmarine(5, 0)}
             className="font-fredoka font-bold text-2xl"

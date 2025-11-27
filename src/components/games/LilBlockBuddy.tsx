@@ -3,14 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import confetti from "canvas-confetti";
-import { Sparkles, RotateCcw } from "lucide-react";
+import { Sparkles, RotateCcw, ArrowLeft } from "lucide-react";
 
 interface LilBlockBuddyProps {
   level: number;
   onLevelComplete: (stars: number, score: number) => void;
+  onBack?: () => void;
 }
 
-const LilBlockBuddy = ({ level, onLevelComplete }: LilBlockBuddyProps) => {
+const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) => {
   const gridSize = Math.min(3 + level, 5); // Tăng kích thước từ 3x3 đến 5x5
   const totalTiles = gridSize * gridSize;
   
@@ -194,6 +195,17 @@ const LilBlockBuddy = ({ level, onLevelComplete }: LilBlockBuddyProps) => {
 
         {/* Controls */}
         <div className="flex justify-center gap-4">
+          {onBack && (
+            <Button
+              onClick={onBack}
+              variant="outline"
+              size="lg"
+              className="font-fredoka font-bold border-2 hover:scale-105 transition-all"
+            >
+              <ArrowLeft className="mr-2 h-5 w-5" />
+              Quay lại
+            </Button>
+          )}
           <Button
             onClick={initializePuzzle}
             variant="outline"

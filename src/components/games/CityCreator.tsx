@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ArrowLeft } from "lucide-react";
 
 interface CityCreatorProps {
   level: number;
   onLevelComplete: () => void;
+  onBack?: () => void;
 }
 
 type BuildingType = 'house' | 'tree' | 'shop' | 'park' | 'school';
@@ -25,7 +27,7 @@ const buildingEmojis: Record<BuildingType, string> = {
   school: '🏫',
 };
 
-const CityCreator = ({ level, onLevelComplete }: CityCreatorProps) => {
+const CityCreator = ({ level, onLevelComplete, onBack }: CityCreatorProps) => {
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [selectedType, setSelectedType] = useState<BuildingType>('house');
   const [buildingsCount, setBuildingsCount] = useState(0);
@@ -108,6 +110,16 @@ const CityCreator = ({ level, onLevelComplete }: CityCreatorProps) => {
         </div>
 
         <div className="flex justify-center gap-4">
+          {onBack && (
+            <Button
+              onClick={onBack}
+              variant="outline"
+              className="font-fredoka font-bold px-8 py-6 text-lg"
+            >
+              <ArrowLeft className="mr-2" />
+              Quay lại
+            </Button>
+          )}
           <Button
             onClick={resetGame}
             variant="outline"

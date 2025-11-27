@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ArrowLeft } from "lucide-react";
 
 interface StarCollectorProps {
   level: number;
   onLevelComplete: () => void;
+  onBack?: () => void;
 }
 
 interface Star {
@@ -14,7 +16,7 @@ interface Star {
   speed: number;
 }
 
-const StarCollector = ({ level, onLevelComplete }: StarCollectorProps) => {
+const StarCollector = ({ level, onLevelComplete, onBack }: StarCollectorProps) => {
   const [basketX, setBasketX] = useState(50);
   const [stars, setStars] = useState<Star[]>([]);
   const [collected, setCollected] = useState(0);
@@ -130,13 +132,24 @@ const StarCollector = ({ level, onLevelComplete }: StarCollectorProps) => {
           >
             ⬅️ Trái
           </Button>
-          <Button
-            onClick={resetGame}
-            variant="outline"
-            className="font-fredoka font-bold px-8 py-6 text-lg"
-          >
-            🔄 Làm mới
-          </Button>
+          {onBack ? (
+            <Button
+              onClick={onBack}
+              variant="outline"
+              className="font-fredoka font-bold px-8 py-6 text-sm"
+            >
+              <ArrowLeft className="mr-1" />
+              Quay lại
+            </Button>
+          ) : (
+            <Button
+              onClick={resetGame}
+              variant="outline"
+              className="font-fredoka font-bold px-8 py-6 text-lg"
+            >
+              🔄 Làm mới
+            </Button>
+          )}
           <Button
             onClick={() => moveBasket('right')}
             className="font-fredoka font-bold text-2xl px-8 py-6"

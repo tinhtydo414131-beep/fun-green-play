@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ArrowLeft } from "lucide-react";
 
 interface MusicCreatorProps {
   level: number;
   onLevelComplete: () => void;
+  onBack?: () => void;
 }
 
 type Note = '🎵' | '🎶' | '🎸' | '🎹' | '🥁' | '🎺' | '🎻';
@@ -17,7 +19,7 @@ interface MusicNote {
 
 const notes: Note[] = ['🎵', '🎶', '🎸', '🎹', '🥁', '🎺', '🎻'];
 
-const MusicCreator = ({ level, onLevelComplete }: MusicCreatorProps) => {
+const MusicCreator = ({ level, onLevelComplete, onBack }: MusicCreatorProps) => {
   const [sequence, setSequence] = useState<MusicNote[]>([]);
   const [playedCount, setPlayedCount] = useState(0);
   const targetNotes = level * 5;
@@ -93,6 +95,16 @@ const MusicCreator = ({ level, onLevelComplete }: MusicCreatorProps) => {
         </div>
 
         <div className="flex justify-center gap-4">
+          {onBack && (
+            <Button
+              onClick={onBack}
+              variant="outline"
+              className="font-fredoka font-bold px-8 py-6 text-lg"
+            >
+              <ArrowLeft className="mr-2" />
+              Quay lại
+            </Button>
+          )}
           <Button
             onClick={resetGame}
             variant="outline"

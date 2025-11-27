@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ArrowLeft } from "lucide-react";
 
 interface SkyCastleProps {
   level: number;
   onLevelComplete: () => void;
+  onBack?: () => void;
 }
 
 type CastleElement = 'tower' | 'cloud' | 'rainbow' | 'star' | 'angel';
@@ -25,7 +27,7 @@ const elementEmojis: Record<CastleElement, string> = {
   angel: '👼',
 };
 
-const SkyCastle = ({ level, onLevelComplete }: SkyCastleProps) => {
+const SkyCastle = ({ level, onLevelComplete, onBack }: SkyCastleProps) => {
   const [elements, setElements] = useState<Element[]>([]);
   const [selectedType, setSelectedType] = useState<CastleElement>('tower');
   const [elementCount, setElementCount] = useState(0);
@@ -108,6 +110,16 @@ const SkyCastle = ({ level, onLevelComplete }: SkyCastleProps) => {
         </div>
 
         <div className="flex justify-center gap-4">
+          {onBack && (
+            <Button
+              onClick={onBack}
+              variant="outline"
+              className="font-fredoka font-bold px-8 py-6 text-lg"
+            >
+              <ArrowLeft className="mr-2" />
+              Quay lại
+            </Button>
+          )}
           <Button
             onClick={resetGame}
             variant="outline"
