@@ -184,7 +184,7 @@ export const GameCard = ({ game }: GameCardProps) => {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="relative aspect-video overflow-hidden border-4 border-primary/30 shadow-[0_8px_24px_rgba(102,126,234,0.3),inset_0_2px_8px_rgba(255,255,255,0.2)]" style={{ transformStyle: 'preserve-3d' }}>
+      <div className="relative aspect-video overflow-hidden border-4 border-primary/30 shadow-[0_8px_24px_rgba(102,126,234,0.3),inset_0_2px_8px_rgba(255,255,255,0.2)] group-hover:border-primary group-hover:shadow-[0_0_30px_rgba(168,85,247,0.8),0_0_60px_rgba(59,130,246,0.6),0_0_90px_rgba(14,165,233,0.4),inset_0_0_20px_rgba(168,85,247,0.3)] transition-all duration-500" style={{ transformStyle: 'preserve-3d' }}>
         {game.thumbnail_url && !imageError ? (
           <img 
             src={game.thumbnail_url} 
