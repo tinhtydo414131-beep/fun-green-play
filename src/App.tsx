@@ -15,6 +15,7 @@ import Chat from "./pages/Chat";
 import NexusLeaderboard from "./pages/NexusLeaderboard";
 import FunWallet from "./pages/FunWallet";
 import MusicLibrary from "./pages/MusicLibrary";
+import PublicMusic from "./pages/PublicMusic";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ const App = () => (
           <Route path="/friends" element={<Friends />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/music" element={<MusicLibrary />} />
+          <Route path="/public-music" element={<PublicMusic />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

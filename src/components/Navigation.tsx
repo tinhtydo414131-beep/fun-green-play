@@ -52,6 +52,13 @@ export const Navigation = () => {
             >
               All Games 🎮
             </NavLink>
+            <NavLink 
+              to="/public-music" 
+              className="text-lg font-fredoka font-semibold text-foreground hover:text-primary transition-all transform hover:scale-110"
+              activeClassName="text-primary"
+            >
+              Nhạc MP3 🎵
+            </NavLink>
 
             {user ? (
               <DropdownMenu>
