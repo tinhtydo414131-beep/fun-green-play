@@ -26,18 +26,27 @@ export const LevelSelector = ({
   };
 
   return (
-    <Card className="p-6 sm:p-8 border-0 bg-transparent shadow-none max-w-[92vw] mx-auto">
-      <div className="text-center mb-6 space-y-2">
-        <h2 className="text-[36px] sm:text-4xl font-fredoka font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-          Chọn Level 🎮
-        </h2>
-        <p className="text-[16px] sm:text-lg font-comic text-muted-foreground">
-          Hoàn thành level để mở level tiếp theo!
-        </p>
-      </div>
+    <div className="w-[92vw] max-w-[420px] mx-auto my-4 px-0">
+      <Card className="p-6 border-0 bg-transparent shadow-none">
+        <div className="text-center mb-6 space-y-2">
+          <h2 className="text-[36px] sm:text-4xl font-fredoka font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+            Chọn Level 🎮
+          </h2>
+          <p className="text-[16px] sm:text-lg font-comic text-muted-foreground">
+            Hoàn thành level để mở level tiếp theo!
+          </p>
+        </div>
 
-      {/* Mobile: 3 columns exactly, Tablet+: 5 columns */}
-      <div className="grid grid-cols-3 md:grid-cols-5 gap-x-[14px] gap-y-[18px] mb-8 justify-items-center w-full">
+        {/* Mobile: 3 columns exactly using CSS Grid */}
+        <div 
+          className="mb-8 px-5"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr 1fr',
+            gap: '18px 16px',
+            justifyItems: 'center',
+          }}
+        >
         {levels.map((level) => {
           const unlocked = isLevelUnlocked(level);
           const completed = level <= highestLevelCompleted;
@@ -49,17 +58,22 @@ export const LevelSelector = ({
               key={level}
               onClick={() => unlocked && onLevelSelect(level)}
               disabled={!unlocked}
+              style={{
+                width: '102px',
+                height: '102px',
+                boxSizing: 'border-box',
+                position: 'static',
+              }}
               className={cn(
-                "relative flex flex-col items-center justify-center rounded-[24px] transition-all group overflow-hidden",
-                "w-[102px] h-[102px] sm:w-[120px] sm:h-[120px] md:w-[140px] md:h-[140px]",
+                "flex flex-col items-center justify-center rounded-[26px] transition-all overflow-hidden shrink-0",
                 selected && unlocked && "bg-gradient-to-br from-[#8B46FF] via-secondary to-[#00F2FF] border-[3px] border-[#00F2FF] shadow-[0_0_30px_rgba(0,242,255,0.5),0_8px_20px_rgba(139,70,255,0.4)]",
-                !selected && unlocked && "bg-gradient-to-br from-[#8B46FF] to-[#00F2FF] border-[2px] border-white/50 shadow-[0_4px_15px_rgba(139,70,255,0.3)] hover:scale-105 hover:shadow-[0_6px_20px_rgba(139,70,255,0.4)]",
-                !unlocked && "bg-white border-[2px] border-gray-300 cursor-not-allowed opacity-60"
+                !selected && unlocked && "bg-gradient-to-br from-[#8B46FF] to-[#00F2FF] border-[2px] border-white/50 shadow-[0_4px_15px_rgba(139,70,255,0.3)] hover:shadow-[0_6px_20px_rgba(139,70,255,0.4)]",
+                !unlocked && "bg-white border-[2px] border-[#E0E0E0] cursor-not-allowed opacity-60"
               )}
             >
               {/* Level number */}
               <div className={cn(
-                "text-[52px] sm:text-[56px] md:text-[60px] font-fredoka font-bold leading-none",
+                "text-[52px] font-fredoka font-bold leading-none",
                 unlocked ? "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]" : "text-gray-500"
               )}>
                 {level}
@@ -67,22 +81,22 @@ export const LevelSelector = ({
 
               {/* Status icon for locked levels */}
               {!unlocked && (
-                <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 mt-1" />
+                <Lock className="w-5 h-5 text-gray-400 mt-1" />
               )}
 
               {/* Coin reward - Compact and centered under number */}
               {unlocked && (
-                <div className="flex items-center justify-center gap-0.5 font-comic font-bold text-white drop-shadow-md mt-0.5">
-                  <span className="text-[13px] sm:text-[14px]">+{coinReward}</span>
-                  <span className="text-[20px] sm:text-[22px]">🪙</span>
+                <div className="flex items-center justify-center gap-0.5 font-comic font-bold text-white drop-shadow-md">
+                  <span className="text-[11px]">+{coinReward}</span>
+                  <span className="text-[18px]">🪙</span>
                 </div>
               )}
             </button>
           );
         })}
-      </div>
+        </div>
 
-      <div className="flex flex-col items-center gap-3 sm:gap-4 p-5 sm:p-6 bg-gradient-to-br from-primary/8 to-secondary/8 rounded-[24px] border-2 sm:border-3 border-primary/20 mt-2">
+        <div className="flex flex-col items-center gap-3 sm:gap-4 p-5 sm:p-6 bg-gradient-to-br from-primary/8 to-secondary/8 rounded-[24px] border-2 sm:border-3 border-primary/20 mt-2">
         <div className="text-center space-y-1">
           <p className="text-[24px] sm:text-2xl font-fredoka font-bold text-primary">
             Level {currentLevel}
@@ -102,7 +116,8 @@ export const LevelSelector = ({
         >
           Bắt Đầu Chơi! 🚀
         </Button>
-      </div>
-    </Card>
+        </div>
+      </Card>
+    </div>
   );
 };
