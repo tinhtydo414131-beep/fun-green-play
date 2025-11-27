@@ -1,258 +1,123 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import confetti from "canvas-confetti";
+import coinImage from "@/assets/coin-celebration.png";
 
 interface CelebrationNotificationProps {
   amount: number;
   token: string;
-  tokenImage?: string; // Optional token image URL
+  tokenImage?: string;
   onComplete?: () => void;
-  duration?: number; // Optional duration in milliseconds (default: 25000)
+  duration?: number;
 }
 
 export const CelebrationNotification = ({ amount, token, tokenImage, onComplete, duration: customDuration }: CelebrationNotificationProps) => {
   const [show, setShow] = useState(true);
-  const [showBadge, setShowBadge] = useState(false);
   
-  // Use custom duration or default to 25000ms
-  const celebrationDuration = customDuration || 25000;
-  const badgeDuration = celebrationDuration * 2;
+  const celebrationDuration = customDuration || 5000;
 
   useEffect(() => {
     // Vibration
     if (navigator.vibrate) {
-      navigator.vibrate([200, 100, 200, 100, 200]);
+      navigator.vibrate([100, 50, 100, 50, 100]);
     }
 
-    // Voice announcement "FUN AND RICH!!!"
+    // Hát "RICH" 5 lần
     if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance("FUN AND RICH!!!");
-      utterance.rate = 0.9;
-      utterance.pitch = 1.2;
-      utterance.volume = 1;
-      utterance.lang = 'vi-VN';
-      speechSynthesis.speak(utterance);
+      const speakRich = (times: number) => {
+        for (let i = 0; i < times; i++) {
+          setTimeout(() => {
+            const utterance = new SpeechSynthesisUtterance("RICH");
+            utterance.rate = 1.0;
+            utterance.pitch = 1.3;
+            utterance.volume = 1;
+            utterance.lang = 'en-US';
+            speechSynthesis.speak(utterance);
+          }, i * 400);
+        }
+      };
+      speakRich(5);
     }
 
-    // Play victory sound (using Web Audio API for synthetic sound)
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    
-    // Jackpot sound
-    const playJackpotSound = () => {
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-      oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.5);
-      
-      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-      
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + 0.5);
-    };
-
-    playJackpotSound();
-    setTimeout(playJackpotSound, 200);
-    setTimeout(playJackpotSound, 400);
-
-    // Continuous confetti with custom duration
-    const duration = celebrationDuration;
-    const animationEnd = Date.now() + duration;
-    
-    const randomInRange = (min: number, max: number) => {
-      return Math.random() * (max - min) + min;
-    };
-
-    const confettiInterval = setInterval(() => {
-      const timeLeft = animationEnd - Date.now();
-
-      if (timeLeft <= 0) {
-        clearInterval(confettiInterval);
-        return;
-      }
-
-      const particleCount = 50;
-      
-      // Fun Planet confetti - minimal and clean
-      confetti({
-        particleCount: 25,
-        startVelocity: 25,
-        spread: 360,
-        origin: {
-          x: randomInRange(0.1, 0.9),
-          y: Math.random() - 0.2
-        },
-        colors: ['#8B46FF', '#00F2FF'],
-        scalar: 1.2,
-        gravity: 0.7
-      });
-    }, 200);
-
-    // Fireworks
-    const fireworksInterval = setInterval(() => {
-      const timeLeft = animationEnd - Date.now();
-
-      if (timeLeft <= 0) {
-        clearInterval(fireworksInterval);
-        return;
-      }
-
-      confetti({
-        particleCount: 60,
-        startVelocity: 35,
-        spread: 360,
-        origin: {
-          x: randomInRange(0.2, 0.8),
-          y: randomInRange(0.3, 0.7)
-        },
-        colors: ['#8B46FF', '#00F2FF'],
-        scalar: 1.3,
-        ticks: 200
-      });
-    }, 800);
-
-    // Main celebration ends after custom duration
-    const mainTimeout = setTimeout(() => {
+    // Auto hide after duration
+    const timeout = setTimeout(() => {
       setShow(false);
-      setShowBadge(true);
-      clearInterval(confettiInterval);
-      clearInterval(fireworksInterval);
-    }, celebrationDuration);
- 
-    // Badge disappears after double the celebration duration
-    const badgeTimeout = setTimeout(() => {
-      setShowBadge(false);
       onComplete?.();
-    }, badgeDuration);
+    }, celebrationDuration);
 
     return () => {
-      clearTimeout(mainTimeout);
-      clearTimeout(badgeTimeout);
-      clearInterval(confettiInterval);
-      clearInterval(fireworksInterval);
+      clearTimeout(timeout);
     };
-  }, [amount, token, onComplete, celebrationDuration, badgeDuration]);
+  }, [amount, token, onComplete, celebrationDuration]);
 
   return (
-    <>
-      <AnimatePresence>
-        {show && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="fixed inset-0 z-50 flex items-center justify-center"
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          initial={{ x: 400, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: 400, opacity: 0 }}
+          transition={{ type: "spring", damping: 20, stiffness: 300 }}
+          className="fixed top-6 right-6 z-50"
+        >
+          <div 
+            className="relative p-6 rounded-2xl backdrop-blur-sm"
             style={{
-              background: 'linear-gradient(135deg, #8B46FF 0%, #00F2FF 100%)',
-              backdropFilter: 'blur(8px)'
+              background: 'linear-gradient(135deg, rgba(139, 70, 255, 0.95), rgba(0, 242, 255, 0.95))',
+              border: '4px solid transparent',
+              backgroundClip: 'padding-box',
             }}
           >
-
-            <div className="text-center z-10">
-              {/* Main text with clean neon effect */}
-              <motion.h1
-                initial={{ scale: 0 }}
+            {/* Rainbow glowing border */}
+            <div 
+              className="absolute inset-0 rounded-2xl -z-10"
+              style={{
+                background: 'linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000)',
+                backgroundSize: '400% 400%',
+                animation: 'rainbow-glow 3s linear infinite',
+                padding: '4px',
+                filter: 'blur(8px)',
+              }}
+            />
+            
+            {/* Content */}
+            <div className="flex items-center gap-4">
+              {/* Spinning coin */}
+              <motion.img
+                src={coinImage}
+                alt="Coin"
+                className="w-20 h-20 object-contain"
                 animate={{ 
-                  scale: [1, 1.1, 1],
+                  rotateY: [0, 360],
                 }}
                 transition={{ 
-                  duration: 0.5,
-                  scale: { repeat: Infinity, duration: 1.5 }
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "linear"
                 }}
-                className="text-8xl md:text-9xl font-black mb-8 relative"
                 style={{
-                  color: '#FFD700',
-                  textShadow: '0 0 40px rgba(0,242,255,0.8), 0 0 80px rgba(0,242,255,0.5), 0 4px 20px rgba(0,0,0,0.3)',
-                  WebkitTextStroke: '3px #00F2FF',
-                  letterSpacing: '0.05em'
-                }}
-              >
-                FUN AND RICH!!!
-              </motion.h1>
-
-              {/* Amount display */}
-              <motion.div
-                initial={{ scale: 0, y: 30 }}
-                animate={{ 
-                  scale: [1, 1.08, 1],
-                  y: 0
-                }}
-                transition={{ 
-                  delay: 0.2,
-                  scale: { repeat: Infinity, duration: 1.2 }
-                }}
-                className="flex items-center justify-center gap-4 text-7xl md:text-8xl font-black"
-                style={{
-                  color: '#FFD700',
-                  textShadow: '0 0 30px rgba(0,242,255,0.7), 0 0 60px rgba(0,242,255,0.4)',
-                  WebkitTextStroke: '2px #00F2FF'
-                }}
-              >
-                <span>+{amount}</span>
-                {tokenImage ? (
-                  <img 
-                    src={tokenImage} 
-                    alt={token} 
-                    className="w-20 h-20 md:w-24 md:h-24 object-contain rounded-full"
-                    style={{
-                      filter: 'drop-shadow(0 0 20px rgba(255,215,0,0.8))',
-                      boxShadow: '0 0 40px rgba(255,215,0,0.5)'
-                    }}
-                  />
-                ) : (
-                  <span className="text-5xl md:text-6xl">{token}</span>
-                )}
-              </motion.div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Floating badge */}
-      <AnimatePresence>
-        {showBadge && (
-          <motion.div
-            initial={{ scale: 0, x: 100 }}
-            animate={{ scale: 1, x: 0 }}
-            exit={{ scale: 0, opacity: 0 }}
-            className="fixed top-20 right-6 z-50 px-6 py-3 rounded-full flex items-center gap-3"
-            style={{
-              background: 'linear-gradient(135deg, #8B46FF 0%, #00F2FF 100%)',
-              boxShadow: '0 8px 24px rgba(139,70,255,0.4)',
-            }}
-          >
-            {tokenImage && (
-              <img 
-                src={tokenImage} 
-                alt={token} 
-                className="w-8 h-8 object-contain rounded-full"
-                style={{
-                  filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.6))'
+                  filter: 'drop-shadow(0 0 20px rgba(255, 215, 0, 0.8))',
                 }}
               />
-            )}
-            <span className="text-2xl font-black text-white drop-shadow-lg">
-              +{amount} {token}
-            </span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
+              
+              {/* Amount text */}
+              <div className="text-white">
+                <div className="text-sm font-semibold opacity-90">Đã nhận</div>
+                <div className="text-3xl font-black flex items-center gap-2">
+                  <span>+{amount}</span>
+                  <span className="text-2xl">{token}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
+      
       <style>{`
-        @keyframes gradient-x {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-        @keyframes gradient-shift {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
+        @keyframes rainbow-glow {
+          0% { background-position: 0% 50%; }
+          100% { background-position: 400% 50%; }
         }
       `}</style>
-    </>
+    </AnimatePresence>
   );
 };
