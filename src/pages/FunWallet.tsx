@@ -137,7 +137,7 @@ export default function FunWallet() {
   const [processedCoinImage, setProcessedCoinImage] = useState<string | null>(null);
   const [selectedChartCoin, setSelectedChartCoin] = useState<string | null>(null);
   const [chartTimeframe, setChartTimeframe] = useState<'1H' | '4H' | '1D' | '1W' | '1M'>('1D');
-  const [hasInitializedBalances, setHasInitializedBalances] = useState(false);
+  
 
   // Check for processed coin image on mount
   useEffect(() => {
@@ -312,28 +312,21 @@ export default function FunWallet() {
       const balanceEth = ethers.formatEther(balanceWei);
       const formattedBalance = parseFloat(balanceEth).toFixed(6);
       
-      // Check if BNB balance increased (money received) - only after initialization
-      if (hasInitializedBalances) {
-        const prevBNB = parseFloat(previousBalances.BNB || "0");
-        const newBNB = parseFloat(formattedBalance);
-        if (newBNB > prevBNB) {
-          const receivedAmount = newBNB - prevBNB;
-          console.log("💰 BNB Received:", receivedAmount);
-          setCelebrationAmount(receivedAmount);
-          setCelebrationToken("BNB");
-          setCelebrationTokenImage(bnbLogo);
-          setShowCelebration(true);
-        }
+      // Check if BNB balance increased (money received)
+      const prevBNB = parseFloat(previousBalances.BNB || "0");
+      const newBNB = parseFloat(formattedBalance);
+      if (newBNB > prevBNB) {
+        const receivedAmount = newBNB - prevBNB;
+        console.log("💰 BNB Received:", { prevBNB, newBNB, receivedAmount });
+        setCelebrationAmount(receivedAmount);
+        setCelebrationToken("BNB");
+        setCelebrationTokenImage(bnbLogo);
+        setShowCelebration(true);
       }
       
       setBalance(formattedBalance);
       setTokenBalances(prev => ({ ...prev, BNB: formattedBalance }));
       setPreviousBalances(prev => ({ ...prev, BNB: formattedBalance }));
-      
-      // Mark as initialized after first load
-      if (!hasInitializedBalances) {
-        setHasInitializedBalances(true);
-      }
       
       await getCamlyBalance(address);
       await getUSDTBalance(address);
@@ -365,18 +358,16 @@ export default function FunWallet() {
       
       const formattedBalance = parseFloat(formatted).toFixed(2);
       
-      // Check if CAMLY balance increased (money received) - only after initialization
-      if (hasInitializedBalances) {
-        const prevCAMLY = parseFloat(previousBalances.CAMLY || "0");
-        const newCAMLY = parseFloat(formattedBalance);
-        if (newCAMLY > prevCAMLY) {
-          const receivedAmount = newCAMLY - prevCAMLY;
-          console.log("💰 CAMLY Received:", receivedAmount);
-          setCelebrationAmount(receivedAmount);
-          setCelebrationToken("CAMLY");
-          setCelebrationTokenImage(camlyCoinPro);
-          setShowCelebration(true);
-        }
+      // Check if CAMLY balance increased (money received)
+      const prevCAMLY = parseFloat(previousBalances.CAMLY || "0");
+      const newCAMLY = parseFloat(formattedBalance);
+      if (newCAMLY > prevCAMLY) {
+        const receivedAmount = newCAMLY - prevCAMLY;
+        console.log("💰 CAMLY Received:", { prevCAMLY, newCAMLY, receivedAmount });
+        setCelebrationAmount(receivedAmount);
+        setCelebrationToken("CAMLY");
+        setCelebrationTokenImage(camlyCoinPro);
+        setShowCelebration(true);
       }
       
       setCamlyBalance(formattedBalance);
@@ -411,18 +402,16 @@ export default function FunWallet() {
       
       const formattedBalance = parseFloat(formatted).toFixed(2);
       
-      // Check if USDT balance increased (money received) - only after initialization
-      if (hasInitializedBalances) {
-        const prevUSDT = parseFloat(previousBalances.USDT || "0");
-        const newUSDT = parseFloat(formattedBalance);
-        if (newUSDT > prevUSDT) {
-          const receivedAmount = newUSDT - prevUSDT;
-          console.log("💰 USDT Received:", receivedAmount);
-          setCelebrationAmount(receivedAmount);
-          setCelebrationToken("USDT");
-          setCelebrationTokenImage(usdtLogo);
-          setShowCelebration(true);
-        }
+      // Check if USDT balance increased (money received)
+      const prevUSDT = parseFloat(previousBalances.USDT || "0");
+      const newUSDT = parseFloat(formattedBalance);
+      if (newUSDT > prevUSDT) {
+        const receivedAmount = newUSDT - prevUSDT;
+        console.log("💰 USDT Received:", { prevUSDT, newUSDT, receivedAmount });
+        setCelebrationAmount(receivedAmount);
+        setCelebrationToken("USDT");
+        setCelebrationTokenImage(usdtLogo);
+        setShowCelebration(true);
       }
       
       setTokenBalances(prev => ({ ...prev, USDT: formattedBalance }));
