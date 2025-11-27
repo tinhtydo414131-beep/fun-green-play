@@ -15,6 +15,7 @@ export default function Auth() {
   const navigate = useNavigate();
   
   const { address, isConnected } = useAccount();
+  const { connectAsync, connectors } = useConnect();
   const { disconnect } = useDisconnect();
 
   // Monitor wallet connection status
@@ -22,14 +23,47 @@ export default function Auth() {
     console.log('🔵 Wallet Status Changed:', { address, isConnected });
   }, [address, isConnected]);
 
-  const openWalletModal = async () => {
+  const handleWalletClick = async (
+    wallet: "metamask" | "coinbase" | "trust" | "walletconnect"
+  ) => {
+    console.log("🔵 Wallet button clicked:", wallet);
+
     try {
-      console.log('🔵 Opening Web3Modal...');
-      await web3Modal.open();
-      console.log('✅ Web3Modal opened successfully');
+      const nameMap: Record<
+        "metamask" | "coinbase" | "trust" | "walletconnect",
+        string[]
+      > = {
+        metamask: ["MetaMask"],
+        coinbase: ["Coinbase Wallet", "Coinbase"],
+        trust: ["Trust Wallet", "Trust"],
+        walletconnect: ["WalletConnect"],
+      };
+
+      const targetNames = nameMap[wallet].map((n) => n.toLowerCase());
+
+      const connector = connectors.find((c) =>
+        targetNames.some((name) => c.name.toLowerCase().includes(name))
+      );
+
+      if (!connector) {
+        console.error("❌ No connector found for wallet:", wallet, connectors);
+        toast.error(
+          "Không tìm thấy ví phù hợp trên thiết bị này. Vui lòng kiểm tra lại app ví!"
+        );
+        return;
+      }
+
+      console.log("🔵 Connecting with connector:", {
+        id: connector.id,
+        name: connector.name,
+      });
+
+      await connectAsync({ connector });
+
+      toast.success("🎉 Kết nối ví thành công!");
     } catch (error) {
-      console.error("❌ Error opening wallet modal:", error);
-      toast.error("Không thể mở modal chọn ví!");
+      console.error("❌ Wallet connect error:", error);
+      toast.error("Kết nối ví thất bại. Vui lòng mở app ví và thử lại!");
     }
   };
 
@@ -181,7 +215,11 @@ export default function Auth() {
               <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <button
                   type="button"
-                  onClick={openWalletModal}
+                  onClick={() => handleWalletClick("metamask")}
+                  onTouchEnd={(e) => {
+                    e.preventDefault();
+                    handleWalletClick("metamask");
+                  }}
                   className="p-2.5 sm:p-3 bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-200 rounded-xl text-center active:scale-95 transition-transform cursor-pointer touch-manipulation"
                 >
                   <div className="text-xl sm:text-2xl mb-0.5 sm:mb-1">🦊</div>
@@ -190,7 +228,11 @@ export default function Auth() {
                 </button>
                 <button
                   type="button"
-                  onClick={openWalletModal}
+                  onClick={() => handleWalletClick("coinbase")}
+                  onTouchEnd={(e) => {
+                    e.preventDefault();
+                    handleWalletClick("coinbase");
+                  }}
                   className="p-2.5 sm:p-3 bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl text-center active:scale-95 transition-transform cursor-pointer touch-manipulation"
                 >
                   <div className="text-xl sm:text-2xl mb-0.5 sm:mb-1">💙</div>
@@ -199,7 +241,11 @@ export default function Auth() {
                 </button>
                 <button
                   type="button"
-                  onClick={openWalletModal}
+                  onClick={() => handleWalletClick("trust")}
+                  onTouchEnd={(e) => {
+                    e.preventDefault();
+                    handleWalletClick("trust");
+                  }}
                   className="p-2.5 sm:p-3 bg-gradient-to-br from-cyan-50 to-cyan-100 border-2 border-cyan-200 rounded-xl text-center active:scale-95 transition-transform cursor-pointer touch-manipulation"
                 >
                   <div className="text-xl sm:text-2xl mb-0.5 sm:mb-1">💎</div>
@@ -208,7 +254,11 @@ export default function Auth() {
                 </button>
                 <button
                   type="button"
-                  onClick={openWalletModal}
+                  onClick={() => handleWalletClick("walletconnect")}
+                  onTouchEnd={(e) => {
+                    e.preventDefault();
+                    handleWalletClick("walletconnect");
+                  }}
                   className="p-2.5 sm:p-3 bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-xl text-center active:scale-95 transition-transform cursor-pointer touch-manipulation"
                 >
                   <div className="text-xl sm:text-2xl mb-0.5 sm:mb-1">🌈</div>
