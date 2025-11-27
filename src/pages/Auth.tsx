@@ -177,38 +177,44 @@ export default function Auth() {
             </div>
           ) : (
             <div className="space-y-4">
-              {/* Main Connect Button */}
-              <Button
-                onClick={openWalletModal}
-                disabled={loading}
-                className="w-full text-lg font-bold py-8 border-0 transform hover:scale-[1.02] transition-all duration-300 shadow-lg gradient-animated text-white rainbow-glow relative overflow-hidden group"
-              >
-                <Wallet className="w-6 h-6 mr-3 animate-pulse" />
-                <span className="relative z-10">Chọn Ví để Kết Nối 🔗</span>
-              </Button>
-              
-              {/* Wallet Options Info */}
+              {/* Wallet Options - tap card to open modal */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-200 rounded-xl text-center">
+                <button
+                  type="button"
+                  onClick={openWalletModal}
+                  className="p-3 bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-200 rounded-xl text-center active:scale-95 transition-transform cursor-pointer"
+                >
                   <div className="text-2xl mb-1">🦊</div>
                   <p className="text-xs font-bold font-fredoka text-orange-900">MetaMask</p>
-                  <p className="text-[10px] font-comic text-orange-700">Ưu tiên</p>
-                </div>
-                <div className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl text-center">
+                  <p className="text-[10px] font-comic text-orange-700">Nhấn để kết nối</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={openWalletModal}
+                  className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl text-center active:scale-95 transition-transform cursor-pointer"
+                >
                   <div className="text-2xl mb-1">💙</div>
                   <p className="text-xs font-bold font-fredoka text-blue-900">Coinbase</p>
                   <p className="text-[10px] font-comic text-blue-700">Wallet</p>
-                </div>
-                <div className="p-3 bg-gradient-to-br from-cyan-50 to-cyan-100 border-2 border-cyan-200 rounded-xl text-center">
+                </button>
+                <button
+                  type="button"
+                  onClick={openWalletModal}
+                  className="p-3 bg-gradient-to-br from-cyan-50 to-cyan-100 border-2 border-cyan-200 rounded-xl text-center active:scale-95 transition-transform cursor-pointer"
+                >
                   <div className="text-2xl mb-1">💎</div>
                   <p className="text-xs font-bold font-fredoka text-cyan-900">Trust</p>
                   <p className="text-[10px] font-comic text-cyan-700">Wallet</p>
-                </div>
-                <div className="p-3 bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-xl text-center">
+                </button>
+                <button
+                  type="button"
+                  onClick={openWalletModal}
+                  className="p-3 bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-xl text-center active:scale-95 transition-transform cursor-pointer"
+                >
                   <div className="text-2xl mb-1">🌈</div>
                   <p className="text-xs font-bold font-fredoka text-purple-900">Và nhiều</p>
                   <p className="text-[10px] font-comic text-purple-700">ví khác</p>
-                </div>
+                </button>
               </div>
               
               {/* Mobile Instruction */}
@@ -220,7 +226,8 @@ export default function Auth() {
                       Dùng trên điện thoại?
                     </p>
                     <p className="text-xs font-comic text-muted-foreground leading-relaxed">
-                      Nhấn nút trên → Chọn ví → <span className="font-bold text-accent">Tự động mở app ví</span> trên điện thoại bạn! 🚀
+                      Nhấn vào thẻ <span className="font-bold text-orange-700">MetaMask</span> hoặc ví khác →
+                      <span className="font-bold text-accent"> Tự động mở app ví</span> trên điện thoại bạn! 🚀
                     </p>
                   </div>
                 </div>
