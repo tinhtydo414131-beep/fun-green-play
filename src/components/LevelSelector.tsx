@@ -37,7 +37,7 @@ export const LevelSelector = ({
       </div>
 
       {/* Mobile: 3 columns, Tablet+: 5 columns */}
-      <div className="grid grid-cols-3 md:grid-cols-5 gap-4 sm:gap-4 mb-6 sm:mb-8">
+      <div className="grid grid-cols-3 md:grid-cols-5 gap-4 md:gap-4 mb-6 sm:mb-8">
         {levels.map((level) => {
           const unlocked = isLevelUnlocked(level);
           const completed = level <= highestLevelCompleted;
@@ -50,42 +50,40 @@ export const LevelSelector = ({
               onClick={() => unlocked && onLevelSelect(level)}
               disabled={!unlocked}
               className={cn(
-                "relative p-5 sm:p-6 rounded-[24px] border-3 sm:border-4 transition-all group min-h-[100px] sm:min-h-0",
-                selected && unlocked && "border-primary bg-gradient-to-br from-primary to-secondary shadow-[0_0_20px_rgba(139,70,255,0.3)] scale-105 ring-4 ring-primary/30",
-                !selected && unlocked && "border-primary/30 hover:border-primary hover:bg-primary/10 hover:scale-105",
-                !unlocked && "border-muted bg-muted/20 cursor-not-allowed opacity-50"
+                "relative aspect-square w-full flex flex-col items-center justify-center rounded-[24px] transition-all group",
+                "w-[90px] h-[90px] xs:w-[100px] xs:h-[100px] sm:w-[120px] sm:h-[120px] md:w-[140px] md:h-[140px]",
+                selected && unlocked && "bg-gradient-to-br from-primary via-secondary to-accent border-[4px] border-[#00F2FF] shadow-[0_0_30px_rgba(0,242,255,0.5),0_8px_20px_rgba(139,70,255,0.4)] scale-105",
+                !selected && unlocked && "bg-gradient-to-br from-primary to-secondary border-[2px] border-white/50 shadow-[0_4px_15px_rgba(139,70,255,0.3)] hover:scale-105 hover:shadow-[0_6px_20px_rgba(139,70,255,0.4)]",
+                !unlocked && "bg-white border-[2px] border-muted/40 cursor-not-allowed opacity-60"
               )}
             >
               {/* Level number */}
               <div className={cn(
-                "text-5xl sm:text-4xl font-fredoka font-bold mb-2",
-                selected && unlocked ? "text-white" : unlocked ? "text-primary" : "text-muted-foreground"
+                "text-[42px] sm:text-[48px] md:text-[52px] font-fredoka font-bold leading-none mb-1",
+                unlocked ? "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]" : "text-muted-foreground"
               )}>
                 {level}
               </div>
 
               {/* Status icon */}
-              <div className="flex justify-center mb-2">
-                {!unlocked && <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground" />}
-                {completed && unlocked && !selected && <Star className="w-5 h-5 sm:w-6 sm:h-6 text-accent fill-accent" />}
-                {unlocked && !completed && !selected && <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />}
-              </div>
-
-              {/* Coin reward - Bigger on mobile when selected */}
-              {unlocked && (
-                <div className={cn(
-                  "text-sm sm:text-sm font-comic font-bold flex items-center justify-center gap-1",
-                  selected ? "text-white text-base" : "text-secondary"
-                )}>
-                  <span>+{coinReward}</span>
-                  <span className="text-base">🪙</span>
-                </div>
+              {!unlocked && (
+                <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground mb-1" />
+              )}
+              {completed && unlocked && !selected && (
+                <Star className="w-5 h-5 sm:w-6 sm:h-6 text-white fill-white drop-shadow-md mb-1" />
+              )}
+              {unlocked && !completed && !selected && (
+                <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-white drop-shadow-md mb-1" />
               )}
 
-              {/* Difficulty indicator */}
-              {unlocked && !selected && (
-                <div className="text-xs text-muted-foreground mt-1">
-                  +{(level - 1) * 5}% khó
+              {/* Coin reward - Prominent on unlocked levels */}
+              {unlocked && (
+                <div className={cn(
+                  "flex items-center justify-center gap-1 font-comic font-bold",
+                  selected ? "text-[18px] sm:text-[20px] text-white drop-shadow-md" : "text-[16px] sm:text-[18px] text-white drop-shadow-md"
+                )}>
+                  <span>+{coinReward}</span>
+                  <span className="text-[28px] sm:text-[32px]">🪙</span>
                 </div>
               )}
             </button>
