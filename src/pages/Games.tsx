@@ -103,7 +103,7 @@ const Games = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-900/40 via-green-800/30 to-green-700/20" style={{ backgroundColor: '#0a4d2e' }}>
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
       <Navigation />
       
       <section className="pt-20 sm:pt-32 pb-12 sm:pb-20 px-4">
