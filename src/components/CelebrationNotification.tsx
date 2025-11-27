@@ -209,6 +209,22 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
                   delay: emoji.delay / 1000,
                   ease: 'linear'
                 }}
+                onAnimationComplete={() => {
+                  // Trigger firework explosion when emoji reaches bottom
+                  confetti({
+                    particleCount: 30,
+                    spread: 70,
+                    origin: { 
+                      x: emoji.x / 100, 
+                      y: 1 
+                    },
+                    colors: ['#FFD700', '#FFA500', '#FF6347', '#FF1493', '#00F2FF', '#8B46FF'],
+                    startVelocity: 45,
+                    gravity: 1.2,
+                    scalar: 1.2,
+                    ticks: 100
+                  });
+                }}
                 className="absolute text-6xl md:text-7xl pointer-events-none"
                 style={{
                   filter: 'drop-shadow(0 0 10px rgba(255,215,0,0.8))',
