@@ -200,8 +200,8 @@ export const FlowerFieldLevelSelector = ({
                     className={cn(
                       "relative flex flex-col items-center justify-center rounded-full transition-all duration-500",
                       "w-[130px] h-[130px] sm:w-[150px] sm:h-[150px]",
-                      selected && unlocked && "bg-gradient-to-br from-pink-400 via-purple-500 to-cyan-400 shadow-[0_0_60px_rgba(236,72,153,0.8),0_0_100px_rgba(168,85,247,0.6),0_15px_40px_rgba(139,70,255,0.7),inset_0_4px_30px_rgba(255,255,255,0.5)] scale-125 animate-pulse",
-                      !selected && unlocked && "bg-gradient-to-br from-pink-300 via-purple-400 to-rose-400 shadow-[0_8px_30px_rgba(236,72,153,0.5),0_0_50px_rgba(219,39,119,0.4),inset_0_3px_15px_rgba(255,255,255,0.4)] hover:shadow-[0_10px_50px_rgba(236,72,153,0.7),0_0_80px_rgba(168,85,247,0.5)]",
+                      unlocked && "bg-gradient-to-br from-pink-400 via-purple-500 to-cyan-400 shadow-[0_8px_35px_rgba(236,72,153,0.6),0_0_60px_rgba(168,85,247,0.5),inset_0_3px_20px_rgba(255,255,255,0.4)] hover:shadow-[0_12px_50px_rgba(236,72,153,0.8),0_0_90px_rgba(168,85,247,0.7)] hover:scale-110",
+                      selected && unlocked && "scale-115 animate-pulse shadow-[0_0_70px_rgba(236,72,153,0.9),0_0_110px_rgba(168,85,247,0.7)]",
                       !unlocked && "bg-gradient-to-br from-gray-300 to-gray-200 cursor-not-allowed opacity-40"
                     )}
                   >
