@@ -152,8 +152,8 @@ export const GameCard = ({ game }: GameCardProps) => {
   };
 
   return (
-    <Card className="group overflow-hidden border-3 border-primary/20 hover:border-primary transition-all duration-500 hover:shadow-[0_25px_60px_rgba(59,130,246,0.5)] animate-fade-in transform hover:-translate-y-4 hover:scale-105 h-full flex flex-col">
-      <div className="relative aspect-video overflow-hidden">
+    <Card className="game-card overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-4 border-primary/20 hover:border-primary/40 group max-w-[320px] mx-auto">
+      <div className="relative overflow-hidden bg-gradient-to-br from-primary/5 to-secondary/5 aspect-video">
         {game.thumbnail_url && !imageError ? (
           <img 
             src={game.thumbnail_url} 
@@ -207,67 +207,71 @@ export const GameCard = ({ game }: GameCardProps) => {
         </div>
       </div>
       
-      <CardContent className="p-6 space-y-4 flex-1 flex flex-col">
-        <h3 className="text-xl font-fredoka font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">
-          {game.title}
-        </h3>
-        <p className="text-muted-foreground text-base font-comic line-clamp-3 leading-relaxed flex-1">
-          {game.description}
+      <CardContent className="p-4 space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="game-title text-lg line-clamp-1 flex-1">
+            {game.title}
+          </h3>
+          <div className="flex gap-1">
+            <button
+              onClick={handleLike}
+              className={`p-2 rounded-full transition-all hover:scale-110 ${
+                liked ? 'bg-primary/20 text-primary' : 'bg-muted hover:bg-muted/80'
+              }`}
+              aria-label={liked ? "Unlike" : "Like"}
+            >
+              <Heart
+                className={`w-5 h-5 ${liked ? 'fill-current' : ''}`}
+              />
+            </button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <button
+                  className="p-2 rounded-full bg-muted hover:bg-muted/80 transition-all hover:scale-110"
+                  aria-label="How to play"
+                >
+                  <Info className="w-5 h-5" />
+                </button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[500px] glass-card">
+                <DialogHeader>
+                  <DialogTitle className="game-title flex items-center gap-2">
+                    <span>Cách Chơi</span>
+                    <span className="text-3xl">{genreEmojis[game.genre as keyof typeof genreEmojis] || '🎮'}</span>
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="py-4">
+                  <p className="description-text">
+                    {game.how_to_play || "Bắt đầu chơi và vui vẻ thôi! 🎮"}
+                  </p>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+
+        <p className="description-text text-sm line-clamp-2 min-h-[2.5rem]">
+          {game.description || "Một trò chơi thú vị đang chờ bé!"}
         </p>
 
-        <div className="flex gap-3 pt-2">
-          <Link to={`/game/${game.id}`} className="flex-1">
-            <Button className="w-full group/btn font-fredoka font-bold text-base py-6 bg-gradient-to-r from-primary to-secondary hover:shadow-xl transition-all rounded-2xl">
-              <span>Play Now!</span>
-              <span className="ml-1">🎮</span>
-              <Play className="ml-2 w-5 h-5 transition-transform group-hover/btn:scale-125" />
+        <div className="flex items-center justify-between pt-2 border-t border-border/50">
+          <div className="flex flex-col gap-1 text-sm">
+            <div className="description-text flex items-center gap-1">
+              <span className="font-bold">Đã chơi {plays} lần!</span>
+            </div>
+            <div className="description-text text-xs">
+              <span>Cố lên nào! ⭐</span>
+            </div>
+          </div>
+          
+          <Link to={`/play/${game.id}`}>
+            <Button 
+              size="sm"
+              className="diamond-btn"
+            >
+              Chơi ngay! 🎮
             </Button>
           </Link>
-
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleLike}
-            className={`border-3 transition-all transform hover:scale-110 w-[56px] h-[56px] rounded-2xl shrink-0 ${
-              liked 
-                ? 'bg-red-500 border-red-500 hover:bg-red-600 hover:border-red-600' 
-                : 'border-primary/30 hover:border-red-500 hover:bg-red-500/10'
-            }`}
-          >
-            <Heart className={`w-6 h-6 ${liked ? 'fill-white text-white' : 'text-red-500'}`} />
-          </Button>
-
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="border-3 border-accent/30 hover:border-accent hover:bg-accent/10 transition-all transform hover:scale-110 w-[56px] h-[56px] rounded-2xl shrink-0"
-              >
-                <Info className="w-6 h-6 text-accent" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="border-4 border-primary/30 max-w-[calc(100vw-2rem)] sm:max-w-2xl mx-4">
-              <DialogHeader>
-                <DialogTitle className="font-fredoka text-xl sm:text-3xl text-primary">
-                  How to Play {game.title} 🎮
-                </DialogTitle>
-                <DialogDescription className="font-comic text-sm sm:text-lg pt-4">
-                  {game.how_to_play ? (
-                    <div className="space-y-2 text-left">
-                      {game.how_to_play.split('\n').map((line, i) => (
-                        <p key={i} className="text-foreground">{line}</p>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground">
-                      Click "Play Now" to start the game and learn as you play! Have fun! 🌟
-                    </p>
-                  )}
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
         </div>
       </CardContent>
     </Card>
