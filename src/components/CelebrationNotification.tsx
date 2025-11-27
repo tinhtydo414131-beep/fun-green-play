@@ -16,8 +16,8 @@ export const CelebrationNotification = ({ amount, token, tokenImage, onComplete,
   const [show, setShow] = useState(true);
   const [showBadge, setShowBadge] = useState(false);
   
-  // Use custom duration or default to 12000ms (for 5 times RICH)
-  const celebrationDuration = customDuration || 12000;
+  // Use custom duration or default to 5000ms (5 seconds)
+  const celebrationDuration = customDuration || 5000;
   const badgeDuration = celebrationDuration * 2;
 
   useEffect(() => {
