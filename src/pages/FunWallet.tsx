@@ -1058,75 +1058,7 @@ export default function FunWallet() {
   };
 
   return (
-    <div 
-      className="min-h-screen relative overflow-hidden pb-20 transition-all duration-1000"
-      style={{
-        background: `linear-gradient(135deg, 
-          #00D4FF 0%,
-          ${selectedNetwork.color}30 20%,
-          #7B2CBF 40%,
-          #E0AAFF 70%,
-          #00D4FF 100%)`
-      }}
-    >
-      {/* Galaxy background with floating particles */}
-      <div className="fixed inset-0 -z-10">
-        <div className="absolute inset-0" style={{
-          background: 'radial-gradient(ellipse at top, rgba(0,212,255,0.3) 0%, rgba(123,44,191,0.5) 50%, rgba(0,0,0,0.9) 100%)',
-        }} />
-
-        {/* Stardust particles */}
-        {[...Array(100)].map((_, i) => (
-          <motion.div
-            key={`stardust-${i}`}
-            className="absolute rounded-full"
-            style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              width: Math.random() * 3 + 1,
-              height: Math.random() * 3 + 1,
-              background: ['#FFD700', '#00FFFF', '#FF00FF', '#FFA500'][Math.floor(Math.random() * 4)],
-              boxShadow: `0 0 ${Math.random() * 20 + 10}px currentColor`
-            }}
-            animate={{
-              opacity: [0, 1, 0],
-              scale: [0, 1.5, 0],
-              y: [0, -50]
-            }}
-            transition={{
-              duration: Math.random() * 4 + 3,
-              repeat: Infinity,
-              delay: Math.random() * 3
-            }}
-          />
-        ))}
-
-        {/* Rainbow twinkling stars */}
-        {[...Array(50)].map((_, i) => (
-          <motion.div
-            key={`star-${i}`}
-            className="absolute rounded-full"
-            style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              width: Math.random() * 2 + 1,
-              height: Math.random() * 2 + 1,
-              background: Math.random() > 0.5 ? '#FFFFFF' : ['#FFD700', '#00FFFF', '#FF00FF'][Math.floor(Math.random() * 3)],
-              boxShadow: '0 0 10px currentColor'
-            }}
-            animate={{
-              opacity: [0, 1, 0],
-              scale: [0, 2, 0]
-            }}
-            transition={{
-              duration: Math.random() * 4 + 2,
-              repeat: Infinity,
-              delay: Math.random() * 3
-            }}
-          />
-        ))}
-      </div>
-
+    <div className="min-h-screen bg-white relative overflow-hidden pb-20">
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-4xl relative z-10">
         {/* User Info & Navigation */}
         <motion.div
@@ -1178,11 +1110,7 @@ export default function FunWallet() {
               onClick={() => navigate(-1)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="w-14 h-14 rounded-full font-bold flex items-center justify-center transition-all duration-300 shadow-2xl border-0"
-              style={{
-                background: 'linear-gradient(135deg, #9B5DE5 0%, #00F5FF 100%)',
-                boxShadow: '0 8px 32px rgba(0, 245, 255, 0.4), 0 4px 16px rgba(155, 93, 229, 0.3)',
-              }}
+              className="w-14 h-14 rounded-full font-bold flex items-center justify-center transition-all duration-300 shadow-2xl border-0 gradient-animated"
             >
               <ArrowLeft className="w-6 h-6 text-white" />
             </motion.button>
@@ -1192,15 +1120,7 @@ export default function FunWallet() {
               onClick={() => navigate("/")}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.95 }}
-              className="flex-1 max-w-md h-14 rounded-[28px] font-bold flex items-center justify-center gap-3 transition-all duration-300 shadow-2xl border-0"
-              style={{
-                background: 'linear-gradient(135deg, #9B5DE5 0%, #00F5FF 100%)',
-                boxShadow: '0 8px 32px rgba(0, 245, 255, 0.4), 0 4px 16px rgba(155, 93, 229, 0.3)',
-                fontSize: '19px',
-                letterSpacing: '0.5px',
-                fontWeight: 700,
-                color: '#FFFFFF'
-              }}
+              className="flex-1 max-w-md h-14 rounded-[28px] font-bold flex items-center justify-center gap-3 transition-all duration-300 shadow-2xl border-0 gradient-animated text-white text-lg"
             >
               <Home className="w-7 h-7 text-white" />
               <span>Về Trang Chủ</span>
@@ -1226,15 +1146,7 @@ export default function FunWallet() {
               }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.95 }}
-              className="w-full max-w-md mx-auto h-14 rounded-xl font-bold flex items-center justify-center gap-3 transition-all duration-300 shadow-2xl border-0"
-              style={{
-                background: 'linear-gradient(135deg, #8B46FF 0%, #00F2FF 100%)',
-                boxShadow: '0 8px 32px rgba(0, 245, 255, 0.4), 0 4px 16px rgba(139, 70, 255, 0.3)',
-                fontSize: '18px',
-                letterSpacing: '0.5px',
-                fontWeight: 700,
-                color: '#FFFFFF'
-              }}
+              className="w-full max-w-md mx-auto h-14 rounded-xl font-bold flex items-center justify-center gap-3 transition-all duration-300 shadow-2xl border-0 gradient-animated text-white text-lg"
             >
               <svg className="w-6 h-6" viewBox="0 0 24 24">
                 <path

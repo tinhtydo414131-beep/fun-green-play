@@ -117,8 +117,8 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#e8f5e9] via-[#fff9e5] to-[#fce4ec] flex items-center justify-center p-4">
-      <Card className="w-full max-w-md border-0 shadow-[0_20px_60px_rgba(0,0,0,0.15)] rounded-3xl bg-background/95 backdrop-blur-sm">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
+      <Card className="w-full max-w-md border-0 shadow-[0_20px_60px_rgba(0,0,0,0.15)] rounded-3xl bg-white backdrop-blur-sm gradient-border">
         <CardHeader className="text-center space-y-2">
           <div className="flex justify-center mb-4">
             <div className="bg-gradient-to-br from-primary to-secondary p-4 rounded-full">
@@ -161,13 +161,7 @@ export default function Auth() {
             <Button
               onClick={openWalletModal}
               disabled={loading}
-              className="w-full text-lg font-bold py-6 border-0 transform hover:scale-[1.02] transition-all duration-300 shadow-lg"
-              style={{
-                background: 'linear-gradient(135deg, #8B46FF 0%, #00F2FF 100%)',
-                color: '#FFFFFF',
-                borderRadius: '12px',
-                boxShadow: '0 4px 16px rgba(139, 70, 255, 0.3)',
-              }}
+              className="w-full text-lg font-bold py-6 border-0 transform hover:scale-[1.02] transition-all duration-300 shadow-lg gradient-animated text-white"
             >
               <Wallet className="w-5 h-5 mr-3" />
               Kết nối ví 🔗
@@ -194,13 +188,7 @@ export default function Auth() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full text-lg font-bold py-6 border-0 transform hover:scale-[1.02] transition-all duration-300 shadow-lg"
-                style={{
-                  background: 'linear-gradient(135deg, #8B46FF 0%, #00F2FF 100%)',
-                  color: '#FFFFFF',
-                  borderRadius: '12px',
-                  boxShadow: '0 4px 16px rgba(139, 70, 255, 0.3)',
-                }}
+                className="w-full text-lg font-bold py-6 border-0 transform hover:scale-[1.02] transition-all duration-300 shadow-lg gradient-animated text-white"
               >
                 {loading ? "Đang xử lý... ⏳" : "Đăng nhập / Đăng ký 🚀"}
               </Button>

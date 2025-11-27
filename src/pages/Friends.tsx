@@ -215,7 +215,7 @@ export default function Friends() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
+    <div className="min-h-screen bg-white">
       <Navigation />
       
       <section className="pt-32 pb-20 px-4">
