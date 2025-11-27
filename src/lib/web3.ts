@@ -2,7 +2,7 @@ import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi';
 import { mainnet, polygon, optimism, arbitrum, bsc } from 'wagmi/chains';
 
 // 1. Get projectId from https://cloud.walletconnect.com
-const projectId = 'f8c84e1e3c6e8d6b3f2a9b1c5d4e3f2a'; // Demo project ID
+const projectId = 'a01e309e8e50a5c1e4cc4f9f05e0d5a1'; // WalletConnect Project ID
 
 // 2. Create wagmiConfig
 const metadata = {
