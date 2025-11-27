@@ -207,19 +207,20 @@ export const GameCard = ({ game }: GameCardProps) => {
         </div>
       </div>
       
-      <CardContent className="p-3 sm:p-6 space-y-2 sm:space-y-4">
-        <h3 className="text-base sm:text-2xl font-fredoka font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+      <CardContent className="p-4 sm:p-6 space-y-3 sm:space-y-4">
+        <h3 className="text-base sm:text-xl font-fredoka font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1 min-h-[24px] sm:min-h-[32px]">
           {game.title}
         </h3>
-        <p className="text-muted-foreground text-xs sm:text-sm font-comic line-clamp-2">
+        <p className="text-muted-foreground text-sm sm:text-base font-comic line-clamp-3 min-h-[60px] sm:min-h-[72px] leading-relaxed">
           {game.description}
         </p>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 sm:gap-3">
           <Link to={`/game/${game.id}`} className="flex-1">
-            <Button className="w-full group/btn font-fredoka font-bold text-xs sm:text-base py-3 sm:py-6 bg-gradient-to-r from-primary to-secondary hover:shadow-lg transition-all rounded-[16px] sm:rounded-2xl">
-              Play Now! 🎮
-              <Play className="ml-1 sm:ml-2 w-3 h-3 sm:w-4 sm:h-4 transition-transform group-hover/btn:scale-125" />
+            <Button className="w-full group/btn font-fredoka font-bold text-sm sm:text-base py-4 sm:py-6 bg-gradient-to-r from-primary to-secondary hover:shadow-lg transition-all rounded-[18px] sm:rounded-2xl h-[48px] sm:h-auto">
+              <span>Play Now!</span>
+              <span className="ml-1">🎮</span>
+              <Play className="ml-1 sm:ml-2 w-4 h-4 transition-transform group-hover/btn:scale-125" />
             </Button>
           </Link>
 
@@ -227,13 +228,13 @@ export const GameCard = ({ game }: GameCardProps) => {
             variant="outline"
             size="icon"
             onClick={handleLike}
-            className={`border-2 sm:border-3 transition-all transform hover:scale-110 w-[40px] h-[40px] sm:min-w-[48px] sm:min-h-[48px] rounded-[12px] sm:rounded-2xl ${
+            className={`border-2 sm:border-3 transition-all transform hover:scale-110 w-[48px] h-[48px] sm:w-[56px] sm:h-[56px] rounded-[14px] sm:rounded-2xl shrink-0 ${
               liked 
                 ? 'bg-red-500 border-red-500 hover:bg-red-600 hover:border-red-600' 
                 : 'border-primary/30 hover:border-red-500 hover:bg-red-500/10'
             }`}
           >
-            <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${liked ? 'fill-white text-white' : 'text-red-500'}`} />
+            <Heart className={`w-5 h-5 sm:w-6 sm:h-6 ${liked ? 'fill-white text-white' : 'text-red-500'}`} />
           </Button>
 
           <Dialog>
@@ -241,9 +242,9 @@ export const GameCard = ({ game }: GameCardProps) => {
               <Button
                 variant="outline"
                 size="icon"
-                className="border-2 sm:border-3 border-accent/30 hover:border-accent hover:bg-accent/10 transition-all transform hover:scale-110 w-[40px] h-[40px] sm:min-w-[48px] sm:min-h-[48px] rounded-[12px] sm:rounded-2xl"
+                className="border-2 sm:border-3 border-accent/30 hover:border-accent hover:bg-accent/10 transition-all transform hover:scale-110 w-[48px] h-[48px] sm:w-[56px] sm:h-[56px] rounded-[14px] sm:rounded-2xl shrink-0"
               >
-                <Info className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
+                <Info className="w-5 h-5 sm:w-6 sm:h-6 text-accent" />
               </Button>
             </DialogTrigger>
             <DialogContent className="border-4 border-primary/30 max-w-[calc(100vw-2rem)] sm:max-w-2xl mx-4">
