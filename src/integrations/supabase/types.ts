@@ -385,6 +385,83 @@ export type Database = {
           },
         ]
       }
+      playlist_items: {
+        Row: {
+          added_at: string | null
+          id: string
+          music_id: string
+          playlist_id: string
+          position: number
+        }
+        Insert: {
+          added_at?: string | null
+          id?: string
+          music_id: string
+          playlist_id: string
+          position?: number
+        }
+        Update: {
+          added_at?: string | null
+          id?: string
+          music_id?: string
+          playlist_id?: string
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playlist_items_music_id_fkey"
+            columns: ["music_id"]
+            isOneToOne: false
+            referencedRelation: "user_music"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "playlist_items_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "playlists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      playlists: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_public: boolean | null
+          name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playlists_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -439,6 +516,7 @@ export type Database = {
           created_at: string
           duration: string | null
           file_size: number | null
+          genre: string | null
           id: string
           storage_path: string
           title: string
@@ -450,6 +528,7 @@ export type Database = {
           created_at?: string
           duration?: string | null
           file_size?: number | null
+          genre?: string | null
           id?: string
           storage_path: string
           title: string
@@ -461,6 +540,7 @@ export type Database = {
           created_at?: string
           duration?: string | null
           file_size?: number | null
+          genre?: string | null
           id?: string
           storage_path?: string
           title?: string
