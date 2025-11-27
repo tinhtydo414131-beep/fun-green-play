@@ -105,6 +105,10 @@ export const Navigation = () => {
                       <User className="mr-2 h-4 w-4" />
                       Dashboard
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/wallet")}>
+                      <Wallet className="mr-2 h-4 w-4" />
+                      Fun Wallet
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate("/settings")}>
                       <Settings className="mr-2 h-4 w-4" />
                       Settings
@@ -157,6 +161,10 @@ export const Navigation = () => {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem onClick={() => navigate("/wallet")}>
+                  <Wallet className="mr-2 h-4 w-4" />
+                  Fun Wallet
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/settings")}>
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
