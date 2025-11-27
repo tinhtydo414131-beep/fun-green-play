@@ -1770,12 +1770,17 @@ export default function FunWallet() {
                             💎 Your Wallet Address
                           </p>
                           <motion.p 
-                            className="font-mono text-base sm:text-lg md:text-xl text-white break-all mb-5 sm:mb-6 leading-relaxed font-bold"
-                            animate={{ opacity: [0.8, 1, 0.8] }}
+                            className="font-mono text-base sm:text-lg md:text-xl break-all mb-5 sm:mb-6 leading-relaxed font-black"
+                            animate={{ scale: [1, 1.02, 1] }}
                             transition={{ duration: 2, repeat: Infinity }}
                             style={{
-                              textShadow: '0 0 20px rgba(0,255,255,0.6), 0 0 10px rgba(255,255,255,0.4)',
-                              letterSpacing: '0.5px'
+                              color: '#000000',
+                              textShadow: '0 0 30px rgba(0,255,255,0.8), 0 2px 4px rgba(0,0,0,0.3)',
+                              letterSpacing: '0.5px',
+                              padding: '16px',
+                              background: 'rgba(255,255,255,0.95)',
+                              borderRadius: '12px',
+                              border: '2px solid rgba(0,255,255,0.6)'
                             }}
                           >
                             {account}
