@@ -148,31 +148,18 @@ export const GamesShowcase = () => {
 
                   {/* Diamond Play Button */}
                   <motion.button
-                    onClick={() => navigate(`/game/${game.gameId}`)}
-                    className="w-full relative overflow-hidden rounded-full bg-gradient-to-r from-magic-gold via-magic-purple to-magic-cyan p-[3px] group/btn"
-                    whileHover={{ scale: 1.05 }}
+                    onClick={() => navigate(`/play/${game.id}`)}
+                    whileHover={{ scale: 1.08 }}
                     whileTap={{ scale: 0.95 }}
+                    className="relative w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#6B46C1] via-[#9F7AEA] via-[#00D4FF] via-[#4FD1C7] via-[#3B82F6] to-[#00D4FF] shadow-[0_12px_40px_rgba(0,212,255,0.4),0_0_60px_rgba(107,70,193,0.3),inset_0_4px_12px_rgba(255,255,255,0.3)] border-[3px] border-[rgba(0,212,255,0.8)] group transition-all duration-300 hover:shadow-[0_20px_60px_rgba(0,212,255,0.6),0_0_80px_rgba(107,70,193,0.5),0_0_40px_rgba(255,255,255,0.8)]"
                   >
-                    <div className="relative bg-gradient-to-r from-magic-gold to-magic-purple rounded-full px-8 py-4 flex items-center justify-center gap-3 group-hover/btn:from-magic-purple group-hover/btn:to-magic-cyan transition-all duration-300">
-                      <Rocket className="w-6 h-6 text-white group-hover/btn:rotate-12 transition-transform" />
-                      <span className="text-xl font-poppins font-bold text-white drop-shadow-lg">
+                    <div className="relative px-8 py-4 flex items-center justify-center gap-3">
+                      <Rocket className="w-6 h-6 text-white group-hover:rotate-12 transition-transform drop-shadow-lg" />
+                      <span className="text-xl font-poppins font-black text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
                         Chơi ngay!
                       </span>
-                      <Sparkles className="w-6 h-6 text-white animate-pulse" />
+                      <Sparkles className="w-6 h-6 text-white animate-pulse drop-shadow-lg" />
                     </div>
-                    
-                    {/* Glow Effect */}
-                    <motion.div
-                      className="absolute inset-0 rounded-full bg-magic-gold/50 blur-xl"
-                      animate={{
-                        scale: [1, 1.2, 1],
-                        opacity: [0.5, 0.8, 0.5],
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                      }}
-                    />
                   </motion.button>
                 </div>
               </Card>

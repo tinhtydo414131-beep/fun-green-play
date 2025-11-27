@@ -433,9 +433,9 @@ export const FlowerFieldLevelSelector = ({
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <Card 
-            className="relative p-10 sm:p-12 border-4 border-white/40 bg-white/10 backdrop-blur-2xl rounded-[60px] shadow-[0_20px_80px_rgba(255,105,180,0.3),0_0_100px_rgba(147,51,234,0.2),inset_0_2px_40px_rgba(255,255,255,0.4)]"
+            className="relative p-10 sm:p-12 border-4 border-white/40 bg-white/20 backdrop-blur-xl rounded-[60px] shadow-[0_20px_80px_rgba(0,212,255,0.4),0_0_100px_rgba(107,70,193,0.3),inset_0_2px_40px_rgba(255,255,255,0.4)]"
             style={{
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,192,203,0.2) 50%, rgba(218,112,214,0.15) 100%)',
+              background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(107,70,193,0.15) 50%, rgba(0,212,255,0.2) 100%)',
             }}
           >
             {/* Falling flowers decoration - from title */}
@@ -520,12 +520,12 @@ export const FlowerFieldLevelSelector = ({
                     }}
                     whileTap={unlocked ? { scale: 0.95 } : {}}
                     className={cn(
-                      "relative flex flex-col items-center justify-center rounded-full transition-all duration-500 group",
+                      "relative flex flex-col items-center justify-center rounded-2xl transition-all duration-500 group",
                       "w-[130px] h-[130px] sm:w-[150px] sm:h-[150px]",
-                      "border-4 border-white/30",
-                      unlocked && "bg-gradient-to-br from-pink-300 via-fuchsia-400 to-cyan-300 shadow-[0_8px_35px_rgba(236,72,153,0.7),0_0_60px_rgba(168,85,247,0.6),inset_0_3px_20px_rgba(255,255,255,0.6)] hover:shadow-[0_15px_60px_rgba(236,72,153,1),0_0_100px_rgba(168,85,247,0.9),0_0_40px_rgba(255,255,255,0.8)] hover:scale-110 hover:border-white/60",
-                      selected && unlocked && "scale-115 animate-pulse shadow-[0_0_80px_rgba(236,72,153,1),0_0_120px_rgba(168,85,247,0.9)]",
-                      !unlocked && "bg-gradient-to-br from-gray-300 to-gray-200 cursor-not-allowed opacity-40"
+                      "border-[3px]",
+                      unlocked && "bg-gradient-to-br from-[#6B46C1] via-[#9F7AEA] via-[#00D4FF] via-[#4FD1C7] via-[#3B82F6] to-[#00D4FF] border-[rgba(0,212,255,0.8)] shadow-[0_12px_40px_rgba(0,212,255,0.4),0_0_60px_rgba(107,70,193,0.3),inset_0_4px_12px_rgba(255,255,255,0.3)] hover:shadow-[0_20px_60px_rgba(0,212,255,0.6),0_0_80px_rgba(107,70,193,0.5),0_0_40px_rgba(255,255,255,0.8)] hover:scale-110 hover:border-white/80",
+                      selected && unlocked && "scale-115 shadow-[0_20px_60px_rgba(0,212,255,0.6),0_0_80px_rgba(107,70,193,0.5)] ring-4 ring-yellow-300",
+                      !unlocked && "bg-gray-400/50 border-gray-500/50 cursor-not-allowed opacity-40"
                     )}
                   >
 
@@ -718,7 +718,7 @@ export const FlowerFieldLevelSelector = ({
                 <Button
                   onClick={onStartGame}
                   size="lg"
-                  className="w-full sm:w-auto font-fredoka font-black text-3xl sm:text-4xl px-16 sm:px-20 py-10 sm:py-12 bg-gradient-to-r from-pink-400 via-fuchsia-400 to-cyan-300 hover:from-pink-500 hover:via-fuchsia-500 hover:to-cyan-400 shadow-[0_10px_40px_rgba(236,72,153,0.8),0_0_60px_rgba(168,85,247,0.7)] hover:shadow-[0_15px_60px_rgba(236,72,153,1),0_0_100px_rgba(168,85,247,0.9)] transform transition-all duration-300 rounded-[40px] border-4 border-white/50 text-white"
+                  className="w-full sm:w-auto font-poppins font-black text-3xl sm:text-4xl px-16 sm:px-20 py-10 sm:py-12 bg-gradient-to-br from-[#6B46C1] via-[#9F7AEA] via-[#00D4FF] via-[#4FD1C7] via-[#3B82F6] to-[#00D4FF] shadow-[0_12px_40px_rgba(0,212,255,0.4),0_0_60px_rgba(107,70,193,0.3),inset_0_4px_12px_rgba(255,255,255,0.3)] hover:shadow-[0_20px_60px_rgba(0,212,255,0.6),0_0_80px_rgba(107,70,193,0.5),0_0_40px_rgba(255,255,255,0.8)] transform transition-all duration-300 rounded-2xl border-[3px] border-[rgba(0,212,255,0.8)] text-white"
                 >
                   <motion.span
                     animate={{ rotate: [0, 10, -10, 0] }}
