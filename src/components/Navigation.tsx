@@ -1,4 +1,4 @@
-import { Gamepad2, User, LogOut, Trophy, Users, MessageCircle, Wallet } from "lucide-react";
+import { Gamepad2, User, LogOut, Trophy, Users, MessageCircle, Wallet, Music } from "lucide-react";
 import { NavLink } from "./NavLink";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -92,6 +92,10 @@ export const Navigation = () => {
                     <Wallet className="mr-2 h-5 w-5 text-yellow-500" />
                     <span>FUN Wallet 💰</span>
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/music")} className="font-fredoka cursor-pointer hover:bg-purple-500/10">
+                    <Music className="mr-2 h-5 w-5 text-purple-500" />
+                    <span>Music Library 🎵</span>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-primary/20" />
                   <DropdownMenuItem onClick={handleSignOut} className="font-fredoka cursor-pointer hover:bg-destructive/10 text-destructive">
                     <LogOut className="mr-2 h-5 w-5" />
@@ -149,6 +153,10 @@ export const Navigation = () => {
                   <DropdownMenuItem onClick={() => navigate("/wallet")} className="font-fredoka cursor-pointer hover:bg-yellow-500/10">
                     <Wallet className="mr-2 h-5 w-5 text-yellow-500" />
                     <span>FUN Wallet 💰</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/music")} className="font-fredoka cursor-pointer hover:bg-purple-500/10">
+                    <Music className="mr-2 h-5 w-5 text-purple-500" />
+                    <span>Music Library 🎵</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-primary/20" />
                   <DropdownMenuItem onClick={handleSignOut} className="font-fredoka cursor-pointer hover:bg-destructive/10 text-destructive">
