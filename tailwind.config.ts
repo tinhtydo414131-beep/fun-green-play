@@ -201,7 +201,7 @@ export default {
         "sparkle": "sparkle 3s ease-in-out infinite",
         "pulse-glow": "pulse-glow 3s ease-in-out infinite",
         "neon-pulse": "neon-pulse 2s ease-in-out infinite",
-        "golden-shimmer": "golden-shimmer 3s ease-in-out infinite",
+        "golden-shimmer": "golden-shimmer 8s ease-in-out infinite",
       },
     },
   },
