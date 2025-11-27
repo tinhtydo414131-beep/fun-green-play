@@ -1,15 +1,13 @@
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Search, Sparkles, Wallet } from "lucide-react";
+import { Search, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
 import camlyCoin from "@/assets/camly-coin.png";
 
 export const Hero = () => {
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
-  const { user } = useAuth();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,17 +76,6 @@ export const Hero = () => {
           </form>
 
           <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 pt-4 px-4">
-            {/* Hide MetaMask button on mobile - only show on desktop */}
-            {!user && (
-              <Button
-                onClick={() => navigate("/auth")}
-                size="lg"
-                className="hidden md:flex font-fredoka font-bold text-2xl px-12 py-10 gradient-animated text-white border-0 shadow-2xl transform hover:scale-110 transition-all rainbow-glow relative overflow-hidden"
-              >
-                <Wallet className="w-8 h-8 mr-3 animate-pulse" />
-                <span className="relative z-10">Kết nối ví MetaMask 🦊✨</span>
-              </Button>
-            )}
             <Button
               onClick={() => navigate("/games")}
               size="lg"
