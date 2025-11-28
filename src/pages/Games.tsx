@@ -339,7 +339,7 @@ const Games = () => {
                             </div>
                             
                             <Button
-                              onClick={() => window.location.href = `/play/${featuredGame.id}`}
+                              onClick={() => window.location.href = `/game/${featuredGame.id}`}
                               className="w-full font-fredoka font-bold text-lg py-6 bg-gradient-to-r from-primary via-secondary to-accent text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all rounded-2xl group"
                             >
                               <span className="mr-2">Play Now!</span>
