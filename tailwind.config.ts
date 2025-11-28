@@ -14,12 +14,16 @@ export default {
     },
     extend: {
       fontFamily: {
+        'poppins': ['Poppins', 'sans-serif'],
+        'quicksand': ['Quicksand', 'sans-serif'],
+        'pacifico': ['Pacifico', 'cursive'],
+        'righteous': ['Righteous', 'sans-serif'],
         'space': ['Space Grotesk', 'sans-serif'],
         'rajdhani': ['Rajdhani', 'sans-serif'],
         'orbitron': ['Orbitron', 'sans-serif'],
         'fredoka': ['Fredoka', 'sans-serif'],
         'comic': ['Comic Neue', 'cursive'],
-        'sans': ['Space Grotesk', 'Rajdhani', 'sans-serif'],
+        'sans': ['Poppins', 'Quicksand', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -31,6 +35,7 @@ export default {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
           light: "hsl(var(--primary-light))",
+          glow: "hsl(var(--primary-glow))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -57,6 +62,18 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         success: "hsl(var(--success))",
+        golden: {
+          50: "hsl(45, 100%, 98%)",
+          100: "hsl(45, 100%, 95%)",
+          200: "hsl(45, 100%, 85%)",
+          300: "hsl(45, 100%, 75%)",
+          400: "hsl(45, 100%, 65%)",
+          500: "hsl(45, 100%, 51%)",
+          600: "hsl(38, 100%, 55%)",
+          700: "hsl(38, 100%, 45%)",
+          800: "hsl(30, 100%, 40%)",
+          900: "hsl(30, 100%, 30%)",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -220,6 +237,40 @@ export default {
             backgroundPosition: "100% 50%",
           },
         },
+        "holographic-shift": {
+          "0%, 100%": {
+            backgroundPosition: "0% 50%",
+            filter: "hue-rotate(0deg)",
+          },
+          "33%": {
+            backgroundPosition: "50% 100%",
+            filter: "hue-rotate(120deg)",
+          },
+          "66%": {
+            backgroundPosition: "100% 50%",
+            filter: "hue-rotate(240deg)",
+          },
+        },
+        "particle-float": {
+          "0%, 100%": {
+            transform: "translate(0, 0) scale(1)",
+            opacity: "0.6",
+          },
+          "50%": {
+            transform: "translate(20px, -30px) scale(1.2)",
+            opacity: "1",
+          },
+        },
+        "depth-pulse": {
+          "0%, 100%": {
+            boxShadow: "0 4px 6px hsla(38, 80%, 10%, 0.1), 0 4px 16px hsla(45, 100%, 51%, 0.25)",
+            transform: "translateZ(0)",
+          },
+          "50%": {
+            boxShadow: "0 20px 25px hsla(38, 80%, 10%, 0.15), 0 8px 32px hsla(45, 100%, 51%, 0.3)",
+            transform: "translateZ(10px)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -237,6 +288,27 @@ export default {
         "golden-shimmer": "golden-shimmer 12s ease-in-out infinite",
         "diamond-light": "diamond-light 15s ease-in-out infinite",
         "gradient-shift": "gradient-shift 4s ease-in-out infinite",
+        "holographic-shift": "holographic-shift 6s ease-in-out infinite",
+        "particle-float": "particle-float 6s ease-in-out infinite",
+        "depth-pulse": "depth-pulse 3s ease-in-out infinite",
+      },
+      backgroundImage: {
+        "gradient-golden": "linear-gradient(135deg, hsl(45, 100%, 51%) 0%, hsl(38, 100%, 55%) 50%, hsl(30, 100%, 55%) 100%)",
+        "gradient-sunrise": "linear-gradient(180deg, hsl(45, 100%, 65%) 0%, hsl(30, 100%, 60%) 50%, hsl(345, 75%, 65%) 100%)",
+        "gradient-celebration": "linear-gradient(135deg, hsl(45, 100%, 60%) 0%, hsl(280, 100%, 70%) 50%, hsl(190, 100%, 60%) 100%)",
+        "gradient-holographic": "linear-gradient(135deg, hsl(45, 100%, 70%), hsl(280, 100%, 75%), hsl(190, 100%, 70%), hsl(345, 75%, 70%))",
+        "gradient-depth": "linear-gradient(160deg, hsl(45, 100%, 95%) 0%, hsl(45, 100%, 75%) 50%, hsl(38, 100%, 55%) 100%)",
+      },
+      boxShadow: {
+        "glow-sm": "0 2px 8px hsla(45, 100%, 51%, 0.2)",
+        "glow-md": "0 4px 16px hsla(45, 100%, 51%, 0.25), 0 2px 8px hsla(45, 100%, 51%, 0.15)",
+        "glow-lg": "0 8px 32px hsla(45, 100%, 51%, 0.3), 0 4px 16px hsla(45, 100%, 51%, 0.2)",
+        "glow-xl": "0 16px 48px hsla(45, 100%, 51%, 0.35), 0 8px 24px hsla(45, 100%, 51%, 0.25)",
+        "depth-1": "0 1px 3px hsla(38, 80%, 10%, 0.12), 0 1px 2px hsla(38, 80%, 10%, 0.08)",
+        "depth-2": "0 4px 6px hsla(38, 80%, 10%, 0.1), 0 2px 4px hsla(38, 80%, 10%, 0.06)",
+        "depth-3": "0 10px 15px hsla(38, 80%, 10%, 0.12), 0 4px 6px hsla(38, 80%, 10%, 0.08)",
+        "depth-4": "0 20px 25px hsla(38, 80%, 10%, 0.15), 0 10px 10px hsla(38, 80%, 10%, 0.1)",
+        "depth-5": "0 25px 50px hsla(38, 80%, 10%, 0.2), 0 15px 20px hsla(38, 80%, 10%, 0.15)",
       },
     },
   },
