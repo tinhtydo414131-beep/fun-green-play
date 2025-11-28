@@ -168,8 +168,6 @@ const GamePlay = () => {
   };
 
   const renderGame = () => {
-    if (!game) return null;
-
     const levelConfig = getLevelConfig(currentLevel);
     const gameProps = {
       level: currentLevel,
@@ -178,8 +176,11 @@ const GamePlay = () => {
       onBack: handleBackToLevelSelect,
     };
 
+    // Support both database games and direct gameId routing
+    const componentKey = game?.component_name || gameId;
+
     // Map component_name from database to actual components
-    switch (game.component_name) {
+    switch (componentKey) {
       // Casual & Happy Games
       case "MemoryCards": return <MemoryCards {...gameProps} />;
       case "ColorMatch": return <ColorMatch {...gameProps} />;
@@ -212,9 +213,15 @@ const GamePlay = () => {
       case "Platformer": return <Platformer {...gameProps} />;
       case "Racing": return <Racing {...gameProps} />;
       case "LilBlockBuddy": return <LilBlockBuddy {...gameProps} />;
-      case "Game2048Nexus": return <Game2048Nexus {...gameProps} />;
-      case "HappyKitchenJoy": return <HappyKitchenJoy onBack={handleBackToLevelSelect} />;
-      case "CookingMama": return <CookingMama />;
+      case "Game2048Nexus": 
+      case "2048-nexus":
+        return <Game2048Nexus {...gameProps} />;
+      case "HappyKitchenJoy": 
+      case "happy-kitchen-joy":
+        return <HappyKitchenJoy onBack={handleBackToLevelSelect} />;
+      case "CookingMama":
+      case "cooking-mama":
+        return <CookingMama />;
       
       default:
         return (
@@ -239,7 +246,10 @@ const GamePlay = () => {
     );
   }
 
-  if (!game) {
+  // Allow playing games that aren't in database yet (like Cooking Mama)
+  const isDirectGame = gameId === 'cooking-mama' || gameId === 'happy-kitchen-joy';
+  
+  if (!game && !isDirectGame) {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
@@ -278,18 +288,20 @@ const GamePlay = () => {
           <div className="bg-background/80 backdrop-blur-lg rounded-3xl border-4 border-primary/30 shadow-2xl p-8 space-y-6 animate-scale-in">
             <div className="text-center space-y-2">
               <h1 className="text-4xl md:text-5xl font-fredoka font-bold text-primary">
-                {game.title} 🎮
+                {game?.title || (gameId === 'cooking-mama' ? 'Cooking Mama' : 'Game')} 🎮
               </h1>
               <p className="text-lg font-comic text-muted-foreground max-w-2xl mx-auto">
-                {game.description}
+                {game?.description || (gameId === 'cooking-mama' ? 'Master recipes with timing and precision mini-games!' : '')}
               </p>
-              <p className="text-sm font-comic text-muted-foreground">
-                🎯 Played {game.total_plays} times! Keep it up! 🌟
-              </p>
+              {game && (
+                <p className="text-sm font-comic text-muted-foreground">
+                  🎯 Played {game.total_plays} times! Keep it up! 🌟
+                </p>
+              )}
             </div>
 
             <div className="w-full">
-              {showLevelSelector && !gameStarted && game.component_name !== "HappyKitchenJoy" && game.component_name !== "CookingMama" ? (
+              {showLevelSelector && !gameStarted && game?.component_name !== "HappyKitchenJoy" && game?.component_name !== "CookingMama" && !isDirectGame ? (
                 game.component_name === "FlowerField" ? (
                   <FlowerFieldLevelSelector
                     highestLevelCompleted={highestLevelCompleted}
