@@ -72,7 +72,15 @@ export const Hero = () => {
           loop
           muted
           playsInline
+          preload="auto"
+          disablePictureInPicture
+          disableRemotePlayback
+          webkit-playsinline="true"
           className="absolute inset-0 w-full h-full object-cover"
+          onLoadedData={(e) => {
+            const video = e.target as HTMLVideoElement;
+            video.play().catch(err => console.log("Video autoplay failed:", err));
+          }}
         >
           <source src={backgroundVideoUrl} type="video/mp4" />
         </video>
