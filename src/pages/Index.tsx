@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Gamepad2, Trophy, Users, Sparkles, Shield, Gift } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { motion } from "framer-motion";
 import camlyCoin from "@/assets/camly-coin.png";
 import categoryAdventure from "@/assets/category-adventure.png";
 import categoryPuzzle from "@/assets/category-puzzle.png";
@@ -82,8 +83,27 @@ const Index = () => {
     { name: "Educational 📚", count: 2, color: "bg-gradient-to-br from-primary to-pink-500", image: categoryEducational },
   ];
 
+  const pageVariants = {
+    initial: { opacity: 0, scale: 0.98 },
+    animate: { opacity: 1, scale: 1 },
+    exit: { opacity: 0, scale: 1.02 }
+  };
+
+  const pageTransition = {
+    type: "tween" as const,
+    ease: "anticipate" as const,
+    duration: 0.5
+  };
+
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden pb-safe">
+    <motion.div 
+      className="min-h-screen bg-white relative overflow-hidden pb-safe"
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      variants={pageVariants}
+      transition={pageTransition}
+    >
       <Navigation />
       <Hero />
       
@@ -230,7 +250,7 @@ const Index = () => {
         </div>
       </footer>
       <JoyBot />
-    </div>
+    </motion.div>
   );
 };
 

@@ -41,8 +41,27 @@ const Home = () => {
     }
   };
 
+  const pageVariants = {
+    initial: { opacity: 0, x: -100 },
+    animate: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: 100 }
+  };
+
+  const pageTransition = {
+    type: "spring" as const,
+    stiffness: 100,
+    damping: 20
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5 pb-safe">
+    <motion.div 
+      className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5 pb-safe"
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      variants={pageVariants}
+      transition={pageTransition}
+    >
       <Navigation />
       
       {/* Hero Section with Honor Board */}
@@ -274,7 +293,7 @@ const Home = () => {
       </section>
 
       <JoyBot />
-    </div>
+    </motion.div>
   );
 };
 
