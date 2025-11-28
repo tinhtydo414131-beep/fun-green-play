@@ -104,7 +104,7 @@ const Index = () => {
       variants={pageVariants}
       transition={pageTransition}
     >
-      {/* Video Background */}
+      {/* Video Background - Full Page */}
       <video
         autoPlay
         loop
@@ -115,7 +115,7 @@ const Index = () => {
         <source src="/videos/homepage-bg.mp4" type="video/mp4" />
       </video>
       {/* Overlay for better content readability */}
-      <div className="fixed inset-0 bg-black/30 -z-10" />
+      <div className="fixed inset-0 bg-black/20 -z-10" />
       
       <Navigation />
       <Hero />
@@ -165,7 +165,7 @@ const Index = () => {
       </section>
 
       {/* Categories Section */}
-      <section className="py-20 px-4 bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5">
+      <section className="py-20 px-4">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-16 space-y-4">
             <h2 className="text-4xl md:text-5xl font-fredoka font-bold text-primary">
@@ -237,7 +237,7 @@ const Index = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gradient-to-r from-primary/10 to-secondary/10 border-t-4 border-primary/60 py-12 px-4">
+      <footer className="border-t-4 border-primary/60 py-12 px-4 bg-black/20 backdrop-blur-sm">
         <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
             <div>
