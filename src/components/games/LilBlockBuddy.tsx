@@ -117,13 +117,17 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
     }
   };
 
-  // Màu sắc cho tiles
+  // Màu sắc cho tiles - Pastel dịu mắt
   const getTileColor = (num: number): string => {
     const colors = [
-      "from-primary to-primary-dark",
-      "from-accent to-purple-400",
-      "from-glow to-pink-400",
-      "from-primary-light to-accent",
+      "from-cyan-300 to-blue-300",      // Xanh dương nhạt
+      "from-pink-300 to-rose-300",      // Hồng nhạt
+      "from-purple-300 to-indigo-300",  // Tím nhạt
+      "from-amber-300 to-orange-300",   // Vàng cam nhạt
+      "from-emerald-300 to-teal-300",   // Xanh lá nhạt
+      "from-violet-300 to-fuchsia-300", // Tím hoa cà nhạt
+      "from-lime-300 to-green-300",     // Xanh lá cây nhạt
+      "from-sky-300 to-cyan-300",       // Xanh trời nhạt
     ];
     return colors[num % colors.length];
   };
