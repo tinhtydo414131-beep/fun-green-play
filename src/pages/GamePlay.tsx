@@ -49,6 +49,11 @@ import { PetCare } from "@/components/games/PetCare";
 import { FarmBuilder } from "@/components/games/FarmBuilder";
 import { SpaceStation } from "@/components/games/SpaceStation";
 import { ZooKeeper } from "@/components/games/ZooKeeper";
+import { HospitalManager } from "@/components/games/HospitalManager";
+import { CinemaBoss } from "@/components/games/CinemaBoss";
+import { LibraryKeeper } from "@/components/games/LibraryKeeper";
+import { RestaurantChef } from "@/components/games/RestaurantChef";
+import { ThemeParkBuilder } from "@/components/games/ThemeParkBuilder";
 
 interface Game {
   id: string;
@@ -244,6 +249,21 @@ const GamePlay = () => {
       case "ZooKeeper":
       case "zoo-keeper":
         return <ZooKeeper {...gameProps} />;
+      case "HospitalManager":
+      case "hospital-manager":
+        return <HospitalManager {...gameProps} />;
+      case "CinemaBoss":
+      case "cinema-boss":
+        return <CinemaBoss {...gameProps} />;
+      case "LibraryKeeper":
+      case "library-keeper":
+        return <LibraryKeeper {...gameProps} />;
+      case "RestaurantChef":
+      case "restaurant-chef":
+        return <RestaurantChef {...gameProps} />;
+      case "ThemeParkBuilder":
+      case "theme-park-builder":
+        return <ThemeParkBuilder {...gameProps} />;
       
       // Exploration & Adventure Games
       case "SpaceExplorer": return <SpaceExplorer {...gameProps} />;
@@ -298,7 +318,12 @@ const GamePlay = () => {
                        gameId === 'pet-care' ||
                        gameId === 'farm-builder' ||
                        gameId === 'space-station' ||
-                       gameId === 'zoo-keeper';
+                       gameId === 'zoo-keeper' ||
+                       gameId === 'hospital-manager' ||
+                       gameId === 'cinema-boss' ||
+                       gameId === 'library-keeper' ||
+                       gameId === 'restaurant-chef' ||
+                       gameId === 'theme-park-builder';
   
   if (!game && !isDirectGame) {
     return (
