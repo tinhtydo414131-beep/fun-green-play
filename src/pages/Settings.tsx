@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Save, Loader2, Lock, LogOut, Trash2, Key, Mail, User as UserIcon } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Lock, LogOut, Trash2, Key, Mail, User as UserIcon, Video, Upload, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { AvatarUpload } from "@/components/AvatarUpload";
 import { z } from "zod";
@@ -44,6 +44,16 @@ interface ProfileData {
   created_at: string;
 }
 
+interface BackgroundVideo {
+  id: string;
+  title: string;
+  storage_path: string;
+  file_size: number | null;
+  duration: string | null;
+  is_active: boolean;
+  created_at: string;
+}
+
 export default function Settings() {
   const { user, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
@@ -62,6 +72,9 @@ export default function Settings() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [passwordErrors, setPasswordErrors] = useState<Record<string, string>>({});
   const [changingPassword, setChangingPassword] = useState(false);
+  const [backgroundVideos, setBackgroundVideos] = useState<BackgroundVideo[]>([]);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -72,6 +85,7 @@ export default function Settings() {
   useEffect(() => {
     if (user) {
       fetchProfile();
+      fetchBackgroundVideos();
     }
   }, [user]);
 
@@ -208,6 +222,128 @@ export default function Settings() {
       navigate("/auth");
     } catch (error) {
       toast.error("Có lỗi khi đăng xuất!");
+    }
+  };
+
+  const fetchBackgroundVideos = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("user_background_videos")
+        .select("*")
+        .eq("user_id", user?.id)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setBackgroundVideos(data || []);
+    } catch (error: any) {
+      console.error("Error fetching videos:", error);
+    }
+  };
+
+  const handleVideoUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!videoFile) {
+      toast.error("Vui lòng chọn file video!");
+      return;
+    }
+
+    // Validate file size (50MB limit)
+    if (videoFile.size > 52428800) {
+      toast.error("File quá lớn! Giới hạn 50MB.");
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = ['video/mp4', 'video/webm', 'video/quicktime'];
+    if (!allowedTypes.includes(videoFile.type)) {
+      toast.error("Định dạng không hỗ trợ! Chỉ hỗ trợ MP4, WebM, MOV.");
+      return;
+    }
+
+    setUploadingVideo(true);
+
+    try {
+      // Upload to storage
+      const fileExt = videoFile.name.split('.').pop();
+      const fileName = `${user?.id}/${Date.now()}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from("background-videos")
+        .upload(fileName, videoFile);
+
+      if (uploadError) throw uploadError;
+
+      // Save metadata to database
+      const { error: dbError } = await supabase
+        .from("user_background_videos")
+        .insert({
+          user_id: user?.id,
+          title: videoFile.name,
+          storage_path: fileName,
+          file_size: videoFile.size,
+          is_active: backgroundVideos.length === 0, // First video is active by default
+        });
+
+      if (dbError) throw dbError;
+
+      toast.success("✅ Đã tải lên video thành công!");
+      setVideoFile(null);
+      await fetchBackgroundVideos();
+    } catch (error: any) {
+      console.error("Error uploading video:", error);
+      toast.error(error.message || "Không thể tải lên video!");
+    } finally {
+      setUploadingVideo(false);
+    }
+  };
+
+  const handleSetActiveVideo = async (videoId: string) => {
+    try {
+      // Deactivate all videos
+      await supabase
+        .from("user_background_videos")
+        .update({ is_active: false })
+        .eq("user_id", user?.id);
+
+      // Activate selected video
+      const { error } = await supabase
+        .from("user_background_videos")
+        .update({ is_active: true })
+        .eq("id", videoId);
+
+      if (error) throw error;
+
+      toast.success("✅ Đã đặt video làm nền!");
+      await fetchBackgroundVideos();
+    } catch (error: any) {
+      console.error("Error setting active video:", error);
+      toast.error("Không thể đặt video làm nền!");
+    }
+  };
+
+  const handleDeleteVideo = async (videoId: string, storagePath: string) => {
+    try {
+      // Delete from storage
+      const { error: storageError } = await supabase.storage
+        .from("background-videos")
+        .remove([storagePath]);
+
+      if (storageError) throw storageError;
+
+      // Delete from database
+      const { error: dbError } = await supabase
+        .from("user_background_videos")
+        .delete()
+        .eq("id", videoId);
+
+      if (dbError) throw dbError;
+
+      toast.success("✅ Đã xóa video!");
+      await fetchBackgroundVideos();
+    } catch (error: any) {
+      console.error("Error deleting video:", error);
+      toast.error("Không thể xóa video!");
     }
   };
 
@@ -461,6 +597,155 @@ export default function Settings() {
                   )}
                 </Button>
               </form>
+            </CardContent>
+          </Card>
+
+          {/* Background Videos Card */}
+          <Card className="border-4 border-primary/30 shadow-2xl mt-6">
+            <CardHeader className="text-center space-y-2 pb-6">
+              <CardTitle className="text-3xl font-fredoka text-primary flex items-center justify-center gap-2">
+                <Video className="w-8 h-8" />
+                Video Nền Trang Chủ 🎬
+              </CardTitle>
+              <CardDescription className="text-base font-comic">
+                Tải lên và quản lý video nền tùy chỉnh của bạn
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-6 px-6 pb-8">
+              {/* Upload Form */}
+              <form onSubmit={handleVideoUpload} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="videoFile" className="text-base font-fredoka text-foreground">
+                    Chọn video 📁
+                  </Label>
+                  <div className="flex gap-3">
+                    <Input
+                      id="videoFile"
+                      type="file"
+                      accept="video/mp4,video/webm,video/quicktime"
+                      onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                      className="border-4 border-primary/40 focus:border-primary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                    />
+                    <Button
+                      type="submit"
+                      disabled={uploadingVideo || !videoFile}
+                      className="font-fredoka font-bold bg-gradient-to-r from-primary to-accent shrink-0"
+                    >
+                      {uploadingVideo ? (
+                        <>
+                          <Loader2 className="mr-2 w-4 h-4 animate-spin" />
+                          Đang tải...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="mr-2 w-4 h-4" />
+                          Tải lên
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground font-comic">
+                    Định dạng: MP4, WebM, MOV | Giới hạn: 50MB
+                  </p>
+                </div>
+              </form>
+
+              <Separator />
+
+              {/* Video List */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-fredoka font-bold text-foreground">
+                  Video của bạn ({backgroundVideos.length})
+                </h3>
+                
+                {backgroundVideos.length === 0 ? (
+                  <div className="p-8 text-center border-2 border-dashed border-primary/30 rounded-xl">
+                    <Video className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
+                    <p className="font-comic text-muted-foreground">
+                      Chưa có video nào. Tải lên video đầu tiên của bạn! 🎥
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {backgroundVideos.map((video) => (
+                      <Card key={video.id} className={`border-2 ${video.is_active ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between gap-4">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="font-fredoka font-bold text-foreground truncate">
+                                  {video.title}
+                                </p>
+                                {video.is_active && (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary text-primary-foreground text-xs font-comic rounded-full shrink-0">
+                                    <Check className="w-3 h-3" />
+                                    Đang dùng
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex gap-3 text-xs text-muted-foreground font-comic">
+                                <span>📦 {((video.file_size || 0) / 1024 / 1024).toFixed(2)} MB</span>
+                                {video.duration && <span>⏱️ {video.duration}</span>}
+                              </div>
+                            </div>
+                            
+                            <div className="flex gap-2 shrink-0">
+                              {!video.is_active && (
+                                <Button
+                                  onClick={() => handleSetActiveVideo(video.id)}
+                                  size="sm"
+                                  variant="outline"
+                                  className="font-comic border-primary/50 text-primary hover:bg-primary/10"
+                                >
+                                  <Check className="w-4 h-4 mr-1" />
+                                  Đặt làm nền
+                                </Button>
+                              )}
+                              
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="font-comic border-destructive/50 text-destructive hover:bg-destructive/10"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle className="font-fredoka text-2xl">Xóa video?</AlertDialogTitle>
+                                    <AlertDialogDescription className="font-comic text-base">
+                                      Bạn có chắc muốn xóa video "{video.title}"? Hành động này không thể hoàn tác.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel className="font-fredoka">Hủy</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      className="font-fredoka bg-destructive hover:bg-destructive/90"
+                                      onClick={() => handleDeleteVideo(video.id, video.storage_path)}
+                                    >
+                                      Xóa
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Info Box */}
+              <div className="p-4 bg-primary/5 border-2 border-primary/20 rounded-xl">
+                <p className="text-sm font-comic text-muted-foreground text-center">
+                  💡 <span className="font-bold">Mẹo:</span> Video nền sẽ tự động phát ở trang chủ khi bạn truy cập
+                </p>
+              </div>
             </CardContent>
           </Card>
 

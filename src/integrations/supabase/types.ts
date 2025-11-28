@@ -626,6 +626,50 @@ export type Database = {
         }
         Relationships: []
       }
+      user_background_videos: {
+        Row: {
+          created_at: string | null
+          duration: string | null
+          file_size: number | null
+          id: string
+          is_active: boolean | null
+          storage_path: string
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          duration?: string | null
+          file_size?: number | null
+          id?: string
+          is_active?: boolean | null
+          storage_path: string
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          duration?: string | null
+          file_size?: number | null
+          id?: string
+          is_active?: boolean | null
+          storage_path?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_background_videos_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_music: {
         Row: {
           artist: string | null

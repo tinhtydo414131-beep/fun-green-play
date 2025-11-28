@@ -1,16 +1,59 @@
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Search, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import camlyCoin from "@/assets/camly-coin.png";
 import { useGameAudio } from "@/hooks/useGameAudio";
 import { AudioControls } from "./AudioControls";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Hero = () => {
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
   const { playClick, playPop, isSoundEnabled, isMusicEnabled, toggleSound, toggleMusic } = useGameAudio();
+  const { user } = useAuth();
+  const [backgroundVideoUrl, setBackgroundVideoUrl] = useState<string>("/videos/hero-background.mp4");
+
+  useEffect(() => {
+    if (user) {
+      fetchActiveBackgroundVideo();
+    }
+  }, [user]);
+
+  const fetchActiveBackgroundVideo = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("user_background_videos")
+        .select("storage_path")
+        .eq("user_id", user?.id)
+        .eq("is_active", true)
+        .single();
+
+      if (error || !data) {
+        // Use default video if no active video found
+        setBackgroundVideoUrl("/videos/hero-background.mp4");
+        return;
+      }
+
+      // Get signed URL for the private video (valid for 1 hour)
+      const { data: urlData, error: urlError } = await supabase.storage
+        .from("background-videos")
+        .createSignedUrl(data.storage_path, 3600);
+
+      if (urlError || !urlData?.signedUrl) {
+        console.error("Error getting signed URL:", urlError);
+        setBackgroundVideoUrl("/videos/hero-background.mp4");
+        return;
+      }
+
+      setBackgroundVideoUrl(urlData.signedUrl);
+    } catch (error) {
+      console.error("Error fetching background video:", error);
+      setBackgroundVideoUrl("/videos/hero-background.mp4");
+    }
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,13 +67,14 @@ export const Hero = () => {
       {/* Video Background */}
       <div className="absolute inset-0 -z-10">
         <video
+          key={backgroundVideoUrl}
           autoPlay
           loop
           muted
           playsInline
           className="absolute inset-0 w-full h-full object-cover"
         >
-          <source src="/videos/hero-background.mp4" type="video/mp4" />
+          <source src={backgroundVideoUrl} type="video/mp4" />
         </video>
         {/* Overlay for better text readability */}
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-950/60 via-purple-900/50 to-blue-950/60" />
