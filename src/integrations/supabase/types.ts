@@ -211,6 +211,54 @@ export type Database = {
           },
         ]
       }
+      combo_challenges: {
+        Row: {
+          challenge_type: string
+          created_at: string
+          description: string
+          difficulty: string
+          icon: string | null
+          id: string
+          is_active: boolean
+          prize_amount: number
+          prize_type: string
+          required_level: number | null
+          target_combo: number
+          time_limit_seconds: number | null
+          title: string
+        }
+        Insert: {
+          challenge_type: string
+          created_at?: string
+          description: string
+          difficulty: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          prize_amount?: number
+          prize_type?: string
+          required_level?: number | null
+          target_combo: number
+          time_limit_seconds?: number | null
+          title: string
+        }
+        Update: {
+          challenge_type?: string
+          created_at?: string
+          description?: string
+          difficulty?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          prize_amount?: number
+          prize_type?: string
+          required_level?: number | null
+          target_combo?: number
+          time_limit_seconds?: number | null
+          title?: string
+        }
+        Relationships: []
+      }
       combo_period_winners: {
         Row: {
           claimed: boolean
@@ -254,6 +302,44 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_combo_challenges: {
+        Row: {
+          challenge_date: string
+          challenge_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          is_active: boolean
+          total_completions: number
+        }
+        Insert: {
+          challenge_date: string
+          challenge_id: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          is_active?: boolean
+          total_completions?: number
+        }
+        Update: {
+          challenge_date?: string
+          challenge_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          is_active?: boolean
+          total_completions?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_combo_challenges_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "combo_challenges"
             referencedColumns: ["id"]
           },
         ]
@@ -781,6 +867,66 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "user_background_videos_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_challenge_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          current_combo: number
+          daily_challenge_id: string
+          highest_combo: number
+          id: string
+          missed_count: number
+          prize_claimed: boolean
+          started_at: string | null
+          time_taken_seconds: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          current_combo?: number
+          daily_challenge_id: string
+          highest_combo?: number
+          id?: string
+          missed_count?: number
+          prize_claimed?: boolean
+          started_at?: string | null
+          time_taken_seconds?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          current_combo?: number
+          daily_challenge_id?: string
+          highest_combo?: number
+          id?: string
+          missed_count?: number
+          prize_claimed?: boolean
+          started_at?: string | null
+          time_taken_seconds?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_challenge_progress_daily_challenge_id_fkey"
+            columns: ["daily_challenge_id"]
+            isOneToOne: false
+            referencedRelation: "daily_combo_challenges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_challenge_progress_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
