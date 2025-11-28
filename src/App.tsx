@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { BackgroundMusicPlayer } from "@/components/BackgroundMusicPlayer";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Web3Provider } from "@/providers/Web3Provider";
+import HonorBoard from "./pages/HonorBoard";
 import Index from "./pages/Index";
 import Games from "./pages/Games";
 import GamePlay from "./pages/GamePlay";
@@ -38,7 +39,8 @@ const App = () => (
         <BrowserRouter>
           <MobileBottomNav />
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<HonorBoard />} />
+            <Route path="/home" element={<Index />} />
             <Route path="/games" element={<Games />} />
             <Route path="/game/:gameId" element={<GamePlay />} />
             <Route path="/auth" element={<Auth />} />

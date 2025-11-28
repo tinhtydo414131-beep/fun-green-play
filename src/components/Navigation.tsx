@@ -73,19 +73,19 @@ export const Navigation = () => {
                 to="/" 
                 className="px-4 py-2 rounded-xl font-space font-semibold text-foreground hover:text-primary hover:bg-primary/10 transition-all"
               >
-                Home
+                Honor Board
               </NavLink>
               <NavLink 
                 to="/games" 
                 className="px-4 py-2 rounded-xl font-space font-semibold text-foreground hover:text-primary hover:bg-primary/10 transition-all"
               >
-                All Games
+                Play Games
               </NavLink>
               <NavLink 
                 to="/public-music" 
                 className="px-4 py-2 rounded-xl font-space font-semibold text-foreground hover:text-primary hover:bg-primary/10 transition-all"
               >
-                Nhạc MP3
+                Music
               </NavLink>
 
               {user ? (

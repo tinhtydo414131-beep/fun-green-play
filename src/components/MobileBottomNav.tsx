@@ -1,4 +1,4 @@
-import { Home, Gamepad2, Trophy, Wallet, User, Music } from "lucide-react";
+import { Trophy, Gamepad2, Users, Music, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -8,11 +8,11 @@ export const MobileBottomNav = () => {
   const { user } = useAuth();
   
   const navItems = [
-    { icon: Home, label: "Trang chủ", path: "/" },
-    { icon: Gamepad2, label: "Trò chơi", path: "/games" },
-    { icon: Music, label: "Nhạc MP3", path: "/public-music" },
-    { icon: Wallet, label: "Ví", path: user ? "/wallet" : "/auth" },
-    { icon: User, label: "Cá nhân", path: user ? "/dashboard" : "/auth" },
+    { icon: Trophy, label: "Honor", path: "/" },
+    { icon: Gamepad2, label: "Play", path: "/games" },
+    { icon: Users, label: "Social", path: user ? "/friends" : "/auth" },
+    { icon: Music, label: "Music", path: "/public-music" },
+    { icon: User, label: "Profile", path: user ? "/dashboard" : "/auth" },
   ];
 
   const isActive = (path: string) => {
