@@ -190,6 +190,13 @@ export const GoldMiner = ({ level, onLevelComplete, onBack }: GoldMinerProps) =>
     if (!user) return;
 
     try {
+      // Fetch user profile for broadcast
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("username")
+        .eq("id", user.id)
+        .single();
+
       const { data: existingRecord } = await supabase
         .from("gold_miner_combos")
         .select("*")
@@ -208,6 +215,21 @@ export const GoldMiner = ({ level, onLevelComplete, onBack }: GoldMinerProps) =>
             .eq("user_id", user.id);
           
           toast.success(`🏆 Kỷ lục mới: ${currentCombo} combo!`);
+          
+          // Broadcast milestone to all users for significant combos
+          if (currentCombo >= 30) {
+            const channel = supabase.channel('combo-milestones');
+            await channel.send({
+              type: 'broadcast',
+              event: 'milestone',
+              payload: {
+                user_id: user.id,
+                username: profile?.username || 'Unknown',
+                combo: currentCombo,
+                level: level,
+              }
+            });
+          }
         }
       } else {
         await supabase
@@ -220,6 +242,21 @@ export const GoldMiner = ({ level, onLevelComplete, onBack }: GoldMinerProps) =>
           });
         
         toast.success(`🏆 Lần đầu lên bảng xếp hạng: ${currentCombo} combo!`);
+        
+        // Broadcast first leaderboard entry
+        if (currentCombo >= 30) {
+          const channel = supabase.channel('combo-milestones');
+          await channel.send({
+            type: 'broadcast',
+            event: 'milestone',
+            payload: {
+              user_id: user.id,
+              username: profile?.username || 'Unknown',
+              combo: currentCombo,
+              level: level,
+            }
+          });
+        }
       }
     } catch (error) {
       console.error("Error saving combo record:", error);

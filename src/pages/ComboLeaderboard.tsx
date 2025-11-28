@@ -1,14 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Trophy, Flame, Medal, Crown } from "lucide-react";
+import { ArrowLeft, Trophy, Flame, Medal, Crown, Zap, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ComboPeriodTimer } from "@/components/ComboPeriodTimer";
 import { ComboPrizeNotification } from "@/components/ComboPrizeNotification";
+import { LiveComboNotifications } from "@/components/LiveComboNotifications";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 interface ComboRecord {
   id: string;
@@ -29,10 +32,133 @@ const ComboLeaderboard = () => {
   const [monthlyRecords, setMonthlyRecords] = useState<ComboRecord[]>([]);
   const [allTimeRecords, setAllTimeRecords] = useState<ComboRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [newEntryId, setNewEntryId] = useState<string | null>(null);
+  const [liveViewers, setLiveViewers] = useState(0);
+  const channelRef = useRef<any>(null);
+  const presenceChannelRef = useRef<any>(null);
 
   useEffect(() => {
     fetchLeaderboards();
+    setupRealtimeSubscription();
+    setupPresenceTracking();
+
+    return () => {
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+      }
+      if (presenceChannelRef.current) {
+        supabase.removeChannel(presenceChannelRef.current);
+      }
+    };
   }, []);
+
+  const setupPresenceTracking = () => {
+    const presenceChannel = supabase.channel('combo-leaderboard-viewers');
+    
+    presenceChannel
+      .on('presence', { event: 'sync' }, () => {
+        const state = presenceChannel.presenceState();
+        const count = Object.keys(state).length;
+        setLiveViewers(count);
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await presenceChannel.track({
+            online_at: new Date().toISOString(),
+          });
+        }
+      });
+
+    presenceChannelRef.current = presenceChannel;
+  };
+
+  const setupRealtimeSubscription = () => {
+    // Subscribe to database changes
+    const channel = supabase
+      .channel('combo-leaderboard-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'gold_miner_combos'
+        },
+        async (payload) => {
+          console.log('Realtime update:', payload);
+          
+          if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+            const record = payload.new;
+            
+            // Fetch profile data for the new record
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('username, avatar_url')
+              .eq('id', record.user_id)
+              .single();
+
+            const recordWithProfile = {
+              ...record,
+              profiles: profile || { username: 'Unknown', avatar_url: null }
+            };
+
+            // Highlight new entry with animation
+            setNewEntryId(record.id);
+            setTimeout(() => setNewEntryId(null), 3000);
+
+            // Update leaderboards
+            await fetchLeaderboards();
+
+            // Show notification for significant combos
+            if (record.highest_combo >= 50 && payload.eventType === 'INSERT') {
+              toast.success(
+                `🔥 ${profile?.username || 'Someone'} just hit ${record.highest_combo}x combo!`,
+                {
+                  duration: 5000,
+                  icon: <Flame className="w-5 h-5 text-orange-500" />,
+                }
+              );
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    channelRef.current = channel;
+
+    // Subscribe to broadcast channel for milestone notifications
+    const broadcastChannel = supabase.channel('combo-milestones');
+    
+    broadcastChannel
+      .on('broadcast', { event: 'milestone' }, ({ payload }) => {
+        const { username, combo, level } = payload;
+        
+        let title = '';
+        let icon = '🔥';
+        
+        if (combo >= 100) {
+          title = `👑 ${username} achieved LEGENDARY ${combo}x combo!`;
+          icon = '👑';
+        } else if (combo >= 75) {
+          title = `✨ ${username} hit an AMAZING ${combo}x combo!`;
+          icon = '✨';
+        } else if (combo >= 50) {
+          title = `🌟 ${username} reached ${combo}x combo!`;
+          icon = '🌟';
+        } else if (combo >= 30) {
+          title = `⚡ ${username} got ${combo}x combo!`;
+          icon = '⚡';
+        }
+
+        if (title) {
+          toast(title, {
+            duration: 4000,
+            icon: icon,
+            className: 'animate-bounce',
+          });
+        }
+      })
+      .subscribe();
+  };
 
   const fetchLeaderboards = async () => {
     try {
@@ -173,18 +299,27 @@ const LeaderboardContent = ({ records }: { records: ComboRecord[] }) => {
     <div className="space-y-3">
       {records.map((record, index) => {
         const rank = index + 1;
+        const isNewEntry = record.id === newEntryId;
         return (
           <Card
             key={record.id}
             className={`p-4 transition-all hover:scale-105 hover:shadow-xl animate-slide-up ${
               rank <= 3 ? "border-2" : ""
-            }`}
+            } ${isNewEntry ? "animate-pulse-glow border-yellow-500 border-3" : ""}`}
             style={{
               animationDelay: `${index * 0.05}s`,
               borderColor: rank <= 3 ? `hsl(var(--primary))` : undefined,
             }}
           >
             <div className="flex items-center gap-4">
+              {/* New Entry Badge */}
+              {isNewEntry && (
+                <div className="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full animate-bounce flex items-center gap-1">
+                  <Zap className="w-3 h-3" />
+                  NEW!
+                </div>
+              )}
+              
               {/* Rank */}
               <div
                 className={`flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br ${getRankColor(
@@ -249,6 +384,7 @@ if (loading) {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
+      <LiveComboNotifications />
       
       <section className="pt-24 pb-12 px-4">
         <div className="container mx-auto max-w-4xl">
@@ -271,8 +407,19 @@ if (loading) {
               </h1>
               <Flame className="w-12 h-12 text-orange-500 animate-pulse" />
             </div>
-            <p className="text-lg text-muted-foreground font-comic">
-              Top combo cao nhất theo từng thời kỳ! 🔥
+            <div className="flex items-center justify-center gap-3">
+              <p className="text-lg text-muted-foreground font-comic">
+                Top combo cao nhất theo từng thời kỳ! 🔥
+              </p>
+              {liveViewers > 0 && (
+                <Badge variant="secondary" className="animate-pulse">
+                  <Users className="w-3 h-3 mr-1" />
+                  {liveViewers} đang xem
+                </Badge>
+              )}
+            </div>
+            <p className="text-sm text-green-500 font-bold animate-bounce">
+              ⚡ LIVE - Cập nhật realtime
             </p>
           </div>
 

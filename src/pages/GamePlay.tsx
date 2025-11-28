@@ -9,6 +9,7 @@ import { useGameLevel } from "@/hooks/useGameLevel";
 import { LevelSelector } from "@/components/LevelSelector";
 import { FlowerFieldLevelSelector } from "@/components/FlowerFieldLevelSelector";
 import { DailyChallengeCard } from "@/components/DailyChallengeCard";
+import { LiveComboNotifications } from "@/components/LiveComboNotifications";
 import confetti from "canvas-confetti";
 
 // Import all game components
@@ -352,6 +353,7 @@ const GamePlay = () => {
   return (
     <div className="min-h-screen bg-white">
       <Navigation />
+      <LiveComboNotifications />
       
       <section className="pt-24 pb-12 px-4">
         <div className="container mx-auto max-w-6xl">
