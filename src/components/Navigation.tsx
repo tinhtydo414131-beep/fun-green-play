@@ -70,7 +70,13 @@ export const Navigation = () => {
             {/* Desktop Links and Auth */}
             <div className="flex items-center gap-4">
               <NavLink 
-                to="/" 
+                to="/home" 
+                className="px-4 py-2 rounded-xl font-space font-semibold text-foreground hover:text-primary hover:bg-primary/10 transition-all"
+              >
+                Landing
+              </NavLink>
+              <NavLink 
+                to="/honor-board" 
                 className="px-4 py-2 rounded-xl font-space font-semibold text-foreground hover:text-primary hover:bg-primary/10 transition-all"
               >
                 Honor Board

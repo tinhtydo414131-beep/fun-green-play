@@ -8,6 +8,7 @@ import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Web3Provider } from "@/providers/Web3Provider";
 import HonorBoard from "./pages/HonorBoard";
 import Index from "./pages/Index";
+import Home from "./pages/Home";
 import Games from "./pages/Games";
 import GamePlay from "./pages/GamePlay";
 import Auth from "./pages/Auth";
@@ -40,8 +41,9 @@ const App = () => (
         <BrowserRouter>
           <MobileBottomNav />
           <Routes>
-            <Route path="/" element={<HonorBoard />} />
-            <Route path="/home" element={<Index />} />
+            <Route path="/" element={<Index />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/honor-board" element={<HonorBoard />} />
             <Route path="/games" element={<Games />} />
             <Route path="/game/:gameId" element={<GamePlay />} />
             <Route path="/auth" element={<Auth />} />
