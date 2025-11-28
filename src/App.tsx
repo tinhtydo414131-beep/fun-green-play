@@ -28,6 +28,7 @@ import RecentlyPlayed from "./pages/RecentlyPlayed";
 import ResetPassword from "./pages/ResetPassword";
 import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
+import ComboLeaderboard from "./pages/ComboLeaderboard";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,7 @@ const AnimatedRoutes = () => {
         <Route path="/recently-played" element={<RecentlyPlayed />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/install" element={<Install />} />
+        <Route path="/combo-leaderboard" element={<ComboLeaderboard />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

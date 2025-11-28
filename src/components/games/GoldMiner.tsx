@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { Link } from "react-router-dom";
 
 type MineItem = "gold" | "diamond" | "emerald" | "ruby" | "coin" | "treasure" | "crystal" | "stone" | "hammer" | "bomb";
 type PowerUpType = "hammer" | "bomb" | null;
@@ -35,6 +38,7 @@ const itemData: Record<MineItem, { emoji: string; value: number; rarity: number;
 };
 
 export const GoldMiner = ({ level, onLevelComplete, onBack }: GoldMinerProps) => {
+  const { user } = useAuth();
   const [minedItems, setMinedItems] = useState<MinedItem[]>([]);
   const [totalValue, setTotalValue] = useState(0);
   const [clicks, setClicks] = useState(0);
@@ -47,6 +51,8 @@ export const GoldMiner = ({ level, onLevelComplete, onBack }: GoldMinerProps) =>
   const [comboMultiplier, setComboMultiplier] = useState(1);
   const [lastClickTime, setLastClickTime] = useState<number>(Date.now());
   const [showComboText, setShowComboText] = useState(false);
+  const [highestCombo, setHighestCombo] = useState(0);
+  const [comboRecordSaved, setComboRecordSaved] = useState(false);
 
   const targetValue = level * 200;
   const maxClicks = level * 30;
@@ -87,7 +93,19 @@ export const GoldMiner = ({ level, onLevelComplete, onBack }: GoldMinerProps) =>
     } else {
       setComboMultiplier(1);
     }
-  }, [combo]);
+
+    // Track highest combo and save to database
+    if (combo > highestCombo) {
+      setHighestCombo(combo);
+      setComboRecordSaved(false);
+    }
+
+    // Save combo record when reaching new milestones
+    if (user && combo > highestCombo && combo >= 10 && !comboRecordSaved) {
+      saveComboRecord(combo);
+      setComboRecordSaved(true);
+    }
+  }, [combo, highestCombo, comboRecordSaved, user]);
 
   const getRandomItem = (): MineItem => {
     const random = Math.random() * 100;
@@ -100,6 +118,46 @@ export const GoldMiner = ({ level, onLevelComplete, onBack }: GoldMinerProps) =>
       }
     }
     return "stone";
+  };
+
+  const saveComboRecord = async (currentCombo: number) => {
+    if (!user) return;
+
+    try {
+      const { data: existingRecord } = await supabase
+        .from("gold_miner_combos")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (existingRecord) {
+        if (currentCombo > existingRecord.highest_combo) {
+          await supabase
+            .from("gold_miner_combos")
+            .update({
+              highest_combo: currentCombo,
+              level_achieved: level,
+              total_value: totalValue,
+            })
+            .eq("user_id", user.id);
+          
+          toast.success(`🏆 Kỷ lục mới: ${currentCombo} combo!`);
+        }
+      } else {
+        await supabase
+          .from("gold_miner_combos")
+          .insert({
+            user_id: user.id,
+            highest_combo: currentCombo,
+            level_achieved: level,
+            total_value: totalValue,
+          });
+        
+        toast.success(`🏆 Lần đầu lên bảng xếp hạng: ${currentCombo} combo!`);
+      }
+    } catch (error) {
+      console.error("Error saving combo record:", error);
+    }
   };
 
   const handleMineClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -478,6 +536,11 @@ export const GoldMiner = ({ level, onLevelComplete, onBack }: GoldMinerProps) =>
             Quay lại
           </Button>
         )}
+        <Link to="/combo-leaderboard">
+          <Button variant="default" className="font-bold bg-gradient-to-r from-orange-500 to-red-500">
+            🏆 Bảng Xếp Hạng Combo
+          </Button>
+        </Link>
         <Button onClick={resetGame} variant="outline">
           Làm mới
         </Button>

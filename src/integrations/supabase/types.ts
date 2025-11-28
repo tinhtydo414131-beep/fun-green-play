@@ -418,6 +418,36 @@ export type Database = {
         }
         Relationships: []
       }
+      gold_miner_combos: {
+        Row: {
+          created_at: string
+          highest_combo: number
+          id: string
+          level_achieved: number
+          total_value: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          highest_combo?: number
+          id?: string
+          level_achieved?: number
+          total_value?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          highest_combo?: number
+          id?: string
+          level_achieved?: number
+          total_value?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       healing_music_432hz: {
         Row: {
           artist: string | null
