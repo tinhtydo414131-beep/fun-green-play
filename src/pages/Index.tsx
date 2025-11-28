@@ -114,45 +114,45 @@ const Index = () => {
     <div className="min-h-screen bg-white relative overflow-hidden pb-safe">
       <Navigation />
       
-      {/* Compact Honor Board - Top Right Corner */}
-      <Card className="fixed top-24 right-4 z-40 w-72 border-2 border-primary/30 bg-background/95 backdrop-blur-sm shadow-2xl hidden lg:block">
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-lg font-fredoka font-bold text-primary flex items-center gap-2">
-              <Trophy className="w-5 h-5" />
-              Top Players
+      {/* Mini Honor Board - Top Right */}
+      <Card className="fixed top-20 right-4 z-40 w-64 border-2 border-primary/20 bg-background/90 backdrop-blur-sm shadow-lg hidden lg:block">
+        <div className="p-3">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-fredoka font-bold text-primary flex items-center gap-1">
+              <Trophy className="w-4 h-4" />
+              Top 5
             </h3>
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => navigate("/honor-board")}
-              className="text-xs font-comic hover:text-primary"
+              className="text-xs font-comic hover:text-primary h-6 px-2"
             >
-              View All →
+              All →
             </Button>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {topPlayers.slice(0, 5).map((player, index) => (
               <div
                 key={player.id}
-                className={`flex items-center gap-2 p-2 rounded-lg ${
-                  index === 0 ? "bg-gradient-to-r from-primary/20 to-transparent" : "bg-muted/50"
+                className={`flex items-center gap-2 p-1.5 rounded-lg ${
+                  index === 0 ? "bg-primary/10" : "bg-muted/30"
                 }`}
               >
-                <span className="text-lg font-bold w-6">
-                  {index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `${index + 1}.`}
+                <span className="text-sm w-5">
+                  {index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `${index + 1}`}
                 </span>
-                <Avatar className="w-8 h-8 border border-primary/30">
+                <Avatar className="w-6 h-6 border border-primary/20">
                   <AvatarImage src={player.avatar_url || undefined} />
-                  <AvatarFallback className="bg-primary/20 text-primary text-xs font-bold">
+                  <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
                     {player.username.substring(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-comic font-bold text-foreground truncate">
+                  <p className="text-[11px] font-comic font-bold text-foreground truncate">
                     {player.username}
                   </p>
-                  <p className="text-xs text-primary font-bold">
+                  <p className="text-[10px] text-primary font-bold">
                     💎 {(player.wallet_balance || 0).toLocaleString()}
                   </p>
                 </div>
