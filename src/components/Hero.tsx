@@ -1,7 +1,7 @@
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Search, Sparkles } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import camlyCoin from "@/assets/camly-coin.png";
 import { useGameAudio } from "@/hooks/useGameAudio";
@@ -15,12 +15,45 @@ export const Hero = () => {
   const { playClick, playPop, isSoundEnabled, isMusicEnabled, toggleSound, toggleMusic } = useGameAudio();
   const { user } = useAuth();
   const [backgroundVideoUrl, setBackgroundVideoUrl] = useState<string>("/videos/hero-background.mp4");
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (user) {
       fetchActiveBackgroundVideo();
     }
   }, [user]);
+
+  useEffect(() => {
+    // Force video to play when component mounts
+    const playVideo = async () => {
+      if (videoRef.current) {
+        try {
+          await videoRef.current.play();
+          console.log("Video playing successfully");
+        } catch (error) {
+          console.log("Video autoplay prevented:", error);
+          // Try to play on user interaction
+          const handleInteraction = async () => {
+            if (videoRef.current) {
+              try {
+                await videoRef.current.play();
+                document.removeEventListener('click', handleInteraction);
+                document.removeEventListener('touchstart', handleInteraction);
+              } catch (e) {
+                console.log("Still cannot play video:", e);
+              }
+            }
+          };
+          document.addEventListener('click', handleInteraction, { once: true });
+          document.addEventListener('touchstart', handleInteraction, { once: true });
+        }
+      }
+    };
+    
+    // Small delay to ensure video is loaded
+    const timer = setTimeout(playVideo, 100);
+    return () => clearTimeout(timer);
+  }, [backgroundVideoUrl]);
 
   const fetchActiveBackgroundVideo = async () => {
     try {
@@ -67,6 +100,7 @@ export const Hero = () => {
       {/* Video Background */}
       <div className="absolute inset-0 -z-10">
         <video
+          ref={videoRef}
           key={backgroundVideoUrl}
           autoPlay
           loop
@@ -75,14 +109,31 @@ export const Hero = () => {
           preload="auto"
           disablePictureInPicture
           disableRemotePlayback
-          webkit-playsinline="true"
           className="absolute inset-0 w-full h-full object-cover"
-          onLoadedData={(e) => {
+          onLoadedData={async (e) => {
             const video = e.target as HTMLVideoElement;
-            video.play().catch(err => console.log("Video autoplay failed:", err));
+            try {
+              await video.play();
+              console.log("Video started playing on load");
+            } catch (err) {
+              console.log("Video autoplay failed on load:", err);
+            }
+          }}
+          onError={(e) => {
+            console.error("Video error:", e);
+          }}
+          onCanPlay={async (e) => {
+            const video = e.target as HTMLVideoElement;
+            try {
+              await video.play();
+              console.log("Video can play and started");
+            } catch (err) {
+              console.log("Cannot play video:", err);
+            }
           }}
         >
           <source src={backgroundVideoUrl} type="video/mp4" />
+          Your browser does not support the video tag.
         </video>
         {/* Overlay for better text readability */}
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-950/60 via-purple-900/50 to-blue-950/60" />
