@@ -266,6 +266,104 @@ const Games = () => {
             </Select>
           </div>
 
+          {/* Featured Game Section */}
+          {selectedCategory === 'all' && !searchQuery.trim() && (
+            <div className="mb-12 animate-slide-up">
+              <div className="text-center mb-6">
+                <h2 className="text-3xl sm:text-4xl font-fredoka font-bold text-primary mb-2">
+                  🌟 Featured Game 🌟
+                </h2>
+                <p className="text-base sm:text-lg font-comic text-muted-foreground">
+                  New and exciting!
+                </p>
+              </div>
+              
+              {(() => {
+                const featuredGame = games.find(g => g.component_name === 'GoldMiner');
+                if (!featuredGame) return null;
+                
+                return (
+                  <div className="max-w-4xl mx-auto">
+                    <div className="relative group">
+                      {/* Glowing background effect */}
+                      <div className="absolute -inset-1 bg-gradient-to-r from-primary via-secondary to-accent rounded-3xl blur-lg opacity-75 group-hover:opacity-100 transition duration-500 animate-pulse"></div>
+                      
+                      {/* Card content */}
+                      <div className="relative bg-white rounded-3xl border-4 border-primary shadow-2xl overflow-hidden">
+                        {/* NEW Badge */}
+                        <div className="absolute top-4 right-4 z-10">
+                          <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-fredoka font-bold bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg animate-bounce">
+                            ✨ NEW ✨
+                          </span>
+                        </div>
+                        
+                        <div className="grid md:grid-cols-2 gap-6 p-6">
+                          {/* Image */}
+                          <div className="relative aspect-video md:aspect-square rounded-2xl overflow-hidden border-4 border-primary/20 group-hover:border-primary/50 transition-all">
+                            <img 
+                              src={featuredGame.thumbnail_url || '/images/games/gold-miner.jpg'} 
+                              alt={featuredGame.title}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
+                          </div>
+                          
+                          {/* Content */}
+                          <div className="flex flex-col justify-center space-y-4">
+                            <div>
+                              <h3 className="text-3xl sm:text-4xl font-fredoka font-bold text-primary mb-2">
+                                {featuredGame.title}
+                              </h3>
+                              <p className="text-base sm:text-lg font-comic text-muted-foreground">
+                                {featuredGame.description || 'Đào vàng, kim cương và kho báu quý giá! Mỗi lần đào có thể tìm thấy điều bất ngờ!'}
+                              </p>
+                            </div>
+                            
+                            <div className="flex flex-wrap gap-2">
+                              <span className="px-3 py-1 rounded-full text-sm font-fredoka font-bold bg-primary/10 text-primary border-2 border-primary/20">
+                                🎮 {featuredGame.genre}
+                              </span>
+                              <span className="px-3 py-1 rounded-full text-sm font-fredoka font-bold bg-secondary/10 text-secondary border-2 border-secondary/20">
+                                ⭐ {featuredGame.difficulty}
+                              </span>
+                            </div>
+                            
+                            <div className="flex items-center gap-4 text-sm font-comic text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <span>🎯</span>
+                                {featuredGame.total_plays || 0} plays
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <span>❤️</span>
+                                {featuredGame.total_likes || 0} likes
+                              </span>
+                            </div>
+                            
+                            <Button
+                              onClick={() => window.location.href = `/play/${featuredGame.id}`}
+                              className="w-full font-fredoka font-bold text-lg py-6 bg-gradient-to-r from-primary via-secondary to-accent text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all rounded-2xl group"
+                            >
+                              <span className="mr-2">Play Now!</span>
+                              <span className="text-2xl group-hover:animate-bounce inline-block">⛏️</span>
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+
+          {/* All Games Section */}
+          {selectedCategory === 'all' && !searchQuery.trim() && (
+            <div className="text-center mb-6">
+              <h2 className="text-2xl sm:text-3xl font-fredoka font-bold text-primary mb-2">
+                🎮 All Games 🎮
+              </h2>
+            </div>
+          )}
+
           {/* Games Grid - Mobile Optimized */}
           {filteredGames.length === 0 ? (
             <div className="text-center py-12 sm:py-20 px-4">
