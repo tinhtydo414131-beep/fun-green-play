@@ -283,11 +283,18 @@ export const LevelSelector = ({
                 <div className="absolute inset-0 rounded-[32px] bg-gradient-to-br from-white/20 to-transparent opacity-50" />
               )}
 
-              {/* Level number */}
+              {/* Level number with strong contrast */}
               <div className={cn(
                 "text-[56px] sm:text-[64px] font-fredoka font-black leading-none mb-1 relative z-10",
-                unlocked ? "text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)]" : "text-muted-foreground/60"
-              )}>
+                "px-3 py-1 rounded-2xl",
+                unlocked 
+                  ? "text-white bg-black/30 backdrop-blur-sm" 
+                  : "text-muted-foreground/60"
+              )}
+              style={unlocked ? {
+                textShadow: '0 0 10px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.6), 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000',
+                WebkitTextStroke: '2px black'
+              } : {}}>
                 {level}
               </div>
 
