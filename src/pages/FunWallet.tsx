@@ -1753,28 +1753,26 @@ export default function FunWallet() {
                             animate={{ rotate: -360 }}
                             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                           >
-                            <ArrowDownLeft className="w-6 h-6 sm:w-8 sm:h-8 text-cyan-300" />
+                            <ArrowDownLeft className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
                           </motion.div>
-                          <span className="bg-gradient-to-r from-cyan-300 via-blue-400 to-cyan-500 bg-clip-text text-transparent font-black">
+                          <span className="text-foreground font-black">
                             Receive
                           </span>
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4 sm:space-y-5">
-                        <div className="p-5 sm:p-8 rounded-2xl text-center border-2 border-cyan-400/40" style={{
-                          background: 'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(0,255,255,0.08) 100%)',
+                        <div className="p-5 sm:p-8 rounded-2xl text-center border-2 border-primary/40 bg-white/95" style={{
                           backdropFilter: 'blur(20px)',
-                          boxShadow: '0 4px 20px rgba(0,255,255,0.3)'
+                          boxShadow: '0 4px 20px rgba(139,70,255,0.3)'
                         }}>
-                          <p className="text-xs sm:text-sm text-white/70 mb-3 sm:mb-4 font-bold uppercase tracking-wider">
+                          <p className="text-xs sm:text-sm text-foreground mb-3 sm:mb-4 font-black uppercase tracking-wider">
                             💎 Your Wallet Address
                           </p>
                           <motion.p 
-                            className="font-mono text-base sm:text-lg md:text-xl text-white break-all mb-5 sm:mb-6 leading-relaxed font-bold"
+                            className="font-mono text-base sm:text-lg md:text-xl text-foreground break-all mb-5 sm:mb-6 leading-relaxed font-black"
                             animate={{ opacity: [0.8, 1, 0.8] }}
                             transition={{ duration: 2, repeat: Infinity }}
                             style={{
-                              textShadow: '0 0 20px rgba(0,255,255,0.6), 0 0 10px rgba(255,255,255,0.4)',
                               letterSpacing: '0.5px'
                             }}
                           >
@@ -1819,7 +1817,7 @@ export default function FunWallet() {
                               setShowCelebration(true);
                             }}
                             variant="outline"
-                            className="text-sm sm:text-base border-2 border-cyan-400/50 text-cyan-300 hover:bg-cyan-400/20 h-10 sm:h-12 font-bold px-6"
+                            className="text-sm sm:text-base border-2 border-primary/50 text-foreground hover:bg-primary/20 h-10 sm:h-12 font-black px-6"
                           >
                             Test Celebration 🎉
                           </Button>
