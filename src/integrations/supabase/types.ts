@@ -170,6 +170,94 @@ export type Database = {
           },
         ]
       }
+      combo_active_periods: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          period_end: string
+          period_start: string
+          period_type: string
+          top_combo: number
+          top_user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          period_end: string
+          period_start: string
+          period_type: string
+          top_combo?: number
+          top_user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          period_end?: string
+          period_start?: string
+          period_type?: string
+          top_combo?: number
+          top_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "combo_active_periods_top_user_id_fkey"
+            columns: ["top_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      combo_period_winners: {
+        Row: {
+          claimed: boolean
+          created_at: string
+          highest_combo: number
+          id: string
+          period_end: string
+          period_start: string
+          period_type: string
+          prize_amount: number
+          prize_type: string
+          user_id: string
+        }
+        Insert: {
+          claimed?: boolean
+          created_at?: string
+          highest_combo: number
+          id?: string
+          period_end: string
+          period_start: string
+          period_type: string
+          prize_amount?: number
+          prize_type?: string
+          user_id: string
+        }
+        Update: {
+          claimed?: boolean
+          created_at?: string
+          highest_combo?: number
+          id?: string
+          period_end?: string
+          period_start?: string
+          period_type?: string
+          prize_amount?: number
+          prize_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "combo_period_winners_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       friend_requests: {
         Row: {
           created_at: string | null
