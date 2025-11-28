@@ -17,58 +17,111 @@ export const Hero = () => {
   };
 
   return (
-    <section className="relative pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 overflow-hidden bg-white">
-      {/* Animated background shapes */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute top-20 left-10 w-48 h-48 sm:w-72 sm:h-72 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-10 w-64 h-64 sm:w-96 sm:h-96 bg-secondary/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-40 right-1/4 w-48 h-48 sm:w-64 sm:h-64 bg-accent/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+    <section className="relative pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 overflow-hidden">
+      {/* Animated Space Background */}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-br from-indigo-950 via-purple-900 to-blue-950">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-500/20 via-transparent to-transparent animate-breathing" />
+        
+        {/* Moving gradient orbs */}
+        <div className="absolute top-20 left-10 w-48 h-48 sm:w-72 sm:h-72 bg-gradient-to-r from-purple-500/30 to-pink-500/30 rounded-full blur-3xl animate-float-up" style={{ animationDuration: '20s' }} />
+        <div className="absolute bottom-20 right-10 w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-r from-cyan-500/30 to-blue-500/30 rounded-full blur-3xl animate-float-up" style={{ animationDuration: '25s', animationDelay: '5s' }} />
+        <div className="absolute top-40 right-1/4 w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-r from-violet-500/30 to-fuchsia-500/30 rounded-full blur-3xl animate-float-up" style={{ animationDuration: '30s', animationDelay: '10s' }} />
+        
+        {/* Stars/Particles */}
+        {[...Array(50)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-white rounded-full animate-pulse"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+              animationDuration: `${2 + Math.random() * 3}s`,
+              opacity: Math.random() * 0.7 + 0.3,
+            }}
+          />
+        ))}
+        
+        {/* Larger glowing stars */}
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={`glow-${i}`}
+            className="absolute rounded-full animate-sparkle"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              width: `${2 + Math.random() * 3}px`,
+              height: `${2 + Math.random() * 3}px`,
+              background: `radial-gradient(circle, ${
+                ['rgba(139, 70, 255, 0.8)', 'rgba(0, 242, 255, 0.8)', 'rgba(255, 255, 255, 0.9)'][Math.floor(Math.random() * 3)]
+              }, transparent)`,
+              animationDelay: `${Math.random() * 3}s`,
+              animationDuration: `${3 + Math.random() * 2}s`,
+            }}
+          />
+        ))}
+        
+        {/* Shooting stars */}
+        {[...Array(3)].map((_, i) => (
+          <div
+            key={`shooting-${i}`}
+            className="absolute h-px bg-gradient-to-r from-transparent via-white to-transparent animate-float-up"
+            style={{
+              top: `${Math.random() * 50}%`,
+              left: `${-20 + Math.random() * 40}%`,
+              width: `${50 + Math.random() * 100}px`,
+              animationDelay: `${i * 8}s`,
+              animationDuration: '3s',
+              transform: 'rotate(-45deg)',
+            }}
+          />
+        ))}
       </div>
 
       <div className="container mx-auto max-w-6xl">
         <div className="text-center space-y-6 sm:space-y-8 animate-fade-in">
-          <div className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full border-2 border-primary/30 shadow-lg">
-            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-primary animate-pulse" />
-            <span className="font-space text-sm sm:text-lg font-bold text-primary">Welcome to FUN Planet! 🎉</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-white/10 backdrop-blur-md rounded-full border-2 border-white/20 shadow-lg">
+            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 animate-pulse" />
+            <span className="font-space text-sm sm:text-lg font-bold text-white">Welcome to FUN Planet! 🎉</span>
           </div>
 
           <div className="flex items-center justify-center gap-3 sm:gap-6 md:gap-8">
             <img 
               src={camlyCoin} 
               alt="Camly Coin" 
-              className="w-12 h-12 sm:w-20 sm:h-20 md:w-28 md:h-28 lg:w-32 lg:h-32 animate-spin" 
+              className="w-12 h-12 sm:w-20 sm:h-20 md:w-28 md:h-28 lg:w-32 lg:h-32 animate-spin drop-shadow-[0_0_20px_rgba(139,70,255,0.8)]" 
               style={{ animationDuration: '10s' }}
             />
-            <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-orbitron font-black tracking-wider">
-              <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent animate-scale-in">
+            <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-orbitron font-black tracking-wider drop-shadow-[0_0_30px_rgba(139,70,255,0.8)]">
+              <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-pink-400 bg-clip-text text-transparent animate-gradient-shift bg-[length:200%_200%]">
                 FUN Planet
               </span>
             </h1>
             <img 
               src={camlyCoin} 
               alt="Camly Coin" 
-              className="w-12 h-12 sm:w-20 sm:h-20 md:w-28 md:h-28 lg:w-32 lg:h-32 animate-spin" 
+              className="w-12 h-12 sm:w-20 sm:h-20 md:w-28 md:h-28 lg:w-32 lg:h-32 animate-spin drop-shadow-[0_0_20px_rgba(0,242,255,0.8)]" 
               style={{ animationDuration: '10s', animationDirection: 'reverse' }}
             />
           </div>
 
-          <p className="text-base sm:text-xl md:text-2xl text-muted-foreground font-rajdhani font-medium max-w-3xl mx-auto leading-relaxed px-4">
+          <p className="text-base sm:text-xl md:text-2xl text-white/90 font-rajdhani font-medium max-w-3xl mx-auto leading-relaxed px-4 drop-shadow-lg">
             🌍 Build Your Planet – Play & Earn Joy! 🎮 Create your dream world with fun games and amazing rewards! 🌟
           </p>
 
           <form onSubmit={handleSearch} className="max-w-2xl mx-auto px-4">
             <div className="relative group">
-              <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+              <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 text-purple-400 group-hover:text-cyan-400 transition-colors" />
               <Input
                 type="text"
                 placeholder="Search for your favorite game... 🔍"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-10 sm:pl-14 pr-24 sm:pr-32 py-6 sm:py-8 text-base sm:text-lg font-rajdhani font-medium border-4 border-primary/60 focus:border-primary rounded-2xl shadow-lg hover:shadow-xl transition-all touch-manipulation"
+                className="pl-10 sm:pl-14 pr-24 sm:pr-32 py-6 sm:py-8 text-base sm:text-lg font-rajdhani font-medium bg-white/10 backdrop-blur-md border-2 border-white/20 focus:border-cyan-400 rounded-2xl shadow-lg hover:shadow-cyan-500/50 transition-all touch-manipulation text-white placeholder:text-white/60"
               />
               <Button 
                 type="submit"
-                className="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 font-space font-bold px-4 sm:px-8 py-4 sm:py-6 text-sm sm:text-base bg-gradient-to-r from-primary to-secondary hover:shadow-lg transform hover:scale-105 transition-all"
+                className="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 font-space font-bold px-4 sm:px-8 py-4 sm:py-6 text-sm sm:text-base bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 shadow-lg shadow-purple-500/50 hover:shadow-cyan-500/50 transform hover:scale-105 transition-all border border-white/20"
               >
                 Search 🚀
               </Button>
@@ -79,7 +132,7 @@ export const Hero = () => {
             <Button
               onClick={() => navigate("/games")}
               size="lg"
-              className="font-fredoka font-bold text-base sm:text-xl px-8 sm:px-10 py-6 sm:py-8 bg-gradient-to-r from-primary to-secondary hover:shadow-xl transform hover:scale-105 transition-all touch-manipulation w-full sm:w-auto"
+              className="font-space font-bold text-base sm:text-xl px-8 sm:px-10 py-6 sm:py-8 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 shadow-lg shadow-purple-500/50 hover:shadow-pink-500/50 transform hover:scale-105 transition-all border border-white/20 backdrop-blur-sm touch-manipulation w-full sm:w-auto"
             >
               Browse All Games 🎯
             </Button>
@@ -87,7 +140,7 @@ export const Hero = () => {
               onClick={() => navigate("/leaderboard")}
               size="lg"
               variant="outline"
-              className="font-fredoka font-bold text-base sm:text-xl px-8 sm:px-10 py-6 sm:py-8 border-4 border-accent/60 hover:border-accent hover:bg-accent/10 transform hover:scale-105 transition-all touch-manipulation w-full sm:w-auto"
+              className="font-space font-bold text-base sm:text-xl px-8 sm:px-10 py-6 sm:py-8 bg-white/10 backdrop-blur-md border-2 border-white/20 hover:bg-white/20 text-white hover:text-cyan-400 hover:border-cyan-400 shadow-lg transform hover:scale-105 transition-all touch-manipulation w-full sm:w-auto"
             >
               View Leaderboard 🏆
             </Button>
@@ -95,16 +148,16 @@ export const Hero = () => {
 
           <div className="flex justify-center gap-6 sm:gap-12 pt-8 text-center">
             <div className="space-y-1 sm:space-y-2">
-              <p className="text-2xl sm:text-4xl font-fredoka font-bold text-primary">14</p>
-              <p className="text-xs sm:text-sm font-comic text-muted-foreground">Awesome Games 🎮</p>
+              <p className="text-2xl sm:text-4xl font-space font-bold text-purple-400 drop-shadow-[0_0_10px_rgba(167,139,250,0.8)]">14</p>
+              <p className="text-xs sm:text-sm font-rajdhani text-white/80">Awesome Games 🎮</p>
             </div>
             <div className="space-y-1 sm:space-y-2">
-              <p className="text-2xl sm:text-4xl font-fredoka font-bold text-accent">1000+</p>
-              <p className="text-xs sm:text-sm font-comic text-muted-foreground">Happy Players 😊</p>
+              <p className="text-2xl sm:text-4xl font-space font-bold text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]">1000+</p>
+              <p className="text-xs sm:text-sm font-rajdhani text-white/80">Happy Players 😊</p>
             </div>
             <div className="space-y-1 sm:space-y-2">
-              <p className="text-2xl sm:text-4xl font-fredoka font-bold text-secondary">24/7</p>
-              <p className="text-xs sm:text-sm font-comic text-muted-foreground">Fun Time! ⏰</p>
+              <p className="text-2xl sm:text-4xl font-space font-bold text-pink-400 drop-shadow-[0_0_10px_rgba(244,114,182,0.8)]">24/7</p>
+              <p className="text-xs sm:text-sm font-rajdhani text-white/80">Fun Time! ⏰</p>
             </div>
           </div>
         </div>
