@@ -19,9 +19,9 @@ export default defineConfig(({ mode }) => ({
       manifest: {
         name: "FUN Planet - Build Your Planet",
         short_name: "FUN Planet",
-        description: "Build Your Planet – Play & Earn Joy! Create your dream world with amazing games and earn rewards!",
-        theme_color: "#8B46FF",
-        background_color: "#0F172A",
+        description: "Build Your Planet – Play & Earn Joy! 30+ amazing games, earn rewards, and create your dream world!",
+        theme_color: "#FFBA08",
+        background_color: "#FFFBF0",
         display: "standalone",
         orientation: "portrait",
         scope: "/",
