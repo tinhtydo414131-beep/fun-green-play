@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useGameLevel } from "@/hooks/useGameLevel";
 import { LevelSelector } from "@/components/LevelSelector";
 import { FlowerFieldLevelSelector } from "@/components/FlowerFieldLevelSelector";
+import { DailyChallengeCard } from "@/components/DailyChallengeCard";
 import confetti from "canvas-confetti";
 
 // Import all game components
@@ -382,6 +383,13 @@ const GamePlay = () => {
             </div>
 
             <div className="w-full">
+              {/* Show Daily Challenge Card for Gold Miner game */}
+              {(gameId === 'gold-miner' || game?.component_name === 'GoldMiner') && gameStarted && (
+                <div className="mb-6">
+                  <DailyChallengeCard />
+                </div>
+              )}
+              
               {showLevelSelector && !gameStarted && game?.component_name !== "HappyKitchenJoy" && game?.component_name !== "CookingMama" && !isDirectGame ? (
                 game.component_name === "FlowerField" ? (
                   <FlowerFieldLevelSelector

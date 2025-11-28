@@ -24,6 +24,19 @@ interface MinedItem {
   value: number;
 }
 
+interface DailyChallenge {
+  id: string;
+  challenge_id: string;
+  combo_challenges: {
+    title: string;
+    challenge_type: string;
+    target_combo: number;
+    time_limit_seconds: number | null;
+    required_level: number | null;
+    prize_amount: number;
+  };
+}
+
 const itemData: Record<MineItem, { emoji: string; value: number; rarity: number; isPowerUp?: boolean }> = {
   stone: { emoji: "🪨", value: 1, rarity: 45 },
   coin: { emoji: "🪙", value: 5, rarity: 28 },
@@ -53,10 +66,58 @@ export const GoldMiner = ({ level, onLevelComplete, onBack }: GoldMinerProps) =>
   const [showComboText, setShowComboText] = useState(false);
   const [highestCombo, setHighestCombo] = useState(0);
   const [comboRecordSaved, setComboRecordSaved] = useState(false);
+  
+  // Challenge tracking
+  const [dailyChallenge, setDailyChallenge] = useState<DailyChallenge | null>(null);
+  const [challengeProgress, setChallengeProgress] = useState<any>(null);
+  const [challengeStartTime, setChallengeStartTime] = useState<number | null>(null);
+  const [challengeMissCount, setChallengeMissCount] = useState(0);
 
   const targetValue = level * 200;
   const maxClicks = level * 30;
   const comboTimeout = 2000; // 2 seconds to maintain combo
+
+  // Fetch daily challenge on mount
+  useEffect(() => {
+    fetchDailyChallenge();
+  }, []);
+
+  const fetchDailyChallenge = async () => {
+    if (!user) return;
+
+    try {
+      const { data: challengeData } = await supabase
+        .from("daily_combo_challenges")
+        .select(`
+          *,
+          combo_challenges (*)
+        `)
+        .eq("is_active", true)
+        .eq("challenge_date", new Date().toISOString().split('T')[0])
+        .single();
+
+      if (challengeData) {
+        setDailyChallenge(challengeData as any);
+
+        // Check for existing progress
+        const { data: progressData } = await supabase
+          .from("user_challenge_progress")
+          .select("*")
+          .eq("user_id", user.id)
+          .eq("daily_challenge_id", challengeData.id)
+          .maybeSingle();
+
+        setChallengeProgress(progressData);
+
+        // Don't start tracking if already completed
+        if (!progressData?.completed_at) {
+          setChallengeStartTime(Date.now());
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching daily challenge:", error);
+    }
+  };
 
   useEffect(() => {
     if (totalValue >= targetValue) {
@@ -105,7 +166,12 @@ export const GoldMiner = ({ level, onLevelComplete, onBack }: GoldMinerProps) =>
       saveComboRecord(combo);
       setComboRecordSaved(true);
     }
-  }, [combo, highestCombo, comboRecordSaved, user]);
+
+    // Check and update challenge progress
+    if (dailyChallenge && user && !challengeProgress?.completed_at) {
+      checkChallengeProgress(combo);
+    }
+  }, [combo, highestCombo, comboRecordSaved, user, dailyChallenge, challengeProgress]);
 
   const getRandomItem = (): MineItem => {
     const random = Math.random() * 100;
@@ -160,6 +226,99 @@ export const GoldMiner = ({ level, onLevelComplete, onBack }: GoldMinerProps) =>
     }
   };
 
+  const checkChallengeProgress = async (currentCombo: number) => {
+    if (!dailyChallenge || !user || !challengeStartTime) return;
+
+    const challenge = dailyChallenge.combo_challenges;
+    const timeTaken = Math.floor((Date.now() - challengeStartTime) / 1000);
+    let isCompleted = false;
+
+    // Check challenge conditions
+    switch (challenge.challenge_type) {
+      case 'time_limit':
+        isCompleted = currentCombo >= challenge.target_combo && 
+                     (!challenge.time_limit_seconds || timeTaken <= challenge.time_limit_seconds);
+        break;
+      
+      case 'no_miss':
+        isCompleted = currentCombo >= challenge.target_combo && challengeMissCount === 0;
+        break;
+      
+      case 'level_specific':
+        isCompleted = currentCombo >= challenge.target_combo && 
+                     (!challenge.required_level || level === challenge.required_level);
+        break;
+      
+      case 'value_target':
+        isCompleted = currentCombo >= challenge.target_combo && totalValue >= (challenge.target_combo * 200);
+        break;
+      
+      default:
+        isCompleted = currentCombo >= challenge.target_combo;
+    }
+
+    // Update or create progress record
+    try {
+      const progressData = {
+        user_id: user.id,
+        daily_challenge_id: dailyChallenge.id,
+        current_combo: currentCombo,
+        highest_combo: Math.max(currentCombo, challengeProgress?.highest_combo || 0),
+        time_taken_seconds: timeTaken,
+        missed_count: challengeMissCount,
+        started_at: new Date(challengeStartTime).toISOString(),
+      };
+
+      if (challengeProgress) {
+        await supabase
+          .from("user_challenge_progress")
+          .update(progressData)
+          .eq("id", challengeProgress.id);
+      } else {
+        const { data } = await supabase
+          .from("user_challenge_progress")
+          .insert(progressData)
+          .select()
+          .single();
+        
+        setChallengeProgress(data);
+      }
+
+      // Handle completion
+      if (isCompleted && !challengeProgress?.completed_at) {
+        await supabase
+          .from("user_challenge_progress")
+          .update({ 
+            completed_at: new Date().toISOString(),
+          })
+          .eq("user_id", user.id)
+          .eq("daily_challenge_id", dailyChallenge.id);
+
+        // Update total completions
+        const { data: challengeData } = await supabase
+          .from("daily_combo_challenges")
+          .select("total_completions")
+          .eq("id", dailyChallenge.id)
+          .single();
+        
+        if (challengeData) {
+          await supabase
+            .from("daily_combo_challenges")
+            .update({ total_completions: challengeData.total_completions + 1 })
+            .eq("id", dailyChallenge.id);
+        }
+
+        toast.success(`🎊 Thử thách hoàn thành! +${challenge.prize_amount} tokens`, {
+          duration: 5000,
+        });
+
+        setChallengeProgress({ ...challengeProgress, completed_at: new Date().toISOString() });
+      }
+    } catch (error) {
+      console.error("Error updating challenge progress:", error);
+    }
+  };
+
   const handleMineClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (clicks >= maxClicks && totalValue < targetValue) {
       return;
@@ -203,6 +362,11 @@ export const GoldMiner = ({ level, onLevelComplete, onBack }: GoldMinerProps) =>
     } else {
       setCombo(1);
       setLastClickTime(currentTime);
+      
+      // Track missed combo for challenge
+      if (combo > 0 && dailyChallenge?.combo_challenges.challenge_type === 'no_miss') {
+        setChallengeMissCount(prev => prev + 1);
+      }
     }
 
     // Show explosion effect
