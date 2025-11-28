@@ -57,6 +57,7 @@ import { LibraryKeeper } from "@/components/games/LibraryKeeper";
 import { RestaurantChef } from "@/components/games/RestaurantChef";
 import { ThemeParkBuilder } from "@/components/games/ThemeParkBuilder";
 import { GoldMiner } from "@/components/games/GoldMiner";
+import { GoldHookMaster } from "@/components/games/GoldHookMaster";
 
 interface Game {
   id: string;
@@ -270,6 +271,9 @@ const GamePlay = () => {
       case "GoldMiner":
       case "gold-miner":
         return <GoldMiner {...gameProps} />;
+      case "GoldHookMaster":
+      case "gold-hook-master":
+        return <GoldHookMaster onBack={handleBackToLevelSelect} />;
       
       // Exploration & Adventure Games
       case "SpaceExplorer": return <SpaceExplorer {...gameProps} />;
@@ -329,8 +333,9 @@ const GamePlay = () => {
                        gameId === 'cinema-boss' ||
                        gameId === 'library-keeper' ||
                        gameId === 'restaurant-chef' ||
-                       gameId === 'theme-park-builder' ||
-                       gameId === 'gold-miner';
+                        gameId === 'theme-park-builder' ||
+                        gameId === 'gold-miner' ||
+                        gameId === 'gold-hook-master';
   
   if (!game && !isDirectGame) {
     return (
