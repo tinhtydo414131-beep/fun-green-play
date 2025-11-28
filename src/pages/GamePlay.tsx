@@ -39,6 +39,11 @@ import LilBlockBuddy from "@/components/games/LilBlockBuddy";
 import { Game2048Nexus } from "@/components/games/Game2048Nexus";
 import { HappyKitchenJoy } from "@/components/games/HappyKitchenJoy";
 import { CookingMama } from "@/components/games/CookingMama";
+import SchoolBuilder from "@/components/games/SchoolBuilder";
+import HappyPark from "@/components/games/HappyPark";
+import HomeDesigner from "@/components/games/HomeDesigner";
+import CommunityHub from "@/components/games/CommunityHub";
+import EcoVillage from "@/components/games/EcoVillage";
 
 interface Game {
   id: string;
@@ -204,6 +209,21 @@ const GamePlay = () => {
       case "GardenBuilder": return <GardenBuilder {...gameProps} />;
       case "SkyCastle": return <SkyCastle {...gameProps} />;
       case "DreamWorld": return <DreamWorld {...gameProps} />;
+      case "SchoolBuilder":
+      case "school-builder":
+        return <SchoolBuilder {...gameProps} />;
+      case "HappyPark":
+      case "happy-park":
+        return <HappyPark {...gameProps} />;
+      case "HomeDesigner":
+      case "home-designer":
+        return <HomeDesigner {...gameProps} />;
+      case "CommunityHub":
+      case "community-hub":
+        return <CommunityHub {...gameProps} />;
+      case "EcoVillage":
+      case "eco-village":
+        return <EcoVillage {...gameProps} />;
       
       // Exploration & Adventure Games
       case "SpaceExplorer": return <SpaceExplorer {...gameProps} />;
@@ -246,8 +266,14 @@ const GamePlay = () => {
     );
   }
 
-  // Allow playing games that aren't in database yet (like Cooking Mama)
-  const isDirectGame = gameId === 'cooking-mama' || gameId === 'happy-kitchen-joy';
+  // Allow playing games that aren't in database yet
+  const isDirectGame = gameId === 'cooking-mama' || 
+                       gameId === 'happy-kitchen-joy' ||
+                       gameId === 'school-builder' ||
+                       gameId === 'happy-park' ||
+                       gameId === 'home-designer' ||
+                       gameId === 'community-hub' ||
+                       gameId === 'eco-village';
   
   if (!game && !isDirectGame) {
     return (
