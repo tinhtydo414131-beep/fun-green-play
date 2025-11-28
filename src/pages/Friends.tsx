@@ -7,13 +7,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, UserPlus, Search, MessageCircle, CheckCircle, XCircle, Home } from "lucide-react";
+import { Users, UserPlus, Search, MessageCircle, CheckCircle, XCircle, Home, Send, Coins } from "lucide-react";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 interface Friend {
   id: string;
   username: string;
   email: string;
+  avatar_url: string | null;
+  wallet_balance: number;
+  total_plays: number;
+  wallet_address: string | null;
 }
 
 interface FriendRequest {
@@ -33,6 +39,12 @@ export default function Friends() {
   const [requests, setRequests] = useState<FriendRequest[]>([]);
   const [searchEmail, setSearchEmail] = useState("");
   const [loading, setLoading] = useState(true);
+  const [sendDialogOpen, setSendDialogOpen] = useState(false);
+  const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null);
+  const [sendAmount, setSendAmount] = useState("");
+  const [parentApprovalOpen, setParentApprovalOpen] = useState(false);
+  const [parentPassword, setParentPassword] = useState("");
+  const [pendingTransfer, setPendingTransfer] = useState<{friend: Friend, amount: number} | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -51,7 +63,7 @@ export default function Friends() {
     try {
       const { data, error } = await supabase
         .from("friends")
-        .select("friend_id, profiles!friends_friend_id_fkey(id, username, email)")
+        .select("friend_id, profiles!friends_friend_id_fkey(id, username, email, avatar_url, wallet_balance, total_plays, wallet_address)")
         .eq("user_id", user?.id);
 
       if (error) throw error;
@@ -60,6 +72,10 @@ export default function Friends() {
         id: f.profiles.id,
         username: f.profiles.username,
         email: f.profiles.email,
+        avatar_url: f.profiles.avatar_url,
+        wallet_balance: f.profiles.wallet_balance || 0,
+        total_plays: f.profiles.total_plays || 0,
+        wallet_address: f.profiles.wallet_address,
       })) || [];
 
       setFriends(friendsList);
@@ -206,6 +222,116 @@ export default function Friends() {
     }
   };
 
+  const openSendDialog = (friend: Friend) => {
+    setSelectedFriend(friend);
+    setSendAmount("");
+    setSendDialogOpen(true);
+  };
+
+  const handleSendCAMLY = async () => {
+    if (!selectedFriend || !sendAmount) {
+      toast.error("Please enter an amount!");
+      return;
+    }
+
+    const amount = parseFloat(sendAmount);
+    if (isNaN(amount) || amount <= 0) {
+      toast.error("Please enter a valid amount!");
+      return;
+    }
+
+    // Get current user's balance
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("wallet_balance")
+      .eq("id", user?.id)
+      .single();
+
+    if (!profile || profile.wallet_balance < amount) {
+      toast.error("Insufficient CAMLY balance! 😢");
+      return;
+    }
+
+    // Check if parent approval needed (>500k)
+    if (amount > 500000) {
+      setPendingTransfer({ friend: selectedFriend, amount });
+      setSendDialogOpen(false);
+      setParentApprovalOpen(true);
+    } else {
+      await executeTransfer(selectedFriend, amount);
+    }
+  };
+
+  const handleParentApproval = async () => {
+    // Simple parent password check (in production, use proper auth)
+    if (parentPassword !== "parent2026") {
+      toast.error("Incorrect parent password! 👨‍👩‍👧");
+      return;
+    }
+
+    if (pendingTransfer) {
+      await executeTransfer(pendingTransfer.friend, pendingTransfer.amount);
+      setParentApprovalOpen(false);
+      setParentPassword("");
+      setPendingTransfer(null);
+    }
+  };
+
+  const executeTransfer = async (friend: Friend, amount: number) => {
+    try {
+      // Create transaction record
+      const { error: txError } = await supabase
+        .from("wallet_transactions")
+        .insert({
+          from_user_id: user?.id,
+          to_user_id: friend.id,
+          amount,
+          token_type: "CAMLY",
+          status: "completed",
+          notes: `Sent to friend ${friend.username}`,
+        });
+
+      if (txError) throw txError;
+
+      // Update sender balance
+      const { data: senderProfile } = await supabase
+        .from("profiles")
+        .select("wallet_balance")
+        .eq("id", user?.id)
+        .single();
+
+      if (senderProfile) {
+        await supabase
+          .from("profiles")
+          .update({ wallet_balance: senderProfile.wallet_balance - amount })
+          .eq("id", user?.id);
+      }
+
+      // Update receiver balance
+      const { data: receiverProfile } = await supabase
+        .from("profiles")
+        .select("wallet_balance")
+        .eq("id", friend.id)
+        .single();
+
+      if (receiverProfile) {
+        await supabase
+          .from("profiles")
+          .update({ wallet_balance: receiverProfile.wallet_balance + amount })
+          .eq("id", friend.id);
+      }
+
+      toast.success(`Successfully sent ${amount.toLocaleString()} CAMLY to ${friend.username}! 🎉`);
+      setSendDialogOpen(false);
+      setSendAmount("");
+      setSelectedFriend(null);
+      fetchFriends();
+    } catch (error: any) {
+      console.error("Error sending CAMLY:", error);
+      toast.error("Couldn't send CAMLY 😢");
+    }
+  };
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -340,27 +466,54 @@ export default function Friends() {
                       {friends.map((friend) => (
                         <div
                           key={friend.id}
-                          className="p-4 border-2 border-primary/20 rounded-2xl hover:border-primary transition-all hover:shadow-lg"
+                          className="p-5 border-2 border-primary/20 rounded-2xl hover:border-primary transition-all hover:shadow-lg bg-gradient-to-br from-white to-primary-light/10"
                         >
-                          <div className="flex items-center gap-3 mb-3">
-                            <Avatar className="w-12 h-12">
-                              <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-bold text-xl">
+                          <div className="flex items-center gap-3 mb-4">
+                            <Avatar className="w-16 h-16 border-4 border-primary/20">
+                              <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-bold text-2xl">
                                 {friend.username[0].toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
                             <div className="flex-1">
-                              <p className="font-fredoka font-bold text-lg">{friend.username}</p>
+                              <p className="font-fredoka font-bold text-xl text-foreground">{friend.username}</p>
                               <p className="text-sm text-muted-foreground font-comic truncate">{friend.email}</p>
                             </div>
                           </div>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="w-full font-fredoka font-bold border-2 hover:bg-primary/10"
-                          >
-                            <MessageCircle className="mr-2 h-4 w-4" />
-                            Chat
-                          </Button>
+                          
+                          {/* Friend Stats */}
+                          <div className="grid grid-cols-2 gap-2 mb-4 p-3 bg-white/50 rounded-xl">
+                            <div className="text-center">
+                              <div className="flex items-center justify-center gap-1 mb-1">
+                                <Coins className="w-4 h-4 text-primary" />
+                                <p className="font-bold text-2xl text-foreground">{friend.wallet_balance.toLocaleString()}</p>
+                              </div>
+                              <p className="text-xs text-muted-foreground font-comic">CAMLY</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="font-bold text-2xl text-foreground">{friend.total_plays}</p>
+                              <p className="text-xs text-muted-foreground font-comic">Games Played</p>
+                            </div>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="grid grid-cols-2 gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="font-fredoka font-bold border-2 hover:bg-primary/10"
+                            >
+                              <MessageCircle className="mr-1 h-4 w-4" />
+                              Chat
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => openSendDialog(friend)}
+                              className="font-fredoka font-bold bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+                            >
+                              <Send className="mr-1 h-4 w-4" />
+                              Send CAMLY
+                            </Button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -371,6 +524,106 @@ export default function Friends() {
           </div>
         </div>
       </section>
+
+      {/* Send CAMLY Dialog */}
+      <Dialog open={sendDialogOpen} onOpenChange={setSendDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-fredoka text-2xl flex items-center gap-2">
+              <Coins className="w-6 h-6 text-primary" />
+              Send CAMLY
+            </DialogTitle>
+            <DialogDescription className="font-comic">
+              Send CAMLY to {selectedFriend?.username}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="amount" className="font-fredoka font-bold">
+                Amount (CAMLY)
+              </Label>
+              <Input
+                id="amount"
+                type="number"
+                placeholder="Enter amount..."
+                value={sendAmount}
+                onChange={(e) => setSendAmount(e.target.value)}
+                className="font-comic text-lg border-2 border-primary/30"
+              />
+              <p className="text-xs text-muted-foreground font-comic">
+                Transfers over 500,000 CAMLY require parent approval
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={handleSendCAMLY}
+              className="w-full font-fredoka font-bold bg-gradient-to-r from-primary to-secondary"
+            >
+              <Send className="mr-2 h-4 w-4" />
+              Send CAMLY
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Parent Approval Dialog */}
+      <Dialog open={parentApprovalOpen} onOpenChange={setParentApprovalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-fredoka text-2xl flex items-center gap-2">
+              👨‍👩‍👧 Parent Approval Required
+            </DialogTitle>
+            <DialogDescription className="font-comic">
+              This transfer is over 500,000 CAMLY and requires parent approval.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="p-4 bg-primary/10 rounded-xl space-y-2">
+              <p className="font-fredoka font-bold text-lg text-foreground">Transfer Details:</p>
+              <p className="font-comic text-foreground">To: {pendingTransfer?.friend.username}</p>
+              <p className="font-comic text-2xl font-bold text-primary">
+                {pendingTransfer?.amount.toLocaleString()} CAMLY
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="parent-password" className="font-fredoka font-bold">
+                Parent Password
+              </Label>
+              <Input
+                id="parent-password"
+                type="password"
+                placeholder="Enter parent password..."
+                value={parentPassword}
+                onChange={(e) => setParentPassword(e.target.value)}
+                className="font-comic border-2 border-primary/30"
+              />
+              <p className="text-xs text-muted-foreground font-comic">
+                Demo password: "parent2026"
+              </p>
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setParentApprovalOpen(false);
+                setParentPassword("");
+                setPendingTransfer(null);
+              }}
+              className="font-fredoka font-bold"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleParentApproval}
+              className="font-fredoka font-bold bg-gradient-to-r from-primary to-secondary"
+            >
+              Approve Transfer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
