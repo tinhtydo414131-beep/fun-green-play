@@ -97,7 +97,7 @@ const Index = () => {
 
   return (
     <motion.div 
-      className="min-h-screen bg-white relative overflow-hidden pb-safe"
+      className="min-h-screen bg-background-green relative overflow-hidden pb-safe"
       initial="initial"
       animate="animate"
       exit="exit"
