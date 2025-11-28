@@ -208,7 +208,7 @@ const Index = () => {
       {/* CTA Section */}
       <section className="py-20 px-4">
         <div className="container mx-auto max-w-4xl">
-          <Card className="p-12 border-4 border-primary/60 shadow-2xl bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 text-center space-y-8">
+          <Card className="p-12 border-4 border-primary/60 shadow-2xl bg-white text-center space-y-8">
             <h2 className="text-4xl md:text-5xl font-fredoka font-bold text-primary">
               Ready to Start Playing? 🚀
             </h2>
