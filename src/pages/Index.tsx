@@ -115,7 +115,7 @@ const Index = () => {
         <source src="/videos/homepage-bg.mp4" type="video/mp4" />
       </video>
       {/* Overlay for better content readability */}
-      <div className="fixed inset-0 bg-black/40 -z-10" />
+      <div className="fixed inset-0 bg-black/30 -z-10" />
       
       <Navigation />
       <Hero />
