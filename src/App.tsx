@@ -24,6 +24,7 @@ import PublicMusic from "./pages/PublicMusic";
 import WalletGuide from "./pages/WalletGuide";
 import RecentlyPlayed from "./pages/RecentlyPlayed";
 import ResetPassword from "./pages/ResetPassword";
+import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -57,6 +58,7 @@ const App = () => (
             <Route path="/wallet-guide" element={<WalletGuide />} />
             <Route path="/recently-played" element={<RecentlyPlayed />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/install" element={<Install />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
