@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Star, Sparkles, Heart, Home, Image as ImageIcon, RotateCcw } from 'lucide-react';
 import { toast } from "sonner";
 import { useGameAudio } from "@/hooks/useGameAudio";
+import { useVoiceReactions } from "@/hooks/useVoiceReactions";
 import confetti from 'canvas-confetti';
 
 interface Ingredient {
@@ -109,6 +110,7 @@ const CATEGORIES = [
 
 export const HappyKitchenJoy = ({ onBack }: { onBack?: () => void }) => {
   const { playClick, playSuccess, playPop, playJump, playScore, startBackgroundMusic, stopBackgroundMusic, isMusicEnabled, isSoundEnabled, toggleMusic, toggleSound } = useGameAudio();
+  const { speakReaction, stop: stopVoice, toggle: toggleVoice, isEnabled: isVoiceEnabled, isSpeaking: isCharacterSpeaking } = useVoiceReactions();
   const [joyStars, setJoyStars] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState('veggies');
   const [selectedCharacter, setSelectedCharacter] = useState<Character>(CHARACTERS[0]);
@@ -128,6 +130,7 @@ export const HappyKitchenJoy = ({ onBack }: { onBack?: () => void }) => {
     startBackgroundMusic();
     return () => {
       stopBackgroundMusic();
+      stopVoice();
     };
   }, []);
 
@@ -247,7 +250,13 @@ export const HappyKitchenJoy = ({ onBack }: { onBack?: () => void }) => {
     setTimeout(() => playJump(), 200);
     setTimeout(() => playScore(), 400);
     setTimeout(() => playPop(), 600);
+    
     setShowReaction(true);
+
+    // Play character voice reaction after 500ms delay
+    setTimeout(() => {
+      speakReaction(selectedCharacter.id, selectedCharacter.favorite);
+    }, 500);
 
     // Calculate stars based on creativity
     const baseStars = 10;
@@ -388,6 +397,15 @@ export const HappyKitchenJoy = ({ onBack }: { onBack?: () => void }) => {
             title={isSoundEnabled ? "Mute Sounds" : "Play Sounds"}
           >
             <span className="text-xl">{isSoundEnabled ? "🔊" : "🔈"}</span>
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={toggleVoice}
+            title={isVoiceEnabled ? "Mute Voices" : "Play Voices"}
+          >
+            <span className="text-xl">{isVoiceEnabled ? "🗣️" : "🤐"}</span>
           </Button>
         </div>
         
@@ -583,6 +601,15 @@ export const HappyKitchenJoy = ({ onBack }: { onBack?: () => void }) => {
                   <p className="text-2xl text-pink-500">
                     {selectedCharacter.reaction}
                   </p>
+                  {isCharacterSpeaking && (
+                    <motion.div
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 0.5, repeat: Infinity }}
+                      className="text-4xl"
+                    >
+                      🗣️
+                    </motion.div>
+                  )}
                   <div className="flex gap-2 justify-center">
                     {[...Array(5)].map((_, i) => (
                       <motion.div
