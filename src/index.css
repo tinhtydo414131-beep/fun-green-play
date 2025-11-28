@@ -219,6 +219,17 @@
     }
   }
   
+  @keyframes pulse-subtle {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.95;
+      transform: scale(1.02);
+    }
+  }
+  
   .animate-slide-up {
     animation: slide-up 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
@@ -233,6 +244,10 @@
   
   .animate-scale-in {
     animation: scale-in 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+  
+  .animate-pulse-subtle {
+    animation: pulse-subtle 2s ease-in-out infinite;
   }
   
   /* Stagger animation delays */
