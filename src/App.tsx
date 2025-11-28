@@ -2,10 +2,11 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { BackgroundMusicPlayer } from "@/components/BackgroundMusicPlayer";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Web3Provider } from "@/providers/Web3Provider";
+import { AnimatePresence } from "framer-motion";
 import HonorBoard from "./pages/HonorBoard";
 import Index from "./pages/Index";
 import Home from "./pages/Home";
@@ -30,7 +31,39 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-// Force rebuild to clear Vite HMR cache and fix React hooks error
+const AnimatedRoutes = () => {
+  const location = useLocation();
+  
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<Index />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/honor-board" element={<HonorBoard />} />
+        <Route path="/games" element={<Games />} />
+        <Route path="/game/:gameId" element={<GamePlay />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/profile/:userId" element={<PublicProfile />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/nexus-leaderboard" element={<NexusLeaderboard />} />
+        <Route path="/wallet" element={<FunWallet />} />
+        <Route path="/friends" element={<Friends />} />
+        <Route path="/chat" element={<Chat />} />
+        <Route path="/music" element={<MusicLibrary />} />
+        <Route path="/public-music" element={<PublicMusic />} />
+        <Route path="/wallet-guide" element={<WalletGuide />} />
+        <Route path="/recently-played" element={<RecentlyPlayed />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/install" element={<Install />} />
+        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </AnimatePresence>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <Web3Provider>
@@ -40,30 +73,7 @@ const App = () => (
         <BackgroundMusicPlayer />
         <BrowserRouter>
           <MobileBottomNav />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/honor-board" element={<HonorBoard />} />
-            <Route path="/games" element={<Games />} />
-            <Route path="/game/:gameId" element={<GamePlay />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/profile/:userId" element={<PublicProfile />} />
-            <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="/nexus-leaderboard" element={<NexusLeaderboard />} />
-            <Route path="/wallet" element={<FunWallet />} />
-            <Route path="/friends" element={<Friends />} />
-            <Route path="/chat" element={<Chat />} />
-            <Route path="/music" element={<MusicLibrary />} />
-            <Route path="/public-music" element={<PublicMusic />} />
-            <Route path="/wallet-guide" element={<WalletGuide />} />
-            <Route path="/recently-played" element={<RecentlyPlayed />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/install" element={<Install />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AnimatedRoutes />
         </BrowserRouter>
       </TooltipProvider>
     </Web3Provider>
