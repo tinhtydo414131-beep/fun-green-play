@@ -1325,11 +1325,11 @@ export default function FunWallet() {
                     <motion.div
                       animate={{ scale: [1, 1.05, 1] }}
                       transition={{ duration: 2, repeat: Infinity }}
-                      className="text-5xl sm:text-6xl md:text-7xl font-black mb-2 text-primary"
+                      className="text-5xl sm:text-6xl md:text-7xl font-black mb-2 text-foreground"
                     >
                       {balance}
                     </motion.div>
-                    <p className="text-xl sm:text-2xl font-bold text-secondary">
+                    <p className="text-xl sm:text-2xl font-black text-foreground">
                       {selectedNetwork.symbol}
                     </p>
                     
