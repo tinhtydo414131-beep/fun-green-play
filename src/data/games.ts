@@ -22,6 +22,7 @@ import skyCastleImg from '@/assets/games/sky-castle.jpg';
 import petParadiseImg from '@/assets/games/pet-paradise.jpg';
 import musicCreatorImg from '@/assets/games/music-creator.jpg';
 import flowerFieldImg from '@/assets/games/flower-field.jpg';
+import { newGames } from './newGames';
 
 export interface Game {
   id: string;
@@ -257,4 +258,5 @@ export const games: Game[] = [
     image: racingImg,
     playable: true,
   },
+  ...newGames,
 ];
