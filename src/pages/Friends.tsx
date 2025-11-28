@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, UserPlus, Search, MessageCircle, CheckCircle, XCircle, Home, Send, Coins } from "lucide-react";
+import { Users, UserPlus, Search, MessageCircle, CheckCircle, XCircle, Home, Send, Coins, Eye, History, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { JoyBot } from "@/components/JoyBot";
+import { motion } from "framer-motion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Friend {
   id: string;
@@ -33,6 +35,22 @@ interface FriendRequest {
   status: string;
 }
 
+interface Transaction {
+  id: string;
+  amount: number;
+  created_at: string;
+  from_user_id: string | null;
+  to_user_id: string | null;
+  status: string;
+  notes: string | null;
+  from_user?: {
+    username: string;
+  };
+  to_user?: {
+    username: string;
+  };
+}
+
 export default function Friends() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -46,6 +64,9 @@ export default function Friends() {
   const [parentApprovalOpen, setParentApprovalOpen] = useState(false);
   const [parentPassword, setParentPassword] = useState("");
   const [pendingTransfer, setPendingTransfer] = useState<{friend: Friend, amount: number} | null>(null);
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
+  const [viewingFriend, setViewingFriend] = useState<Friend | null>(null);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -57,6 +78,7 @@ export default function Friends() {
     if (user) {
       fetchFriends();
       fetchRequests();
+      fetchTransactions();
     }
   }, [user]);
 
@@ -111,6 +133,38 @@ export default function Friends() {
     } catch (error: any) {
       console.error("Error fetching requests:", error);
     }
+  };
+
+  const fetchTransactions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("wallet_transactions")
+        .select(`
+          id,
+          amount,
+          created_at,
+          from_user_id,
+          to_user_id,
+          status,
+          notes,
+          from_user:profiles!wallet_transactions_from_user_id_fkey(username),
+          to_user:profiles!wallet_transactions_to_user_id_fkey(username)
+        `)
+        .or(`from_user_id.eq.${user?.id},to_user_id.eq.${user?.id}`)
+        .eq("token_type", "CAMLY")
+        .order("created_at", { ascending: false })
+        .limit(20);
+
+      if (error) throw error;
+      setTransactions(data || []);
+    } catch (error: any) {
+      console.error("Error fetching transactions:", error);
+    }
+  };
+
+  const viewProfile = (friend: Friend) => {
+    setViewingFriend(friend);
+    setProfileDialogOpen(true);
   };
 
   const sendFriendRequest = async () => {
@@ -327,6 +381,7 @@ export default function Friends() {
       setSendAmount("");
       setSelectedFriend(null);
       fetchFriends();
+      fetchTransactions();
     } catch (error: any) {
       console.error("Error sending CAMLY:", error);
       toast.error("Couldn't send CAMLY 😢");
@@ -342,7 +397,12 @@ export default function Friends() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <motion.div 
+      className="min-h-screen bg-background-green"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       <Navigation />
       
       <section className="pt-32 pb-20 px-4">
@@ -360,14 +420,19 @@ export default function Friends() {
             </Button>
           </div>
 
-          <div className="text-center mb-12 space-y-4 animate-fade-in">
+          <motion.div 
+            className="text-center mb-12 space-y-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
             <h1 className="text-5xl md:text-6xl font-fredoka font-bold text-primary">
               My Friends 👥
             </h1>
             <p className="text-xl text-muted-foreground font-comic max-w-2xl mx-auto">
               Find friends to play with! 🎮
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Add Friend */}
@@ -464,10 +529,14 @@ export default function Friends() {
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {friends.map((friend) => (
-                        <div
+                      {friends.map((friend, index) => (
+                        <motion.div
                           key={friend.id}
                           className="p-5 border-2 border-primary/20 rounded-2xl hover:border-primary transition-all hover:shadow-lg bg-gradient-to-br from-white to-primary-light/10"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.4, delay: index * 0.1 }}
+                          whileHover={{ scale: 1.02 }}
                         >
                           <div className="flex items-center gap-3 mb-4">
                             <Avatar className="w-16 h-16 border-4 border-primary/20">
@@ -497,14 +566,22 @@ export default function Friends() {
                           </div>
 
                           {/* Action Buttons */}
-                          <div className="grid grid-cols-2 gap-2">
+                          <div className="grid grid-cols-3 gap-2">
                             <Button
                               size="sm"
                               variant="outline"
+                              onClick={() => viewProfile(friend)}
                               className="font-fredoka font-bold border-2 hover:bg-primary/10"
                             >
-                              <MessageCircle className="mr-1 h-4 w-4" />
-                              Chat
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => navigate("/chat")}
+                              className="font-fredoka font-bold border-2 hover:bg-accent/10"
+                            >
+                              <MessageCircle className="h-4 w-4" />
                             </Button>
                             <Button
                               size="sm"
@@ -512,10 +589,10 @@ export default function Friends() {
                               className="font-fredoka font-bold bg-gradient-to-r from-primary to-secondary hover:opacity-90"
                             >
                               <Send className="mr-1 h-4 w-4" />
-                              Send CAMLY
+                              CAMLY
                             </Button>
                           </div>
-                        </div>
+                        </motion.div>
                       ))}
                     </div>
                   )}
@@ -523,6 +600,69 @@ export default function Friends() {
               </Card>
             </div>
           </div>
+
+          {/* Transaction History */}
+          <motion.div
+            className="mt-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
+            <Card className="border-4 border-primary/30 shadow-xl">
+              <CardHeader>
+                <CardTitle className="font-fredoka text-2xl flex items-center gap-2">
+                  <History className="w-6 h-6 text-primary" />
+                  Transaction History
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {transactions.length === 0 ? (
+                  <div className="text-center py-8">
+                    <History className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                    <p className="text-lg font-fredoka text-muted-foreground">No transactions yet</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {transactions.map((tx) => {
+                      const isSent = tx.from_user_id === user?.id;
+                      const otherUser = isSent ? tx.to_user : tx.from_user;
+                      return (
+                        <motion.div
+                          key={tx.id}
+                          className={`p-4 rounded-xl border-2 ${
+                            isSent 
+                              ? 'bg-red-50 border-red-200' 
+                              : 'bg-green-50 border-green-200'
+                          }`}
+                          whileHover={{ scale: 1.02 }}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <p className="font-fredoka font-bold text-foreground">
+                                {isSent ? '📤 Sent to' : '📥 Received from'} {otherUser?.username}
+                              </p>
+                              <p className="text-xs text-muted-foreground font-comic">
+                                {new Date(tx.created_at).toLocaleDateString()} at {new Date(tx.created_at).toLocaleTimeString()}
+                              </p>
+                              {tx.notes && (
+                                <p className="text-xs text-muted-foreground font-comic mt-1">{tx.notes}</p>
+                              )}
+                            </div>
+                            <div className="text-right">
+                              <p className={`font-bold text-2xl ${isSent ? 'text-red-600' : 'text-green-600'}`}>
+                                {isSent ? '-' : '+'}{tx.amount.toLocaleString()}
+                              </p>
+                              <p className="text-xs text-muted-foreground font-comic">CAMLY</p>
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
       </section>
 
@@ -625,7 +765,89 @@ export default function Friends() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Profile View Dialog */}
+      <Dialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="font-fredoka text-3xl flex items-center gap-2">
+              <Trophy className="w-8 h-8 text-primary" />
+              Friend Profile
+            </DialogTitle>
+          </DialogHeader>
+          {viewingFriend && (
+            <div className="space-y-6 py-4">
+              <div className="flex flex-col items-center gap-4">
+                <Avatar className="w-24 h-24 border-4 border-primary">
+                  <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-bold text-4xl">
+                    {viewingFriend.username[0].toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="text-center">
+                  <h3 className="font-fredoka font-bold text-3xl text-foreground">{viewingFriend.username}</h3>
+                  <p className="text-sm text-muted-foreground font-comic">{viewingFriend.email}</p>
+                </div>
+              </div>
+
+              <Tabs defaultValue="stats" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="stats" className="font-fredoka font-bold">Stats</TabsTrigger>
+                  <TabsTrigger value="wallet" className="font-fredoka font-bold">Wallet</TabsTrigger>
+                </TabsList>
+                <TabsContent value="stats" className="space-y-4 mt-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl text-center">
+                      <p className="text-4xl font-bold text-primary">{viewingFriend.total_plays}</p>
+                      <p className="text-sm font-comic text-muted-foreground mt-2">Games Played</p>
+                    </div>
+                    <div className="p-4 bg-gradient-to-br from-accent/10 to-accent/5 rounded-xl text-center">
+                      <p className="text-4xl font-bold text-accent">{friends.length}</p>
+                      <p className="text-sm font-comic text-muted-foreground mt-2">Total Friends</p>
+                    </div>
+                  </div>
+                </TabsContent>
+                <TabsContent value="wallet" className="space-y-4 mt-4">
+                  <div className="p-6 bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-xl text-center">
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <Coins className="w-8 h-8 text-secondary" />
+                      <p className="text-5xl font-bold text-secondary">{viewingFriend.wallet_balance.toLocaleString()}</p>
+                    </div>
+                    <p className="text-sm font-comic text-muted-foreground">CAMLY Balance</p>
+                  </div>
+                  {viewingFriend.wallet_address && (
+                    <div className="p-4 bg-muted/30 rounded-xl">
+                      <p className="text-xs font-comic text-muted-foreground mb-1">Wallet Address:</p>
+                      <p className="text-xs font-mono text-foreground break-all">{viewingFriend.wallet_address}</p>
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
+
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => navigate("/chat")}
+                  className="flex-1 font-fredoka font-bold"
+                >
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  Chat
+                </Button>
+                <Button
+                  onClick={() => {
+                    setProfileDialogOpen(false);
+                    openSendDialog(viewingFriend);
+                  }}
+                  className="flex-1 font-fredoka font-bold bg-gradient-to-r from-primary to-secondary"
+                >
+                  <Send className="mr-2 h-4 w-4" />
+                  Send CAMLY
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
       <JoyBot position="bottom-left" />
-    </div>
+    </motion.div>
   );
 }
