@@ -1,5 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Navigation } from "@/components/Navigation";
 import { Hero } from "@/components/Hero";
 import { Button } from "@/components/ui/button";
@@ -18,10 +19,19 @@ import featureFriends from "@/assets/feature-friends.png";
 import featureCompete from "@/assets/feature-compete.png";
 import featureLearning from "@/assets/feature-learning.png";
 import { JoyBot } from "@/components/JoyBot";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+interface LeaderboardEntry {
+  id: string;
+  username: string;
+  avatar_url: string | null;
+  wallet_balance: number;
+}
 
 const Index = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [topPlayers, setTopPlayers] = useState<LeaderboardEntry[]>([]);
 
   useEffect(() => {
     // Auto-redirect logged-in users to dashboard
@@ -29,6 +39,24 @@ const Index = () => {
       // Don't auto-redirect, let them explore homepage
     }
   }, [user, loading]);
+
+  useEffect(() => {
+    loadTopPlayers();
+  }, []);
+
+  const loadTopPlayers = async () => {
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("id, username, avatar_url, wallet_balance")
+        .order("wallet_balance", { ascending: false })
+        .limit(5);
+      
+      setTopPlayers(data || []);
+    } catch (error) {
+      console.error("Error loading top players:", error);
+    }
+  };
 
   const features = [
     {
@@ -85,6 +113,55 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-white relative overflow-hidden pb-safe">
       <Navigation />
+      
+      {/* Compact Honor Board - Top Right Corner */}
+      <Card className="fixed top-24 right-4 z-40 w-72 border-2 border-primary/30 bg-background/95 backdrop-blur-sm shadow-2xl hidden lg:block">
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-fredoka font-bold text-primary flex items-center gap-2">
+              <Trophy className="w-5 h-5" />
+              Top Players
+            </h3>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate("/honor-board")}
+              className="text-xs font-comic hover:text-primary"
+            >
+              View All →
+            </Button>
+          </div>
+          <div className="space-y-2">
+            {topPlayers.slice(0, 5).map((player, index) => (
+              <div
+                key={player.id}
+                className={`flex items-center gap-2 p-2 rounded-lg ${
+                  index === 0 ? "bg-gradient-to-r from-primary/20 to-transparent" : "bg-muted/50"
+                }`}
+              >
+                <span className="text-lg font-bold w-6">
+                  {index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `${index + 1}.`}
+                </span>
+                <Avatar className="w-8 h-8 border border-primary/30">
+                  <AvatarImage src={player.avatar_url || undefined} />
+                  <AvatarFallback className="bg-primary/20 text-primary text-xs font-bold">
+                    {player.username.substring(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-comic font-bold text-foreground truncate">
+                    {player.username}
+                  </p>
+                  <p className="text-xs text-primary font-bold">
+                    💎 {(player.wallet_balance || 0).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Card>
+      
       <Hero />
       
       {/* Features Section */}
