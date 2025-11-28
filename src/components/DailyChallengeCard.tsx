@@ -174,7 +174,7 @@ export const DailyChallengeCard = () => {
     );
   }
 
-  const isCompleted = progress?.completed_at !== null;
+  const isCompleted = progress !== null && progress.completed_at !== null;
   const progressPercent = progress ? Math.min((progress.highest_combo / challenge.combo_challenges.target_combo) * 100, 100) : 0;
 
   return (
@@ -261,7 +261,7 @@ export const DailyChallengeCard = () => {
               <CheckCircle2 className="w-5 h-5 text-green-500" />
               <div>
                 <p className="font-bold text-green-700">Hoàn thành!</p>
-                {progress.time_taken_seconds && (
+                {progress && progress.time_taken_seconds && (
                   <p className="text-xs text-muted-foreground">
                     Thời gian: {Math.floor(progress.time_taken_seconds / 60)}:{(progress.time_taken_seconds % 60).toString().padStart(2, '0')}
                   </p>
@@ -269,7 +269,7 @@ export const DailyChallengeCard = () => {
               </div>
             </div>
             
-            {!progress.prize_claimed && (
+            {progress && !progress.prize_claimed && (
               <Button onClick={claimPrize} size="sm">
                 <Trophy className="w-4 h-4 mr-2" />
                 Nhận thưởng
