@@ -13,6 +13,12 @@ interface LilBlockBuddyProps {
   onBack?: () => void;
 }
 
+interface LevelRecord {
+  bestMoves: number;
+  bestTime: number;
+  lastPlayed: string;
+}
+
 const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) => {
   const gridSize = Math.min(3 + level, 5);
   const totalTiles = gridSize * gridSize;
@@ -27,6 +33,7 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
   const [isAutoSolving, setIsAutoSolving] = useState(false);
   const [isChallengeMode, setIsChallengeMode] = useState(false);
   const [isFailed, setIsFailed] = useState(false);
+  const [levelRecord, setLevelRecord] = useState<LevelRecord | null>(null);
   
   const audioContextRef = useRef<AudioContext | null>(null);
   const autoSolveIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -34,6 +41,17 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
   // Giới hạn thử thách dựa trên level
   const maxMoves = gridSize * 10;
   const maxTime = 60 + (level * 15);
+
+  // Load kỷ lục từ localStorage
+  useEffect(() => {
+    const savedRecords = localStorage.getItem('lilBlockBuddyRecords');
+    if (savedRecords) {
+      const records = JSON.parse(savedRecords);
+      if (records[level]) {
+        setLevelRecord(records[level]);
+      }
+    }
+  }, [level]);
 
   // Khởi tạo Audio Context
   useEffect(() => {
@@ -201,6 +219,32 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
         setIsPlaying(false);
         
         playWinSound();
+        
+        // Cập nhật kỷ lục
+        const isNewRecord = !levelRecord || 
+          newMoves < levelRecord.bestMoves || 
+          time < levelRecord.bestTime;
+        
+        if (isNewRecord) {
+          const newRecord: LevelRecord = {
+            bestMoves: !levelRecord ? newMoves : Math.min(newMoves, levelRecord.bestMoves),
+            bestTime: !levelRecord ? time : Math.min(time, levelRecord.bestTime),
+            lastPlayed: new Date().toISOString(),
+          };
+          
+          setLevelRecord(newRecord);
+          
+          // Lưu vào localStorage
+          const savedRecords = localStorage.getItem('lilBlockBuddyRecords');
+          const records = savedRecords ? JSON.parse(savedRecords) : {};
+          records[level] = newRecord;
+          localStorage.setItem('lilBlockBuddyRecords', JSON.stringify(records));
+          
+          toast({
+            title: "🎉 Kỷ lục mới!",
+            description: `Bạn đã phá kỷ lục ${newMoves < (levelRecord?.bestMoves || Infinity) ? 'số bước' : 'thời gian'}!`,
+          });
+        }
         
         confetti({
           particleCount: 100,
@@ -396,7 +440,7 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
             isChallengeMode && moves >= maxMoves * 0.8 && "border-destructive/50 animate-pulse"
           )}>
             <p className="text-sm text-muted-foreground mb-1">
-              Số bước {isChallengeMode && `(${maxMoves} tối đa)`}
+              Số bước {isChallengeMode && `(${maxMoves} max)`}
             </p>
             <p className={cn(
               "text-2xl font-fredoka font-bold",
@@ -404,13 +448,18 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
             )}>
               {moves}
             </p>
+            {levelRecord && (
+              <p className="text-xs text-muted-foreground mt-1">
+                🏆 Tốt nhất: {levelRecord.bestMoves}
+              </p>
+            )}
           </Card>
           <Card className={cn(
             "p-4 text-center glassmorphism border-accent/20",
             isChallengeMode && time >= maxTime * 0.8 && "border-destructive/50 animate-pulse"
           )}>
             <p className="text-sm text-muted-foreground mb-1">
-              Thời gian {isChallengeMode && `(${formatTime(maxTime)} tối đa)`}
+              Thời gian {isChallengeMode && `(${formatTime(maxTime)} max)`}
             </p>
             <p className={cn(
               "text-2xl font-fredoka font-bold",
@@ -418,6 +467,11 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
             )}>
               {formatTime(time)}
             </p>
+            {levelRecord && (
+              <p className="text-xs text-muted-foreground mt-1">
+                🏆 Tốt nhất: {formatTime(levelRecord.bestTime)}
+              </p>
+            )}
           </Card>
           <Card className="p-4 text-center glassmorphism border-glow/20">
             <p className="text-sm text-muted-foreground mb-1">Target</p>
