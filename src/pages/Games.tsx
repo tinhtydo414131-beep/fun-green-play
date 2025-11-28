@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/useAuth";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { toast } from "sonner";
+import { JoyBot } from "@/components/JoyBot";
 
 interface Game {
   id: string;
@@ -312,6 +313,7 @@ const Games = () => {
           )}
         </div>
       </section>
+      <JoyBot />
     </div>
   );
 };

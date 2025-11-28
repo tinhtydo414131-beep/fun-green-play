@@ -9,6 +9,7 @@ import { Gamepad2, Users, MessageCircle, Trophy, Home } from "lucide-react";
 import { toast } from "sonner";
 import { WalletConnect } from "@/components/WalletConnect";
 import { AvatarUpload } from "@/components/AvatarUpload";
+import { JoyBot } from "@/components/JoyBot";
 
 interface Profile {
   id: string;
@@ -206,6 +207,7 @@ export default function Dashboard() {
           </div>
         </div>
       </section>
+      <JoyBot />
     </div>
   );
 }

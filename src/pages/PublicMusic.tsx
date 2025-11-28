@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { JoyBot } from "@/components/JoyBot";
 
 interface MusicTrack {
   id: string;
@@ -1227,6 +1228,7 @@ export default function PublicMusic() {
         onTimeUpdate={handleTimeUpdate}
         onEnded={() => setIsPlaying(false)}
       />
+      <JoyBot position="bottom-left" />
     </div>
   );
 }
