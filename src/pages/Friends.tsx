@@ -11,6 +11,7 @@ import { Users, UserPlus, Search, MessageCircle, CheckCircle, XCircle, Home, Sen
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { JoyBot } from "@/components/JoyBot";
 
 interface Friend {
   id: string;
@@ -624,6 +625,7 @@ export default function Friends() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <JoyBot position="bottom-left" />
     </div>
   );
 }
