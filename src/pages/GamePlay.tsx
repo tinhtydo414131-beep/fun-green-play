@@ -44,6 +44,11 @@ import HappyPark from "@/components/games/HappyPark";
 import HomeDesigner from "@/components/games/HomeDesigner";
 import CommunityHub from "@/components/games/CommunityHub";
 import EcoVillage from "@/components/games/EcoVillage";
+import { ArtStudio } from "@/components/games/ArtStudio";
+import { PetCare } from "@/components/games/PetCare";
+import { FarmBuilder } from "@/components/games/FarmBuilder";
+import { SpaceStation } from "@/components/games/SpaceStation";
+import { ZooKeeper } from "@/components/games/ZooKeeper";
 
 interface Game {
   id: string;
@@ -224,6 +229,21 @@ const GamePlay = () => {
       case "EcoVillage":
       case "eco-village":
         return <EcoVillage {...gameProps} />;
+      case "ArtStudio":
+      case "art-studio":
+        return <ArtStudio {...gameProps} />;
+      case "PetCare":
+      case "pet-care":
+        return <PetCare {...gameProps} />;
+      case "FarmBuilder":
+      case "farm-builder":
+        return <FarmBuilder {...gameProps} />;
+      case "SpaceStation":
+      case "space-station":
+        return <SpaceStation {...gameProps} />;
+      case "ZooKeeper":
+      case "zoo-keeper":
+        return <ZooKeeper {...gameProps} />;
       
       // Exploration & Adventure Games
       case "SpaceExplorer": return <SpaceExplorer {...gameProps} />;
@@ -273,7 +293,12 @@ const GamePlay = () => {
                        gameId === 'happy-park' ||
                        gameId === 'home-designer' ||
                        gameId === 'community-hub' ||
-                       gameId === 'eco-village';
+                       gameId === 'eco-village' ||
+                       gameId === 'art-studio' ||
+                       gameId === 'pet-care' ||
+                       gameId === 'farm-builder' ||
+                       gameId === 'space-station' ||
+                       gameId === 'zoo-keeper';
   
   if (!game && !isDirectGame) {
     return (
