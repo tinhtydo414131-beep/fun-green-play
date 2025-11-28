@@ -187,7 +187,18 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
                 }`}
                 style={{ animationDelay: `${index * 20}ms` }}
               >
-                {num !== 0 && num}
+                {num !== 0 && (
+                  <div
+                    className="inline-flex items-center justify-center px-3 py-1 rounded-2xl bg-black/30 backdrop-blur-sm"
+                    style={{
+                      textShadow:
+                        '0 0 8px rgba(0,0,0,0.9), 2px 2px 0 rgba(0,0,0,0.9), -2px -2px 0 rgba(0,0,0,0.9)',
+                      WebkitTextStroke: '1.5px black',
+                    }}
+                  >
+                    {num}
+                  </div>
+                )}
               </button>
             ))}
           </div>
