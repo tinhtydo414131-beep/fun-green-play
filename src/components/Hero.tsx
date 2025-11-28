@@ -74,14 +74,13 @@ export const Hero = () => {
         >
           <source src="/videos/hero-background.mp4" type="video/mp4" />
         </video>
-        {/* Overlay for better text readability */}
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-950/60 via-purple-900/50 to-blue-950/60" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-500/20 via-transparent to-transparent animate-breathing" />
+        {/* Subtle overlay for better text readability but keep video visible */}
+        <div className="absolute inset-0 bg-black/25" />
         
         {/* Moving gradient orbs */}
-        <div className="absolute top-20 left-10 w-48 h-48 sm:w-72 sm:h-72 bg-gradient-to-r from-purple-500/30 to-pink-500/30 rounded-full blur-3xl animate-float-up" style={{ animationDuration: '20s' }} />
-        <div className="absolute bottom-20 right-10 w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-r from-cyan-500/30 to-blue-500/30 rounded-full blur-3xl animate-float-up" style={{ animationDuration: '25s', animationDelay: '5s' }} />
-        <div className="absolute top-40 right-1/4 w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-r from-violet-500/30 to-fuchsia-500/30 rounded-full blur-3xl animate-float-up" style={{ animationDuration: '30s', animationDelay: '10s' }} />
+        <div className="absolute top-20 left-10 w-48 h-48 sm:w-72 sm:h-72 bg-gradient-to-r from-purple-500/25 to-pink-500/25 rounded-full blur-3xl animate-float-up" style={{ animationDuration: '20s' }} />
+        <div className="absolute bottom-20 right-10 w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-r from-cyan-500/25 to-blue-500/25 rounded-full blur-3xl animate-float-up" style={{ animationDuration: '25s', animationDelay: '5s' }} />
+        <div className="absolute top-40 right-1/4 w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-r from-violet-500/25 to-fuchsia-500/25 rounded-full blur-3xl animate-float-up" style={{ animationDuration: '30s', animationDelay: '10s' }} />
         
         {/* Stars/Particles */}
         {[...Array(50)].map((_, i) => (
