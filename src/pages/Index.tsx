@@ -97,7 +97,7 @@ const Index = () => {
 
   return (
     <motion.div 
-      className="min-h-screen bg-white relative overflow-hidden pb-safe"
+      className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-lime-50 relative overflow-hidden pb-safe"
       initial="initial"
       animate="animate"
       exit="exit"
@@ -152,7 +152,7 @@ const Index = () => {
       </section>
 
       {/* Categories Section */}
-      <section className="py-20 px-4 bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5">
+      <section className="py-20 px-4 bg-gradient-to-r from-green-100/60 via-emerald-100/60 to-lime-100/60">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-16 space-y-4">
             <h2 className="text-4xl md:text-5xl font-fredoka font-bold text-primary">
@@ -224,7 +224,7 @@ const Index = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gradient-to-r from-primary/10 to-secondary/10 border-t-4 border-primary/60 py-12 px-4">
+      <footer className="bg-gradient-to-r from-green-100 to-emerald-100 border-t-4 border-green-400/60 py-12 px-4">
         <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
             <div>
