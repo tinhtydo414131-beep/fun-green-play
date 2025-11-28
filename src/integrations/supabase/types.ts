@@ -382,6 +382,45 @@ export type Database = {
         }
         Relationships: []
       }
+      healing_music_432hz: {
+        Row: {
+          artist: string | null
+          category: string | null
+          created_at: string | null
+          description: string | null
+          duration: string | null
+          frequency: string | null
+          id: string
+          is_active: boolean | null
+          storage_path: string
+          title: string
+        }
+        Insert: {
+          artist?: string | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration?: string | null
+          frequency?: string | null
+          id?: string
+          is_active?: boolean | null
+          storage_path: string
+          title: string
+        }
+        Update: {
+          artist?: string | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration?: string | null
+          frequency?: string | null
+          id?: string
+          is_active?: boolean | null
+          storage_path?: string
+          title?: string
+        }
+        Relationships: []
+      }
       nexus_leaderboard: {
         Row: {
           created_at: string | null
@@ -559,6 +598,8 @@ export type Database = {
           file_size: number | null
           genre: string | null
           id: string
+          parent_approved: boolean | null
+          pending_approval: boolean | null
           storage_path: string
           title: string
           updated_at: string
@@ -571,6 +612,8 @@ export type Database = {
           file_size?: number | null
           genre?: string | null
           id?: string
+          parent_approved?: boolean | null
+          pending_approval?: boolean | null
           storage_path: string
           title: string
           updated_at?: string
@@ -583,6 +626,8 @@ export type Database = {
           file_size?: number | null
           genre?: string | null
           id?: string
+          parent_approved?: boolean | null
+          pending_approval?: boolean | null
           storage_path?: string
           title?: string
           updated_at?: string

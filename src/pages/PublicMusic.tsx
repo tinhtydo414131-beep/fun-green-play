@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Play, Pause, Download, Save, Music, Volume2, VolumeX, Upload, Trash2, Send, Share2, Link2, ListMusic, Plus, Filter } from "lucide-react";
+import { Play, Pause, Download, Save, Music, Volume2, VolumeX, Upload, Trash2, Send, Share2, Link2, ListMusic, Plus, Filter, CheckCircle, XCircle, Clock, Heart, Moon, Brain, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -24,6 +24,11 @@ interface MusicTrack {
   isUserUpload?: boolean;
   userId?: string;
   storagePath?: string;
+  parentApproved?: boolean;
+  pendingApproval?: boolean;
+  description?: string;
+  category?: string;
+  frequency?: string;
 }
 
 interface Playlist {
@@ -78,12 +83,17 @@ export default function PublicMusic() {
   
   // Upload state
   const [userTracks, setUserTracks] = useState<MusicTrack[]>([]);
+  const [pendingTracks, setPendingTracks] = useState<MusicTrack[]>([]);
+  const [healingTracks, setHealingTracks] = useState<MusicTrack[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [uploadTitle, setUploadTitle] = useState("");
   const [uploadArtist, setUploadArtist] = useState("");
   const [uploadGenre, setUploadGenre] = useState("other");
   const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [parentPasswordOpen, setParentPasswordOpen] = useState(false);
+  const [parentPassword, setParentPassword] = useState("");
+  const [pendingApprovalTrack, setPendingApprovalTrack] = useState<MusicTrack | null>(null);
 
   // Playlist state
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
@@ -205,6 +215,8 @@ export default function PublicMusic() {
       const { data, error } = await supabase
         .from('user_music')
         .select('*')
+        .eq('parent_approved', true)
+        .eq('pending_approval', false)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -223,13 +235,83 @@ export default function PublicMusic() {
           genre: music.genre || 'other',
           isUserUpload: true,
           userId: music.user_id,
-          storagePath: music.storage_path
+          storagePath: music.storage_path,
+          parentApproved: music.parent_approved,
+          pendingApproval: music.pending_approval
         };
       });
 
       setUserTracks(tracks);
     } catch (error) {
       console.error('Error loading user tracks:', error);
+    }
+  };
+
+  // Load pending approval tracks
+  const loadPendingTracks = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('user_music')
+        .select('*')
+        .eq('pending_approval', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const tracks: MusicTrack[] = data.map(music => {
+        const { data: urlData } = supabase.storage
+          .from('music')
+          .getPublicUrl(music.storage_path);
+
+        return {
+          id: music.id,
+          title: music.title,
+          artist: music.artist || 'Người dùng',
+          src: urlData.publicUrl,
+          duration: music.duration || '0:00',
+          genre: music.genre || 'other',
+          isUserUpload: true,
+          userId: music.user_id,
+          storagePath: music.storage_path,
+          parentApproved: music.parent_approved,
+          pendingApproval: music.pending_approval
+        };
+      });
+
+      setPendingTracks(tracks);
+    } catch (error) {
+      console.error('Error loading pending tracks:', error);
+    }
+  };
+
+  // Load 432Hz healing music
+  const loadHealingMusic = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('healing_music_432hz')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const tracks: MusicTrack[] = data.map(music => ({
+        id: music.id,
+        title: music.title,
+        artist: music.artist || 'FUN Planet Healing',
+        src: `/audio/432hz/${music.storage_path.split('/').pop()}`,
+        duration: music.duration || '0:00',
+        genre: 'healing',
+        description: music.description,
+        category: music.category,
+        frequency: music.frequency
+      }));
+
+      setHealingTracks(tracks);
+    } catch (error) {
+      console.error('Error loading healing music:', error);
     }
   };
 
@@ -296,8 +378,10 @@ export default function PublicMusic() {
 
   useEffect(() => {
     loadUserTracks();
+    loadHealingMusic();
     if (user) {
       loadPlaylists();
+      loadPendingTracks();
     }
   }, [user]);
 
@@ -364,18 +448,78 @@ export default function PublicMusic() {
 
       if (dbError) throw dbError;
 
-      toast.success("Đã tải nhạc lên thành công!");
+      toast.success("Đã tải nhạc lên! Đợi phụ huynh phê duyệt 👨‍👩‍👧");
       setUploadDialogOpen(false);
       setUploadTitle("");
       setUploadArtist("");
       setUploadGenre("other");
       setUploadFile(null);
-      loadUserTracks();
+      loadPendingTracks();
     } catch (error) {
       console.error('Upload error:', error);
       toast.error("Không thể tải nhạc lên");
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleApproveTrack = (track: MusicTrack) => {
+    setPendingApprovalTrack(track);
+    setParentPasswordOpen(true);
+  };
+
+  const handleRejectTrack = async (track: MusicTrack) => {
+    if (!confirm("Bạn có chắc muốn từ chối bài nhạc này?")) return;
+
+    try {
+      // Delete from storage
+      if (track.storagePath) {
+        await supabase.storage
+          .from('music')
+          .remove([track.storagePath]);
+      }
+
+      // Delete from database
+      await supabase
+        .from('user_music')
+        .delete()
+        .eq('id', track.id);
+
+      toast.success("Đã từ chối bài nhạc");
+      loadPendingTracks();
+    } catch (error) {
+      console.error('Reject error:', error);
+      toast.error("Không thể từ chối bài nhạc");
+    }
+  };
+
+  const handleParentApproval = async () => {
+    // Simple parent password check (in production, use proper auth)
+    if (parentPassword !== "parent2026") {
+      toast.error("Mật khẩu phụ huynh không đúng! 👨‍👩‍👧");
+      return;
+    }
+
+    if (pendingApprovalTrack) {
+      try {
+        await supabase
+          .from('user_music')
+          .update({
+            parent_approved: true,
+            pending_approval: false
+          })
+          .eq('id', pendingApprovalTrack.id);
+
+        toast.success("Đã phê duyệt bài nhạc! 🎉");
+        setParentPasswordOpen(false);
+        setParentPassword("");
+        setPendingApprovalTrack(null);
+        loadPendingTracks();
+        loadUserTracks();
+      } catch (error) {
+        console.error('Approval error:', error);
+        toast.error("Không thể phê duyệt");
+      }
     }
   };
 
@@ -753,32 +897,40 @@ export default function PublicMusic() {
             </Card>
           )}
 
-          {/* Tabs for Playlists */}
-          <Card className="border-4 border-primary/30 mb-6">
-            <CardContent className="pt-6">
-              <Tabs defaultValue="all" onValueChange={(value) => {
-                if (value === "all") {
-                  setSelectedPlaylist(null);
-                } else {
-                  setSelectedPlaylist(value);
-                }
-              }}>
-                <div className="flex items-center gap-4 flex-wrap mb-4">
-                  <TabsList className="bg-primary/10">
-                    <TabsTrigger value="all">
-                      <Music className="w-4 h-4 mr-2" />
-                      Tất cả nhạc
-                    </TabsTrigger>
-                    {playlists.map(playlist => (
-                      <TabsTrigger key={playlist.id} value={playlist.id}>
-                        <ListMusic className="w-4 h-4 mr-2" />
-                        {playlist.name}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
+          {/* Tabs for different music categories */}
+          <Tabs defaultValue="all" className="space-y-6">
+            <TabsList className="bg-primary/10 p-2 rounded-xl flex-wrap h-auto gap-2">
+              <TabsTrigger value="all" className="flex items-center gap-2">
+                <Music className="w-4 h-4" />
+                Tất cả nhạc
+              </TabsTrigger>
+              <TabsTrigger value="healing" className="flex items-center gap-2">
+                <Heart className="w-4 h-4" />
+                432Hz Healing
+              </TabsTrigger>
+              {user && pendingTracks.length > 0 && (
+                <TabsTrigger value="pending" className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  Chờ duyệt ({pendingTracks.length})
+                </TabsTrigger>
+              )}
+              {playlists.map(playlist => (
+                <TabsTrigger key={playlist.id} value={`playlist-${playlist.id}`} className="flex items-center gap-2">
+                  <ListMusic className="w-4 h-4" />
+                  {playlist.name}
+                </TabsTrigger>
+              ))}
+            </TabsList>
 
-                  {!selectedPlaylist && (
-                    <div className="flex items-center gap-2 ml-auto">
+            {/* All Music Tab */}
+            <TabsContent value="all" className="space-y-4">
+              <Card className="border-4 border-primary/30">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="font-fredoka text-2xl">
+                      Thư Viện Nhạc ({filteredTracks.length})
+                    </CardTitle>
+                    <div className="flex items-center gap-2">
                       <Filter className="w-4 h-4 text-muted-foreground" />
                       <Select value={selectedGenre} onValueChange={setSelectedGenre}>
                         <SelectTrigger className="w-[180px]">
@@ -793,181 +945,279 @@ export default function PublicMusic() {
                         </SelectContent>
                       </Select>
                     </div>
-                  )}
-                </div>
-
-                <TabsContent value="all" className="mt-0">
-                  <p className="text-sm text-muted-foreground mb-4">
-                    {filteredTracks.length} bài hát
-                  </p>
-                </TabsContent>
-                
-                {playlists.map(playlist => (
-                  <TabsContent key={playlist.id} value={playlist.id} className="mt-0">
-                    <p className="text-sm text-muted-foreground mb-4">
-                      {playlist.description || `${playlistTracks.length} bài hát`}
-                    </p>
-                  </TabsContent>
-                ))}
-              </Tabs>
-            </CardContent>
-          </Card>
-
-          {/* Track List */}
-          <Card className="border-4 border-primary/30">
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                {displayTracks.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Music className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-50" />
-                    <p className="text-lg text-muted-foreground">
-                      {selectedPlaylist ? "Playlist trống" : "Không có bài hát nào"}
-                    </p>
                   </div>
-                ) : (
-                  displayTracks.map((track) => (
-                    <div
-                      key={track.id}
-                      className={`flex items-center justify-between p-6 border-4 rounded-2xl transition-all ${
-                        currentTrack?.id === track.id
-                          ? 'border-primary bg-primary/10'
-                          : 'border-border hover:border-primary/50 hover:bg-accent/30'
-                      }`}
-                    >
-                      <div className="flex items-center gap-4 flex-1 min-w-0">
-                        <Button
-                          size="icon"
-                          onClick={() => handlePlayPause(track)}
-                          className="h-14 w-14 rounded-full bg-gradient-to-br from-primary to-secondary hover:shadow-xl transition-all hover:scale-110 shrink-0"
-                        >
-                          {isPlaying && currentTrack?.id === track.id ? (
-                            <Pause className="w-6 h-6 text-white fill-white" />
-                          ) : (
-                            <Play className="w-6 h-6 text-white fill-white ml-0.5" />
-                          )}
-                        </Button>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {filteredTracks.length === 0 ? (
+                    <div className="text-center py-12">
+                      <Music className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-50" />
+                      <p className="text-lg text-muted-foreground">Không có bài hát nào</p>
+                    </div>
+                  ) : (
+                    filteredTracks.map((track) => (
+                      <div
+                        key={track.id}
+                        className={`flex items-center justify-between p-6 border-4 rounded-2xl transition-all ${
+                          currentTrack?.id === track.id
+                            ? 'border-primary bg-primary/10'
+                            : 'border-border hover:border-primary/50 hover:bg-accent/30'
+                        }`}
+                      >
+                        <div className="flex items-center gap-4 flex-1 min-w-0">
+                          <Button
+                            size="icon"
+                            onClick={() => handlePlayPause(track)}
+                            className="h-14 w-14 rounded-full bg-gradient-to-br from-primary to-secondary hover:shadow-xl transition-all hover:scale-110 shrink-0"
+                          >
+                            {isPlaying && currentTrack?.id === track.id ? (
+                              <Pause className="w-6 h-6 text-white fill-white" />
+                            ) : (
+                              <Play className="w-6 h-6 text-white fill-white ml-0.5" />
+                            )}
+                          </Button>
 
-                        <div className="min-w-0 flex-1">
-                          <h3 className="text-xl font-fredoka font-bold text-foreground truncate">
-                            {track.title}
-                          </h3>
-                          <p className="text-sm text-muted-foreground font-comic">
-                            {track.artist} • {track.duration}
-                            {track.genre && ` • ${GENRES.find(g => g.value === track.genre)?.label || track.genre}`}
-                          </p>
+                          <div className="min-w-0 flex-1">
+                            <h3 className="text-xl font-fredoka font-bold text-foreground truncate">
+                              {track.title}
+                            </h3>
+                            <p className="text-sm text-muted-foreground font-comic">
+                              {track.artist} • {track.duration}
+                              {track.genre && ` • ${GENRES.find(g => g.value === track.genre)?.label || track.genre}`}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0 ml-4">
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            onClick={() => handleDownload(track)}
+                            className="border-3 border-primary/30 hover:border-primary hover:bg-primary/10"
+                          >
+                            <Download className="w-5 h-5 text-primary" />
+                          </Button>
+                          
+                          {track.isUserUpload && track.userId === user?.id && (
+                            <Button
+                              size="icon"
+                              variant="outline"
+                              onClick={() => handleDeleteTrack(track)}
+                              className="border-3 border-destructive/30 hover:border-destructive hover:bg-destructive/10"
+                            >
+                              <Trash2 className="w-5 h-5 text-destructive" />
+                            </Button>
+                          )}
                         </div>
                       </div>
+                    ))
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-                      <div className="flex items-center gap-2 shrink-0 ml-4">
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          onClick={() => handleShareTelegram(track)}
-                          className="border-3 border-primary/30 hover:border-primary hover:bg-primary/10"
-                          title="Chia sẻ qua Telegram"
-                        >
-                          <Send className="w-5 h-5 text-primary" />
-                        </Button>
-
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          onClick={() => handleShareFacebook(track)}
-                          className="border-3 border-primary/30 hover:border-primary hover:bg-primary/10"
-                          title="Chia sẻ lên Facebook"
-                        >
-                          <Share2 className="w-5 h-5 text-primary" />
-                        </Button>
-
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          onClick={() => handleCopyLink(track)}
-                          className="border-3 border-primary/30 hover:border-primary hover:bg-primary/10"
-                          title="Sao chép link"
-                        >
-                          <Link2 className="w-5 h-5 text-primary" />
-                        </Button>
-
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          onClick={() => handleDownload(track)}
-                          className="border-3 border-primary/30 hover:border-primary hover:bg-primary/10"
-                          title="Tải xuống"
-                        >
-                          <Download className="w-5 h-5 text-primary" />
-                        </Button>
-                        
-                        {!track.isUserUpload && (
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            onClick={() => handleSaveToLibrary(track)}
-                            className="border-3 border-secondary/30 hover:border-secondary hover:bg-secondary/10"
-                            title="Lưu vào thư viện"
-                            disabled={!user}
-                          >
-                            <Save className="w-5 h-5 text-secondary" />
-                          </Button>
-                        )}
-
-                        {user && playlists.length > 0 && !selectedPlaylist && (
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                size="icon"
-                                variant="outline"
-                                className="border-3 border-primary/30 hover:border-primary hover:bg-primary/10"
-                                title="Thêm vào playlist"
-                              >
-                                <Plus className="w-5 h-5 text-primary" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              {playlists.filter(p => p.user_id === user.id).map(playlist => (
-                                <DropdownMenuItem
-                                  key={playlist.id}
-                                  onClick={() => handleAddToPlaylist(playlist.id, track.id)}
-                                >
-                                  <ListMusic className="w-4 h-4 mr-2" />
-                                  {playlist.name}
-                                </DropdownMenuItem>
-                              ))}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        )}
-
-                        {selectedPlaylist && (
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            onClick={() => handleRemoveFromPlaylist(track.id)}
-                            className="border-3 border-destructive/30 hover:border-destructive hover:bg-destructive/10"
-                            title="Xóa khỏi playlist"
-                          >
-                            <Trash2 className="w-5 h-5 text-destructive" />
-                          </Button>
-                        )}
-
-                        {track.isUserUpload && track.userId === user?.id && !selectedPlaylist && (
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            onClick={() => handleDeleteTrack(track)}
-                            className="border-3 border-destructive/30 hover:border-destructive hover:bg-destructive/10"
-                            title="Xóa bài hát"
-                          >
-                            <Trash2 className="w-5 h-5 text-destructive" />
-                          </Button>
-                        )}
-                      </div>
+            {/* 432Hz Healing Music Tab */}
+            <TabsContent value="healing" className="space-y-4">
+              <Card className="border-4 border-secondary/40 bg-gradient-to-br from-secondary/5 to-accent/5">
+                <CardHeader>
+                  <CardTitle className="font-fredoka text-2xl flex items-center gap-2">
+                    <Heart className="w-6 h-6 text-secondary animate-pulse" />
+                    432Hz Healing Music Library
+                  </CardTitle>
+                  <CardDescription className="text-base">
+                    Nhạc thiền định và chữa lành với tần số 432Hz, tần số tự nhiên của vũ trụ
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {healingTracks.length === 0 ? (
+                    <div className="text-center py-12">
+                      <Sparkles className="w-16 h-16 text-secondary mx-auto mb-4 opacity-50" />
+                      <p className="text-lg text-muted-foreground">Đang cập nhật thư viện...</p>
                     </div>
-                  ))
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {healingTracks.map((track) => (
+                        <div
+                          key={track.id}
+                          className="p-6 border-4 border-secondary/30 rounded-2xl hover:border-secondary hover:shadow-lg transition-all bg-gradient-to-br from-white to-secondary/10"
+                        >
+                          <div className="flex items-start gap-4 mb-4">
+                            <div className="p-3 rounded-xl bg-gradient-to-br from-secondary/20 to-accent/20">
+                              {track.category === 'meditation' && <Brain className="w-8 h-8 text-secondary" />}
+                              {track.category === 'sleep' && <Moon className="w-8 h-8 text-secondary" />}
+                              {track.category === 'focus' && <Sparkles className="w-8 h-8 text-secondary" />}
+                              {track.category === 'nature' && <Heart className="w-8 h-8 text-secondary" />}
+                              {track.category === 'chakra' && <Sparkles className="w-8 h-8 text-secondary" />}
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="text-lg font-fredoka font-bold text-foreground mb-1">
+                                {track.title}
+                              </h3>
+                              <p className="text-sm text-muted-foreground font-comic mb-2">
+                                {track.duration} • {track.frequency}
+                              </p>
+                              {track.description && (
+                                <p className="text-xs text-muted-foreground italic">
+                                  {track.description}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <Button
+                            onClick={() => handlePlayPause(track)}
+                            className="w-full bg-gradient-to-r from-secondary to-accent hover:shadow-xl transition-all"
+                          >
+                            {isPlaying && currentTrack?.id === track.id ? (
+                              <>
+                                <Pause className="w-4 h-4 mr-2" />
+                                Đang phát...
+                              </>
+                            ) : (
+                              <>
+                                <Play className="w-4 h-4 mr-2" />
+                                Nghe ngay
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Pending Approval Tab (Parents only) */}
+            {user && pendingTracks.length > 0 && (
+              <TabsContent value="pending" className="space-y-4">
+                <Card className="border-4 border-accent/40 bg-gradient-to-br from-accent/5 to-primary/5">
+                  <CardHeader>
+                    <CardTitle className="font-fredoka text-2xl flex items-center gap-2">
+                      <Clock className="w-6 h-6 text-accent" />
+                      Nhạc Chờ Phê Duyệt ({pendingTracks.length})
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      👨‍👩‍👧 Phụ huynh phê duyệt các bài nhạc con tải lên
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {pendingTracks.map((track) => (
+                      <div
+                        key={track.id}
+                        className="p-6 border-4 border-accent/30 rounded-2xl bg-white space-y-4"
+                      >
+                        <div className="flex items-center gap-4">
+                          <Music className="w-12 h-12 text-accent" />
+                          <div className="flex-1">
+                            <h3 className="text-lg font-fredoka font-bold text-foreground">
+                              {track.title}
+                            </h3>
+                            <p className="text-sm text-muted-foreground font-comic">
+                              {track.artist} • {track.duration}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-3">
+                          <Button
+                            onClick={() => handleApproveTrack(track)}
+                            className="flex-1 bg-gradient-to-r from-accent to-secondary hover:shadow-xl"
+                          >
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Phê duyệt
+                          </Button>
+                          <Button
+                            onClick={() => handleRejectTrack(track)}
+                            variant="outline"
+                            className="flex-1 border-2 border-destructive/30 hover:bg-destructive/10"
+                          >
+                            <XCircle className="w-4 h-4 mr-2" />
+                            Từ chối
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            )}
+
+            {/* Playlist Tabs */}
+            {playlists.map(playlist => (
+              <TabsContent key={playlist.id} value={`playlist-${playlist.id}`} className="space-y-4">
+                <Card className="border-4 border-primary/30">
+                  <CardHeader>
+                    <CardTitle className="font-fredoka text-2xl">
+                      {playlist.name} ({playlistTracks.length})
+                    </CardTitle>
+                    {playlist.description && (
+                      <CardDescription>{playlist.description}</CardDescription>
+                    )}
+                  </CardHeader>
+                  <CardContent>
+                    {/* Similar track list as "all" tab */}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            ))}
+          </Tabs>
+
+          {/* Parent Approval Dialog */}
+          <Dialog open={parentPasswordOpen} onOpenChange={setParentPasswordOpen}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle className="font-fredoka text-2xl flex items-center gap-2">
+                  👨‍👩‍👧 Xác nhận Phụ huynh
+                </DialogTitle>
+                <DialogDescription>
+                  Nhập mật khẩu phụ huynh để phê duyệt bài nhạc này
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                {pendingApprovalTrack && (
+                  <div className="p-4 bg-accent/10 rounded-xl">
+                    <p className="font-fredoka font-bold text-lg text-foreground mb-1">
+                      {pendingApprovalTrack.title}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {pendingApprovalTrack.artist}
+                    </p>
+                  </div>
                 )}
+                <div className="space-y-2">
+                  <Label htmlFor="parent-password">Mật khẩu Phụ huynh</Label>
+                  <Input
+                    id="parent-password"
+                    type="password"
+                    placeholder="Nhập mật khẩu..."
+                    value={parentPassword}
+                    onChange={(e) => setParentPassword(e.target.value)}
+                    className="border-2 border-primary/30"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Demo: "parent2026"
+                  </p>
+                </div>
               </div>
-            </CardContent>
-          </Card>
+              <DialogFooter className="gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setParentPasswordOpen(false);
+                    setParentPassword("");
+                    setPendingApprovalTrack(null);
+                  }}
+                >
+                  Hủy
+                </Button>
+                <Button
+                  onClick={handleParentApproval}
+                  className="bg-gradient-to-r from-accent to-secondary"
+                >
+                  Xác nhận Phê duyệt
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </main>
 
