@@ -4,10 +4,13 @@ import { Search, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import camlyCoin from "@/assets/camly-coin.png";
+import { useGameAudio } from "@/hooks/useGameAudio";
+import { AudioControls } from "./AudioControls";
 
 export const Hero = () => {
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
+  const { playClick, playPop, isSoundEnabled, isMusicEnabled, toggleSound, toggleMusic } = useGameAudio();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,6 +83,14 @@ export const Hero = () => {
 
       <div className="container mx-auto max-w-6xl">
         <div className="text-center space-y-6 sm:space-y-8 animate-fade-in">
+          <div className="flex justify-end mb-4">
+            <AudioControls 
+              isMusicEnabled={isMusicEnabled}
+              isSoundEnabled={isSoundEnabled}
+              onToggleMusic={toggleMusic}
+              onToggleSound={toggleSound}
+            />
+          </div>
           <div className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-white/10 backdrop-blur-md rounded-full border-2 border-white/20 shadow-lg">
             <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 animate-pulse" />
             <span className="font-space text-sm sm:text-lg font-bold text-white">Welcome to FUN Planet! 🎉</span>
@@ -121,6 +132,8 @@ export const Hero = () => {
               />
               <Button 
                 type="submit"
+                onMouseEnter={() => playPop()}
+                onClick={() => playClick()}
                 className="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 font-space font-bold px-4 sm:px-8 py-4 sm:py-6 text-sm sm:text-base bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 shadow-lg shadow-purple-500/50 hover:shadow-cyan-500/50 transform hover:scale-105 transition-all border border-white/20"
               >
                 Search 🚀
@@ -130,14 +143,16 @@ export const Hero = () => {
 
           <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 pt-4 px-4">
             <Button
-              onClick={() => navigate("/games")}
+              onClick={() => { playClick(); navigate("/games"); }}
+              onMouseEnter={() => playPop()}
               size="lg"
               className="font-space font-bold text-base sm:text-xl px-8 sm:px-10 py-6 sm:py-8 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 shadow-lg shadow-purple-500/50 hover:shadow-pink-500/50 transform hover:scale-105 transition-all border border-white/20 backdrop-blur-sm touch-manipulation w-full sm:w-auto"
             >
               Browse All Games 🎯
             </Button>
             <Button
-              onClick={() => navigate("/leaderboard")}
+              onClick={() => { playClick(); navigate("/leaderboard"); }}
+              onMouseEnter={() => playPop()}
               size="lg"
               variant="outline"
               className="font-space font-bold text-base sm:text-xl px-8 sm:px-10 py-6 sm:py-8 bg-white/10 backdrop-blur-md border-2 border-white/20 hover:bg-white/20 text-white hover:text-cyan-400 hover:border-cyan-400 shadow-lg transform hover:scale-105 transition-all touch-manipulation w-full sm:w-auto"
