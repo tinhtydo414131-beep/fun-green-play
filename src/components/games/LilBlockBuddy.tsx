@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +20,63 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
   const [time, setTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  
+  const audioContextRef = useRef<AudioContext | null>(null);
+
+  // Khởi tạo Audio Context
+  useEffect(() => {
+    audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    return () => {
+      audioContextRef.current?.close();
+    };
+  }, []);
+
+  // Âm thanh khi di chuyển ô
+  const playMoveSound = () => {
+    if (!audioContextRef.current) return;
+    const ctx = audioContextRef.current;
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    
+    oscillator.frequency.setValueAtTime(800, ctx.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.1);
+    
+    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+    
+    oscillator.start(ctx.currentTime);
+    oscillator.stop(ctx.currentTime + 0.1);
+  };
+
+  // Âm thanh chiến thắng vui tươi
+  const playWinSound = () => {
+    if (!audioContextRef.current) return;
+    const ctx = audioContextRef.current;
+    
+    // Chuỗi nốt nhạc vui tươi: C - E - G - C cao
+    const notes = [523.25, 659.25, 783.99, 1046.50];
+    
+    notes.forEach((freq, index) => {
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      
+      oscillator.frequency.setValueAtTime(freq, ctx.currentTime + index * 0.15);
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0, ctx.currentTime + index * 0.15);
+      gainNode.gain.linearRampToValueAtTime(0.3, ctx.currentTime + index * 0.15 + 0.02);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + index * 0.15 + 0.3);
+      
+      oscillator.start(ctx.currentTime + index * 0.15);
+      oscillator.stop(ctx.currentTime + index * 0.15 + 0.3);
+    });
+  };
 
   // Khởi tạo puzzle
   const initializePuzzle = () => {
@@ -93,10 +150,17 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
       [newTiles[emptyIndex], newTiles[index]] = [newTiles[index], newTiles[emptyIndex]];
       setTiles(newTiles);
       setMoves(m => m + 1);
+      
+      // Phát âm thanh di chuyển
+      playMoveSound();
 
       if (checkComplete(newTiles)) {
         setIsComplete(true);
         setIsPlaying(false);
+        
+        // Phát âm thanh chiến thắng
+        playWinSound();
+        
         confetti({
           particleCount: 100,
           spread: 70,
