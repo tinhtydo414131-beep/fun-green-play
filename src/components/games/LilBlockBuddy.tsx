@@ -3,7 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import confetti from "canvas-confetti";
-import { Sparkles, RotateCcw, ArrowLeft, Volume2, VolumeX, Wand2 } from "lucide-react";
+import { Sparkles, RotateCcw, ArrowLeft, Volume2, VolumeX, Wand2, Zap } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface LilBlockBuddyProps {
   level: number;
@@ -12,8 +14,9 @@ interface LilBlockBuddyProps {
 }
 
 const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) => {
-  const gridSize = Math.min(3 + level, 5); // Tăng kích thước từ 3x3 đến 5x5
+  const gridSize = Math.min(3 + level, 5);
   const totalTiles = gridSize * gridSize;
+  const { toast } = useToast();
   
   const [tiles, setTiles] = useState<number[]>([]);
   const [moves, setMoves] = useState(0);
@@ -22,9 +25,15 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
   const [isComplete, setIsComplete] = useState(false);
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   const [isAutoSolving, setIsAutoSolving] = useState(false);
+  const [isChallengeMode, setIsChallengeMode] = useState(false);
+  const [isFailed, setIsFailed] = useState(false);
   
   const audioContextRef = useRef<AudioContext | null>(null);
   const autoSolveIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Giới hạn thử thách dựa trên level
+  const maxMoves = gridSize * 10;
+  const maxTime = 60 + (level * 15);
 
   // Khởi tạo Audio Context
   useEffect(() => {
@@ -103,6 +112,7 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
     setTime(0);
     setIsPlaying(false);
     setIsComplete(false);
+    setIsFailed(false);
   };
 
   useEffect(() => {
@@ -112,13 +122,26 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
   // Timer
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (isPlaying && !isComplete) {
+    if (isPlaying && !isComplete && !isFailed) {
       interval = setInterval(() => {
-        setTime(t => t + 1);
+        setTime(t => {
+          const newTime = t + 1;
+          // Kiểm tra giới hạn thời gian trong chế độ thử thách
+          if (isChallengeMode && newTime >= maxTime) {
+            setIsPlaying(false);
+            setIsFailed(true);
+            toast({
+              title: "Hết thời gian! ⏰",
+              description: "Bạn đã vượt quá giới hạn thời gian. Thử lại nhé!",
+              variant: "destructive",
+            });
+          }
+          return newTime;
+        });
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [isPlaying, isComplete]);
+  }, [isPlaying, isComplete, isFailed, isChallengeMode, maxTime, toast]);
 
   // Lấy các nước đi hợp lệ
   const getValidMoves = (emptyIndex: number, size: number): number[] => {
@@ -144,7 +167,7 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
 
   // Xử lý click tile
   const handleTileClick = (index: number) => {
-    if (isComplete) return;
+    if (isComplete || isFailed) return;
     
     if (!isPlaying) setIsPlaying(true);
 
@@ -155,16 +178,28 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
       const newTiles = [...tiles];
       [newTiles[emptyIndex], newTiles[index]] = [newTiles[index], newTiles[emptyIndex]];
       setTiles(newTiles);
-      setMoves(m => m + 1);
       
-      // Phát âm thanh di chuyển
+      const newMoves = moves + 1;
+      setMoves(newMoves);
+      
+      // Kiểm tra giới hạn số bước trong chế độ thử thách
+      if (isChallengeMode && newMoves >= maxMoves) {
+        setIsPlaying(false);
+        setIsFailed(true);
+        toast({
+          title: "Hết lượt! 🎯",
+          description: "Bạn đã dùng hết số bước cho phép. Thử lại nhé!",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       playMoveSound();
 
       if (checkComplete(newTiles)) {
         setIsComplete(true);
         setIsPlaying(false);
         
-        // Phát âm thanh chiến thắng
         playWinSound();
         
         confetti({
@@ -173,14 +208,13 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
           origin: { y: 0.6 }
         });
 
-        // Tính điểm dựa trên moves và time
         const baseScore = 1000;
-        const movesPenalty = moves * 5;
+        const movesPenalty = newMoves * 5;
         const timePenalty = time * 2;
-        const finalScore = Math.max(100, baseScore - movesPenalty - timePenalty);
+        const challengeBonus = isChallengeMode ? 500 : 0;
+        const finalScore = Math.max(100, baseScore - movesPenalty - timePenalty + challengeBonus);
         
-        // Tính stars
-        const stars = moves < gridSize * 5 && time < 60 ? 3 : moves < gridSize * 8 ? 2 : 1;
+        const stars = newMoves < gridSize * 5 && time < 60 ? 3 : newMoves < gridSize * 8 ? 2 : 1;
         
         setTimeout(() => onLevelComplete(stars, finalScore), 1000);
       }
@@ -326,9 +360,17 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
           <p className="text-lg text-muted-foreground font-comic">
             Sắp xếp các số theo thứ tự từ 1 đến {totalTiles - 1}!
           </p>
-          <Badge variant="secondary" className="text-lg px-4 py-2">
-            Level {level} • Grid {gridSize}x{gridSize}
-          </Badge>
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            <Badge variant="secondary" className="text-lg px-4 py-2">
+              Level {level} • Grid {gridSize}x{gridSize}
+            </Badge>
+            {isChallengeMode && (
+              <Badge variant="destructive" className="text-lg px-4 py-2 animate-pulse">
+                <Zap className="w-4 h-4 mr-1" />
+                Chế độ Thử thách
+              </Badge>
+            )}
+          </div>
         </div>
 
         {/* Sound Toggle Button */}
@@ -349,13 +391,33 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4">
-          <Card className="p-4 text-center glassmorphism border-primary/20">
-            <p className="text-sm text-muted-foreground mb-1">Số bước</p>
-            <p className="text-2xl font-fredoka font-bold text-primary">{moves}</p>
+          <Card className={cn(
+            "p-4 text-center glassmorphism border-primary/20",
+            isChallengeMode && moves >= maxMoves * 0.8 && "border-destructive/50 animate-pulse"
+          )}>
+            <p className="text-sm text-muted-foreground mb-1">
+              Số bước {isChallengeMode && `(${maxMoves} tối đa)`}
+            </p>
+            <p className={cn(
+              "text-2xl font-fredoka font-bold",
+              isChallengeMode && moves >= maxMoves * 0.8 ? "text-destructive" : "text-primary"
+            )}>
+              {moves}
+            </p>
           </Card>
-          <Card className="p-4 text-center glassmorphism border-accent/20">
-            <p className="text-sm text-muted-foreground mb-1">Thời gian</p>
-            <p className="text-2xl font-fredoka font-bold text-accent">{formatTime(time)}</p>
+          <Card className={cn(
+            "p-4 text-center glassmorphism border-accent/20",
+            isChallengeMode && time >= maxTime * 0.8 && "border-destructive/50 animate-pulse"
+          )}>
+            <p className="text-sm text-muted-foreground mb-1">
+              Thời gian {isChallengeMode && `(${formatTime(maxTime)} tối đa)`}
+            </p>
+            <p className={cn(
+              "text-2xl font-fredoka font-bold",
+              isChallengeMode && time >= maxTime * 0.8 ? "text-destructive" : "text-accent"
+            )}>
+              {formatTime(time)}
+            </p>
           </Card>
           <Card className="p-4 text-center glassmorphism border-glow/20">
             <p className="text-sm text-muted-foreground mb-1">Target</p>
@@ -415,6 +477,18 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
             </Button>
           )}
           <Button
+            onClick={() => {
+              setIsChallengeMode(!isChallengeMode);
+              initializePuzzle();
+            }}
+            variant={isChallengeMode ? "default" : "outline"}
+            size="lg"
+            className="font-fredoka font-bold border-2 hover:scale-105 transition-all"
+          >
+            <Zap className="mr-2 h-5 w-5" />
+            {isChallengeMode ? "Chế độ thường" : "Thử thách"}
+          </Button>
+          <Button
             onClick={initializePuzzle}
             variant="outline"
             size="lg"
@@ -429,14 +503,14 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
             variant={isAutoSolving ? "default" : "outline"}
             size="lg"
             className="font-fredoka font-bold border-2 hover:scale-105 transition-all"
-            disabled={isComplete}
+            disabled={isComplete || isChallengeMode}
           >
             <Wand2 className="mr-2 h-5 w-5" />
             {isAutoSolving ? "Dừng" : "Tự động giải"}
           </Button>
         </div>
 
-        {/* Win message */}
+        {/* Win/Fail message */}
         {isComplete && (
           <div className="text-center space-y-2 animate-scale-in">
             <div className="text-6xl">🎉</div>
@@ -446,6 +520,30 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
             <p className="text-lg text-muted-foreground">
               {moves} bước trong {formatTime(time)}
             </p>
+            {isChallengeMode && (
+              <Badge variant="default" className="text-lg px-4 py-2">
+                🏆 Bonus +500 điểm (Chế độ thử thách)
+              </Badge>
+            )}
+          </div>
+        )}
+        
+        {isFailed && (
+          <div className="text-center space-y-2 animate-scale-in">
+            <div className="text-6xl">😅</div>
+            <h2 className="text-3xl font-fredoka font-bold bg-gradient-to-r from-destructive to-orange-500 bg-clip-text text-transparent">
+              Thử lại nhé!
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              {moves >= maxMoves ? "Đã dùng hết số bước cho phép" : "Đã hết thời gian"}
+            </p>
+            <Button
+              onClick={initializePuzzle}
+              size="lg"
+              className="font-fredoka font-bold"
+            >
+              Chơi lại
+            </Button>
           </div>
         )}
 
@@ -459,6 +557,12 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
                 <li>• Click vào ô cạnh ô trống để di chuyển</li>
                 <li>• Hoàn thành càng nhanh và ít bước càng được nhiều sao</li>
                 <li>• Grid size tăng dần theo level</li>
+                {isChallengeMode && (
+                  <>
+                    <li className="text-destructive font-bold">• ⚡ Chế độ thử thách: Giới hạn thời gian và số bước!</li>
+                    <li className="text-primary font-bold">• 🏆 Hoàn thành được thưởng +500 điểm bonus</li>
+                  </>
+                )}
               </ul>
             </div>
           </div>
