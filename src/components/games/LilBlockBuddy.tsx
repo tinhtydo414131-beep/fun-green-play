@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import confetti from "canvas-confetti";
-import { Sparkles, RotateCcw, ArrowLeft } from "lucide-react";
+import { Sparkles, RotateCcw, ArrowLeft, Volume2, VolumeX } from "lucide-react";
 
 interface LilBlockBuddyProps {
   level: number;
@@ -20,6 +20,7 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
   const [time, setTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   
   const audioContextRef = useRef<AudioContext | null>(null);
 
@@ -33,7 +34,7 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
 
   // Âm thanh khi di chuyển ô
   const playMoveSound = () => {
-    if (!audioContextRef.current) return;
+    if (!audioContextRef.current || !isSoundEnabled) return;
     const ctx = audioContextRef.current;
     const oscillator = ctx.createOscillator();
     const gainNode = ctx.createGain();
@@ -53,7 +54,7 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
 
   // Âm thanh chiến thắng vui tươi
   const playWinSound = () => {
-    if (!audioContextRef.current) return;
+    if (!audioContextRef.current || !isSoundEnabled) return;
     const ctx = audioContextRef.current;
     
     // Chuỗi nốt nhạc vui tươi: C - E - G - C cao
@@ -216,6 +217,22 @@ const LilBlockBuddy = ({ level, onLevelComplete, onBack }: LilBlockBuddyProps) =
           <Badge variant="secondary" className="text-lg px-4 py-2">
             Level {level} • Grid {gridSize}x{gridSize}
           </Badge>
+        </div>
+
+        {/* Sound Toggle Button */}
+        <div className="flex justify-end animate-fade-in">
+          <Button
+            onClick={() => setIsSoundEnabled(!isSoundEnabled)}
+            variant="outline"
+            size="icon"
+            className="font-fredoka font-bold border-2 hover:scale-110 transition-all"
+          >
+            {isSoundEnabled ? (
+              <Volume2 className="h-5 w-5 text-primary" />
+            ) : (
+              <VolumeX className="h-5 w-5 text-muted-foreground" />
+            )}
+          </Button>
         </div>
 
         {/* Stats */}
