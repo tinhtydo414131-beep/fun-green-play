@@ -91,9 +91,9 @@ export const Hero = () => {
               onToggleSound={toggleSound}
             />
           </div>
-          <div className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-white/10 backdrop-blur-md rounded-full border-2 border-white/20 shadow-lg">
-            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 animate-pulse" />
-            <span className="font-space text-sm sm:text-lg font-bold text-white">Welcome to FUN Planet! 🎉</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-white/95 backdrop-blur-md rounded-full border-2 border-white/50 shadow-lg">
+            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-primary animate-pulse" />
+            <span className="font-space text-sm sm:text-lg font-black text-foreground">Welcome to FUN Planet! 🎉</span>
           </div>
 
           <div className="flex items-center justify-center gap-3 sm:gap-6 md:gap-8">
@@ -116,7 +116,7 @@ export const Hero = () => {
             />
           </div>
 
-          <p className="text-base sm:text-xl md:text-2xl text-white/90 font-rajdhani font-medium max-w-3xl mx-auto leading-relaxed px-4 drop-shadow-lg">
+          <p className="text-base sm:text-xl md:text-2xl text-foreground font-rajdhani font-black max-w-3xl mx-auto leading-relaxed px-4 drop-shadow-lg bg-white/95 rounded-2xl py-4 border-2 border-white/50">
             🌍 Build Your Planet – Play & Earn Joy! 🎮 Create your dream world with fun games and amazing rewards! 🌟
           </p>
 
