@@ -204,7 +204,7 @@ const Games = () => {
                 placeholder="Search for games... 🔍"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-11 sm:pl-14 pr-20 sm:pr-4 py-4 sm:py-6 text-base sm:text-lg font-comic border-4 border-primary/30 focus:border-primary rounded-2xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all"
+                className="pl-11 sm:pl-14 pr-20 sm:pr-4 py-4 sm:py-6 text-base sm:text-lg font-comic border-4 border-primary/50 focus:border-primary rounded-2xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all focus:ring-4 focus:ring-primary/20"
               />
               <Button 
                 type="submit"

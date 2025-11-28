@@ -128,7 +128,7 @@ export const Hero = () => {
                 placeholder="Search for your favorite game... 🔍"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-10 sm:pl-14 pr-24 sm:pr-32 py-6 sm:py-8 text-base sm:text-lg font-rajdhani font-medium bg-white/10 backdrop-blur-md border-2 border-white/20 focus:border-cyan-400 rounded-2xl shadow-lg hover:shadow-cyan-500/50 transition-all touch-manipulation text-white placeholder:text-white/60"
+                className="pl-10 sm:pl-14 pr-24 sm:pr-32 py-6 sm:py-8 text-base sm:text-lg font-rajdhani font-medium bg-white/10 backdrop-blur-md border-4 border-primary/40 focus:border-cyan-400 rounded-2xl shadow-lg hover:shadow-cyan-500/50 transition-all touch-manipulation text-white placeholder:text-white/60 focus:ring-4 focus:ring-cyan-400/20"
               />
               <Button 
                 type="submit"

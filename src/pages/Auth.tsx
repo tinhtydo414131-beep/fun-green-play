@@ -338,7 +338,7 @@ export default function Auth() {
                         placeholder="Nhập tên người dùng"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        className="h-12 border-2 border-primary/30 focus:border-primary"
+                        className="h-12 border-4 border-primary/40 focus:border-primary focus:ring-4 focus:ring-primary/20"
                         required
                       />
                     </div>
@@ -354,7 +354,7 @@ export default function Auth() {
                       placeholder="your@email.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="h-12 border-2 border-primary/30 focus:border-primary"
+                      className="h-12 border-4 border-primary/40 focus:border-primary focus:ring-4 focus:ring-primary/20"
                       required
                     />
                   </div>
@@ -369,7 +369,7 @@ export default function Auth() {
                       placeholder="••••••••"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="h-12 border-2 border-primary/30 focus:border-primary"
+                      className="h-12 border-4 border-primary/40 focus:border-primary focus:ring-4 focus:ring-primary/20"
                       required
                     />
                   </div>
@@ -385,7 +385,7 @@ export default function Auth() {
                         placeholder="••••••••"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="h-12 border-2 border-primary/30 focus:border-primary"
+                        className="h-12 border-4 border-primary/40 focus:border-primary focus:ring-4 focus:ring-primary/20"
                         required
                       />
                     </div>
@@ -471,7 +471,7 @@ export default function Auth() {
                           placeholder="your@email.com"
                           value={resetEmail}
                           onChange={(e) => setResetEmail(e.target.value)}
-                          className="h-12 border-2 border-primary/30 focus:border-primary"
+                          className="h-12 border-4 border-primary/40 focus:border-primary focus:ring-4 focus:ring-primary/20"
                           required
                         />
                       </div>

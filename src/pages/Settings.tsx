@@ -313,7 +313,7 @@ export default function Settings() {
                     value={formData.username}
                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                     placeholder="Nhập tên người dùng"
-                    className={`border-2 ${errors.username ? 'border-destructive' : 'border-primary/30'}`}
+                    className={`border-4 focus:ring-4 focus:ring-primary/20 ${errors.username ? 'border-destructive' : 'border-primary/40 focus:border-primary'}`}
                     maxLength={20}
                   />
                   {errors.username && (
@@ -334,7 +334,7 @@ export default function Settings() {
                     value={formData.bio}
                     onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                     placeholder="Viết vài dòng về bản thân..."
-                    className={`border-2 min-h-24 ${errors.bio ? 'border-destructive' : 'border-primary/30'}`}
+                    className={`border-4 min-h-24 focus:ring-4 focus:ring-primary/20 ${errors.bio ? 'border-destructive' : 'border-primary/40 focus:border-primary'}`}
                     maxLength={200}
                   />
                   {errors.bio && (
@@ -399,7 +399,7 @@ export default function Settings() {
                     value={passwordData.currentPassword}
                     onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
                     placeholder="Nhập mật khẩu hiện tại"
-                    className={`border-2 ${passwordErrors.currentPassword ? 'border-destructive' : 'border-primary/30'}`}
+                    className={`border-4 focus:ring-4 focus:ring-primary/20 ${passwordErrors.currentPassword ? 'border-destructive' : 'border-primary/40 focus:border-primary'}`}
                   />
                   {passwordErrors.currentPassword && (
                     <p className="text-sm text-destructive font-comic">{passwordErrors.currentPassword}</p>
@@ -417,7 +417,7 @@ export default function Settings() {
                     value={passwordData.newPassword}
                     onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
                     placeholder="Nhập mật khẩu mới"
-                    className={`border-2 ${passwordErrors.newPassword ? 'border-destructive' : 'border-primary/30'}`}
+                    className={`border-4 focus:ring-4 focus:ring-primary/20 ${passwordErrors.newPassword ? 'border-destructive' : 'border-primary/40 focus:border-primary'}`}
                   />
                   {passwordErrors.newPassword && (
                     <p className="text-sm text-destructive font-comic">{passwordErrors.newPassword}</p>
@@ -435,7 +435,7 @@ export default function Settings() {
                     value={passwordData.confirmPassword}
                     onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
                     placeholder="Nhập lại mật khẩu mới"
-                    className={`border-2 ${passwordErrors.confirmPassword ? 'border-destructive' : 'border-primary/30'}`}
+                    className={`border-4 focus:ring-4 focus:ring-primary/20 ${passwordErrors.confirmPassword ? 'border-destructive' : 'border-primary/40 focus:border-primary'}`}
                   />
                   {passwordErrors.confirmPassword && (
                     <p className="text-sm text-destructive font-comic">{passwordErrors.confirmPassword}</p>
