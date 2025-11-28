@@ -115,7 +115,7 @@ const Index = () => {
         <source src="/videos/homepage-bg.mp4" type="video/mp4" />
       </video>
       {/* Overlay for better content readability */}
-      <div className="fixed inset-0 bg-white/40 -z-10" />
+      <div className="fixed inset-0 bg-black/20 -z-10" />
       
       <Navigation />
       <Hero />
@@ -237,7 +237,7 @@ const Index = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t-4 border-primary/60 py-12 px-4 bg-white/50 backdrop-blur-sm">
+      <footer className="border-t-4 border-primary/60 py-12 px-4 bg-black/20 backdrop-blur-sm">
         <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
             <div>
