@@ -54,6 +54,7 @@ import { CinemaBoss } from "@/components/games/CinemaBoss";
 import { LibraryKeeper } from "@/components/games/LibraryKeeper";
 import { RestaurantChef } from "@/components/games/RestaurantChef";
 import { ThemeParkBuilder } from "@/components/games/ThemeParkBuilder";
+import { GoldMiner } from "@/components/games/GoldMiner";
 
 interface Game {
   id: string;
@@ -264,6 +265,9 @@ const GamePlay = () => {
       case "ThemeParkBuilder":
       case "theme-park-builder":
         return <ThemeParkBuilder {...gameProps} />;
+      case "GoldMiner":
+      case "gold-miner":
+        return <GoldMiner {...gameProps} />;
       
       // Exploration & Adventure Games
       case "SpaceExplorer": return <SpaceExplorer {...gameProps} />;
@@ -323,7 +327,8 @@ const GamePlay = () => {
                        gameId === 'cinema-boss' ||
                        gameId === 'library-keeper' ||
                        gameId === 'restaurant-chef' ||
-                       gameId === 'theme-park-builder';
+                       gameId === 'theme-park-builder' ||
+                       gameId === 'gold-miner';
   
   if (!game && !isDirectGame) {
     return (
