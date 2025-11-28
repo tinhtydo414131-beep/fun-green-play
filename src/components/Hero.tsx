@@ -29,7 +29,7 @@ export const Hero = () => {
         .select("storage_path")
         .eq("user_id", user?.id)
         .eq("is_active", true)
-        .single();
+        .maybeSingle();
 
       if (error || !data) {
         // Use default video if no active video found
