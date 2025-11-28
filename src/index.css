@@ -66,7 +66,10 @@
 @layer base {
   * {
     @apply border-border;
+    /* Numbers always bold and clear */
+    font-variant-numeric: tabular-nums;
   }
+  
   body {
     @apply bg-background text-foreground font-rajdhani font-medium;
   }
@@ -77,6 +80,31 @@
   
   p, span, div {
     @apply text-foreground;
+  }
+  
+  /* Make ALL numbers extra bold and clear */
+  body {
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  
+  /* Target elements that commonly contain numbers */
+  .text-xl, .text-2xl, .text-3xl, .text-4xl, .text-5xl, .text-6xl,
+  [class*="price"],
+  [class*="amount"],
+  [class*="balance"],
+  [class*="total"],
+  [class*="score"],
+  [class*="count"],
+  [class*="number"],
+  [class*="stat"],
+  [class*="value"] {
+    font-weight: 900 !important;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+  }
+  
+  /* Make numbers in specific contexts even bolder */
+  h1 *, h2 *, h3 *, h4 *, h5 *, h6 * {
+    font-weight: 900 !important;
   }
   
   /* Smooth scrolling */
@@ -478,6 +506,7 @@
   
   .level-number {
     font-size: 48px !important;
+    font-weight: 900 !important;
   }
   
   .level-grid {
@@ -524,6 +553,7 @@
   align-items: center !important;
   justify-content: center !important;
   transition: all 0.3s ease !important;
+  font-weight: 900 !important;
 }
 
 .level-btn:hover {
