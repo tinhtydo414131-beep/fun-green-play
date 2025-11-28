@@ -4,9 +4,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Trophy, Flame, Medal } from "lucide-react";
+import { ArrowLeft, Trophy, Flame, Medal, Crown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ComboPeriodTimer } from "@/components/ComboPeriodTimer";
+import { ComboPrizeNotification } from "@/components/ComboPrizeNotification";
 
 interface ComboRecord {
   id: string;
@@ -273,6 +275,35 @@ if (loading) {
               Top combo cao nhất theo từng thời kỳ! 🔥
             </p>
           </div>
+
+          {/* Period Timer & Prizes */}
+          <div className="mb-8">
+            <ComboPeriodTimer />
+          </div>
+
+          {/* Prize Info */}
+          <Card className="mb-8 p-6 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/20">
+            <div className="flex items-center gap-3 mb-4">
+              <Crown className="w-6 h-6 text-yellow-500" />
+              <h3 className="font-fredoka font-bold text-xl">Phần thưởng 🎁</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-yellow-500" />
+                <span><strong>Daily Winner:</strong> 100 tokens (tối thiểu 10x combo)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-orange-500" />
+                <span><strong>Weekly Winner:</strong> 500 tokens (tối thiểu 10x combo)</span>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-3">
+              * Phần thưởng tự động được thêm vào ví khi period kết thúc
+            </p>
+          </Card>
+
+          {/* Prize Notifications */}
+          <ComboPrizeNotification />
 
           {/* Tabs for time periods */}
           <Tabs defaultValue="all-time" className="w-full">
