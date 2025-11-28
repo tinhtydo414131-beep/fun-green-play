@@ -78,6 +78,22 @@
   p, span, div {
     @apply text-foreground;
   }
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Smooth transitions for all interactive elements */
+  button, a, [role="button"], input, select, textarea {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Smooth scale on touch */
+  button:active, a:active, [role="button"]:active {
+    transform: scale(0.97);
+    transition: transform 0.1s ease-out;
+  }
 
   @keyframes breathing {
     0%, 100% {
@@ -129,6 +145,73 @@
       background-position: 0% 50%;
     }
   }
+  
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes slide-in-left {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes slide-in-right {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  .animate-slide-up {
+    animation: slide-up 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+  
+  .animate-slide-in-left {
+    animation: slide-in-left 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+  
+  .animate-slide-in-right {
+    animation: slide-in-right 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+  
+  .animate-scale-in {
+    animation: scale-in 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+  
+  /* Stagger animation delays */
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
 
   .gradient-animated {
     background: linear-gradient(135deg, hsl(262, 100%, 64%), hsl(280, 100%, 70%), hsl(186, 100%, 50%), hsl(200, 100%, 60%));
@@ -210,6 +293,28 @@
     line-height: 1.6;
     padding-bottom: env(safe-area-inset-bottom, 0);
     -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+  }
+  
+  /* Smooth momentum scrolling */
+  * {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+  
+  /* Enhanced scroll snap for sections */
+  section {
+    scroll-snap-align: start;
+  }
+  
+  /* Smooth transform animations */
+  .transform {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Smooth opacity transitions */
+  .opacity {
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   h1 {
@@ -234,6 +339,13 @@
   
   button, a {
     font-size: 1.125rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Enhanced button press feedback */
+  button:active, a:active {
+    transform: scale(0.96);
+    transition: transform 0.1s ease-out;
   }
   
   /* Touch-friendly buttons and interactive elements */
@@ -332,6 +444,24 @@
   .min-h-screen {
     min-height: 100vh;
     min-height: -webkit-fill-available;
+  }
+  
+  /* Smooth page transitions */
+  .page-transition {
+    animation: slide-up 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Fade in on scroll */
+  .fade-in-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .fade-in-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

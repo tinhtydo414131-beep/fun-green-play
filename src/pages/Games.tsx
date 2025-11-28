@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Search, Home, ArrowUpDown } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { toast } from "sonner";
 
 interface Game {
@@ -33,6 +34,8 @@ const Games = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [sortBy, setSortBy] = useState<string>('popular');
+  
+  useScrollAnimation();
   
   const categories = [
     { id: 'all', label: 'All Games 🎮', emoji: '🎮' },
@@ -182,7 +185,7 @@ const Games = () => {
             </Button>
           </div>
 
-          <div className="text-center mb-8 sm:mb-12 space-y-3 sm:space-y-4 animate-fade-in">
+          <div className="text-center mb-8 sm:mb-12 space-y-3 sm:space-y-4 animate-slide-up">
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-fredoka font-bold text-primary">
               Game Library 🎮
             </h1>
@@ -192,7 +195,7 @@ const Games = () => {
           </div>
 
           {/* Search Bar - Mobile Optimized */}
-          <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-8 sm:mb-12">
+          <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-8 sm:mb-12 animate-slide-up stagger-1">
             <div className="relative group">
               <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground group-hover:text-primary transition-colors" />
               <Input
@@ -212,7 +215,7 @@ const Games = () => {
           </form>
           
           {/* Category Filters - Mobile Optimized */}
-          <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-8 sm:mb-12">
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-8 sm:mb-12 animate-slide-up stagger-2">
             {categories.map((category) => {
               const isFavorites = category.id === 'favorites';
               const isDisabled = isFavorites && !user;
@@ -244,7 +247,7 @@ const Games = () => {
           </div>
 
           {/* Sort Options */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8 sm:mb-12">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8 sm:mb-12 animate-slide-up stagger-3">
             <div className="flex items-center gap-2">
               <ArrowUpDown className="w-5 h-5 text-primary" />
               <span className="font-fredoka font-bold text-primary text-sm sm:text-base">Sắp xếp:</span>
@@ -295,8 +298,14 @@ const Games = () => {
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                {filteredGames.map((game) => (
-                  <GameCard key={game.id} game={game} />
+                {filteredGames.map((game, index) => (
+                  <div 
+                    key={game.id} 
+                    className="fade-in-on-scroll"
+                    style={{ animationDelay: `${index * 0.05}s` }}
+                  >
+                    <GameCard game={game} />
+                  </div>
                 ))}
               </div>
             </>
