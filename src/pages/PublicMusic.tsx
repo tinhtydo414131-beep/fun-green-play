@@ -414,7 +414,14 @@ export default function PublicMusic() {
 
     setUploading(true);
     try {
-      const filePath = `${user.id}/${Date.now()}-${uploadFile.name}`;
+      // Sanitize filename: remove emojis, special chars, keep only alphanumeric, hyphens, underscores, periods
+      const sanitizedFileName = uploadFile.name
+        .replace(/[^\w\s.-]/g, '') // Remove special chars and emojis
+        .replace(/\s+/g, '_') // Replace spaces with underscores
+        .replace(/_{2,}/g, '_') // Replace multiple underscores with single
+        .toLowerCase();
+      
+      const filePath = `${user.id}/${Date.now()}-${sanitizedFileName}`;
       
       // Upload to storage
       const { error: uploadError } = await supabase.storage
