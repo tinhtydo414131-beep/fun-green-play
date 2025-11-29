@@ -72,7 +72,7 @@ export const Hero = () => {
             }
           }}
         >
-          <source src="/videos/hero-background-new.mp4" type="video/mp4" />
+          <source src="/videos/hero-background-latest.mp4" type="video/mp4" />
         </video>
         {/* Very light overlay for text readability while keeping video vibrant */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20" />
