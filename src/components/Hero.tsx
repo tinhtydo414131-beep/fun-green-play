@@ -152,6 +152,8 @@ export const Hero = () => {
             <img 
               src={camlyCoin} 
               alt="Camly Coin" 
+              loading="lazy"
+              decoding="async"
               className="w-12 h-12 sm:w-20 sm:h-20 md:w-28 md:h-28 lg:w-32 lg:h-32 animate-spin drop-shadow-[0_0_20px_rgba(139,70,255,0.8)]" 
               style={{ animationDuration: '10s' }}
             />
@@ -163,6 +165,8 @@ export const Hero = () => {
             <img 
               src={camlyCoin} 
               alt="Camly Coin" 
+              loading="lazy"
+              decoding="async"
               className="w-12 h-12 sm:w-20 sm:h-20 md:w-28 md:h-28 lg:w-32 lg:h-32 animate-spin drop-shadow-[0_0_20px_rgba(0,242,255,0.8)]" 
               style={{ animationDuration: '10s', animationDirection: 'reverse' }}
             />
