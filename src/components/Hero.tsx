@@ -62,7 +62,7 @@ export const Hero = () => {
           muted
           playsInline
           preload="auto"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover brightness-110 saturate-[1.2]"
           onLoadedData={async (e) => {
             const video = e.target as HTMLVideoElement;
             try {
@@ -74,8 +74,8 @@ export const Hero = () => {
         >
           <source src="/videos/hero-funplanet-user.mp4" type="video/mp4" />
         </video>
-        {/* Subtle overlay for better text readability but keep video visible */}
-        <div className="absolute inset-0 bg-black/25" />
+        {/* Very light overlay for text readability while keeping video vibrant */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20" />
         
         {/* Moving gradient orbs */}
         <div className="absolute top-20 left-10 w-48 h-48 sm:w-72 sm:h-72 bg-gradient-to-r from-purple-500/25 to-pink-500/25 rounded-full blur-3xl animate-float-up" style={{ animationDuration: '20s' }} />
