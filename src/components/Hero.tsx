@@ -21,8 +21,18 @@ export const Hero = () => {
   };
 
   return (
-    <section className="relative pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 overflow-hidden bg-gradient-to-br from-purple-600 via-pink-600 to-cyan-600">
-      <div className="container mx-auto max-w-6xl">
+    <section className="relative pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 overflow-hidden">
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+      >
+        <source src="/videos/hero-background.mp4" type="video/mp4" />
+      </video>
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-600/40 via-pink-600/40 to-cyan-600/40" />
+      <div className="container mx-auto max-w-6xl relative z-10">
         <div className="text-center space-y-6 sm:space-y-8 animate-fade-in">
           <div className="flex justify-end mb-4">
             <AudioControls 
