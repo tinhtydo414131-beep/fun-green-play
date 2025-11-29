@@ -11,6 +11,7 @@ import { ArrowUpRight, ArrowDownLeft, Wallet, Sparkles, Copy, CheckCircle, Chevr
 import { useNavigate } from "react-router-dom";
 import { AirdropConfirmModal } from "@/components/AirdropConfirmModal";
 import { TransactionHistory } from "@/components/TransactionHistory";
+import { RichPopup } from "@/components/RichPopup";
 
 import { toast } from "sonner";
 import { ethers } from "ethers";
@@ -129,6 +130,9 @@ export default function FunWallet() {
   const [networkName, setNetworkName] = useState("BNB Chain");
   const [selectedNetwork, setSelectedNetwork] = useState(networks[1]);
   const [selectedToken, setSelectedToken] = useState(tokens[0]);
+  const [showRichPopup, setShowRichPopup] = useState(false);
+  const [richAmount, setRichAmount] = useState(0);
+  const [richToken, setRichToken] = useState("");
   const [processedCoinImage, setProcessedCoinImage] = useState<string | null>(null);
   const [selectedChartCoin, setSelectedChartCoin] = useState<string | null>(null);
   const [chartTimeframe, setChartTimeframe] = useState<'1H' | '4H' | '1D' | '1W' | '1M'>('1D');
@@ -578,6 +582,11 @@ export default function FunWallet() {
         
         toast.success(`${amount} ${selectedToken.symbol} sent successfully! 🎉`);
         
+        // Show RICH popup
+        setRichAmount(amount);
+        setRichToken(selectedToken.symbol);
+        setShowRichPopup(true);
+        
         // Update CAMLY balance if that's what was sent
         if (selectedToken.symbol === "CAMLY") {
           await getCamlyBalance(account);
@@ -596,6 +605,11 @@ export default function FunWallet() {
         txHash = receipt.hash;
         
         toast.success("Transaction confirmed! 🎉");
+        
+        // Show RICH popup for native token
+        setRichAmount(amount);
+        setRichToken(selectedToken.symbol);
+        setShowRichPopup(true);
       }
 
       // Record transaction in database
@@ -989,6 +1003,11 @@ export default function FunWallet() {
       });
 
       toast.success(`🎉 FUN AND RICH!!! All ${addresses.length} airdrops successful in ONE transaction! 💰✨`);
+      
+      // Show RICH popup for airdrop
+      setRichAmount(totalAmount);
+      setRichToken("CAMLY");
+      setShowRichPopup(true);
       
       setBulkAddresses("");
       setValidAddresses([]);
@@ -2117,7 +2136,15 @@ export default function FunWallet() {
         gasPrice={currentGasPrice}
       />
 
-
+      <AnimatePresence>
+        {showRichPopup && (
+          <RichPopup
+            amount={richAmount}
+            token={richToken}
+            onComplete={() => setShowRichPopup(false)}
+          />
+        )}
+      </AnimatePresence>
 
       <style>{`
         .scrollbar-hide::-webkit-scrollbar {
