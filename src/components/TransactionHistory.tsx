@@ -118,7 +118,7 @@ export const TransactionHistory = ({ transactions }: TransactionHistoryProps) =>
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
             >
-              <Card className="border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl hover:border-white/20 transition-all duration-300 overflow-hidden group">
+              <Card className="border-4 border-transparent bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl transition-all duration-300 overflow-hidden group relative before:absolute before:inset-0 before:-z-10 before:rounded-lg before:p-[4px] before:bg-gradient-to-r before:from-purple-500 before:via-blue-500 before:to-purple-500 hover:before:from-purple-400 hover:before:via-blue-400 hover:before:to-purple-400 before:animate-gradient-shift">
                 <div className="p-2.5">
                   <div className="flex items-start gap-3">
                     {/* Icon */}
