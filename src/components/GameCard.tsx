@@ -182,6 +182,8 @@ export const GameCard = ({ game }: GameCardProps) => {
             <img 
               src={game.thumbnail_url} 
               alt={game.title}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover transition-all duration-700"
               style={{
                 filter: 'contrast(1.45) saturate(1.8) brightness(1.25) drop-shadow(0 8px 20px rgba(0,0,0,0.5)) sharpen(1.2)',
