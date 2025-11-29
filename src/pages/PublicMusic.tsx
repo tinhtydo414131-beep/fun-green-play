@@ -111,6 +111,7 @@ export default function PublicMusic() {
   // Edit state
   const [editingTrackId, setEditingTrackId] = useState<string | null>(null);
   const [editedTitle, setEditedTitle] = useState("");
+  const [editedArtist, setEditedArtist] = useState("");
 
   const handlePlayPause = (track: MusicTrack) => {
     if (currentTrack?.id === track.id) {
@@ -698,14 +699,16 @@ export default function PublicMusic() {
     }
   };
 
-  const handleStartEdit = (trackId: string, currentTitle: string) => {
+  const handleStartEdit = (trackId: string, currentTitle: string, currentArtist: string) => {
     setEditingTrackId(trackId);
     setEditedTitle(currentTitle);
+    setEditedArtist(currentArtist);
   };
 
   const handleCancelEdit = () => {
     setEditingTrackId(null);
     setEditedTitle("");
+    setEditedArtist("");
   };
 
   const handleSaveEdit = async (trackId: string) => {
@@ -714,10 +717,18 @@ export default function PublicMusic() {
       return;
     }
 
+    if (!editedArtist.trim()) {
+      toast.error("Tên nghệ sĩ không được để trống");
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('user_music')
-        .update({ title: editedTitle.trim() })
+        .update({ 
+          title: editedTitle.trim(),
+          artist: editedArtist.trim()
+        })
         .eq('id', trackId);
 
       if (error) throw error;
@@ -725,11 +736,12 @@ export default function PublicMusic() {
       loadUserTracks();
       setEditingTrackId(null);
       setEditedTitle("");
+      setEditedArtist("");
       
-      toast.success("Đã cập nhật tên bài hát!");
+      toast.success("Đã cập nhật thông tin bài hát!");
     } catch (error: any) {
       console.error('Update track error:', error);
-      toast.error("Không thể cập nhật tên bài hát");
+      toast.error("Không thể cập nhật thông tin bài hát");
     }
   };
 
@@ -1054,33 +1066,48 @@ export default function PublicMusic() {
 
                           <div className="min-w-0 flex-1">
                             {editingTrackId === track.id ? (
-                              <div className="flex items-center gap-2">
-                                <Input
-                                  value={editedTitle}
-                                  onChange={(e) => setEditedTitle(e.target.value)}
-                                  className="h-9 text-lg font-fredoka font-bold"
-                                  autoFocus
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter') handleSaveEdit(track.id);
-                                    if (e.key === 'Escape') handleCancelEdit();
-                                  }}
-                                />
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className="h-9 w-9 p-0 shrink-0"
-                                  onClick={() => handleSaveEdit(track.id)}
-                                >
-                                  <Check className="h-5 w-5 text-green-600" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className="h-9 w-9 p-0 shrink-0"
-                                  onClick={handleCancelEdit}
-                                >
-                                  <X className="h-5 w-5 text-red-600" />
-                                </Button>
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <Input
+                                    value={editedTitle}
+                                    onChange={(e) => setEditedTitle(e.target.value)}
+                                    className="h-9 text-lg font-fredoka font-bold"
+                                    placeholder="Tên bài hát..."
+                                    autoFocus
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') handleSaveEdit(track.id);
+                                      if (e.key === 'Escape') handleCancelEdit();
+                                    }}
+                                  />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Input
+                                    value={editedArtist}
+                                    onChange={(e) => setEditedArtist(e.target.value)}
+                                    className="h-8 text-sm"
+                                    placeholder="Tên nghệ sĩ..."
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') handleSaveEdit(track.id);
+                                      if (e.key === 'Escape') handleCancelEdit();
+                                    }}
+                                  />
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0 shrink-0"
+                                    onClick={() => handleSaveEdit(track.id)}
+                                  >
+                                    <Check className="h-4 w-4 text-green-600" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0 shrink-0"
+                                    onClick={handleCancelEdit}
+                                  >
+                                    <X className="h-4 w-4 text-red-600" />
+                                  </Button>
+                                </div>
                               </div>
                             ) : (
                               <div className="flex items-center gap-2 group/title">
@@ -1098,7 +1125,7 @@ export default function PublicMusic() {
                                     size="sm"
                                     variant="ghost"
                                     className="h-8 w-8 p-0 opacity-0 group-hover/title:opacity-100 transition-opacity shrink-0"
-                                    onClick={() => handleStartEdit(track.id, track.title)}
+                                    onClick={() => handleStartEdit(track.id, track.title, track.artist)}
                                   >
                                     <Pencil className="h-4 w-4 text-muted-foreground" />
                                   </Button>
