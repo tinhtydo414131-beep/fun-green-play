@@ -274,7 +274,6 @@ export const GameCard = ({ game }: GameCardProps) => {
           <Link to={`/game/${game.id}`} className="flex-1">
             <Button className="w-full h-14 group/btn font-fredoka font-bold text-base">
               <span>Play Now!</span>
-              <span className="ml-1">🎮</span>
               <Play className="ml-2 w-5 h-5 transition-transform group-hover/btn:scale-125" />
             </Button>
           </Link>
