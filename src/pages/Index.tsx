@@ -19,6 +19,7 @@ import featureFriends from "@/assets/feature-friends.png";
 import featureCompete from "@/assets/feature-compete.png";
 import featureLearning from "@/assets/feature-learning.png";
 import { JoyBot } from "@/components/JoyBot";
+import { FeaturedGame } from "@/components/FeaturedGame";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -106,6 +107,9 @@ const Index = () => {
     >
       <Navigation />
       <Hero />
+      
+      {/* Featured Game Section */}
+      <FeaturedGame />
       
       {/* Features Section */}
       <section className="py-20 px-4">
