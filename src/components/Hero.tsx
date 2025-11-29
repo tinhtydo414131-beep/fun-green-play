@@ -6,9 +6,13 @@ import { useNavigate } from "react-router-dom";
 import camlyCoin from "@/assets/camly-coin.png";
 import { useGameAudio } from "@/hooks/useGameAudio";
 import { AudioControls } from "./AudioControls";
+import { BackgroundVideoSelector } from "./BackgroundVideoSelector";
 
 export const Hero = () => {
   const [search, setSearch] = useState("");
+  const [currentVideo, setCurrentVideo] = useState(() => {
+    return localStorage.getItem("funplanet-background-video") || "/videos/hero-background-latest.mp4";
+  });
   const navigate = useNavigate();
   const { playClick, playPop, isSoundEnabled, isMusicEnabled, toggleSound, toggleMusic } = useGameAudio();
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -72,7 +76,7 @@ export const Hero = () => {
             }
           }}
         >
-          <source src="/videos/hero-background-latest.mp4" type="video/mp4" />
+          <source src={currentVideo} type="video/mp4" />
         </video>
         {/* Very light overlay for text readability while keeping video vibrant */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20" />
@@ -233,6 +237,11 @@ export const Hero = () => {
           </div>
         </div>
       </div>
+
+      <BackgroundVideoSelector 
+        currentVideo={currentVideo}
+        onVideoChange={setCurrentVideo}
+      />
     </section>
   );
 };
