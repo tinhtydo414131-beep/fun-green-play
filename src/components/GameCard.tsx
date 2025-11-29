@@ -163,18 +163,19 @@ export const GameCard = ({ game }: GameCardProps) => {
 
   return (
     <Card 
-      className="group overflow-hidden border-0 animate-fade-in h-full flex flex-col relative"
+      className="group overflow-hidden border-0 animate-fade-in h-full flex flex-col relative rounded-3xl"
       style={{
-        background: 'linear-gradient(90deg, hsl(262, 100%, 64%), hsl(186, 100%, 50%), hsl(262, 100%, 64%), hsl(186, 100%, 50%))',
-        backgroundSize: '300% 300%',
-        animation: 'gradient-flow 3s ease infinite',
-        padding: '4px',
+        background: 'linear-gradient(135deg, hsl(280, 90%, 65%), hsl(190, 100%, 60%), hsl(280, 85%, 55%))',
+        backgroundSize: '200% 200%',
+        animation: 'gradient-flow 4s ease infinite',
+        padding: '5px',
+        boxShadow: '0 0 30px hsla(280, 90%, 65%, 0.5), 0 0 60px hsla(190, 100%, 60%, 0.3), inset 0 2px 6px rgba(255, 255, 255, 0.6)',
       }}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="bg-white rounded-[calc(1rem-4px)] h-full flex flex-col">
+      <div className="bg-white rounded-[calc(1.5rem-5px)] h-full flex flex-col">
       <div 
         className="relative aspect-video overflow-hidden transition-all duration-500"
         style={{
@@ -277,9 +278,9 @@ export const GameCard = ({ game }: GameCardProps) => {
           {game.description}
         </p>
 
-        <div className="flex gap-3 pt-2">
+        <div className="flex items-center gap-2 pt-2">
           <Link to={`/game/${game.id}`} className="flex-1">
-            <Button className="w-full group/btn font-fredoka font-bold text-base py-6 bg-gradient-to-r from-primary to-secondary hover:shadow-xl transition-all rounded-2xl">
+            <Button className="w-full h-14 group/btn font-fredoka font-bold text-base">
               <span>Play Now!</span>
               <span className="ml-1">🎮</span>
               <Play className="ml-2 w-5 h-5 transition-transform group-hover/btn:scale-125" />
@@ -287,16 +288,16 @@ export const GameCard = ({ game }: GameCardProps) => {
           </Link>
 
           <Button
-            variant="outline"
+            variant="secondary"
             size="icon"
             onClick={handleLike}
-            className={`border-3 transition-all transform hover:scale-110 w-[56px] h-[56px] rounded-2xl shrink-0 ${
+            className={`h-14 w-14 shrink-0 ${
               liked 
-                ? 'bg-red-500 border-red-500 hover:bg-red-600 hover:border-red-600' 
-                : 'border-primary/30 hover:border-red-500 hover:bg-red-500/10'
+                ? 'opacity-100' 
+                : 'opacity-80 hover:opacity-100'
             }`}
           >
-            <Heart className={`w-6 h-6 ${liked ? 'fill-white text-white' : 'text-red-500'}`} />
+            <Heart className={`w-6 h-6 ${liked ? 'fill-white text-white' : 'text-white'}`} />
           </Button>
 
           <Dialog>
@@ -304,9 +305,9 @@ export const GameCard = ({ game }: GameCardProps) => {
               <Button
                 variant="outline"
                 size="icon"
-                className="border-3 border-accent/30 hover:border-accent hover:bg-accent/10 transition-all transform hover:scale-110 w-[56px] h-[56px] rounded-2xl shrink-0"
+                className="h-14 w-14 shrink-0"
               >
-                <Info className="w-6 h-6 text-accent" />
+                <Info className="w-6 h-6" />
               </Button>
             </DialogTrigger>
             <DialogContent className="border-4 border-primary/30 max-w-[calc(100vw-2rem)] sm:max-w-2xl mx-4">
