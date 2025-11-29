@@ -161,7 +161,7 @@ export const GameCard = ({ game }: GameCardProps) => {
         backgroundSize: '200% 200%',
         animation: 'gradient-flow 4s ease infinite',
         padding: '5px',
-        boxShadow: '0 0 30px hsla(280, 90%, 65%, 0.5), 0 0 60px hsla(190, 100%, 60%, 0.3), inset 0 2px 6px rgba(255, 255, 255, 0.6)',
+        boxShadow: '0 0 15px hsla(280, 90%, 65%, 0.3), 0 0 30px hsla(190, 100%, 60%, 0.2), inset 0 1px 3px rgba(255, 255, 255, 0.4)',
       }}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
