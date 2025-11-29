@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Play, Pause, Download, Save, Music, Volume2, VolumeX, Upload, Trash2, Send, Share2, Link2, ListMusic, Plus, Filter, CheckCircle, XCircle, Clock, Heart, Moon, Brain, Sparkles, Search } from "lucide-react";
+import { Play, Pause, Download, Save, Music, Volume2, VolumeX, Upload, Trash2, Send, Share2, Link2, ListMusic, Plus, Filter, CheckCircle, XCircle, Clock, Heart, Moon, Brain, Sparkles, Search, Pencil, Check, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -107,6 +107,10 @@ export default function PublicMusic() {
   // Filter state
   const [selectedGenre, setSelectedGenre] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Edit state
+  const [editingTrackId, setEditingTrackId] = useState<string | null>(null);
+  const [editedTitle, setEditedTitle] = useState("");
 
   const handlePlayPause = (track: MusicTrack) => {
     if (currentTrack?.id === track.id) {
@@ -694,6 +698,41 @@ export default function PublicMusic() {
     }
   };
 
+  const handleStartEdit = (trackId: string, currentTitle: string) => {
+    setEditingTrackId(trackId);
+    setEditedTitle(currentTitle);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTrackId(null);
+    setEditedTitle("");
+  };
+
+  const handleSaveEdit = async (trackId: string) => {
+    if (!editedTitle.trim()) {
+      toast.error("Tên bài hát không được để trống");
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('user_music')
+        .update({ title: editedTitle.trim() })
+        .eq('id', trackId);
+
+      if (error) throw error;
+
+      loadUserTracks();
+      setEditingTrackId(null);
+      setEditedTitle("");
+      
+      toast.success("Đã cập nhật tên bài hát!");
+    } catch (error: any) {
+      console.error('Update track error:', error);
+      toast.error("Không thể cập nhật tên bài hát");
+    }
+  };
+
   const allTracks = [...PUBLIC_TRACKS, ...userTracks];
   
   const filteredTracks = allTracks.filter(track => {
@@ -1014,13 +1053,58 @@ export default function PublicMusic() {
                           </Button>
 
                           <div className="min-w-0 flex-1">
-                            <h3 className="text-xl font-fredoka font-bold text-foreground truncate">
-                              {track.title}
-                            </h3>
-                            <p className="text-sm text-muted-foreground font-comic">
-                              {track.artist} • {track.duration}
-                              {track.genre && ` • ${GENRES.find(g => g.value === track.genre)?.label || track.genre}`}
-                            </p>
+                            {editingTrackId === track.id ? (
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  value={editedTitle}
+                                  onChange={(e) => setEditedTitle(e.target.value)}
+                                  className="h-9 text-lg font-fredoka font-bold"
+                                  autoFocus
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') handleSaveEdit(track.id);
+                                    if (e.key === 'Escape') handleCancelEdit();
+                                  }}
+                                />
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-9 w-9 p-0 shrink-0"
+                                  onClick={() => handleSaveEdit(track.id)}
+                                >
+                                  <Check className="h-5 w-5 text-green-600" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-9 w-9 p-0 shrink-0"
+                                  onClick={handleCancelEdit}
+                                >
+                                  <X className="h-5 w-5 text-red-600" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-2 group/title">
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="text-xl font-fredoka font-bold text-foreground truncate">
+                                    {track.title}
+                                  </h3>
+                                  <p className="text-sm text-muted-foreground font-comic">
+                                    {track.artist} • {track.duration}
+                                    {track.genre && ` • ${GENRES.find(g => g.value === track.genre)?.label || track.genre}`}
+                                  </p>
+                                </div>
+                                {track.isUserUpload && track.userId === user?.id && (
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0 opacity-0 group-hover/title:opacity-100 transition-opacity shrink-0"
+                                    onClick={() => handleStartEdit(track.id, track.title)}
+                                  >
+                                    <Pencil className="h-4 w-4 text-muted-foreground" />
+                                  </Button>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
 
