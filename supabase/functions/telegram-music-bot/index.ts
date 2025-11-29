@@ -83,7 +83,7 @@ async function handleAudioMessage(update: TelegramUpdate) {
   const telegramUserId = message.from.id;
 
   if (!audio) {
-    await sendTelegramMessage(chatId, '❌ Vui lòng gửi file nhạc MP3!');
+    await sendTelegramMessage(chatId, '❌ Vui lòng gửi file nhạc (MP3, M4A, WAV, OGG)!');
     return;
   }
 
@@ -201,7 +201,7 @@ Deno.serve(async (req) => {
       await sendTelegramMessage(
         message.chat.id,
         '🎵 <b>Chào mừng đến với FUN Planet Music Bot!</b>\n\n' +
-        '📤 Gửi file MP3 cho tôi và tôi sẽ tự động tải lên trang web.\n\n' +
+        '📤 Gửi file nhạc (MP3, M4A, WAV, OGG) cho tôi và tôi sẽ tự động tải lên trang web.\n\n' +
         '✨ Các file của bạn sẽ xuất hiện ngay trên trang Thư Viện Nhạc!'
       );
       return new Response('OK', { status: 200, headers: corsHeaders });
@@ -217,7 +217,7 @@ Deno.serve(async (req) => {
     if (message.text) {
       await sendTelegramMessage(
         message.chat.id,
-        '❓ Vui lòng gửi file nhạc MP3 để tải lên trang web!'
+        '❓ Vui lòng gửi file nhạc (MP3, M4A, WAV, OGG) để tải lên trang web!'
       );
     }
 

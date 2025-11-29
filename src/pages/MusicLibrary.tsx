@@ -54,15 +54,34 @@ export default function MusicLibrary() {
     const file = event.target.files?.[0];
     if (!file || !user) return;
 
-    // Check if file is MP3
-    if (!file.type.includes('audio/mpeg') && !file.name.endsWith('.mp3')) {
-      toast.error("Chỉ chấp nhận file MP3");
+    // Supported audio formats: MP3, M4A, WAV, OGG
+    const supportedTypes = [
+      'audio/mpeg', 'audio/mp3', // MP3
+      'audio/mp4', 'audio/m4a', 'audio/x-m4a', // M4A
+      'audio/wav', 'audio/x-wav', 'audio/wave', // WAV
+      'audio/ogg', 'audio/vorbis' // OGG
+    ];
+    
+    const supportedExtensions = ['.mp3', '.m4a', '.wav', '.ogg'];
+    
+    const isValidType = supportedTypes.some(type => file.type.includes(type));
+    const isValidExtension = supportedExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
+    
+    if (!isValidType && !isValidExtension) {
+      toast.error("Chỉ chấp nhận file MP3, M4A, WAV, hoặc OGG");
       return;
     }
 
     setUploading(true);
     try {
-      const filePath = `${user.id}/${Date.now()}-${file.name}`;
+      // Sanitize filename: remove emojis, special chars, keep only alphanumeric, hyphens, underscores, periods
+      const sanitizedFileName = file.name
+        .replace(/[^\w\s.-]/g, '') // Remove special chars and emojis
+        .replace(/\s+/g, '_') // Replace spaces with underscores
+        .replace(/_{2,}/g, '_') // Replace multiple underscores with single
+        .toLowerCase();
+      
+      const filePath = `${user.id}/${Date.now()}-${sanitizedFileName}`;
       
       const { error } = await supabase.storage
         .from('music')
@@ -128,7 +147,7 @@ export default function MusicLibrary() {
                 Tải Nhạc Lên
               </CardTitle>
               <CardDescription>
-                Chọn file MP3 để tải lên thư viện của bạn
+                Chọn file nhạc (MP3, M4A, WAV, OGG) để tải lên thư viện của bạn
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -138,17 +157,17 @@ export default function MusicLibrary() {
                     <div className="border-4 border-dashed border-primary/30 rounded-2xl p-8 text-center hover:border-primary/60 transition-colors">
                       <Music className="w-12 h-12 mx-auto mb-4 text-primary" />
                       <p className="font-fredoka text-lg mb-2">
-                        Nhấp để chọn file MP3
+                        Nhấp để chọn file nhạc
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        Hoặc kéo thả file vào đây
+                        MP3, M4A, WAV, hoặc OGG
                       </p>
                     </div>
                   </Label>
                   <Input
                     id="music-upload"
                     type="file"
-                    accept="audio/mpeg,.mp3"
+                    accept=".mp3,.m4a,.wav,.ogg,audio/mpeg,audio/mp4,audio/m4a,audio/wav,audio/ogg"
                     className="hidden"
                     onChange={handleFileUpload}
                     disabled={uploading || !user}

@@ -397,13 +397,28 @@ export default function PublicMusic() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.includes('audio/mpeg') && !file.name.endsWith('.mp3')) {
-      toast.error("Chỉ chấp nhận file MP3");
+    // Supported audio formats: MP3, M4A, WAV, OGG
+    const supportedTypes = [
+      'audio/mpeg', 'audio/mp3', // MP3
+      'audio/mp4', 'audio/m4a', 'audio/x-m4a', // M4A
+      'audio/wav', 'audio/x-wav', 'audio/wave', // WAV
+      'audio/ogg', 'audio/vorbis' // OGG
+    ];
+    
+    const supportedExtensions = ['.mp3', '.m4a', '.wav', '.ogg'];
+    
+    const isValidType = supportedTypes.some(type => file.type.includes(type));
+    const isValidExtension = supportedExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
+    
+    if (!isValidType && !isValidExtension) {
+      toast.error("Chỉ chấp nhận file MP3, M4A, WAV, hoặc OGG");
       return;
     }
 
     setUploadFile(file);
-    setUploadTitle(file.name.replace('.mp3', ''));
+    // Remove common audio extensions from title
+    const titleWithoutExt = file.name.replace(/\.(mp3|m4a|wav|ogg)$/i, '');
+    setUploadTitle(titleWithoutExt);
   };
 
   const handleUpload = async () => {
@@ -700,7 +715,7 @@ export default function PublicMusic() {
                       Telegram Music Bot
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      Gửi file MP3 qua Telegram để tự động tải lên!
+                      Gửi file nhạc (MP3, M4A, WAV, OGG) qua Telegram để tự động tải lên!
                     </p>
                   </div>
                   <Button 
@@ -733,11 +748,11 @@ export default function PublicMusic() {
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                       <div className="space-y-2">
-                        <Label htmlFor="upload-file">File MP3</Label>
+                        <Label htmlFor="upload-file">File nhạc (MP3, M4A, WAV, OGG)</Label>
                         <Input
                           id="upload-file"
                           type="file"
-                          accept="audio/mpeg,.mp3"
+                          accept=".mp3,.m4a,.wav,.ogg,audio/mpeg,audio/mp4,audio/m4a,audio/wav,audio/ogg"
                           onChange={handleFileSelect}
                           disabled={uploading}
                         />
