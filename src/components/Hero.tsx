@@ -78,63 +78,6 @@ export const Hero = () => {
         >
           <source src={currentVideo} type="video/mp4" />
         </video>
-        {/* Very light overlay for text readability while keeping video vibrant */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20" />
-        
-        {/* Moving gradient orbs */}
-        <div className="absolute top-20 left-10 w-48 h-48 sm:w-72 sm:h-72 bg-gradient-to-r from-purple-500/25 to-pink-500/25 rounded-full blur-3xl animate-float-up" style={{ animationDuration: '20s' }} />
-        <div className="absolute bottom-20 right-10 w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-r from-cyan-500/25 to-blue-500/25 rounded-full blur-3xl animate-float-up" style={{ animationDuration: '25s', animationDelay: '5s' }} />
-        <div className="absolute top-40 right-1/4 w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-r from-violet-500/25 to-fuchsia-500/25 rounded-full blur-3xl animate-float-up" style={{ animationDuration: '30s', animationDelay: '10s' }} />
-        
-        {/* Stars/Particles */}
-        {[...Array(50)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-white rounded-full animate-pulse"
-            style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${2 + Math.random() * 3}s`,
-              opacity: Math.random() * 0.7 + 0.3,
-            }}
-          />
-        ))}
-        
-        {/* Larger glowing stars */}
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={`glow-${i}`}
-            className="absolute rounded-full animate-sparkle"
-            style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              width: `${2 + Math.random() * 3}px`,
-              height: `${2 + Math.random() * 3}px`,
-              background: `radial-gradient(circle, ${
-                ['rgba(139, 70, 255, 0.8)', 'rgba(0, 242, 255, 0.8)', 'rgba(255, 255, 255, 0.9)'][Math.floor(Math.random() * 3)]
-              }, transparent)`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${3 + Math.random() * 2}s`,
-            }}
-          />
-        ))}
-        
-        {/* Shooting stars */}
-        {[...Array(3)].map((_, i) => (
-          <div
-            key={`shooting-${i}`}
-            className="absolute h-px bg-gradient-to-r from-transparent via-white to-transparent animate-float-up"
-            style={{
-              top: `${Math.random() * 50}%`,
-              left: `${-20 + Math.random() * 40}%`,
-              width: `${50 + Math.random() * 100}px`,
-              animationDelay: `${i * 8}s`,
-              animationDuration: '3s',
-              transform: 'rotate(-45deg)',
-            }}
-          />
-        ))}
       </div>
 
       <div className="container mx-auto max-w-6xl">
