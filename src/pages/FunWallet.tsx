@@ -228,6 +228,42 @@ export default function FunWallet() {
     }
   }, [selectedChartCoin, chartTimeframe]);
 
+  // Real-time incoming transaction listener
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const channel = supabase
+      .channel('wallet_transactions_incoming')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'wallet_transactions',
+          filter: `to_user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Incoming transaction:', payload);
+          const transaction = payload.new;
+          
+          // Only show popup for completed transactions
+          if (transaction.status === 'completed') {
+            setRichAmount(parseFloat(transaction.amount));
+            setRichToken(transaction.token_type || 'CAMLY');
+            setShowRichPopup(true);
+            
+            // Refresh transaction history
+            fetchTransactionHistory();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
+
   const checkConnection = async () => {
     if (window.ethereum) {
       try {
