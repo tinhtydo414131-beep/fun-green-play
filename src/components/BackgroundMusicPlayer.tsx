@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Music, Volume2, VolumeX, Play, Pause, SkipForward, SkipBack } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Music, Volume2, VolumeX, Play, Pause, SkipForward, SkipBack, Shuffle } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -20,6 +22,14 @@ export const BackgroundMusicPlayer = () => {
   const [volume, setVolume] = useState(50);
   const [isMuted, setIsMuted] = useState(false);
   const [currentTrack, setCurrentTrack] = useState(0);
+  const [autoSkip, setAutoSkip] = useState(() => {
+    const saved = localStorage.getItem("music_auto_skip");
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+  const [shuffle, setShuffle] = useState(() => {
+    const saved = localStorage.getItem("music_shuffle");
+    return saved !== null ? JSON.parse(saved) : false;
+  });
   const audioRef = useRef<HTMLAudioElement>(null);
 
   // Load saved volume on mount
@@ -71,15 +81,45 @@ export const BackgroundMusicPlayer = () => {
   };
 
   const nextTrack = () => {
-    setCurrentTrack((prev) => (prev + 1) % PLAYLIST.length);
+    if (shuffle) {
+      let nextIndex;
+      do {
+        nextIndex = Math.floor(Math.random() * PLAYLIST.length);
+      } while (nextIndex === currentTrack && PLAYLIST.length > 1);
+      setCurrentTrack(nextIndex);
+    } else {
+      setCurrentTrack((prev) => (prev + 1) % PLAYLIST.length);
+    }
   };
 
   const previousTrack = () => {
-    setCurrentTrack((prev) => (prev - 1 + PLAYLIST.length) % PLAYLIST.length);
+    if (shuffle) {
+      let prevIndex;
+      do {
+        prevIndex = Math.floor(Math.random() * PLAYLIST.length);
+      } while (prevIndex === currentTrack && PLAYLIST.length > 1);
+      setCurrentTrack(prevIndex);
+    } else {
+      setCurrentTrack((prev) => (prev - 1 + PLAYLIST.length) % PLAYLIST.length);
+    }
   };
 
   const handleTrackEnd = () => {
-    nextTrack();
+    if (autoSkip) {
+      nextTrack();
+    } else {
+      setIsPlaying(false);
+    }
+  };
+
+  const handleAutoSkipToggle = (checked: boolean) => {
+    setAutoSkip(checked);
+    localStorage.setItem("music_auto_skip", JSON.stringify(checked));
+  };
+
+  const handleShuffleToggle = (checked: boolean) => {
+    setShuffle(checked);
+    localStorage.setItem("music_shuffle", JSON.stringify(checked));
   };
 
   if (!user) return null;
@@ -177,6 +217,38 @@ export const BackgroundMusicPlayer = () => {
                   className="flex-1"
                 />
               </div>
+            </div>
+
+            {/* Auto-Skip Toggle */}
+            <div className="flex items-center justify-between bg-gradient-to-r from-primary/5 to-secondary/5 px-4 py-3 rounded-2xl border-2 border-primary/20">
+              <div className="flex items-center gap-2">
+                <SkipForward className="h-4 w-4 text-primary" />
+                <Label htmlFor="auto-skip" className="font-fredoka font-bold text-sm cursor-pointer">
+                  Auto-Skip
+                </Label>
+              </div>
+              <Switch
+                id="auto-skip"
+                checked={autoSkip}
+                onCheckedChange={handleAutoSkipToggle}
+                className="data-[state=checked]:bg-primary"
+              />
+            </div>
+
+            {/* Shuffle Toggle */}
+            <div className="flex items-center justify-between bg-gradient-to-r from-primary/5 to-secondary/5 px-4 py-3 rounded-2xl border-2 border-primary/20">
+              <div className="flex items-center gap-2">
+                <Shuffle className="h-4 w-4 text-secondary" />
+                <Label htmlFor="shuffle" className="font-fredoka font-bold text-sm cursor-pointer">
+                  Shuffle
+                </Label>
+              </div>
+              <Switch
+                id="shuffle"
+                checked={shuffle}
+                onCheckedChange={handleShuffleToggle}
+                className="data-[state=checked]:bg-secondary"
+              />
             </div>
 
             {/* Track Info */}
