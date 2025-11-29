@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Music, Volume2, VolumeX, Play, Pause, SkipForward, SkipBack, Shuffle } from "lucide-react";
+import { Music, Volume2, VolumeX, Play, Pause, SkipForward, SkipBack, Shuffle, Repeat, Repeat1 } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -29,6 +29,10 @@ export const BackgroundMusicPlayer = () => {
   const [shuffle, setShuffle] = useState(() => {
     const saved = localStorage.getItem("music_shuffle");
     return saved !== null ? JSON.parse(saved) : false;
+  });
+  const [repeatMode, setRepeatMode] = useState<'off' | 'one' | 'all'>(() => {
+    const saved = localStorage.getItem("music_repeat_mode");
+    return (saved as 'off' | 'one' | 'all') || 'all';
   });
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -105,9 +109,20 @@ export const BackgroundMusicPlayer = () => {
   };
 
   const handleTrackEnd = () => {
-    if (autoSkip) {
+    if (repeatMode === 'one') {
+      // Replay current track
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play();
+      }
+    } else if (repeatMode === 'all') {
+      // Auto-advance to next track
+      nextTrack();
+    } else if (autoSkip) {
+      // Auto-skip if repeat is off
       nextTrack();
     } else {
+      // Stop playing if no auto-skip and no repeat
       setIsPlaying(false);
     }
   };
@@ -120,6 +135,14 @@ export const BackgroundMusicPlayer = () => {
   const handleShuffleToggle = (checked: boolean) => {
     setShuffle(checked);
     localStorage.setItem("music_shuffle", JSON.stringify(checked));
+  };
+
+  const handleRepeatToggle = () => {
+    const modes: Array<'off' | 'one' | 'all'> = ['off', 'one', 'all'];
+    const currentIndex = modes.indexOf(repeatMode);
+    const nextMode = modes[(currentIndex + 1) % modes.length];
+    setRepeatMode(nextMode);
+    localStorage.setItem("music_repeat_mode", nextMode);
   };
 
   if (!user) return null;
@@ -181,6 +204,24 @@ export const BackgroundMusicPlayer = () => {
                 className="border-2 border-primary/30 hover:border-primary hover:bg-primary/10 rounded-full"
               >
                 <SkipForward className="w-5 h-5 text-primary" />
+              </Button>
+
+              <Button
+                onClick={handleRepeatToggle}
+                size="icon"
+                variant="outline"
+                className={`border-2 rounded-full transition-all ${
+                  repeatMode !== 'off' 
+                    ? 'border-accent bg-accent/20 text-accent hover:bg-accent/30' 
+                    : 'border-primary/30 hover:border-primary hover:bg-primary/10'
+                }`}
+                title={repeatMode === 'off' ? 'No repeat' : repeatMode === 'one' ? 'Repeat one' : 'Repeat all'}
+              >
+                {repeatMode === 'one' ? (
+                  <Repeat1 className="w-5 h-5" />
+                ) : (
+                  <Repeat className="w-5 h-5" />
+                )}
               </Button>
             </div>
 
