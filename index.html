@@ -21,10 +21,15 @@
     <title>FUN Planet - Build Your Planet – Play & Earn Joy!</title>
     <meta name="description" content="Build Your Planet – Play & Earn Joy! Create your dream world with amazing games and earn rewards!" />
     <meta name="author" content="FUN Planet" />
-    <!-- Web3 Gaming Fonts -->
+    <!-- Web3 Gaming Fonts - Optimized Loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Fredoka:wght@300;400;500;600;700&family=Comic+Neue:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <!-- Preload critical fonts for faster initial render -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@400;600;700&family=Orbitron:wght@700;800&family=Fredoka:wght@400;600;700&family=Comic+Neue:wght@400;700&display=swap">
+    
+    <!-- Load fonts with display=swap for instant text rendering -->
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@400;600;700&family=Orbitron:wght@700;800&family=Fredoka:wght@400;600;700&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
 
     <meta property="og:title" content="FUN Planet - Build Your Planet – Play & Earn Joy!" />
     <meta property="og:description" content="Build Your Planet – Play & Earn Joy! Create your dream world with amazing games and earn rewards!" />
