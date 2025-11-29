@@ -1,4 +1,4 @@
-import { Gamepad2, User, LogOut, Trophy, Users, MessageCircle, Wallet, Music, Settings, Home } from "lucide-react";
+import { Gamepad2, User, LogOut, Trophy, Users, MessageCircle, Wallet, Music, Settings } from "lucide-react";
 import { NavLink } from "./NavLink";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -69,18 +69,6 @@ export const Navigation = () => {
 
             {/* Desktop Links and Auth */}
             <div className="flex items-center gap-4">
-              <NavLink to="/home">
-                <Button variant="default" className="font-space font-semibold h-10 px-6">
-                  <Home className="w-4 h-4" />
-                  Landing
-                </Button>
-              </NavLink>
-              <NavLink 
-                to="/honor-board" 
-                className="px-4 py-2 rounded-xl font-space font-semibold text-foreground hover:text-primary hover:bg-primary/10 transition-all"
-              >
-                Honor Board
-              </NavLink>
               <NavLink 
                 to="/games" 
                 className="px-4 py-2 rounded-xl font-space font-semibold text-foreground hover:text-primary hover:bg-primary/10 transition-all"
