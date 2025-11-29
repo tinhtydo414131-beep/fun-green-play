@@ -2,7 +2,9 @@ import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { ArrowLeft, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useGameLevel } from "@/hooks/useGameLevel";
@@ -74,6 +76,10 @@ const GamePlay = () => {
   const [loading, setLoading] = useState(true);
   const [showLevelSelector, setShowLevelSelector] = useState(true);
   const [gameStarted, setGameStarted] = useState(false);
+  const [autoLevel, setAutoLevel] = useState(() => {
+    const saved = localStorage.getItem("autoLevel");
+    return saved !== null ? JSON.parse(saved) : true;
+  });
   
   const {
     currentLevel,
@@ -152,6 +158,11 @@ const GamePlay = () => {
     setGameStarted(false);
   };
 
+  const handleAutoLevelToggle = (checked: boolean) => {
+    setAutoLevel(checked);
+    localStorage.setItem("autoLevel", JSON.stringify(checked));
+  };
+
   const handleLevelComplete = async () => {
     completeLevel(currentLevel);
     
@@ -172,14 +183,14 @@ const GamePlay = () => {
       }, i * 300);
     }
 
-    // Auto-advance to next level after confetti
+    // Auto-advance to next level after confetti if enabled
     setTimeout(() => {
-      if (currentLevel < 10) {
+      if (autoLevel && currentLevel < 10) {
         setCurrentLevel(currentLevel + 1);
         setShowLevelSelector(false);
         setGameStarted(true);
       } else {
-        // If completed all levels, show level selector
+        // Show level selector if auto-level is off or all levels completed
         setShowLevelSelector(true);
         setGameStarted(false);
       }
@@ -372,6 +383,19 @@ const GamePlay = () => {
                 Back to Games
               </Button>
             </Link>
+            
+            <div className="flex items-center gap-3 bg-gradient-to-r from-primary/10 to-secondary/10 px-4 py-3 rounded-2xl border-2 border-primary/30">
+              <Zap className="h-5 w-5 text-primary" />
+              <Label htmlFor="auto-level" className="font-fredoka font-bold text-foreground cursor-pointer">
+                Auto Level
+              </Label>
+              <Switch
+                id="auto-level"
+                checked={autoLevel}
+                onCheckedChange={handleAutoLevelToggle}
+                className="data-[state=checked]:bg-primary"
+              />
+            </div>
           </div>
 
           <div className="bg-background/80 backdrop-blur-lg rounded-3xl border-4 border-primary/30 shadow-2xl p-8 space-y-6 animate-scale-in">
