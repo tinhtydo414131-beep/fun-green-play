@@ -389,11 +389,80 @@ export default function PublicMusic() {
       loadPlaylists();
       loadPendingTracks();
     }
+
+    // Set up realtime subscription for music updates
+    const channel = supabase
+      .channel('user-music-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'user_music'
+        },
+        (payload) => {
+          console.log('Music updated:', payload);
+          loadUserTracks();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'user_music'
+        },
+        (payload) => {
+          console.log('Music added:', payload);
+          loadUserTracks();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'user_music'
+        },
+        (payload) => {
+          console.log('Music deleted:', payload);
+          loadUserTracks();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   useEffect(() => {
     if (selectedPlaylist) {
       loadPlaylistTracks(selectedPlaylist);
+    }
+
+    // Set up realtime subscription for playlist items changes
+    if (selectedPlaylist) {
+      const channel = supabase
+        .channel(`playlist-${selectedPlaylist}-changes`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'playlist_items',
+            filter: `playlist_id=eq.${selectedPlaylist}`
+          },
+          (payload) => {
+            console.log('Playlist items changed:', payload);
+            loadPlaylistTracks(selectedPlaylist);
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [selectedPlaylist]);
 
