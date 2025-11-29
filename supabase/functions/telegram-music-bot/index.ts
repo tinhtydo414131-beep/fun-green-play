@@ -150,7 +150,7 @@ async function handleAudioMessage(update: TelegramUpdate) {
       ? `${Math.floor(audio.duration / 60)}:${(audio.duration % 60).toString().padStart(2, '0')}`
       : '0:00';
 
-    // Save metadata to database
+    // Save metadata to database with auto-approval
     const { error: dbError } = await supabase
       .from('user_music')
       .insert({
@@ -160,6 +160,8 @@ async function handleAudioMessage(update: TelegramUpdate) {
         storage_path: filePath,
         file_size: audio.file_size || 0,
         duration: duration,
+        parent_approved: true,
+        pending_approval: false,
       });
 
     if (dbError) {

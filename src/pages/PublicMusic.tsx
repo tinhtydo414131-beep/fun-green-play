@@ -93,7 +93,6 @@ export default function PublicMusic() {
   const [uploadGenre, setUploadGenre] = useState("other");
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [parentPasswordOpen, setParentPasswordOpen] = useState(false);
-  const [parentPassword, setParentPassword] = useState("");
   const [pendingApprovalTrack, setPendingApprovalTrack] = useState<MusicTrack | null>(null);
 
   // Playlist state
@@ -456,7 +455,7 @@ export default function PublicMusic() {
         };
       });
 
-      // Save metadata to database
+      // Save metadata to database with auto-approval
       const { error: dbError } = await supabase
         .from('user_music')
         .insert({
@@ -466,18 +465,20 @@ export default function PublicMusic() {
           storage_path: filePath,
           file_size: uploadFile.size,
           duration: audioDuration,
-          genre: uploadGenre
+          genre: uploadGenre,
+          parent_approved: true,
+          pending_approval: false
         });
 
       if (dbError) throw dbError;
 
-      toast.success("Đã tải nhạc lên! Đợi phụ huynh phê duyệt 👨‍👩‍👧");
+      toast.success("Đã tải nhạc lên thành công! 🎵");
       setUploadDialogOpen(false);
       setUploadTitle("");
       setUploadArtist("");
       setUploadGenre("other");
       setUploadFile(null);
-      loadPendingTracks();
+      loadUserTracks();
     } catch (error) {
       console.error('Upload error:', error);
       toast.error("Không thể tải nhạc lên");
@@ -486,9 +487,23 @@ export default function PublicMusic() {
     }
   };
 
-  const handleApproveTrack = (track: MusicTrack) => {
-    setPendingApprovalTrack(track);
-    setParentPasswordOpen(true);
+  const handleApproveTrack = async (track: MusicTrack) => {
+    try {
+      await supabase
+        .from('user_music')
+        .update({
+          parent_approved: true,
+          pending_approval: false
+        })
+        .eq('id', track.id);
+
+      toast.success("Đã phê duyệt bài nhạc! 🎉");
+      loadPendingTracks();
+      loadUserTracks();
+    } catch (error) {
+      console.error('Approval error:', error);
+      toast.error("Không thể phê duyệt");
+    }
   };
 
   const handleRejectTrack = async (track: MusicTrack) => {
@@ -517,12 +532,7 @@ export default function PublicMusic() {
   };
 
   const handleParentApproval = async () => {
-    // Simple parent password check (in production, use proper auth)
-    if (parentPassword !== "parent2026") {
-      toast.error("Mật khẩu phụ huynh không đúng! 👨‍👩‍👧");
-      return;
-    }
-
+    // Removed password requirement - auto-approve
     if (pendingApprovalTrack) {
       try {
         await supabase
@@ -535,7 +545,6 @@ export default function PublicMusic() {
 
         toast.success("Đã phê duyệt bài nhạc! 🎉");
         setParentPasswordOpen(false);
-        setParentPassword("");
         setPendingApprovalTrack(null);
         loadPendingTracks();
         loadUserTracks();
@@ -1184,15 +1193,15 @@ export default function PublicMusic() {
             ))}
           </Tabs>
 
-          {/* Parent Approval Dialog */}
+          {/* Parent Approval Dialog - Simplified */}
           <Dialog open={parentPasswordOpen} onOpenChange={setParentPasswordOpen}>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle className="font-fredoka text-2xl flex items-center gap-2">
-                  👨‍👩‍👧 Xác nhận Phụ huynh
+                  👨‍👩‍👧 Phê duyệt Nhạc
                 </DialogTitle>
                 <DialogDescription>
-                  Nhập mật khẩu phụ huynh để phê duyệt bài nhạc này
+                  Xác nhận phê duyệt bài nhạc này
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
@@ -1206,27 +1215,12 @@ export default function PublicMusic() {
                     </p>
                   </div>
                 )}
-                <div className="space-y-2">
-                  <Label htmlFor="parent-password">Mật khẩu Phụ huynh</Label>
-                  <Input
-                    id="parent-password"
-                    type="password"
-                    placeholder="Nhập mật khẩu..."
-                    value={parentPassword}
-                    onChange={(e) => setParentPassword(e.target.value)}
-                    className="border-2 border-primary/30"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Demo: "parent2026"
-                  </p>
-                </div>
               </div>
               <DialogFooter className="gap-2">
                 <Button
                   variant="outline"
                   onClick={() => {
                     setParentPasswordOpen(false);
-                    setParentPassword("");
                     setPendingApprovalTrack(null);
                   }}
                 >
@@ -1236,7 +1230,7 @@ export default function PublicMusic() {
                   onClick={handleParentApproval}
                   className="bg-gradient-to-r from-accent to-secondary"
                 >
-                  Xác nhận Phê duyệt
+                  Phê duyệt
                 </Button>
               </DialogFooter>
             </DialogContent>
