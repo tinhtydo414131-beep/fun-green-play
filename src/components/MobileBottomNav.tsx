@@ -29,7 +29,7 @@ export const MobileBottomNav = () => {
           
           return (
             <Link
-              key={item.path}
+              key={item.label}
               to={item.path}
               className={cn(
                 "flex flex-col items-center justify-center gap-0.5 transition-all touch-manipulation active:scale-95",
