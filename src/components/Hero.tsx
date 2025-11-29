@@ -90,9 +90,9 @@ export const Hero = () => {
               onToggleSound={toggleSound}
             />
           </div>
-          <div className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-white/95 backdrop-blur-md rounded-full border-2 border-white/50 shadow-lg">
-            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-primary animate-pulse" />
-            <span className="font-space text-sm sm:text-lg font-black text-foreground">Welcome to FUN Planet! 🎉</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-purple-600/90 via-pink-600/90 to-cyan-600/90 backdrop-blur-md rounded-full border-2 border-white/50 shadow-xl hover:scale-105 transition-transform animate-fade-in">
+            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-300 animate-pulse" />
+            <span className="font-space text-sm sm:text-lg font-black text-white">🌟 The Ultimate Kids Gaming Universe!</span>
           </div>
 
           <div className="flex items-center justify-center gap-3 sm:gap-6 md:gap-8">
@@ -104,9 +104,9 @@ export const Hero = () => {
               className="w-12 h-12 sm:w-20 sm:h-20 md:w-28 md:h-28 lg:w-32 lg:h-32 animate-spin drop-shadow-[0_0_20px_rgba(139,70,255,0.8)]" 
               style={{ animationDuration: '10s' }}
             />
-            <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-orbitron font-black tracking-wider drop-shadow-[0_0_30px_rgba(139,70,255,0.8)]">
-              <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-pink-400 bg-clip-text text-transparent animate-gradient-shift bg-[length:200%_200%]">
-                FUN Planet
+            <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-orbitron font-black tracking-wider drop-shadow-[0_0_40px_rgba(139,70,255,1)]">
+              <span className="bg-gradient-to-r from-yellow-300 via-pink-400 to-cyan-300 bg-clip-text text-transparent animate-gradient-shift bg-[length:200%_200%]">
+                FUN PLANET
               </span>
             </h1>
             <img 
@@ -119,8 +119,8 @@ export const Hero = () => {
             />
           </div>
 
-          <p className="text-base sm:text-xl md:text-2xl text-foreground font-rajdhani font-black max-w-3xl mx-auto leading-relaxed px-4 drop-shadow-lg bg-white/95 rounded-2xl py-4 border-2 border-white/50">
-            🌍 Build Your Planet – Play & Earn Joy! 🎮 Create your dream world with fun games and amazing rewards! 🌟
+          <p className="text-base sm:text-xl md:text-2xl text-white font-rajdhani font-black max-w-3xl mx-auto leading-relaxed px-6 drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)] bg-gradient-to-r from-purple-600/80 via-pink-600/80 to-cyan-600/80 backdrop-blur-lg rounded-3xl py-6 border-2 border-white/30 shadow-2xl hover:scale-105 transition-transform">
+            🚀 Where Adventure Meets Rewards! Play Epic Games, Make Amazing Friends & Collect Awesome Crypto Prizes! 💎✨
           </p>
 
           <form onSubmit={handleSearch} className="max-w-2xl mx-auto px-4">
@@ -165,17 +165,17 @@ export const Hero = () => {
           </div>
 
           <div className="flex justify-center gap-6 sm:gap-12 pt-8 text-center">
-            <div className="space-y-1 sm:space-y-2">
-              <p className="text-2xl sm:text-4xl font-space font-bold text-purple-400 drop-shadow-[0_0_10px_rgba(167,139,250,0.8)]">14</p>
-              <p className="text-xs sm:text-sm font-rajdhani text-white/80">Awesome Games 🎮</p>
+            <div className="space-y-1 sm:space-y-2 bg-white/10 backdrop-blur-md rounded-2xl px-6 py-4 border border-white/20 hover:bg-white/20 transition-all hover:scale-110">
+              <p className="text-2xl sm:text-4xl font-space font-bold text-yellow-300 drop-shadow-[0_0_15px_rgba(253,224,71,1)]">50+</p>
+              <p className="text-xs sm:text-sm font-rajdhani text-white font-bold">Epic Games 🎮</p>
             </div>
-            <div className="space-y-1 sm:space-y-2">
-              <p className="text-2xl sm:text-4xl font-space font-bold text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]">1000+</p>
-              <p className="text-xs sm:text-sm font-rajdhani text-white/80">Happy Players 😊</p>
+            <div className="space-y-1 sm:space-y-2 bg-white/10 backdrop-blur-md rounded-2xl px-6 py-4 border border-white/20 hover:bg-white/20 transition-all hover:scale-110">
+              <p className="text-2xl sm:text-4xl font-space font-bold text-cyan-300 drop-shadow-[0_0_15px_rgba(34,211,238,1)]">5K+</p>
+              <p className="text-xs sm:text-sm font-rajdhani text-white font-bold">Active Players 🌟</p>
             </div>
-            <div className="space-y-1 sm:space-y-2">
-              <p className="text-2xl sm:text-4xl font-space font-bold text-pink-400 drop-shadow-[0_0_10px_rgba(244,114,182,0.8)]">24/7</p>
-              <p className="text-xs sm:text-sm font-rajdhani text-white/80">Fun Time! ⏰</p>
+            <div className="space-y-1 sm:space-y-2 bg-white/10 backdrop-blur-md rounded-2xl px-6 py-4 border border-white/20 hover:bg-white/20 transition-all hover:scale-110">
+              <p className="text-2xl sm:text-4xl font-space font-bold text-pink-300 drop-shadow-[0_0_15px_rgba(244,114,182,1)]">∞</p>
+              <p className="text-xs sm:text-sm font-rajdhani text-white font-bold">Fun Forever! 🚀</p>
             </div>
           </div>
         </div>
