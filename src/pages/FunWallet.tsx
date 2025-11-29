@@ -1389,8 +1389,8 @@ export default function FunWallet() {
                       selectedChartCoin === token.symbol
                         ? 'border-primary bg-gradient-to-br from-primary to-secondary text-white scale-105 shadow-[var(--shadow-button)] ring-4 ring-primary/30' 
                         : selectedToken.symbol === token.symbol 
-                        ? 'border-primary/50 bg-gradient-to-br from-primary/20 to-secondary/20 text-foreground' 
-                        : 'border-border bg-card/80 text-foreground opacity-70'
+                        ? 'border-primary/70 bg-gradient-to-br from-primary/20 to-secondary/20 text-foreground' 
+                        : 'border-foreground/30 bg-card/80 text-foreground opacity-70'
                     }`}
                   >
                     {selectedChartCoin === token.symbol && (
