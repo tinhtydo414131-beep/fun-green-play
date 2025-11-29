@@ -69,12 +69,10 @@ export const Navigation = () => {
 
             {/* Desktop Links and Auth */}
             <div className="flex items-center gap-4">
-              <NavLink 
-                to="/home"
-              >
-                <Button variant="default" className="font-space font-semibold h-10">
-                  <Home className="w-4 h-4" />
-                  Landing
+              <NavLink to="/home">
+                <Button variant="default" className="font-space font-semibold h-10 inline-flex items-center">
+                  <Home className="w-4 h-4 inline-block" />
+                  <span className="inline-block">Landing</span>
                 </Button>
               </NavLink>
               <NavLink 
