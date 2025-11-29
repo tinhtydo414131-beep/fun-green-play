@@ -10,6 +10,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { ArrowUpRight, ArrowDownLeft, Wallet, Sparkles, Copy, CheckCircle, ChevronDown, ExternalLink, Home, Send, Zap, Shield, QrCode, ArrowLeft, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { CelebrationNotification } from "@/components/CelebrationNotification";
+import { RichNotification } from "@/components/RichNotification";
 import { AirdropConfirmModal } from "@/components/AirdropConfirmModal";
 import { TransactionHistory } from "@/components/TransactionHistory";
 
@@ -133,6 +134,10 @@ export default function FunWallet() {
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationAmount, setCelebrationAmount] = useState(0);
   const [celebrationToken, setCelebrationToken] = useState("CAMLY");
+  const [showRichNotification, setShowRichNotification] = useState(false);
+  const [richAmount, setRichAmount] = useState(0);
+  const [richToken, setRichToken] = useState("BNB");
+  const [richTokenImage, setRichTokenImage] = useState<string | undefined>();
   const [processedCoinImage, setProcessedCoinImage] = useState<string | null>(null);
   const [selectedChartCoin, setSelectedChartCoin] = useState<string | null>(null);
   const [chartTimeframe, setChartTimeframe] = useState<'1H' | '4H' | '1D' | '1W' | '1M'>('1D');
@@ -214,12 +219,48 @@ export default function FunWallet() {
   useEffect(() => {
     if (account) {
       fetchTransactionHistory();
+      
+      // Subscribe to realtime wallet transactions for receiving money
+      const channel = supabase
+        .channel('wallet_transactions_realtime')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'wallet_transactions',
+            filter: `to_user_id=eq.${user?.id}`
+          },
+          (payload) => {
+            console.log('New transaction received:', payload);
+            const newTx = payload.new as any;
+            
+            // Trigger RICH notification for received money
+            if (newTx.to_user_id === user?.id && newTx.status === 'completed') {
+              const token = tokens.find(t => t.symbol === newTx.token_type);
+              setRichAmount(newTx.amount);
+              setRichToken(newTx.token_type || 'BNB');
+              setRichTokenImage(token?.image);
+              setShowRichNotification(true);
+              
+              // Refresh balances and transaction history
+              getBalance(account);
+              fetchTransactionHistory();
+            }
+          }
+        )
+        .subscribe();
+        
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
+    
     fetchTokenPrices();
     // Refresh prices every 5 minutes
     const priceInterval = setInterval(fetchTokenPrices, 5 * 60 * 1000);
     return () => clearInterval(priceInterval);
-  }, [account]);
+  }, [account, user?.id]);
 
   useEffect(() => {
     if (selectedChartCoin) {
@@ -2152,6 +2193,17 @@ export default function FunWallet() {
             }
             onComplete={() => setShowCelebration(false)}
             duration={celebrationToken === "CAMLY" && celebrationAmount > 1000 ? 25000 : 15000}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showRichNotification && (
+          <RichNotification
+            amount={richAmount}
+            token={richToken}
+            tokenImage={richTokenImage}
+            onComplete={() => setShowRichNotification(false)}
           />
         )}
       </AnimatePresence>
