@@ -224,11 +224,27 @@ export default {
         "slow-pulse": {
           "0%, 100%": {
             opacity: "1",
-            filter: "brightness(1)",
+            filter: "brightness(1) saturate(1)",
+            boxShadow: "0 0 20px rgba(180, 130, 255, 0.4), 0 0 40px rgba(0, 255, 255, 0.3)",
           },
           "50%": {
-            opacity: "0.85",
-            filter: "brightness(1.15)",
+            opacity: "0.9",
+            filter: "brightness(1.3) saturate(1.4)",
+            boxShadow: "0 0 40px rgba(180, 130, 255, 0.8), 0 0 60px rgba(0, 255, 255, 0.6), 0 0 80px rgba(255, 100, 255, 0.4)",
+          },
+        },
+        "crystal-shimmer": {
+          "0%, 100%": {
+            backgroundPosition: "0% 50%",
+            filter: "hue-rotate(0deg)",
+          },
+          "33%": {
+            backgroundPosition: "50% 0%",
+            filter: "hue-rotate(30deg)",
+          },
+          "66%": {
+            backgroundPosition: "100% 50%",
+            filter: "hue-rotate(-30deg)",
           },
         },
       },
@@ -249,6 +265,7 @@ export default {
         "diamond-light": "diamond-light 15s ease-in-out infinite",
         "gradient-shift": "gradient-shift 4s ease-in-out infinite",
         "slow-pulse": "slow-pulse 3s ease-in-out infinite",
+        "crystal-shimmer": "crystal-shimmer 5s ease-in-out infinite",
       },
     },
   },
