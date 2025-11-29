@@ -1,51 +1,16 @@
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Search, Sparkles } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import camlyCoin from "@/assets/camly-coin.png";
 import { useGameAudio } from "@/hooks/useGameAudio";
 import { AudioControls } from "./AudioControls";
-import { BackgroundVideoSelector } from "./BackgroundVideoSelector";
 
 export const Hero = () => {
   const [search, setSearch] = useState("");
-  const [currentVideo, setCurrentVideo] = useState(() => {
-    return localStorage.getItem("funplanet-background-video") || "/videos/hero-background-latest.mp4";
-  });
   const navigate = useNavigate();
   const { playClick, playPop, isSoundEnabled, isMusicEnabled, toggleSound, toggleMusic } = useGameAudio();
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    // Force video to play when component mounts
-    const playVideo = async () => {
-      if (videoRef.current) {
-        try {
-          await videoRef.current.play();
-        } catch (error) {
-          console.log("Video autoplay prevented:", error);
-          // Try to play on user interaction
-          const handleInteraction = async () => {
-            if (videoRef.current) {
-              try {
-                await videoRef.current.play();
-                document.removeEventListener('click', handleInteraction);
-                document.removeEventListener('touchstart', handleInteraction);
-              } catch (e) {
-                console.log("Cannot play video:", e);
-              }
-            }
-          };
-          document.addEventListener('click', handleInteraction, { once: true });
-          document.addEventListener('touchstart', handleInteraction, { once: true });
-        }
-      }
-    };
-    
-    const timer = setTimeout(playVideo, 100);
-    return () => clearTimeout(timer);
-  }, []);
 
 
   const handleSearch = (e: React.FormEvent) => {
@@ -56,30 +21,7 @@ export const Hero = () => {
   };
 
   return (
-    <section className="relative pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 overflow-hidden">
-      {/* Video Background */}
-      <div className="absolute inset-0 -z-10">
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          className="absolute inset-0 w-full h-full object-cover brightness-110 saturate-[1.2]"
-          onLoadedData={async (e) => {
-            const video = e.target as HTMLVideoElement;
-            try {
-              await video.play();
-            } catch (err) {
-              console.log("Video autoplay failed:", err);
-            }
-          }}
-        >
-          <source src={currentVideo} type="video/mp4" />
-        </video>
-      </div>
-
+    <section className="relative pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 overflow-hidden bg-gradient-to-br from-purple-600 via-pink-600 to-cyan-600">
       <div className="container mx-auto max-w-6xl">
         <div className="text-center space-y-6 sm:space-y-8 animate-fade-in">
           <div className="flex justify-end mb-4">
@@ -180,11 +122,6 @@ export const Hero = () => {
           </div>
         </div>
       </div>
-
-      <BackgroundVideoSelector 
-        currentVideo={currentVideo}
-        onVideoChange={setCurrentVideo}
-      />
     </section>
   );
 };
