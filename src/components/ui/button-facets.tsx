@@ -1,8 +1,8 @@
 export const ButtonFacets = () => {
   return (
     <>
-      {/* Ambient diamond glow halo */}
-      <div className="absolute inset-[-8px] rounded-2xl bg-gradient-radial from-cyan-400/30 via-purple-400/20 to-transparent blur-2xl opacity-70 pointer-events-none" />
+      {/* Ambient diamond glow halo - Reduced intensity */}
+      <div className="absolute inset-[-6px] rounded-2xl bg-gradient-radial from-cyan-400/15 via-purple-400/10 to-transparent blur-xl opacity-50 pointer-events-none" />
       
       {/* Multiple crystalline facet layers with prismatic colors */}
       <div className="absolute inset-0 opacity-70 pointer-events-none">

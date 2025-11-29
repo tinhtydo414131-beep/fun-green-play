@@ -7,7 +7,7 @@ import { ButtonParticles } from "./button-particles";
 import { ButtonFacets } from "./button-facets";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 relative overflow-hidden before:absolute before:inset-[-4px] before:rounded-2xl before:bg-gradient-to-r before:from-cyan-400/20 before:via-purple-400/20 before:to-cyan-400/20 before:blur-xl before:opacity-60 before:-z-10",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 relative overflow-hidden before:absolute before:inset-[-3px] before:rounded-2xl before:bg-gradient-to-r before:from-cyan-400/10 before:via-purple-400/10 before:to-cyan-400/10 before:blur-lg before:opacity-40 before:-z-10",
   {
     variants: {
       variant: {
