@@ -21,24 +21,10 @@ interface VideoOption {
 const videoOptions: VideoOption[] = [
   {
     id: "latest",
-    name: "Mới nhất",
+    name: "Video chính",
     path: "/videos/hero-background-latest.mp4",
     icon: <Sparkles className="h-6 w-6" />,
-    description: "Video mới nhất và đẹp nhất",
-  },
-  {
-    id: "funplanet",
-    name: "FUN Planet",
-    path: "/videos/hero-funplanet-user.mp4",
-    icon: <Stars className="h-6 w-6" />,
-    description: "Video chính thức FUN Planet",
-  },
-  {
-    id: "original",
-    name: "Nguyên bản",
-    path: "/videos/hero-background.mp4",
-    icon: <Rocket className="h-6 w-6" />,
-    description: "Video đầu tiên của FUN Planet",
+    description: "Video nền chính của FUN Planet",
   },
 ];
 
