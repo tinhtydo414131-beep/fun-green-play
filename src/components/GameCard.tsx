@@ -2,19 +2,11 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Play, Heart, Info, TrendingUp } from "lucide-react";
+import { Play, Heart, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
 interface Game {
   id: string;
@@ -299,38 +291,6 @@ export const GameCard = ({ game }: GameCardProps) => {
           >
             <Heart className={`w-6 h-6 ${liked ? 'fill-white text-white' : 'text-white'}`} />
           </Button>
-
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-14 w-14 shrink-0"
-              >
-                <Info className="w-6 h-6" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="border-4 border-primary/30 max-w-[calc(100vw-2rem)] sm:max-w-2xl mx-4">
-              <DialogHeader>
-                <DialogTitle className="font-fredoka text-xl sm:text-3xl text-primary">
-                  How to Play {game.title} 🎮
-                </DialogTitle>
-                <DialogDescription className="font-comic text-sm sm:text-lg pt-4">
-                  {game.how_to_play ? (
-                    <div className="space-y-2 text-left">
-                      {game.how_to_play.split('\n').map((line, i) => (
-                        <p key={i} className="text-foreground">{line}</p>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground">
-                      Click "Play Now" to start the game and learn as you play! Have fun! 🌟
-                    </p>
-                  )}
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
         </div>
       </CardContent>
       </div>
