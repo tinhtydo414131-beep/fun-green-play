@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { TransferModal } from "@/components/TransferModal";
 
 interface LeaderboardEntry {
   id: string;
@@ -30,6 +31,8 @@ export default function NexusLeaderboard() {
   const [alltimeLeaderboard, setAlltimeLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
+  const [transferModalOpen, setTransferModalOpen] = useState(false);
+  const [selectedRecipient, setSelectedRecipient] = useState<{ address: string; username: string } | null>(null);
 
   const shortenAddress = (address: string | null) => {
     if (!address) return null;
@@ -179,7 +182,13 @@ export default function NexusLeaderboard() {
                 {entry.profiles?.wallet_address && (
                   <Button
                     size="sm"
-                    onClick={() => navigate(`/wallet?to=${entry.profiles.wallet_address}`)}
+                    onClick={() => {
+                      setSelectedRecipient({
+                        address: entry.profiles.wallet_address!,
+                        username: entry.profiles.username
+                      });
+                      setTransferModalOpen(true);
+                    }}
                     className="h-8 flex-shrink-0"
                   >
                     <Send className="w-4 h-4 mr-1" />
@@ -238,6 +247,16 @@ export default function NexusLeaderboard() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Transfer Modal */}
+      {selectedRecipient && (
+        <TransferModal
+          open={transferModalOpen}
+          onOpenChange={setTransferModalOpen}
+          recipientAddress={selectedRecipient.address}
+          recipientUsername={selectedRecipient.username}
+        />
+      )}
     </div>
   );
 }

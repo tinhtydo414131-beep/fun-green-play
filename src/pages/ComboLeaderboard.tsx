@@ -13,6 +13,7 @@ import { LiveComboNotifications } from "@/components/LiveComboNotifications";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
+import { TransferModal } from "@/components/TransferModal";
 
 interface ComboRecord {
   id: string;
@@ -38,6 +39,8 @@ const ComboLeaderboard = () => {
   const [newEntryId, setNewEntryId] = useState<string | null>(null);
   const [liveViewers, setLiveViewers] = useState(0);
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
+  const [transferModalOpen, setTransferModalOpen] = useState(false);
+  const [selectedRecipient, setSelectedRecipient] = useState<{ address: string; username: string } | null>(null);
   const channelRef = useRef<any>(null);
   const presenceChannelRef = useRef<any>(null);
 
@@ -403,7 +406,13 @@ const LeaderboardContent = ({ records }: { records: ComboRecord[] }) => {
                 {record.profiles.wallet_address && (
                   <Button
                     size="sm"
-                    onClick={() => navigate(`/wallet?to=${record.profiles.wallet_address}`)}
+                    onClick={() => {
+                      setSelectedRecipient({
+                        address: record.profiles.wallet_address!,
+                        username: record.profiles.username
+                      });
+                      setTransferModalOpen(true);
+                    }}
                     className="h-8 flex-shrink-0"
                   >
                     <Send className="w-4 h-4 mr-1" />
@@ -571,6 +580,16 @@ if (loading) {
           </Card>
         </div>
       </section>
+
+      {/* Transfer Modal */}
+      {selectedRecipient && (
+        <TransferModal
+          open={transferModalOpen}
+          onOpenChange={setTransferModalOpen}
+          recipientAddress={selectedRecipient.address}
+          recipientUsername={selectedRecipient.username}
+        />
+      )}
     </div>
   );
 };

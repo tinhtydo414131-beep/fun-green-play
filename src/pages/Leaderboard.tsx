@@ -8,6 +8,7 @@ import { Trophy, Medal, Star, Home, Send, Copy, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { TransferModal } from "@/components/TransferModal";
 
 interface LeaderboardEntry {
   id: string;
@@ -24,6 +25,8 @@ export default function Leaderboard() {
   const [leaders, setLeaders] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
+  const [transferModalOpen, setTransferModalOpen] = useState(false);
+  const [selectedRecipient, setSelectedRecipient] = useState<{ address: string; username: string } | null>(null);
 
   useEffect(() => {
     fetchLeaderboard();
@@ -242,7 +245,13 @@ export default function Leaderboard() {
                       {leader.wallet_address && (
                         <Button
                           size="sm"
-                          onClick={() => navigate(`/wallet?to=${leader.wallet_address}`)}
+                          onClick={() => {
+                            setSelectedRecipient({
+                              address: leader.wallet_address!,
+                              username: leader.username
+                            });
+                            setTransferModalOpen(true);
+                          }}
                           className="h-8"
                         >
                           <Send className="w-4 h-4 mr-1" />
@@ -268,6 +277,16 @@ export default function Leaderboard() {
           )}
         </div>
       </section>
+
+      {/* Transfer Modal */}
+      {selectedRecipient && (
+        <TransferModal
+          open={transferModalOpen}
+          onOpenChange={setTransferModalOpen}
+          recipientAddress={selectedRecipient.address}
+          recipientUsername={selectedRecipient.username}
+        />
+      )}
     </div>
   );
 }
