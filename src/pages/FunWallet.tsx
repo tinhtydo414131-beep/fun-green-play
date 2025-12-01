@@ -1402,22 +1402,31 @@ export default function FunWallet() {
             >
               <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-3 sm:pb-4 px-1 sm:px-2 scrollbar-hide snap-x snap-mandatory">
                 {tokens.map((token) => (
-                  <motion.button
+                  <motion.div
                     key={token.symbol}
-                    onClick={() => {
-                      setSelectedToken(token);
-                      handleCoinChartToggle(token.symbol);
-                    }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className={`flex-shrink-0 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 font-bold transition-all duration-300 snap-center min-w-[100px] sm:min-w-[120px] relative ${
+                    className={`flex-shrink-0 rounded-xl sm:rounded-2xl transition-all duration-300 snap-center min-w-[100px] sm:min-w-[120px] relative ${
                       selectedChartCoin === token.symbol
-                        ? 'border-primary bg-gradient-to-br from-primary to-secondary text-white scale-105 shadow-[var(--shadow-button)] ring-4 ring-primary/30' 
+                        ? 'p-1 bg-gradient-to-br from-purple-500 via-blue-500 to-purple-600 shadow-[var(--shadow-button)]' 
                         : selectedToken.symbol === token.symbol 
-                        ? 'border-primary/50 bg-gradient-to-br from-primary/20 to-secondary/20 text-foreground' 
-                        : 'border-border bg-card/80 text-foreground opacity-70'
+                        ? 'p-1 bg-gradient-to-br from-purple-400 via-blue-400 to-purple-500' 
+                        : 'p-1 bg-gradient-to-br from-purple-300 via-blue-300 to-purple-400 opacity-70'
                     }`}
                   >
+                    <motion.button
+                      onClick={() => {
+                        setSelectedToken(token);
+                        handleCoinChartToggle(token.symbol);
+                      }}
+                      className={`w-full h-full px-4 sm:px-6 py-3 sm:py-4 rounded-lg sm:rounded-xl font-bold transition-all duration-300 ${
+                        selectedChartCoin === token.symbol
+                          ? 'bg-gradient-to-br from-primary to-secondary text-white scale-105 ring-4 ring-primary/30' 
+                          : selectedToken.symbol === token.symbol 
+                          ? 'bg-gradient-to-br from-primary/20 to-secondary/20 text-foreground' 
+                          : 'bg-card/80 text-foreground'
+                      }`}
+                    >
                     {selectedChartCoin === token.symbol && (
                       <motion.div
                         initial={{ scale: 0 }}
@@ -1455,6 +1464,7 @@ export default function FunWallet() {
                       </span>
                     )}
                   </motion.button>
+                  </motion.div>
                 ))}
               </div>
             </motion.div>
