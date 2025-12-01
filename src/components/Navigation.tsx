@@ -97,7 +97,7 @@ export const Navigation = () => {
                   <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuItem onClick={() => navigate("/dashboard")}>
                       <User className="mr-2 h-4 w-4" />
-                      Dashboard
+                      My Account
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate("/wallet")}>
                       <Wallet className="mr-2 h-4 w-4" />
