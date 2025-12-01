@@ -3,7 +3,7 @@ import { Navigation } from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Trophy, Medal, Star, Home, Send } from "lucide-react";
+import { Trophy, Medal, Star, Home, Send, Copy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -48,6 +48,11 @@ export default function Leaderboard() {
   const shortenAddress = (address: string | null) => {
     if (!address) return null;
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
+  const copyToClipboard = (address: string) => {
+    navigator.clipboard.writeText(address);
+    toast.success("Address copied to clipboard!");
   };
 
   const getRankIcon = (rank: number) => {
@@ -195,9 +200,19 @@ export default function Leaderboard() {
                           🎮 {leader.total_plays} plays • ❤️ {leader.total_likes} likes • 👥 {leader.total_friends} friends
                         </p>
                         {leader.wallet_address && (
-                          <span className="text-xs font-mono text-muted-foreground/80">
-                            {shortenAddress(leader.wallet_address)}
-                          </span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs font-mono text-muted-foreground/80">
+                              {shortenAddress(leader.wallet_address)}
+                            </span>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-5 w-5 p-0"
+                              onClick={() => copyToClipboard(leader.wallet_address!)}
+                            >
+                              <Copy className="w-3 h-3" />
+                            </Button>
+                          </div>
                         )}
                       </div>
                     </div>

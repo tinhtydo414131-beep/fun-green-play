@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Trophy, Flame, Medal, Crown, Zap, Users, Send } from "lucide-react";
+import { ArrowLeft, Trophy, Flame, Medal, Crown, Zap, Users, Send, Copy } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ComboPeriodTimer } from "@/components/ComboPeriodTimer";
@@ -42,6 +42,11 @@ const ComboLeaderboard = () => {
   const shortenAddress = (address: string | null) => {
     if (!address) return null;
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
+  const copyToClipboard = (address: string) => {
+    navigator.clipboard.writeText(address);
+    toast.success("Address copied to clipboard!");
   };
 
   useEffect(() => {
@@ -354,9 +359,19 @@ const LeaderboardContent = ({ records }: { records: ComboRecord[] }) => {
                       Level {record.level_achieved} • {record.total_value.toLocaleString()} 💰
                     </p>
                     {record.profiles.wallet_address && (
-                      <span className="text-xs font-mono text-muted-foreground/80">
-                        {shortenAddress(record.profiles.wallet_address)}
-                      </span>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs font-mono text-muted-foreground/80">
+                          {shortenAddress(record.profiles.wallet_address)}
+                        </span>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-5 w-5 p-0"
+                          onClick={() => copyToClipboard(record.profiles.wallet_address!)}
+                        >
+                          <Copy className="w-3 h-3" />
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </div>
