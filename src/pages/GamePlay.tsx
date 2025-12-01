@@ -148,6 +148,14 @@ const GamePlay = () => {
           })
           .eq("id", user.id);
         
+        // Log transaction
+        await supabase.from("camly_coin_transactions").insert({
+          user_id: user.id,
+          amount: 10000,
+          transaction_type: "game_play",
+          description: `Played ${game.title}`
+        });
+        
         // Show reward notification
         setShowReward(true);
       }

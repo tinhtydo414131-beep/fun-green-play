@@ -97,6 +97,14 @@ export const WalletConnect = () => {
         updates.wallet_balance = (profile?.wallet_balance || 0) + 50000;
         setRewardAmount(50000);
         setShowReward(true);
+        
+        // Log transaction
+        await supabase.from("camly_coin_transactions").insert({
+          user_id: user.id,
+          amount: 50000,
+          transaction_type: "wallet_connection",
+          description: "First wallet connection bonus"
+        });
       }
 
       const { error } = await supabase

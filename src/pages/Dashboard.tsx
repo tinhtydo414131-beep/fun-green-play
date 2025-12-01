@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { Gamepad2, Users, MessageCircle, Trophy, Home } from "lucide-react";
+import { Gamepad2, Users, MessageCircle, Trophy, Home, Coins, History } from "lucide-react";
 import { toast } from "sonner";
 import { WalletConnect } from "@/components/WalletConnect";
 import { AvatarUpload } from "@/components/AvatarUpload";
@@ -132,7 +132,7 @@ export default function Dashboard() {
           </Card>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
             <Card className="border-2 border-primary/30 hover:border-primary transition-all hover:shadow-lg transform hover:scale-105">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-lg font-fredoka text-muted-foreground">Games Played</CardTitle>
@@ -141,6 +141,20 @@ export default function Dashboard() {
               <CardContent>
                 <div className="text-4xl font-fredoka font-bold text-primary">{profile.total_plays}</div>
                 <p className="text-sm text-muted-foreground font-comic mt-1">Keep playing! 🎯</p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-accent/30 hover:border-accent transition-all hover:shadow-lg transform hover:scale-105 cursor-pointer" onClick={() => navigate("/camly-coins")}>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-lg font-fredoka text-muted-foreground">Camly Coins</CardTitle>
+                <Coins className="w-6 h-6 text-accent" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-4xl font-fredoka font-bold text-accent">{profile.wallet_balance?.toLocaleString() || 0}</div>
+                <p className="text-sm text-muted-foreground font-comic mt-1 flex items-center gap-1">
+                  <History className="w-3 h-3" />
+                  View history 💰
+                </p>
               </CardContent>
             </Card>
 
