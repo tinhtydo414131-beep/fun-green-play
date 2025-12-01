@@ -11,6 +11,7 @@ import { ComboPeriodTimer } from "@/components/ComboPeriodTimer";
 import { ComboPrizeNotification } from "@/components/ComboPrizeNotification";
 import { LiveComboNotifications } from "@/components/LiveComboNotifications";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 
 interface ComboRecord {
@@ -359,19 +360,28 @@ const LeaderboardContent = ({ records }: { records: ComboRecord[] }) => {
                       Level {record.level_achieved} • {record.total_value.toLocaleString()} 💰
                     </p>
                     {record.profiles.wallet_address && (
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs font-mono text-muted-foreground/80">
-                          {shortenAddress(record.profiles.wallet_address)}
-                        </span>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-5 w-5 p-0"
-                          onClick={() => copyToClipboard(record.profiles.wallet_address!)}
-                        >
-                          <Copy className="w-3 h-3" />
-                        </Button>
-                      </div>
+                      <TooltipProvider>
+                        <div className="flex items-center gap-1">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="text-xs font-mono text-muted-foreground/80 cursor-help">
+                                {shortenAddress(record.profiles.wallet_address)}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="font-mono text-xs">{record.profiles.wallet_address}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-5 w-5 p-0"
+                            onClick={() => copyToClipboard(record.profiles.wallet_address!)}
+                          >
+                            <Copy className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </TooltipProvider>
                     )}
                   </div>
                 </div>

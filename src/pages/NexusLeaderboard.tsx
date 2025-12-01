@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface LeaderboardEntry {
   id: string;
@@ -137,19 +138,28 @@ export default function NexusLeaderboard() {
                     Best: {entry.highest_tile}
                   </Badge>
                   {entry.profiles?.wallet_address && (
-                    <div className="flex items-center gap-1">
-                      <span className="font-mono text-xs">
-                        {shortenAddress(entry.profiles.wallet_address)}
-                      </span>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-5 w-5 p-0"
-                        onClick={() => copyToClipboard(entry.profiles.wallet_address!)}
-                      >
-                        <Copy className="w-3 h-3" />
-                      </Button>
-                    </div>
+                    <TooltipProvider>
+                      <div className="flex items-center gap-1">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="font-mono text-xs cursor-help">
+                              {shortenAddress(entry.profiles.wallet_address)}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="font-mono text-xs">{entry.profiles.wallet_address}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-5 w-5 p-0"
+                          onClick={() => copyToClipboard(entry.profiles.wallet_address!)}
+                        >
+                          <Copy className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </TooltipProvider>
                   )}
                 </div>
               </div>
