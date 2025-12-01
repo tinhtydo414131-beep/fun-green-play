@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Trophy, Medal, Star, Home, Send, Copy } from "lucide-react";
+import { Trophy, Medal, Star, Home, Send, Copy, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -23,6 +23,7 @@ export default function Leaderboard() {
   const navigate = useNavigate();
   const [leaders, setLeaders] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
 
   useEffect(() => {
     fetchLeaderboard();
@@ -53,7 +54,9 @@ export default function Leaderboard() {
 
   const copyToClipboard = (address: string) => {
     navigator.clipboard.writeText(address);
+    setCopiedAddress(address);
     toast.success("Address copied to clipboard!");
+    setTimeout(() => setCopiedAddress(null), 2000);
   };
 
   const getRankIcon = (rank: number) => {
@@ -216,10 +219,18 @@ export default function Leaderboard() {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                className="h-5 w-5 p-0"
+                                className={`h-5 w-5 p-0 transition-colors duration-200 ${
+                                  copiedAddress === leader.wallet_address
+                                    ? 'text-green-500'
+                                    : ''
+                                }`}
                                 onClick={() => copyToClipboard(leader.wallet_address!)}
                               >
-                                <Copy className="w-3 h-3" />
+                                {copiedAddress === leader.wallet_address ? (
+                                  <Check className="w-3 h-3" />
+                                ) : (
+                                  <Copy className="w-3 h-3" />
+                                )}
                               </Button>
                             </div>
                           </TooltipProvider>

@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Trophy, Flame, Medal, Crown, Zap, Users, Send, Copy } from "lucide-react";
+import { ArrowLeft, Trophy, Flame, Medal, Crown, Zap, Users, Send, Copy, Check } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ComboPeriodTimer } from "@/components/ComboPeriodTimer";
@@ -37,6 +37,7 @@ const ComboLeaderboard = () => {
   const [loading, setLoading] = useState(true);
   const [newEntryId, setNewEntryId] = useState<string | null>(null);
   const [liveViewers, setLiveViewers] = useState(0);
+  const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
   const channelRef = useRef<any>(null);
   const presenceChannelRef = useRef<any>(null);
 
@@ -47,7 +48,9 @@ const ComboLeaderboard = () => {
 
   const copyToClipboard = (address: string) => {
     navigator.clipboard.writeText(address);
+    setCopiedAddress(address);
     toast.success("Address copied to clipboard!");
+    setTimeout(() => setCopiedAddress(null), 2000);
   };
 
   useEffect(() => {
@@ -375,10 +378,18 @@ const LeaderboardContent = ({ records }: { records: ComboRecord[] }) => {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-5 w-5 p-0"
+                            className={`h-5 w-5 p-0 transition-colors duration-200 ${
+                              copiedAddress === record.profiles.wallet_address
+                                ? 'text-green-500'
+                                : ''
+                            }`}
                             onClick={() => copyToClipboard(record.profiles.wallet_address!)}
                           >
-                            <Copy className="w-3 h-3" />
+                            {copiedAddress === record.profiles.wallet_address ? (
+                              <Check className="w-3 h-3" />
+                            ) : (
+                              <Copy className="w-3 h-3" />
+                            )}
                           </Button>
                         </div>
                       </TooltipProvider>
