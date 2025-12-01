@@ -1361,56 +1361,47 @@ export type Database = {
       wallet_transactions: {
         Row: {
           amount: number
-          created_at: string | null
+          created_at: string
           from_user_id: string | null
           gas_fee: number | null
           id: string
           notes: string | null
-          status: string | null
+          recipients_count: number | null
+          status: string
           to_user_id: string | null
-          token_type: string | null
+          token_type: string
           transaction_hash: string | null
+          transaction_type: string
         }
         Insert: {
           amount: number
-          created_at?: string | null
+          created_at?: string
           from_user_id?: string | null
           gas_fee?: number | null
           id?: string
           notes?: string | null
-          status?: string | null
+          recipients_count?: number | null
+          status?: string
           to_user_id?: string | null
-          token_type?: string | null
+          token_type?: string
           transaction_hash?: string | null
+          transaction_type?: string
         }
         Update: {
           amount?: number
-          created_at?: string | null
+          created_at?: string
           from_user_id?: string | null
           gas_fee?: number | null
           id?: string
           notes?: string | null
-          status?: string | null
+          recipients_count?: number | null
+          status?: string
           to_user_id?: string | null
-          token_type?: string | null
+          token_type?: string
           transaction_hash?: string | null
+          transaction_type?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "wallet_transactions_from_user_id_fkey"
-            columns: ["from_user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "wallet_transactions_to_user_id_fkey"
-            columns: ["to_user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
