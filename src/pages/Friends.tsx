@@ -45,12 +45,6 @@ interface Transaction {
   to_user_id: string | null;
   status: string;
   notes: string | null;
-  from_user?: {
-    username: string;
-  };
-  to_user?: {
-    username: string;
-  };
 }
 
 export default function Friends() {
@@ -150,9 +144,7 @@ export default function Friends() {
           from_user_id,
           to_user_id,
           status,
-          notes,
-          from_user:profiles!wallet_transactions_from_user_id_fkey(username),
-          to_user:profiles!wallet_transactions_to_user_id_fkey(username)
+          notes
         `)
         .or(`from_user_id.eq.${user?.id},to_user_id.eq.${user?.id}`)
         .eq("token_type", "CAMLY")
@@ -778,7 +770,9 @@ export default function Friends() {
                   <div className="space-y-3">
                     {transactions.map((tx) => {
                       const isSent = tx.from_user_id === user?.id;
-                      const otherUser = isSent ? tx.to_user : tx.from_user;
+                      const otherUser = friends.find((friend) =>
+                        isSent ? friend.id === tx.to_user_id : friend.id === tx.from_user_id
+                      );
                       return (
                         <motion.div
                           key={tx.id}
