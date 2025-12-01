@@ -23,10 +23,23 @@ export function CoinNotification() {
     // Initialize audio
     audioRef.current = new Audio("/audio/coin-reward.mp3");
     audioRef.current.volume = 0.5;
+    
+    // Test audio loading
+    audioRef.current.addEventListener('canplaythrough', () => {
+      console.log('✅ Coin notification audio loaded successfully');
+    });
+    audioRef.current.addEventListener('error', (e) => {
+      console.error('❌ Failed to load coin notification audio:', e);
+    });
 
     const setupSubscriptions = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        console.log('❌ No user found for coin notifications');
+        return;
+      }
+
+      console.log('🔔 Setting up coin notification subscriptions for user:', user.id);
 
       // Subscribe to Camly Coin transactions
       const camlyCoinChannel = supabase
@@ -40,6 +53,7 @@ export function CoinNotification() {
             filter: `user_id=eq.${user.id}`,
           },
           (payload) => {
+            console.log('💰 Camly coin transaction received:', payload);
             const transaction = payload.new;
             if (transaction.amount > 0) {
               showNotification({
@@ -52,7 +66,9 @@ export function CoinNotification() {
             }
           }
         )
-        .subscribe();
+        .subscribe((status) => {
+          console.log('📡 Camly coin channel status:', status);
+        });
 
       // Subscribe to wallet transactions (receiving)
       const walletChannel = supabase
@@ -66,6 +82,7 @@ export function CoinNotification() {
             filter: `to_user_id=eq.${user.id}`,
           },
           (payload) => {
+            console.log('💸 Wallet transaction received:', payload);
             const transaction = payload.new;
             if (transaction.status === "completed" || transaction.status === "pending") {
               showNotification({
@@ -79,9 +96,12 @@ export function CoinNotification() {
             }
           }
         )
-        .subscribe();
+        .subscribe((status) => {
+          console.log('📡 Wallet channel status:', status);
+        });
 
       return () => {
+        console.log('🔌 Cleaning up coin notification subscriptions');
         supabase.removeChannel(camlyCoinChannel);
         supabase.removeChannel(walletChannel);
       };
@@ -95,18 +115,28 @@ export function CoinNotification() {
   }, []);
 
   const showNotification = (notification: CoinNotification) => {
+    console.log('🎉 Showing notification:', notification);
+    console.log('📋 Preferences:', preferences);
+    
     // Check if notifications are enabled
-    if (!preferences.enabled) return;
+    if (!preferences.enabled) {
+      console.log('❌ Notifications disabled in preferences');
+      return;
+    }
 
     // Play sound if enabled
     if (preferences.soundEnabled && audioRef.current) {
+      console.log('🔊 Playing notification sound at volume:', preferences.volume);
       audioRef.current.volume = preferences.volume / 100;
       audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(console.error);
+      audioRef.current.play()
+        .then(() => console.log('✅ Audio played successfully'))
+        .catch((error) => console.error('❌ Audio play failed:', error));
     }
 
     // Trigger confetti if enabled
     if (preferences.confettiEnabled) {
+      console.log('🎊 Triggering confetti');
       confetti({
         particleCount: 100,
         spread: 70,
