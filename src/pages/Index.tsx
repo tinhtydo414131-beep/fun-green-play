@@ -192,6 +192,94 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Community Games Upload Section */}
+      <section className="py-20 px-4 bg-gradient-to-br from-accent/5 via-primary/5 to-secondary/5">
+        <div className="container mx-auto max-w-7xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-5xl md:text-6xl font-fredoka font-black text-primary mb-6">
+              Create & Share Your Games! 🎨
+            </h2>
+            <p className="text-xl font-comic text-foreground/90 font-bold max-w-3xl mx-auto mb-8">
+              Upload your own games and earn BIG rewards when they get approved!
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            <Card className="p-8 bg-white shadow-xl border-4 border-primary/20 hover:border-primary transition-all hover:shadow-2xl transform hover:scale-105">
+              <div className="text-6xl mb-4 text-center">📤</div>
+              <h3 className="text-2xl font-fredoka font-bold text-primary mb-3 text-center">Upload Your Game</h3>
+              <p className="font-comic text-muted-foreground text-center mb-4">
+                Share your .zip, .html, or .js game files with the community!
+              </p>
+              <div className="text-center">
+                <span className="text-3xl font-bold text-accent">+10,000</span>
+                <p className="text-sm text-muted-foreground">Camly Coins</p>
+              </div>
+            </Card>
+
+            <Card className="p-8 bg-white shadow-xl border-4 border-accent/20 hover:border-accent transition-all hover:shadow-2xl transform hover:scale-105">
+              <div className="text-6xl mb-4 text-center">✅</div>
+              <h3 className="text-2xl font-fredoka font-bold text-accent mb-3 text-center">Get Approved</h3>
+              <p className="font-comic text-muted-foreground text-center mb-4">
+                Our admin team reviews and approves quality games!
+              </p>
+              <div className="text-center">
+                <span className="text-3xl font-bold text-primary">+1,000,000</span>
+                <p className="text-sm text-muted-foreground">Camly Coins Bonus!</p>
+              </div>
+            </Card>
+
+            <Card className="p-8 bg-white shadow-xl border-4 border-secondary/20 hover:border-secondary transition-all hover:shadow-2xl transform hover:scale-105">
+              <div className="text-6xl mb-4 text-center">🎮</div>
+              <h3 className="text-2xl font-fredoka font-bold text-secondary mb-3 text-center">Players Enjoy</h3>
+              <p className="font-comic text-muted-foreground text-center mb-4">
+                Watch your game get played by thousands of kids!
+              </p>
+              <div className="text-center">
+                <span className="text-3xl font-bold text-secondary">∞</span>
+                <p className="text-sm text-muted-foreground">Plays & Fame!</p>
+              </div>
+            </Card>
+          </div>
+
+          <div className="text-center space-y-6">
+            {user ? (
+              <div className="space-x-4">
+                <Button
+                  onClick={() => navigate("/upload-game")}
+                  size="lg"
+                  className="font-fredoka font-bold text-xl px-10 py-8 bg-gradient-to-r from-primary to-accent hover:shadow-2xl transform hover:scale-110 transition-all"
+                >
+                  Upload Your Game 🚀
+                </Button>
+                <Button
+                  onClick={() => navigate("/community-games")}
+                  size="lg"
+                  variant="outline"
+                  className="font-fredoka font-bold text-xl px-10 py-8 border-4 border-primary/30 hover:border-primary hover:shadow-2xl transform hover:scale-110 transition-all"
+                >
+                  Play Community Games 🎯
+                </Button>
+              </div>
+            ) : (
+              <Button
+                onClick={() => navigate("/auth")}
+                size="lg"
+                className="font-fredoka font-bold text-xl px-10 py-8 bg-gradient-to-r from-primary to-accent hover:shadow-2xl transform hover:scale-110 transition-all"
+              >
+                Sign Up to Upload Games! ✨
+              </Button>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 px-4">
         <div className="container mx-auto max-w-4xl">

@@ -422,6 +422,42 @@ export type Database = {
           },
         ]
       }
+      game_plays: {
+        Row: {
+          game_id: string
+          id: string
+          played_at: string
+          user_id: string
+        }
+        Insert: {
+          game_id: string
+          id?: string
+          played_at?: string
+          user_id: string
+        }
+        Update: {
+          game_id?: string
+          id?: string
+          played_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_plays_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "uploaded_games"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_plays_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       game_progress: {
         Row: {
           created_at: string
@@ -500,6 +536,48 @@ export type Database = {
           {
             foreignKeyName: "game_ratings_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_reviews: {
+        Row: {
+          created_at: string
+          game_id: string
+          id: string
+          notes: string | null
+          reviewer_id: string
+          status: Database["public"]["Enums"]["game_status"]
+        }
+        Insert: {
+          created_at?: string
+          game_id: string
+          id?: string
+          notes?: string | null
+          reviewer_id: string
+          status: Database["public"]["Enums"]["game_status"]
+        }
+        Update: {
+          created_at?: string
+          game_id?: string
+          id?: string
+          notes?: string | null
+          reviewer_id?: string
+          status?: Database["public"]["Enums"]["game_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_reviews_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "uploaded_games"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_reviews_reviewer_id_fkey"
+            columns: ["reviewer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -830,6 +908,84 @@ export type Database = {
         }
         Relationships: []
       }
+      uploaded_games: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          category: Database["public"]["Enums"]["game_category"]
+          created_at: string
+          description: string | null
+          download_count: number
+          game_file_path: string
+          id: string
+          play_count: number
+          rating: number | null
+          rating_count: number
+          rejection_note: string | null
+          status: Database["public"]["Enums"]["game_status"]
+          tags: string[] | null
+          thumbnail_path: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          category: Database["public"]["Enums"]["game_category"]
+          created_at?: string
+          description?: string | null
+          download_count?: number
+          game_file_path: string
+          id?: string
+          play_count?: number
+          rating?: number | null
+          rating_count?: number
+          rejection_note?: string | null
+          status?: Database["public"]["Enums"]["game_status"]
+          tags?: string[] | null
+          thumbnail_path?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          category?: Database["public"]["Enums"]["game_category"]
+          created_at?: string
+          description?: string | null
+          download_count?: number
+          game_file_path?: string
+          id?: string
+          play_count?: number
+          rating?: number | null
+          rating_count?: number
+          rejection_note?: string | null
+          status?: Database["public"]["Enums"]["game_status"]
+          tags?: string[] | null
+          thumbnail_path?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "uploaded_games_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "uploaded_games_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_background_videos: {
         Row: {
           created_at: string | null
@@ -1116,6 +1272,15 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      game_category:
+        | "action"
+        | "puzzle"
+        | "adventure"
+        | "casual"
+        | "educational"
+        | "racing"
+        | "sports"
+        | "arcade"
       game_genre:
         | "adventure"
         | "puzzle"
@@ -1123,6 +1288,7 @@ export type Database = {
         | "educational"
         | "casual"
         | "brain"
+      game_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1251,6 +1417,16 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      game_category: [
+        "action",
+        "puzzle",
+        "adventure",
+        "casual",
+        "educational",
+        "racing",
+        "sports",
+        "arcade",
+      ],
       game_genre: [
         "adventure",
         "puzzle",
@@ -1259,6 +1435,7 @@ export const Constants = {
         "casual",
         "brain",
       ],
+      game_status: ["pending", "approved", "rejected"],
     },
   },
 } as const
