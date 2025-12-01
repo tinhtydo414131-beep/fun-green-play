@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { Gamepad2, Users, MessageCircle, Trophy, Home, Coins, History } from "lucide-react";
+import { Gamepad2, Users, MessageCircle, Trophy, Home, Coins, History, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { WalletConnect } from "@/components/WalletConnect";
 import { AvatarUpload } from "@/components/AvatarUpload";
@@ -196,13 +196,20 @@ export default function Dashboard() {
           <WalletConnect />
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Button
               onClick={() => navigate("/games")}
               className="h-24 text-xl font-fredoka font-bold bg-gradient-to-r from-primary to-secondary hover:shadow-lg transform hover:scale-105 transition-all"
             >
               <Gamepad2 className="mr-2 h-6 w-6" />
               Play Games 🎮
+            </Button>
+            <Button
+              onClick={() => navigate("/upload-game")}
+              className="h-24 text-xl font-fredoka font-bold bg-gradient-to-r from-accent to-secondary hover:shadow-lg transform hover:scale-105 transition-all"
+            >
+              <Upload className="mr-2 h-6 w-6" />
+              Upload Game 🎨
             </Button>
             <Button
               variant="outline"
