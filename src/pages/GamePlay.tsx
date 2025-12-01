@@ -12,6 +12,7 @@ import { LevelSelector } from "@/components/LevelSelector";
 import { FlowerFieldLevelSelector } from "@/components/FlowerFieldLevelSelector";
 import { DailyChallengeCard } from "@/components/DailyChallengeCard";
 import { LiveComboNotifications } from "@/components/LiveComboNotifications";
+import { CamlyCoinReward } from "@/components/CamlyCoinReward";
 import confetti from "canvas-confetti";
 
 // Import all game components
@@ -76,6 +77,7 @@ const GamePlay = () => {
   const [loading, setLoading] = useState(true);
   const [showLevelSelector, setShowLevelSelector] = useState(true);
   const [gameStarted, setGameStarted] = useState(false);
+  const [showReward, setShowReward] = useState(false);
   const [autoLevel, setAutoLevel] = useState(() => {
     const saved = localStorage.getItem("autoLevel");
     return saved !== null ? JSON.parse(saved) : true;
@@ -145,6 +147,9 @@ const GamePlay = () => {
             wallet_balance: (profile.wallet_balance || 0) + 10000
           })
           .eq("id", user.id);
+        
+        // Show reward notification
+        setShowReward(true);
       }
     } catch (error) {
       console.error("Error tracking play:", error);
@@ -371,6 +376,14 @@ const GamePlay = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      {showReward && (
+        <CamlyCoinReward
+          amount={10000}
+          message="Earned from playing the game!"
+          onComplete={() => setShowReward(false)}
+        />
+      )}
+      
       <Navigation />
       <LiveComboNotifications />
       

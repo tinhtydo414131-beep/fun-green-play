@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { ethers } from "ethers";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { CamlyCoinReward } from "./CamlyCoinReward";
 
 declare global {
   interface Window {
@@ -22,6 +23,8 @@ export const WalletConnect = () => {
   const [amount, setAmount] = useState("");
   const [sending, setSending] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showReward, setShowReward] = useState(false);
+  const [rewardAmount, setRewardAmount] = useState(0);
 
   useEffect(() => {
     checkConnection();
@@ -92,7 +95,8 @@ export const WalletConnect = () => {
       
       if (isFirstConnection) {
         updates.wallet_balance = (profile?.wallet_balance || 0) + 50000;
-        toast.success("🎉 First wallet connection bonus: +50,000 Camly Coins!");
+        setRewardAmount(50000);
+        setShowReward(true);
       }
 
       const { error } = await supabase
@@ -169,7 +173,16 @@ export const WalletConnect = () => {
   };
 
   return (
-    <Card className="border-4 border-accent/30 shadow-xl bg-gradient-to-br from-background to-accent/5">
+    <>
+      {showReward && (
+        <CamlyCoinReward
+          amount={rewardAmount}
+          message="Welcome bonus for connecting your wallet!"
+          onComplete={() => setShowReward(false)}
+        />
+      )}
+      
+      <Card className="border-4 border-accent/30 shadow-xl bg-gradient-to-br from-background to-accent/5">
       <CardHeader>
         <CardTitle className="text-3xl font-fredoka flex items-center gap-3">
           <Wallet className="w-8 h-8 text-accent" />
@@ -287,5 +300,6 @@ export const WalletConnect = () => {
         </div>
       </CardContent>
     </Card>
+    </>
   );
 };
