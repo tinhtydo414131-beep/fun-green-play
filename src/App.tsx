@@ -30,6 +30,8 @@ import ComboLeaderboard from "./pages/ComboLeaderboard";
 import CamlyCoinHistory from "./pages/CamlyCoinHistory";
 import UploadGame from "./pages/UploadGame";
 import AdminGameReview from "./pages/AdminGameReview";
+import MyGames from "./pages/MyGames";
+import EditGame from "./pages/EditGame";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +63,8 @@ const AnimatedRoutes = () => {
         <Route path="/camly-coins" element={<CamlyCoinHistory />} />
         <Route path="/upload-game" element={<UploadGame />} />
         <Route path="/admin/game-review" element={<AdminGameReview />} />
+        <Route path="/my-games" element={<MyGames />} />
+        <Route path="/edit-game/:id" element={<EditGame />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
