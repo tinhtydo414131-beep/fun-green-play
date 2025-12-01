@@ -81,7 +81,7 @@ export default function UploadGame() {
 
       if (thumbnailUploadError) throw thumbnailUploadError;
 
-      // Insert game record
+      // Insert game record with approved status
       const { error: insertError } = await supabase
         .from('uploaded_games')
         .insert({
@@ -92,12 +92,28 @@ export default function UploadGame() {
           game_file_path: gameFileName,
           thumbnail_path: thumbnailFileName,
           tags: [formData.ageAppropriate],
-          status: 'pending',
+          status: 'approved',
+          approved_at: new Date().toISOString(),
         });
 
       if (insertError) throw insertError;
 
-      toast.success("Game uploaded successfully! It will be reviewed by our team.");
+      // Award 1 million Camly Coins immediately
+      const { error: coinError } = await supabase
+        .from('camly_coin_transactions')
+        .insert({
+          user_id: user.id,
+          amount: 1000000,
+          transaction_type: 'game_approved',
+          description: 'Game published - Creator reward',
+        });
+
+      if (coinError) {
+        console.error('Coin award error:', coinError);
+        // Don't fail the upload if coin award fails, just log it
+      }
+
+      toast.success("Game uploaded and published! You've earned 1,000,000 Camly Coins! 🎉");
       navigate('/dashboard');
     } catch (error: any) {
       console.error('Upload error:', error);
@@ -116,7 +132,7 @@ export default function UploadGame() {
               Upload Your Game
             </CardTitle>
             <CardDescription className="text-base">
-              Share your creation with the FUN Planet community! Approved games earn 1,000,000 Camly Coins! 🎮✨
+              Share your creation with the FUN Planet community! Earn 1,000,000 Camly Coins instantly! 🎮✨
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -248,14 +264,13 @@ export default function UploadGame() {
                 ) : (
                   <>
                     <Upload className="mr-2 h-5 w-5" />
-                    Submit Game for Review
+                    Publish Game & Earn Coins
                   </>
                 )}
               </Button>
 
               <p className="text-sm text-muted-foreground text-center">
-                Your game will be manually reviewed by our team. Approved games will be published and
-                you'll receive 1,000,000 Camly Coins! 🎉
+                Your game will be published immediately and you'll receive 1,000,000 Camly Coins! 🎉
               </p>
             </form>
           </CardContent>
