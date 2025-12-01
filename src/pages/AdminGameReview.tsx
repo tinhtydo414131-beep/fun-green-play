@@ -87,19 +87,7 @@ export default function AdminGameReview() {
 
       if (updateError) throw updateError;
 
-      // Award 1 million Camly Coins
-      const { error: coinError } = await supabase
-        .from('camly_coin_transactions')
-        .insert({
-          user_id: userId,
-          amount: 1000000,
-          transaction_type: 'game_approved',
-          description: 'Game approved and published - Creator reward',
-        });
-
-      if (coinError) throw coinError;
-
-      toast.success("Game approved and creator rewarded with 1,000,000 Camly Coins!");
+      toast.success("Game approved successfully!");
       loadGames();
     } catch (error: any) {
       console.error('Approval error:', error);
@@ -250,7 +238,7 @@ export default function AdminGameReview() {
                           ) : (
                             <>
                               <CheckCircle className="h-4 w-4 mr-2" />
-                              Approve & Award 1M Coins
+                              Approve
                             </>
                           )}
                         </Button>

@@ -98,22 +98,7 @@ export default function UploadGame() {
 
       if (insertError) throw insertError;
 
-      // Award 1 million Camly Coins immediately
-      const { error: coinError } = await supabase
-        .from('camly_coin_transactions')
-        .insert({
-          user_id: user.id,
-          amount: 1000000,
-          transaction_type: 'game_approved',
-          description: 'Game published - Creator reward',
-        });
-
-      if (coinError) {
-        console.error('Coin award error:', coinError);
-        // Don't fail the upload if coin award fails, just log it
-      }
-
-      toast.success("Game uploaded and published! You've earned 1,000,000 Camly Coins! 🎉");
+      toast.success("Game uploaded and published successfully! 🎉");
       navigate('/dashboard');
     } catch (error: any) {
       console.error('Upload error:', error);
@@ -132,7 +117,7 @@ export default function UploadGame() {
               Upload Your Game
             </CardTitle>
             <CardDescription className="text-base">
-              Share your creation with the FUN Planet community! Earn 1,000,000 Camly Coins instantly! 🎮✨
+              Share your creation with the FUN Planet community! 🎮✨
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -264,13 +249,13 @@ export default function UploadGame() {
                 ) : (
                   <>
                     <Upload className="mr-2 h-5 w-5" />
-                    Publish Game & Earn Coins
+                    Publish Game
                   </>
                 )}
               </Button>
 
               <p className="text-sm text-muted-foreground text-center">
-                Your game will be published immediately and you'll receive 1,000,000 Camly Coins! 🎉
+                Your game will be published immediately! 🎉
               </p>
             </form>
           </CardContent>
