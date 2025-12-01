@@ -90,7 +90,7 @@ export function CoinNotification() {
                 type: "wallet",
                 amount: transaction.amount,
                 tokenType: transaction.token_type,
-                description: transaction.notes,
+                description: `🎉 Congratulations! You received ${transaction.amount} ${transaction.token_type}${transaction.notes ? ` - ${transaction.notes}` : ''}`,
                 timestamp: Date.now(),
               });
             }
