@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { ArrowLeft, Star, Send, Loader2, Trash2, Edit2, Download, Reply } from "lucide-react";
+import { ArrowLeft, Star, Send, Loader2, Trash2, Edit2, Download, Reply, Flag } from "lucide-react";
 import { z } from "zod";
 import {
   AlertDialog,
@@ -19,12 +19,36 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 const commentSchema = z.object({
   comment: z.string()
     .trim()
     .min(1, "Comment cannot be empty")
     .max(1000, "Comment must be less than 1000 characters")
+});
+
+const reportSchema = z.object({
+  reason: z.string().min(1, "Please select a reason"),
+  details: z.string()
+    .trim()
+    .max(500, "Details must be less than 500 characters")
+    .optional()
 });
 
 interface GameDetails {
@@ -79,6 +103,9 @@ export default function GameDetails() {
   const [editingComment, setEditingComment] = useState<string | null>(null);
   const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [reportingComment, setReportingComment] = useState<string | null>(null);
+  const [reportReason, setReportReason] = useState("");
+  const [reportDetails, setReportDetails] = useState("");
 
   useEffect(() => {
     if (id) {
@@ -258,6 +285,51 @@ export default function GameDetails() {
       toast.error(error.message || "Failed to delete comment");
     } finally {
       setCommentToDelete(null);
+    }
+  };
+
+  const handleReportSubmit = async () => {
+    if (!user || !reportingComment) return;
+
+    try {
+      const validated = reportSchema.parse({
+        reason: reportReason,
+        details: reportDetails || undefined
+      });
+
+      setSubmitting(true);
+
+      const { error } = await supabase
+        .from('comment_reports')
+        .insert({
+          comment_id: reportingComment,
+          reporter_id: user.id,
+          reason: validated.reason,
+          details: validated.details
+        });
+
+      if (error) {
+        if (error.code === '23505') {
+          toast.error("You have already reported this comment");
+        } else {
+          throw error;
+        }
+      } else {
+        toast.success("Comment reported. Thank you for helping keep our community safe.");
+      }
+
+      setReportingComment(null);
+      setReportReason("");
+      setReportDetails("");
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+      } else {
+        console.error('Report error:', error);
+        toast.error(error.message || "Failed to submit report");
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -466,21 +538,34 @@ export default function GameDetails() {
                               </span>
                             </div>
                             <p className="text-sm mb-3">{comment.comment}</p>
-                            {user && !comment.parent_id && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => {
-                                  setReplyingTo(comment.id);
-                                  setCommentText("");
-                                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                                }}
-                                className="text-xs h-auto py-1 px-2"
-                              >
-                                <Reply className="h-3 w-3 mr-1" />
-                                Reply
-                              </Button>
-                            )}
+                            <div className="flex gap-2">
+                              {user && !comment.parent_id && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => {
+                                    setReplyingTo(comment.id);
+                                    setCommentText("");
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                  }}
+                                  className="text-xs h-auto py-1 px-2"
+                                >
+                                  <Reply className="h-3 w-3 mr-1" />
+                                  Reply
+                                </Button>
+                              )}
+                              {user && user.id !== comment.user_id && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => setReportingComment(comment.id)}
+                                  className="text-xs h-auto py-1 px-2 text-muted-foreground hover:text-destructive"
+                                >
+                                  <Flag className="h-3 w-3 mr-1" />
+                                  Report
+                                </Button>
+                              )}
+                            </div>
                           </div>
                           {user?.id === comment.user_id && (
                             <div className="flex gap-2">
@@ -525,7 +610,18 @@ export default function GameDetails() {
                                       {new Date(reply.created_at).toLocaleDateString()}
                                     </span>
                                   </div>
-                                  <p className="text-sm">{reply.comment}</p>
+                                  <p className="text-sm mb-2">{reply.comment}</p>
+                                  {user && user.id !== reply.user_id && (
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={() => setReportingComment(reply.id)}
+                                      className="text-xs h-auto py-1 px-2 text-muted-foreground hover:text-destructive"
+                                    >
+                                      <Flag className="h-3 w-3 mr-1" />
+                                      Report
+                                    </Button>
+                                  )}
                                 </div>
                                 {user?.id === reply.user_id && (
                                   <div className="flex gap-2">
@@ -582,6 +678,81 @@ export default function GameDetails() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={!!reportingComment} onOpenChange={() => {
+        setReportingComment(null);
+        setReportReason("");
+        setReportDetails("");
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Report Comment</DialogTitle>
+            <DialogDescription>
+              Help us maintain a safe and respectful community by reporting inappropriate content.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="reason">Reason *</Label>
+              <Select value={reportReason} onValueChange={setReportReason}>
+                <SelectTrigger id="reason">
+                  <SelectValue placeholder="Select a reason" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="spam">Spam</SelectItem>
+                  <SelectItem value="harassment">Harassment or bullying</SelectItem>
+                  <SelectItem value="hate_speech">Hate speech</SelectItem>
+                  <SelectItem value="violence">Violence or threats</SelectItem>
+                  <SelectItem value="inappropriate">Inappropriate content</SelectItem>
+                  <SelectItem value="misinformation">Misinformation</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="details">Additional details (optional)</Label>
+              <Textarea
+                id="details"
+                value={reportDetails}
+                onChange={(e) => setReportDetails(e.target.value)}
+                placeholder="Provide more context about why you're reporting this comment..."
+                rows={3}
+                maxLength={500}
+                className="resize-none"
+              />
+              <span className="text-xs text-muted-foreground">
+                {reportDetails.length}/500
+              </span>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setReportingComment(null);
+                setReportReason("");
+                setReportDetails("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleReportSubmit}
+              disabled={submitting || !reportReason}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {submitting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  <Flag className="h-4 w-4 mr-2" />
+                  Submit Report
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
