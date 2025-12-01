@@ -522,29 +522,29 @@ export default function FunWallet() {
         .select("*")
         .or(`from_user_id.eq.${user.id},to_user_id.eq.${user.id}`)
         .order("created_at", { ascending: false })
-        .limit(20);
+        .limit(50);
 
       if (error) throw error;
 
       const formattedTxs = data?.map(tx => {
-        // Check if it's an airdrop by looking at notes
-        const isAirdrop = tx.notes?.includes('Airdrop');
-        const recipientsMatch = tx.notes?.match(/(\d+) recipients/);
-        const recipientsCount = recipientsMatch ? parseInt(recipientsMatch[1]) : undefined;
-
+        // Determine transaction type from transaction_type field and user position
+        const isAirdrop = tx.transaction_type === 'airdrop';
+        const isSender = tx.from_user_id === user.id;
+        
         return {
           id: tx.id,
-          type: isAirdrop ? 'airdrop' : (tx.from_user_id === user.id ? 'send' : 'receive'),
+          type: isAirdrop ? 'airdrop' : (isSender ? 'send' : 'receive'),
           amount: tx.amount,
           token_type: tx.token_type || "BNB",
           status: tx.status || "completed",
           created_at: tx.created_at || new Date().toISOString(),
           transaction_hash: tx.transaction_hash,
           notes: tx.notes,
-          recipients_count: recipientsCount
+          recipients_count: tx.recipients_count
         };
       }) || [];
 
+      console.log('📊 Fetched transactions:', formattedTxs);
       setTransactions(formattedTxs);
     } catch (error) {
       console.error("Error fetching transactions:", error);
@@ -639,6 +639,13 @@ export default function FunWallet() {
         .eq("wallet_address", normalizedRecipient)
         .maybeSingle();
 
+      console.log('💾 Recording transaction:', {
+        from: user?.id,
+        to: recipientProfile?.id,
+        amount,
+        token: selectedToken.symbol
+      });
+
       // Record transaction in database
       await supabase.from("wallet_transactions").insert({
         from_user_id: user?.id,
@@ -646,6 +653,7 @@ export default function FunWallet() {
         amount: amount,
         token_type: selectedToken.symbol,
         transaction_hash: txHash,
+        transaction_type: 'transfer',
         status: "completed",
       });
 
@@ -1021,13 +1029,22 @@ export default function FunWallet() {
       // Record airdrop transaction in database
       const batchId = new Date().getTime();
       
+      console.log('💾 Recording airdrop transaction:', {
+        from: user?.id,
+        amount: totalAmount,
+        recipients: addresses.length
+      });
+      
       await supabase.from("wallet_transactions").insert({
         from_user_id: user?.id,
+        to_user_id: null,
         amount: totalAmount,
         token_type: "CAMLY",
+        transaction_type: "airdrop",
+        recipients_count: addresses.length,
         status: "completed",
         transaction_hash: txHash || "completed",
-        notes: `Ultra-Low-Gas Airdrop to ${addresses.length} recipients - ${amount} CAMLY each - Batch #${batchId}`
+        notes: `Ultra-Low-Gas Airdrop - ${amount} CAMLY each - Batch #${batchId}`
       });
 
       toast.success(`🎉 FUN AND RICH!!! All ${addresses.length} airdrops successful in ONE transaction! 💰✨`);
