@@ -196,28 +196,38 @@ export default function MyGames() {
                     <p>Uploaded: {new Date(game.created_at).toLocaleDateString()}</p>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="space-y-2">
                     <Button
-                      variant="outline"
+                      variant="default"
                       size="sm"
-                      onClick={() => navigate(`/edit-game/${game.id}`)}
-                      className="flex-1"
+                      onClick={() => navigate(`/game-details/${game.id}`)}
+                      className="w-full bg-gradient-to-r from-primary to-secondary"
                     >
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit
+                      View Details & Reviews
                     </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => setGameToDelete(game.id)}
-                      disabled={deletingId === game.id}
-                    >
-                      {deletingId === game.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-4 w-4" />
-                      )}
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate(`/edit-game/${game.id}`)}
+                        className="flex-1"
+                      >
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => setGameToDelete(game.id)}
+                        disabled={deletingId === game.id}
+                      >
+                        {deletingId === game.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
