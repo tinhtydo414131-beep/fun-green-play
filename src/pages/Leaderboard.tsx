@@ -3,6 +3,7 @@ import { Navigation } from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Trophy, Medal, Star, Home, Send, Copy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -200,19 +201,28 @@ export default function Leaderboard() {
                           🎮 {leader.total_plays} plays • ❤️ {leader.total_likes} likes • 👥 {leader.total_friends} friends
                         </p>
                         {leader.wallet_address && (
-                          <div className="flex items-center gap-1">
-                            <span className="text-xs font-mono text-muted-foreground/80">
-                              {shortenAddress(leader.wallet_address)}
-                            </span>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-5 w-5 p-0"
-                              onClick={() => copyToClipboard(leader.wallet_address!)}
-                            >
-                              <Copy className="w-3 h-3" />
-                            </Button>
-                          </div>
+                          <TooltipProvider>
+                            <div className="flex items-center gap-1">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="text-xs font-mono text-muted-foreground/80 cursor-help">
+                                    {shortenAddress(leader.wallet_address)}
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="font-mono text-xs">{leader.wallet_address}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-5 w-5 p-0"
+                                onClick={() => copyToClipboard(leader.wallet_address!)}
+                              >
+                                <Copy className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </TooltipProvider>
                         )}
                       </div>
                     </div>
