@@ -8,12 +8,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Save, Loader2, Lock, LogOut, Trash2, Key, Mail, User as UserIcon, Video, Upload, Check, X } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Lock, LogOut, Trash2, Key, Mail, User as UserIcon, Video, Upload, Check, X, Bell, Volume2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { AvatarUpload } from "@/components/AvatarUpload";
 import { z } from "zod";
 import { Separator } from "@/components/ui/separator";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
+import { useNotificationPreferences } from "@/hooks/useNotificationPreferences";
 
 const profileSchema = z.object({
   username: z.string()
@@ -75,6 +78,7 @@ export default function Settings() {
   const [backgroundVideos, setBackgroundVideos] = useState<BackgroundVideo[]>([]);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [videoFile, setVideoFile] = useState<File | null>(null);
+  const { preferences, updatePreferences, resetPreferences } = useNotificationPreferences();
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -744,6 +748,140 @@ export default function Settings() {
               <div className="p-4 bg-primary/5 border-2 border-primary/20 rounded-xl">
                 <p className="text-sm font-comic text-muted-foreground text-center">
                   💡 <span className="font-bold">Mẹo:</span> Video nền sẽ tự động phát ở trang chủ khi bạn truy cập
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Notification Preferences Card */}
+          <Card className="border-4 border-primary/30 shadow-2xl mt-6">
+            <CardHeader className="text-center space-y-2 pb-6">
+              <CardTitle className="text-3xl font-fredoka text-primary flex items-center justify-center gap-2">
+                <Bell className="w-8 h-8" />
+                Thông báo xu 🪙
+              </CardTitle>
+              <CardDescription className="text-base font-comic">
+                Tùy chỉnh thông báo khi nhận xu và token
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-6 px-6 pb-8">
+              {/* Enable Notifications */}
+              <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border-2 border-border/50">
+                <div className="space-y-1">
+                  <Label className="text-base font-fredoka text-foreground">
+                    Bật thông báo
+                  </Label>
+                  <p className="text-sm text-muted-foreground font-comic">
+                    Hiển thị thông báo khi nhận xu
+                  </p>
+                </div>
+                <Switch
+                  checked={preferences.enabled}
+                  onCheckedChange={(checked) => updatePreferences({ enabled: checked })}
+                />
+              </div>
+
+              <Separator />
+
+              {/* Sound Settings */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label className="text-base font-fredoka text-foreground flex items-center gap-2">
+                      <Volume2 className="w-5 h-5" />
+                      Âm thanh
+                    </Label>
+                    <p className="text-sm text-muted-foreground font-comic">
+                      Phát nhạc khi nhận xu
+                    </p>
+                  </div>
+                  <Switch
+                    checked={preferences.soundEnabled}
+                    onCheckedChange={(checked) => updatePreferences({ soundEnabled: checked })}
+                    disabled={!preferences.enabled}
+                  />
+                </div>
+
+                {/* Volume Slider */}
+                {preferences.soundEnabled && preferences.enabled && (
+                  <div className="space-y-2 pl-7">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-fredoka text-foreground">
+                        Âm lượng
+                      </Label>
+                      <span className="text-sm font-comic text-muted-foreground">
+                        {preferences.volume}%
+                      </span>
+                    </div>
+                    <Slider
+                      value={[preferences.volume]}
+                      onValueChange={([value]) => updatePreferences({ volume: value })}
+                      max={100}
+                      step={5}
+                      className="w-full"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <Separator />
+
+              {/* Visual Effects */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label className="text-base font-fredoka text-foreground flex items-center gap-2">
+                      <Sparkles className="w-5 h-5" />
+                      Hiệu ứng confetti
+                    </Label>
+                    <p className="text-sm text-muted-foreground font-comic">
+                      Hiệu ứng pháo hoa màu sắc
+                    </p>
+                  </div>
+                  <Switch
+                    checked={preferences.confettiEnabled}
+                    onCheckedChange={(checked) => updatePreferences({ confettiEnabled: checked })}
+                    disabled={!preferences.enabled}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label className="text-base font-fredoka text-foreground">
+                      Hiệu ứng animation
+                    </Label>
+                    <p className="text-sm text-muted-foreground font-comic">
+                      Animation xuất hiện và biến mất
+                    </p>
+                  </div>
+                  <Switch
+                    checked={preferences.animationsEnabled}
+                    onCheckedChange={(checked) => updatePreferences({ animationsEnabled: checked })}
+                    disabled={!preferences.enabled}
+                  />
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Reset Button */}
+              <Button
+                onClick={() => {
+                  resetPreferences();
+                  toast.success("Đã đặt lại cài đặt mặc định!");
+                }}
+                variant="outline"
+                className="w-full h-12 text-base font-fredoka border-2"
+              >
+                <X className="mr-2 w-5 h-5" />
+                Đặt lại mặc định
+              </Button>
+
+              {/* Info Box */}
+              <div className="p-4 bg-primary/5 border-2 border-primary/20 rounded-xl">
+                <p className="text-sm font-comic text-muted-foreground text-center">
+                  💡 <span className="font-bold">Mẹo:</span> Cài đặt này được lưu trên trình duyệt của bạn
                 </p>
               </div>
             </CardContent>

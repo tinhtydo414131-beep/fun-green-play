@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { Coins, Sparkles } from "lucide-react";
 import confetti from "canvas-confetti";
+import { useNotificationPreferences } from "@/hooks/useNotificationPreferences";
 
 interface CoinNotification {
   id: string;
@@ -16,6 +17,7 @@ interface CoinNotification {
 export function CoinNotification() {
   const [notifications, setNotifications] = useState<CoinNotification[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { preferences } = useNotificationPreferences();
 
   useEffect(() => {
     // Initialize audio
@@ -93,19 +95,25 @@ export function CoinNotification() {
   }, []);
 
   const showNotification = (notification: CoinNotification) => {
-    // Play sound
-    if (audioRef.current) {
+    // Check if notifications are enabled
+    if (!preferences.enabled) return;
+
+    // Play sound if enabled
+    if (preferences.soundEnabled && audioRef.current) {
+      audioRef.current.volume = preferences.volume / 100;
       audioRef.current.currentTime = 0;
       audioRef.current.play().catch(console.error);
     }
 
-    // Trigger confetti
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ["#FFD700", "#FFA500", "#FF6347"],
-    });
+    // Trigger confetti if enabled
+    if (preferences.confettiEnabled) {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ["#FFD700", "#FFA500", "#FF6347"],
+      });
+    }
 
     // Add notification
     setNotifications((prev) => [...prev, notification]);
@@ -122,9 +130,9 @@ export function CoinNotification() {
         {notifications.map((notification) => (
           <motion.div
             key={notification.id}
-            initial={{ opacity: 0, x: 100, scale: 0.8 }}
+            initial={preferences.animationsEnabled ? { opacity: 0, x: 100, scale: 0.8 } : { opacity: 1, x: 0, scale: 1 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 100, scale: 0.8 }}
+            exit={preferences.animationsEnabled ? { opacity: 0, x: 100, scale: 0.8 } : { opacity: 0 }}
             className="pointer-events-auto"
           >
             <div className="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 rounded-2xl shadow-2xl p-4 min-w-[280px] border-4 border-white">
