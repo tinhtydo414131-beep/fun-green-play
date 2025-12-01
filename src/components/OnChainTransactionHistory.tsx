@@ -102,7 +102,7 @@ export const OnChainTransactionHistory = ({ transactions, currentUserId }: OnCha
 
   return (
     <ScrollArea className="h-[600px] pr-2">
-      <div className="space-y-2">
+      <div className="space-y-1">
         {displayedTransactions.map((tx, index) => {
           const isSend = currentUserId && tx.from_user_id === currentUserId;
           const isReceive = currentUserId && tx.to_user_id === currentUserId;
@@ -111,133 +111,111 @@ export const OnChainTransactionHistory = ({ transactions, currentUserId }: OnCha
           return (
             <motion.div
               key={tx.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
+              transition={{ delay: index * 0.03 }}
             >
-              <Card className="border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl hover:border-white/20 transition-all duration-300 overflow-hidden group">
-                <div className="p-2.5">
-                  <div className="flex items-start gap-3">
-                    {/* Icon */}
-                    <motion.div
-                      whileHover={{ scale: 1.1, rotate: 5 }}
-                      className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                        tx.transaction_type === 'airdrop' 
-                          ? 'bg-gradient-to-br from-yellow-500 to-orange-500'
-                          : isReceive
-                          ? 'bg-gradient-to-br from-green-500 to-emerald-500'
-                          : 'bg-gradient-to-br from-red-500 to-pink-500'
-                      }`}
-                    >
+              <Card className="border-0 bg-white/[0.03] hover:bg-white/[0.06] transition-colors duration-200">
+                <div className="p-3">
+                  <div className="flex items-center gap-3">
+                    {/* Icon - MetaMask Style */}
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      tx.transaction_type === 'airdrop' 
+                        ? 'bg-orange-500/10'
+                        : isReceive
+                        ? 'bg-green-500/10'
+                        : 'bg-red-500/10'
+                    }`}>
                       {tx.transaction_type === 'airdrop' ? (
-                        <Zap className="w-5 h-5 text-white" />
+                        <Users className="w-5 h-5 text-orange-400" />
                       ) : isReceive ? (
-                        <ArrowDownLeft className="w-5 h-5 text-white" />
+                        <ArrowDownLeft className="w-5 h-5 text-green-400" />
                       ) : (
-                        <ArrowUpRight className="w-5 h-5 text-white" />
+                        <ArrowUpRight className="w-5 h-5 text-red-400" />
                       )}
-                    </motion.div>
+                    </div>
 
                     {/* Content */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 mb-0.5">
-                        <div>
-                          <h4 className={`font-bold text-xs ${
-                            tx.transaction_type === 'airdrop' 
-                              ? 'text-yellow-400'
-                              : isReceive 
-                              ? 'text-green-400' 
-                              : 'text-red-400'
-                          }`}>
-                            {tx.transaction_type === 'airdrop' ? 'Airdrop Sent' : isReceive ? 'Token Received' : 'Token Sent'}
-                          </h4>
-                          <p className="text-[9px] text-white/40 mt-0.5">
-                            {formatTime(txDate)}
-                          </p>
-                        </div>
-
-                        {/* Status Badge */}
-                        <div className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase ${
-                          tx.status === 'completed' 
-                            ? 'bg-green-500/20 text-green-400'
-                            : tx.status === 'failed'
-                            ? 'bg-red-500/20 text-red-400'
-                            : 'bg-yellow-500/20 text-yellow-400'
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="font-semibold text-sm text-white">
+                          {tx.transaction_type === 'airdrop' ? 'Airdrop' : isReceive ? 'Receive' : 'Send'}
+                        </h4>
+                        <div className={`font-bold text-sm ${
+                          isReceive ? 'text-green-400' : 'text-white'
                         }`}>
+                          {isReceive ? '+' : '-'}{tx.amount.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })} {tx.token_type}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-xs text-white/50">
+                          <span>{formatTime(txDate)}</span>
                           {tx.status === 'completed' ? (
-                            <CheckCircle className="w-2.5 h-2.5" />
+                            <span className="flex items-center gap-1 text-green-400">
+                              <CheckCircle className="w-3 h-3" />
+                              Confirmed
+                            </span>
                           ) : tx.status === 'failed' ? (
-                            <XCircle className="w-2.5 h-2.5" />
+                            <span className="flex items-center gap-1 text-red-400">
+                              <XCircle className="w-3 h-3" />
+                              Failed
+                            </span>
                           ) : (
-                            <Clock className="w-2.5 h-2.5" />
+                            <span className="flex items-center gap-1 text-yellow-400">
+                              <Clock className="w-3 h-3" />
+                              Pending
+                            </span>
                           )}
-                          <span>{tx.status}</span>
                         </div>
-                      </div>
 
-                      {/* Amount */}
-                      <div className={`text-base font-black mb-1.5 ${
-                        isReceive ? 'text-green-400' : 'text-red-400'
-                      }`}>
-                        {isReceive ? '+' : '-'}{tx.amount.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 6 })} {tx.token_type}
-                      </div>
-
-                      {/* Recipients for airdrop */}
-                      {tx.transaction_type === 'airdrop' && tx.recipients_count && (
-                        <div className="flex items-center gap-1 text-[10px] text-white/50 mb-1.5">
-                          <Users className="w-2.5 h-2.5" />
-                          <span>{tx.recipients_count} recipients</span>
-                        </div>
-                      )}
-
-                      {/* Gas Fee */}
-                      {tx.gas_fee && (
-                        <div className="bg-black/20 rounded-lg px-2 py-1 mb-1.5 border border-white/5">
-                          <span className="text-[9px] text-white/40 font-medium">Gas Fee: </span>
-                          <span className="text-[10px] text-white/60 font-mono">{tx.gas_fee} BNB</span>
-                        </div>
-                      )}
-
-                      {/* Transaction Hash */}
-                      {tx.transaction_hash && (
-                        <div className="bg-black/20 rounded-lg px-2 py-1.5 mb-1.5 border border-white/5 flex items-center justify-between gap-2">
-                          <div className="flex-1 min-w-0">
-                            <span className="text-[9px] text-white/40 font-medium block mb-0.5">Transaction Hash</span>
-                            <p className="text-[10px] font-mono text-white/60 truncate">
-                              {tx.transaction_hash}
-                            </p>
-                          </div>
+                        {/* BSCScan Button */}
+                        {tx.transaction_hash && (
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => copyHash(tx.transaction_hash)}
-                            className="h-5 w-5 p-0 text-[10px] hover:bg-white/10 flex-shrink-0"
+                            onClick={() => window.open(`https://bscscan.com/tx/${tx.transaction_hash}`, '_blank')}
+                            className="h-7 px-2 text-xs gap-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
                           >
-                            {copiedHash === tx.transaction_hash ? (
-                              <Check className="w-3 h-3 text-green-400" />
-                            ) : (
-                              <Copy className="w-3 h-3" />
-                            )}
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            BSCScan
                           </Button>
+                        )}
+                      </div>
+
+                      {/* Gas Fee */}
+                      {tx.gas_fee && (
+                        <div className="mt-2 text-xs text-white/40">
+                          Gas: {tx.gas_fee} BNB
                         </div>
                       )}
 
                       {/* Notes */}
                       {tx.notes && (
-                        <p className="text-[10px] text-white/50 mb-1.5 italic truncate">"{tx.notes}"</p>
+                        <div className="mt-2 text-xs text-white/50 italic">
+                          {tx.notes}
+                        </div>
                       )}
 
-                      {/* View on Explorer */}
+                      {/* Transaction Hash */}
                       {tx.transaction_hash && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => window.open(`https://bscscan.com/tx/${tx.transaction_hash}`, '_blank')}
-                          className="h-6 text-[10px] gap-1.5 bg-white/5 border-white/10 hover:bg-white/10 hover:border-primary/50 group-hover:border-primary/30 transition-all px-2"
-                        >
-                          <ExternalLink className="w-2.5 h-2.5" />
-                          View on BscScan
-                        </Button>
+                        <div className="mt-2 flex items-center gap-2">
+                          <span className="text-xs text-white/40 font-mono truncate flex-1">
+                            {tx.transaction_hash.slice(0, 10)}...{tx.transaction_hash.slice(-8)}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => copyHash(tx.transaction_hash)}
+                            className="h-6 w-6 p-0 hover:bg-white/10"
+                          >
+                            {copiedHash === tx.transaction_hash ? (
+                              <Check className="w-3 h-3 text-green-400" />
+                            ) : (
+                              <Copy className="w-3 h-3 text-white/40" />
+                            )}
+                          </Button>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -252,12 +230,12 @@ export const OnChainTransactionHistory = ({ transactions, currentUserId }: OnCha
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center pt-4"
+            className="text-center pt-3"
           >
             <Button
               onClick={loadMore}
-              variant="outline"
-              className="bg-white/5 border-white/10 hover:bg-white/10"
+              variant="ghost"
+              className="text-white/50 hover:text-white hover:bg-white/5 text-xs"
             >
               Load More ({transactions.length - displayCount} remaining)
             </Button>
