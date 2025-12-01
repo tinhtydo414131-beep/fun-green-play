@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { CheckCircle, XCircle, Loader2, Download } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, Download, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface UploadedGame {
@@ -140,6 +140,14 @@ export default function AdminGameReview() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-background p-4">
       <div className="container max-w-6xl mx-auto py-8">
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/dashboard')}
+          className="mb-4"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Dashboard
+        </Button>
         <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
           Game Review Dashboard
         </h1>
