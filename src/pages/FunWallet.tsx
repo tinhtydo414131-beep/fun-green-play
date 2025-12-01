@@ -630,9 +630,17 @@ export default function FunWallet() {
         toast.success("Transaction confirmed! 🎉");
       }
 
+      // Look up recipient user by wallet address
+      const { data: recipientProfile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("wallet_address", sendTo.toLowerCase())
+        .maybeSingle();
+
       // Record transaction in database
       await supabase.from("wallet_transactions").insert({
         from_user_id: user?.id,
+        to_user_id: recipientProfile?.id || null,
         amount: amount,
         token_type: selectedToken.symbol,
         transaction_hash: txHash,
