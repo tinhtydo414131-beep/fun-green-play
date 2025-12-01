@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -78,6 +78,7 @@ const GamePlay = () => {
   const [showLevelSelector, setShowLevelSelector] = useState(true);
   const [gameStarted, setGameStarted] = useState(false);
   const [showReward, setShowReward] = useState(false);
+  const hasTrackedPlayRef = useRef(false);
   const [autoLevel, setAutoLevel] = useState(() => {
     const saved = localStorage.getItem("autoLevel");
     return saved !== null ? JSON.parse(saved) : true;
@@ -95,12 +96,14 @@ const GamePlay = () => {
 
   useEffect(() => {
     if (gameId) {
+      hasTrackedPlayRef.current = false; // Reset tracking when game changes
       fetchGame();
     }
   }, [gameId]);
 
   useEffect(() => {
-    if (game && user) {
+    if (game && user && !hasTrackedPlayRef.current) {
+      hasTrackedPlayRef.current = true;
       trackGamePlay();
     }
   }, [game, user]);
