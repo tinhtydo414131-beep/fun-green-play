@@ -503,9 +503,10 @@ export default function FunWallet() {
     if (!user) return;
 
     try {
+      const normalized = address.toLowerCase();
       await supabase
         .from("profiles")
-        .update({ wallet_address: address })
+        .update({ wallet_address: normalized })
         .eq("id", user.id);
     } catch (error) {
       console.error("Error updating wallet:", error);
@@ -630,11 +631,12 @@ export default function FunWallet() {
         toast.success("Transaction confirmed! 🎉");
       }
 
-      // Look up recipient user by wallet address
+      // Look up recipient user by wallet address (case-insensitive)
+      const normalizedRecipient = sendTo.toLowerCase();
       const { data: recipientProfile } = await supabase
         .from("profiles")
         .select("id")
-        .eq("wallet_address", sendTo.toLowerCase())
+        .eq("wallet_address", normalizedRecipient)
         .maybeSingle();
 
       // Record transaction in database
