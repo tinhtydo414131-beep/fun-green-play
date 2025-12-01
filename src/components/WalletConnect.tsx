@@ -88,7 +88,15 @@ export const WalletConnect = () => {
         .eq("id", user.id)
         .single();
 
-      const isFirstConnection = !profile?.wallet_address;
+      // Check if user already received wallet connection bonus
+      const { data: existingBonus } = await supabase
+        .from("camly_coin_transactions")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("transaction_type", "wallet_connection")
+        .single();
+
+      const isFirstConnection = !profile?.wallet_address && !existingBonus;
 
       // Update wallet address and add bonus if first time
       const updates: any = { wallet_address: address };
