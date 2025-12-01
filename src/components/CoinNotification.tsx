@@ -17,6 +17,7 @@ interface CoinNotification {
 export function CoinNotification() {
   const [notifications, setNotifications] = useState<CoinNotification[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const shownNotificationsRef = useRef<Set<string>>(new Set());
   const { preferences } = useNotificationPreferences();
 
   useEffect(() => {
@@ -118,11 +119,20 @@ export function CoinNotification() {
     console.log('🎉 Showing notification:', notification);
     console.log('📋 Preferences:', preferences);
     
+    // Check if we've already shown this notification
+    if (shownNotificationsRef.current.has(notification.id)) {
+      console.log('⚠️ Duplicate notification blocked:', notification.id);
+      return;
+    }
+    
     // Check if notifications are enabled
     if (!preferences.enabled) {
       console.log('❌ Notifications disabled in preferences');
       return;
     }
+
+    // Mark this notification as shown
+    shownNotificationsRef.current.add(notification.id);
 
     // Play sound if enabled
     if (preferences.soundEnabled && audioRef.current) {
@@ -151,6 +161,10 @@ export function CoinNotification() {
     // Auto-remove after 5 seconds
     setTimeout(() => {
       setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
+      // Clean up from tracking set after a delay to prevent rapid re-additions
+      setTimeout(() => {
+        shownNotificationsRef.current.delete(notification.id);
+      }, 1000);
     }, 5000);
   };
 
