@@ -702,17 +702,12 @@ export const GoldMiner = ({ level, onLevelComplete, onBack }: GoldMinerProps) =>
       </div>
 
       {/* Legend */}
-      <div className="grid grid-cols-4 gap-2 text-center text-xs">
-        <div className="p-2 bg-secondary/20 rounded">
-          <div className="text-2xl">🪨</div>
-          <div className="font-bold">+1</div>
-        </div>
+      <div className="grid grid-cols-3 gap-2 text-center text-xs">
         <div className="p-2 bg-secondary/20 rounded">
           <div className="text-2xl">🪙</div>
           <div className="font-bold">+5</div>
         </div>
         <div className="p-2 bg-secondary/20 rounded">
-          <div className="text-2xl">💰</div>
           <div className="font-bold">+10</div>
         </div>
         <div className="p-2 bg-secondary/20 rounded">
