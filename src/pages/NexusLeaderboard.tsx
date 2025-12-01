@@ -3,8 +3,9 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
-import { Trophy, Medal, Award, TrendingUp, Calendar, Send } from "lucide-react";
+import { Trophy, Medal, Award, TrendingUp, Calendar, Send, Copy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 
@@ -31,6 +32,11 @@ export default function NexusLeaderboard() {
   const shortenAddress = (address: string | null) => {
     if (!address) return null;
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
+  const copyToClipboard = (address: string) => {
+    navigator.clipboard.writeText(address);
+    toast.success("Address copied to clipboard!");
   };
 
   useEffect(() => {
@@ -131,9 +137,19 @@ export default function NexusLeaderboard() {
                     Best: {entry.highest_tile}
                   </Badge>
                   {entry.profiles?.wallet_address && (
-                    <span className="font-mono text-xs">
-                      {shortenAddress(entry.profiles.wallet_address)}
-                    </span>
+                    <div className="flex items-center gap-1">
+                      <span className="font-mono text-xs">
+                        {shortenAddress(entry.profiles.wallet_address)}
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-5 w-5 p-0"
+                        onClick={() => copyToClipboard(entry.profiles.wallet_address!)}
+                      >
+                        <Copy className="w-3 h-3" />
+                      </Button>
+                    </div>
                   )}
                 </div>
               </div>
