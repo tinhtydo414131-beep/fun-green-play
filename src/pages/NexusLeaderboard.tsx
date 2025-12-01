@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
-import { Trophy, Medal, Award, TrendingUp, Calendar, Send, Copy } from "lucide-react";
+import { Trophy, Medal, Award, TrendingUp, Calendar, Send, Copy, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Navigation } from "@/components/Navigation";
@@ -29,6 +29,7 @@ export default function NexusLeaderboard() {
   const [weeklyLeaderboard, setWeeklyLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [alltimeLeaderboard, setAlltimeLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
 
   const shortenAddress = (address: string | null) => {
     if (!address) return null;
@@ -37,7 +38,9 @@ export default function NexusLeaderboard() {
 
   const copyToClipboard = (address: string) => {
     navigator.clipboard.writeText(address);
+    setCopiedAddress(address);
     toast.success("Address copied to clipboard!");
+    setTimeout(() => setCopiedAddress(null), 2000);
   };
 
   useEffect(() => {
@@ -153,10 +156,18 @@ export default function NexusLeaderboard() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-5 w-5 p-0"
+                          className={`h-5 w-5 p-0 transition-colors duration-200 ${
+                            copiedAddress === entry.profiles.wallet_address
+                              ? 'text-green-500'
+                              : ''
+                          }`}
                           onClick={() => copyToClipboard(entry.profiles.wallet_address!)}
                         >
-                          <Copy className="w-3 h-3" />
+                          {copiedAddress === entry.profiles.wallet_address ? (
+                            <Check className="w-3 h-3" />
+                          ) : (
+                            <Copy className="w-3 h-3" />
+                          )}
                         </Button>
                       </div>
                     </TooltipProvider>
