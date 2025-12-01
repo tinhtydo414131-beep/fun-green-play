@@ -5,6 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { ButtonParticles } from "./button-particles";
 import { ButtonFacets } from "./button-facets";
+import { ButtonLightRays } from "./button-light-rays";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 relative overflow-hidden before:absolute before:inset-[-4px] before:rounded-2xl before:bg-gradient-to-r before:from-cyan-400/25 before:via-purple-400/30 before:to-cyan-400/25 before:blur-xl before:opacity-70 before:-z-10 shadow-[0_8px_32px_rgba(224,212,255,0.4),0_2px_8px_rgba(255,255,255,0.15),0_0_60px_rgba(224,212,255,0.25)] hover:shadow-[0_12px_48px_rgba(224,212,255,0.55),0_4px_16px_rgba(255,255,255,0.25),0_0_80px_rgba(224,212,255,0.35)] active:shadow-[0_4px_16px_rgba(224,212,255,0.35),0_1px_4px_rgba(255,255,255,0.2),0_0_40px_rgba(224,212,255,0.2)]",
@@ -52,6 +53,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         <ButtonFacets />
+        <ButtonLightRays isHovered={isHovered} />
         <ButtonParticles isHovered={isHovered} />
         <span className="relative z-10">{props.children}</span>
       </Comp>
