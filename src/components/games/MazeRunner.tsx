@@ -4,6 +4,8 @@ import { toast } from "sonner";
 import { useGameAudio } from "@/hooks/useGameAudio";
 import { AudioControls } from "@/components/AudioControls";
 import { ArrowLeft } from "lucide-react";
+import { MobileGameControls } from "@/components/MobileGameControls";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const MazeRunner = ({
   level = 1,
@@ -16,6 +18,7 @@ export const MazeRunner = ({
   onLevelComplete?: () => void;
   onBack?: () => void;
 } = {}) => {
+  const isMobile = useIsMobile();
   const [playerPos, setPlayerPos] = useState({ x: 0, y: 0 });
   const [moves, setMoves] = useState(0);
   const goalPos = { x: 9, y: 9 };
@@ -70,6 +73,29 @@ export const MazeRunner = ({
     startBackgroundMusic();
   };
 
+  const handleMobileControl = (direction: 'up' | 'down' | 'left' | 'right') => {
+    let newX = playerPos.x;
+    let newY = playerPos.y;
+
+    switch(direction) {
+      case 'up': newY = Math.max(0, playerPos.y - 1); break;
+      case 'down': newY = Math.min(9, playerPos.y + 1); break;
+      case 'left': newX = Math.max(0, playerPos.x - 1); break;
+      case 'right': newX = Math.min(9, playerPos.x + 1); break;
+    }
+
+    if (maze[newY][newX] === 0) {
+      setPlayerPos({ x: newX, y: newY });
+      setMoves(moves + 1);
+      playClick();
+
+      if (newX === goalPos.x && newY === goalPos.y) {
+        playSuccess();
+        toast.success(`Thắng rồi! Số bước: ${moves + 1}`);
+      }
+    }
+  };
+
   useEffect(() => {
     startBackgroundMusic();
     return () => stopBackgroundMusic();
@@ -121,6 +147,13 @@ export const MazeRunner = ({
         )}
         <Button onClick={resetGame} size="lg">Chơi lại</Button>
       </div>
+
+      {isMobile && (
+        <MobileGameControls
+          onDirectionPress={handleMobileControl}
+          showJumpButton={false}
+        />
+      )}
     </div>
   );
 };

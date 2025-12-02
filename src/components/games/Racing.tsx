@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
+import { MobileGameControls } from "@/components/MobileGameControls";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Obstacle {
   id: number;
@@ -20,6 +22,7 @@ export const Racing = ({
   onLevelComplete?: () => void;
   onBack?: () => void;
 } = {}) => {
+  const isMobile = useIsMobile();
   const [carX, setCarX] = useState(50);
   const [obstacles, setObstacles] = useState<Obstacle[]>([]);
   const [score, setScore] = useState(0);
@@ -85,6 +88,16 @@ export const Racing = ({
     setIsPlaying(true);
   };
 
+  const handleMobileControl = (direction: 'up' | 'down' | 'left' | 'right') => {
+    if (!isPlaying) return;
+    
+    if (direction === 'left') {
+      setCarX(x => Math.max(25, x === 50 ? 25 : x === 75 ? 50 : x));
+    } else if (direction === 'right') {
+      setCarX(x => Math.min(75, x === 50 ? 75 : x === 25 ? 50 : x));
+    }
+  };
+
   return (
     <div className="flex flex-col items-center gap-6">
       <div className="text-center space-y-2">
@@ -132,6 +145,13 @@ export const Racing = ({
           {isPlaying ? 'Chơi lại' : 'Bắt đầu'}
         </Button>
       </div>
+
+      {isMobile && isPlaying && (
+        <MobileGameControls
+          onDirectionPress={handleMobileControl}
+          showJumpButton={false}
+        />
+      )}
     </div>
   );
 };

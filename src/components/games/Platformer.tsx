@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
+import { MobileGameControls } from "@/components/MobileGameControls";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const Platformer = ({
   level = 1,
@@ -14,6 +16,7 @@ export const Platformer = ({
   onLevelComplete?: () => void;
   onBack?: () => void;
 } = {}) => {
+  const isMobile = useIsMobile();
   const [playerPos, setPlayerPos] = useState({ x: 10, y: 70 });
   const [velocity, setVelocity] = useState(0);
   const [isJumping, setIsJumping] = useState(false);
@@ -96,6 +99,22 @@ export const Platformer = ({
     setIsPlaying(true);
   };
 
+  const handleMobileControl = (direction: 'up' | 'down' | 'left' | 'right') => {
+    if (!isPlaying) return;
+    
+    if (direction === 'left') {
+      setPlayerPos(prev => ({ ...prev, x: Math.max(0, prev.x - 3) }));
+    } else if (direction === 'right') {
+      setPlayerPos(prev => ({ ...prev, x: Math.min(100, prev.x + 3) }));
+    }
+  };
+
+  const handleMobileJump = () => {
+    if (!isPlaying || isJumping) return;
+    setVelocity(-10);
+    setIsJumping(true);
+  };
+
   return (
     <div className="flex flex-col items-center gap-6">
       <div className="text-center space-y-2">
@@ -150,6 +169,14 @@ export const Platformer = ({
           {isPlaying ? 'Chơi lại' : 'Bắt đầu'}
         </Button>
       </div>
+
+      {isMobile && isPlaying && (
+        <MobileGameControls
+          onDirectionPress={handleMobileControl}
+          showJumpButton={true}
+          onJump={handleMobileJump}
+        />
+      )}
     </div>
   );
 };
