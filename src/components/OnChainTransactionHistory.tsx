@@ -157,10 +157,10 @@ export const OnChainTransactionHistory = ({ transactions, currentUserId }: OnCha
               transition={{ delay: index * 0.03 }}
             >
               <Card className="border-0 bg-white/[0.03] hover:bg-white/[0.06] transition-colors duration-200">
-                <div className="p-3">
+                <div className="p-4">
                   <div className="flex items-center gap-3">
                     {/* Icon - MetaMask Style */}
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
                       tx.transaction_type === 'airdrop' 
                         ? 'bg-orange-500/10'
                         : isReceive
@@ -168,21 +168,21 @@ export const OnChainTransactionHistory = ({ transactions, currentUserId }: OnCha
                         : 'bg-red-500/10'
                     }`}>
                       {tx.transaction_type === 'airdrop' ? (
-                        <Users className="w-5 h-5 text-orange-400" />
+                        <Users className="w-6 h-6 text-orange-400" />
                       ) : isReceive ? (
-                        <ArrowDownLeft className="w-5 h-5 text-green-400" />
+                        <ArrowDownLeft className="w-6 h-6 text-green-400" />
                       ) : (
-                        <ArrowUpRight className="w-5 h-5 text-red-400" />
+                        <ArrowUpRight className="w-6 h-6 text-red-400" />
                       )}
                     </div>
 
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <h4 className="font-semibold text-base text-white">
+                        <h4 className="font-semibold text-lg text-white">
                           {tx.transaction_type === 'airdrop' ? 'Airdrop' : isReceive ? 'Receive' : 'Send'}
                         </h4>
-                        <div className={`font-bold text-base ${
+                        <div className={`font-bold text-lg ${
                           isReceive ? 'text-green-400' : 'text-white'
                         }`}>
                           {isReceive ? '+' : '-'}{Number(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })} {tx.token_type}
@@ -190,21 +190,21 @@ export const OnChainTransactionHistory = ({ transactions, currentUserId }: OnCha
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-sm text-white/70">
+                        <div className="flex items-center gap-2 text-base text-white/80">
                           <span>{formatTime(txDate)}</span>
                           {tx.status === 'completed' ? (
                             <span className="flex items-center gap-1 text-green-400 font-medium">
-                              <CheckCircle className="w-3.5 h-3.5" />
+                              <CheckCircle className="w-4 h-4" />
                               Confirmed
                             </span>
                           ) : tx.status === 'failed' ? (
                             <span className="flex items-center gap-1 text-red-400 font-medium">
-                              <XCircle className="w-3.5 h-3.5" />
+                              <XCircle className="w-4 h-4" />
                               Failed
                             </span>
                           ) : (
                             <span className="flex items-center gap-1 text-yellow-400 font-medium">
-                              <Clock className="w-3.5 h-3.5" />
+                              <Clock className="w-4 h-4" />
                               Pending
                             </span>
                           )}
@@ -226,14 +226,14 @@ export const OnChainTransactionHistory = ({ transactions, currentUserId }: OnCha
 
                       {/* Gas Fee */}
                       {tx.gas_fee && Number(tx.gas_fee) > 0 && (
-                        <div className="mt-2 text-sm text-white/60">
+                        <div className="mt-2 text-base text-white/70">
                           Gas: {Number(tx.gas_fee).toFixed(6)} BNB
                         </div>
                       )}
 
                       {/* Notes */}
                       {tx.notes && (
-                        <div className="mt-2 text-sm text-white/70 italic">
+                        <div className="mt-2 text-base text-white/80 italic">
                           {tx.notes}
                         </div>
                       )}
@@ -241,19 +241,19 @@ export const OnChainTransactionHistory = ({ transactions, currentUserId }: OnCha
                       {/* Transaction Hash */}
                       {tx.transaction_hash && (
                         <div className="mt-2 flex items-center gap-2">
-                          <span className="text-sm text-white/60 font-mono truncate flex-1">
+                          <span className="text-base text-white/70 font-mono truncate flex-1">
                             {tx.transaction_hash.slice(0, 10)}...{tx.transaction_hash.slice(-8)}
                           </span>
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => copyHash(tx.transaction_hash)}
-                            className="h-6 w-6 p-0 hover:bg-white/10"
+                            className="h-8 w-8 p-0 hover:bg-white/10"
                           >
                             {copiedHash === tx.transaction_hash ? (
-                              <Check className="w-3 h-3 text-green-400" />
+                              <Check className="w-4 h-4 text-green-400" />
                             ) : (
-                              <Copy className="w-3 h-3 text-white/40" />
+                              <Copy className="w-4 h-4 text-white/50" />
                             )}
                           </Button>
                         </div>
