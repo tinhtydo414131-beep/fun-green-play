@@ -415,7 +415,7 @@
   }
   
   /* Add padding for bottom navigation */
-  main, .main-content, body > div {
+  main, .main-content {
     padding-bottom: 100px !important;
   }
   
