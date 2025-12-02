@@ -240,14 +240,45 @@ export const OnChainTransactionHistory = ({ transactions, currentUserId }: OnCha
                         )}
                       </div>
 
-                      {/* Amount Display - Prominent */}
-                      <div className={`inline-block px-3 py-1.5 rounded-lg font-bold text-lg ${
-                        isReceive 
-                          ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
-                          : 'bg-blue-500/20 text-white border border-blue-500/30'
-                      }`}>
-                        {isReceive ? '+' : '-'}{Number(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })} {tx.token_type}
-                      </div>
+                      {/* Amount Display - Prominent with Animation */}
+                      <motion.div 
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ 
+                          delay: index * 0.05 + 0.1,
+                          type: "spring",
+                          stiffness: 200,
+                          damping: 15
+                        }}
+                        className={`inline-block px-3 py-1.5 rounded-lg font-bold text-lg ${
+                          isReceive 
+                            ? 'bg-green-500/20 text-green-400 border border-green-500/30 shadow-lg shadow-green-500/20' 
+                            : 'bg-blue-500/20 text-white border border-blue-500/30 shadow-lg shadow-blue-500/20'
+                        }`}
+                      >
+                        <motion.span
+                          animate={{ 
+                            textShadow: isReceive 
+                              ? [
+                                  "0 0 4px rgba(34, 197, 94, 0.3)",
+                                  "0 0 8px rgba(34, 197, 94, 0.5)",
+                                  "0 0 4px rgba(34, 197, 94, 0.3)"
+                                ]
+                              : [
+                                  "0 0 4px rgba(59, 130, 246, 0.3)",
+                                  "0 0 8px rgba(59, 130, 246, 0.5)",
+                                  "0 0 4px rgba(59, 130, 246, 0.3)"
+                                ]
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                        >
+                          {isReceive ? '+' : '-'}{Number(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })} {tx.token_type}
+                        </motion.span>
+                      </motion.div>
 
 
                       {/* Notes */}
