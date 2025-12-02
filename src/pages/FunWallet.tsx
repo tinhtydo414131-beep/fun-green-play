@@ -525,31 +525,38 @@ export default function FunWallet() {
         .order("created_at", { ascending: false })
         .limit(50);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching transactions:", error);
+        throw error;
+      }
 
-      const formattedTxs = data?.map(tx => {
+      const formattedTxs = (data || []).map(tx => {
         const isAirdrop = tx.transaction_type === 'airdrop';
+        const validStatuses = ['completed', 'pending', 'failed'];
+        const txStatus = validStatuses.includes(tx.status) ? tx.status : 'completed';
         
         return {
           id: tx.id,
-          transaction_hash: tx.transaction_hash,
-          amount: tx.amount,
+          transaction_hash: tx.transaction_hash || '',
+          amount: Number(tx.amount) || 0,
           token_type: tx.token_type || "BNB",
-          status: tx.status || "completed",
-          created_at: tx.created_at || new Date().toISOString(),
-          transaction_type: isAirdrop ? 'airdrop' : 'transfer',
-          notes: tx.notes,
-          recipients_count: tx.recipients_count,
-          gas_fee: tx.gas_fee,
-          from_user_id: tx.from_user_id,
-          to_user_id: tx.to_user_id
+          status: txStatus as 'completed' | 'pending' | 'failed',
+          created_at: tx.created_at,
+          transaction_type: isAirdrop ? 'airdrop' as const : 'transfer' as const,
+          notes: tx.notes || undefined,
+          recipients_count: tx.recipients_count || undefined,
+          gas_fee: tx.gas_fee ? Number(tx.gas_fee) : undefined,
+          from_user_id: tx.from_user_id || undefined,
+          to_user_id: tx.to_user_id || undefined
         };
-      }) || [];
+      });
 
-      console.log('📊 Fetched on-chain transactions:', formattedTxs);
+      console.log('📊 Fetched on-chain transactions:', formattedTxs.length, 'transactions');
       setTransactions(formattedTxs);
     } catch (error) {
       console.error("Error fetching transactions:", error);
+      toast.error("Failed to load transaction history");
+      setTransactions([]);
     }
   };
 
@@ -645,11 +652,12 @@ export default function FunWallet() {
         from: user?.id,
         to: recipientProfile?.id,
         amount,
-        token: selectedToken.symbol
+        token: selectedToken.symbol,
+        hash: txHash
       });
 
       // Record transaction in database
-      await supabase.from("wallet_transactions").insert({
+      const { error: insertError } = await supabase.from("wallet_transactions").insert({
         from_user_id: user?.id,
         to_user_id: recipientProfile?.id || null,
         amount: amount,
@@ -658,6 +666,10 @@ export default function FunWallet() {
         transaction_type: 'transfer',
         status: "completed",
       });
+
+      if (insertError) {
+        console.error("Error recording transaction:", insertError);
+      }
 
       setSendAmount("");
       setSendTo("");
@@ -1028,28 +1040,39 @@ export default function FunWallet() {
       }
       setBulkProgress(100);
 
-      // Record airdrop transaction in database
-      const batchId = new Date().getTime();
-      
-      console.log('💾 Recording airdrop transaction:', {
-        from: user?.id,
-        amount: totalAmount,
-        recipients: addresses.length
-      });
-      
-      await supabase.from("wallet_transactions").insert({
-        from_user_id: user?.id,
-        to_user_id: null,
-        amount: totalAmount,
-        token_type: "CAMLY",
-        transaction_type: "airdrop",
-        recipients_count: addresses.length,
-        status: "completed",
-        transaction_hash: txHash || "completed",
-        notes: `Ultra-Low-Gas Airdrop - ${amount} CAMLY each - Batch #${batchId}`
-      });
+      // Only record airdrop if we have a valid transaction hash
+      if (!txHash) {
+        console.warn('⚠️ No transaction hash available, skipping database record');
+        toast.success(`🎉 Airdrop completed to ${addresses.length} addresses!`);
+      } else {
+        // Record airdrop transaction in database
+        const batchId = new Date().getTime();
+        
+        console.log('💾 Recording airdrop transaction:', {
+          from: user?.id,
+          amount: totalAmount,
+          recipients: addresses.length,
+          hash: txHash
+        });
+        
+        const { error: insertError } = await supabase.from("wallet_transactions").insert({
+          from_user_id: user?.id,
+          to_user_id: null,
+          amount: totalAmount,
+          token_type: "CAMLY",
+          transaction_type: "airdrop",
+          recipients_count: addresses.length,
+          status: "completed",
+          transaction_hash: txHash,
+          notes: `Ultra-Low-Gas Airdrop - ${amount} CAMLY each - Batch #${batchId}`
+        });
 
-      toast.success(`🎉 FUN AND RICH!!! All ${addresses.length} airdrops successful in ONE transaction! 💰✨`);
+        if (insertError) {
+          console.error("Error recording airdrop transaction:", insertError);
+        }
+
+        toast.success(`🎉 FUN AND RICH!!! All ${addresses.length} airdrops successful in ONE transaction! 💰✨`);
+      }
       
       setBulkAddresses("");
       setValidAddresses([]);

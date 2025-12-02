@@ -93,7 +93,8 @@ export const OnChainTransactionHistory = ({ transactions, currentUserId }: OnCha
           </div>
         </motion.div>
         <h3 className="text-white text-xl font-bold mb-2">No on-chain transactions yet</h3>
-        <p className="text-white/50 text-sm">Your blockchain transaction history will appear here</p>
+        <p className="text-white/50 text-sm mb-4">Your blockchain transaction history will appear here</p>
+        <p className="text-white/40 text-xs">Make a transfer or airdrop to see it in action! 🚀</p>
       </motion.div>
     );
   }
@@ -144,7 +145,7 @@ export const OnChainTransactionHistory = ({ transactions, currentUserId }: OnCha
                         <div className={`font-bold text-sm ${
                           isReceive ? 'text-green-400' : 'text-white'
                         }`}>
-                          {isReceive ? '+' : '-'}{tx.amount.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })} {tx.token_type}
+                          {isReceive ? '+' : '-'}{Number(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })} {tx.token_type}
                         </div>
                       </div>
 
@@ -184,9 +185,9 @@ export const OnChainTransactionHistory = ({ transactions, currentUserId }: OnCha
                       </div>
 
                       {/* Gas Fee */}
-                      {tx.gas_fee && (
+                      {tx.gas_fee && Number(tx.gas_fee) > 0 && (
                         <div className="mt-2 text-xs text-white/40">
-                          Gas: {tx.gas_fee} BNB
+                          Gas: {Number(tx.gas_fee).toFixed(6)} BNB
                         </div>
                       )}
 
