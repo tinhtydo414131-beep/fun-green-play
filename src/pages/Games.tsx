@@ -171,7 +171,7 @@ const Games = () => {
     <div className="min-h-screen bg-white pb-safe">
       <Navigation />
       
-      <section className="pt-20 md:pt-24 pb-12 md:pb-20 px-4 pb-safe">
+      <section className="pt-20 md:pt-24 pb-28 md:pb-20 px-4 pb-safe">
         <div className="container mx-auto">
           {/* Back to Home Button */}
           <div className="mb-6 sm:mb-8">
