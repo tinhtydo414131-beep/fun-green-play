@@ -4,10 +4,11 @@ import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Zap } from "lucide-react";
+import { ArrowLeft, Zap, RotateCcw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useGameLevel } from "@/hooks/useGameLevel";
+import { useIsLandscape } from "@/hooks/use-mobile";
 import { LevelSelector } from "@/components/LevelSelector";
 import { FlowerFieldLevelSelector } from "@/components/FlowerFieldLevelSelector";
 import { DailyChallengeCard } from "@/components/DailyChallengeCard";
@@ -72,6 +73,7 @@ interface Game {
 const GamePlay = () => {
   const { gameId } = useParams();
   const { user } = useAuth();
+  const isLandscape = useIsLandscape();
   const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(true);
   const [showLevelSelector, setShowLevelSelector] = useState(true);
@@ -382,54 +384,82 @@ const GamePlay = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navigation />
+      {!isLandscape && <Navigation />}
       <LiveComboNotifications />
       
-      <section className="pt-24 pb-24 md:pb-12 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className="mb-8 flex items-center justify-between animate-fade-in">
-            <Link to="/games">
-              <Button 
-                variant="outline" 
-                className="font-fredoka font-bold border-4 border-primary/30 hover:border-primary hover:bg-primary/10 transform hover:scale-105 transition-all"
-              >
-                <ArrowLeft className="mr-2 h-5 w-5" />
-                Back to Games
-              </Button>
-            </Link>
-            
-            <div className="flex items-center gap-3 bg-gradient-to-r from-primary/10 to-secondary/10 px-4 py-3 rounded-2xl border-2 border-primary/30">
-              <Zap className="h-5 w-5 text-primary" />
-              <Label htmlFor="auto-level" className="font-fredoka font-bold text-foreground cursor-pointer">
-                Auto Level
-              </Label>
-              <Switch
-                id="auto-level"
-                checked={autoLevel}
-                onCheckedChange={handleAutoLevelToggle}
-                className="data-[state=checked]:bg-primary"
-              />
-            </div>
+      {isLandscape && gameStarted && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-primary/90 to-secondary/90 backdrop-blur-md px-3 py-2 flex items-center justify-between border-b-2 border-white/20 animate-slide-in-right">
+          <Link to="/games">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="text-white hover:bg-white/20 font-fredoka font-bold h-8 px-3"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+          <div className="flex items-center gap-2">
+            <RotateCcw className="h-4 w-4 text-white" />
+            <span className="text-sm font-fredoka font-bold text-white">
+              {game?.title || 'Game'}
+            </span>
           </div>
-
-          <div className="bg-background/80 backdrop-blur-lg rounded-3xl border-4 border-primary/30 shadow-2xl p-8 space-y-6 animate-scale-in">
-            <div className="text-center space-y-2">
-              <h1 className="text-4xl md:text-5xl font-fredoka font-bold text-primary">
-                {game?.title || (gameId === 'cooking-mama' ? 'Cooking Mama' : 'Game')} 🎮
-              </h1>
-              <p className="text-lg font-comic text-muted-foreground max-w-2xl mx-auto">
-                {game?.description || (gameId === 'cooking-mama' ? 'Master recipes with timing and precision mini-games!' : '')}
-              </p>
-              {game && (
-                <p className="text-sm font-comic text-muted-foreground">
-                  🎯 Played {game.total_plays} times! Keep it up! 🌟
-                </p>
-              )}
+          <div className="w-8" />
+        </div>
+      )}
+      
+      <section className={isLandscape ? "pt-12 pb-2 px-2" : "pt-24 pb-24 md:pb-12 px-4"}>
+        <div className={isLandscape ? "h-[calc(100vh-3.5rem)]" : "container mx-auto max-w-6xl"}>
+          {!isLandscape && (
+            <div className="mb-8 flex items-center justify-between animate-fade-in">
+              <Link to="/games">
+                <Button 
+                  variant="outline" 
+                  className="font-fredoka font-bold border-4 border-primary/30 hover:border-primary hover:bg-primary/10 transform hover:scale-105 transition-all"
+                >
+                  <ArrowLeft className="mr-2 h-5 w-5" />
+                  Back to Games
+                </Button>
+              </Link>
+              
+              <div className="flex items-center gap-3 bg-gradient-to-r from-primary/10 to-secondary/10 px-4 py-3 rounded-2xl border-2 border-primary/30">
+                <Zap className="h-5 w-5 text-primary" />
+                <Label htmlFor="auto-level" className="font-fredoka font-bold text-foreground cursor-pointer">
+                  Auto Level
+                </Label>
+                <Switch
+                  id="auto-level"
+                  checked={autoLevel}
+                  onCheckedChange={handleAutoLevelToggle}
+                  className="data-[state=checked]:bg-primary"
+                />
+              </div>
             </div>
+          )}
 
-            <div className="w-full">
+          <div className={isLandscape && gameStarted 
+            ? "h-full bg-background/95 backdrop-blur-lg rounded-2xl border-2 border-primary/30 shadow-xl p-3 animate-scale-in overflow-hidden" 
+            : "bg-background/80 backdrop-blur-lg rounded-3xl border-4 border-primary/30 shadow-2xl p-8 space-y-6 animate-scale-in"
+          }>
+            {(!isLandscape || !gameStarted) && (
+              <div className="text-center space-y-2">
+                <h1 className="text-4xl md:text-5xl font-fredoka font-bold text-primary">
+                  {game?.title || (gameId === 'cooking-mama' ? 'Cooking Mama' : 'Game')} 🎮
+                </h1>
+                <p className="text-lg font-comic text-muted-foreground max-w-2xl mx-auto">
+                  {game?.description || (gameId === 'cooking-mama' ? 'Master recipes with timing and precision mini-games!' : '')}
+                </p>
+                {game && (
+                  <p className="text-sm font-comic text-muted-foreground">
+                    🎯 Played {game.total_plays} times! Keep it up! 🌟
+                  </p>
+                )}
+              </div>
+            )}
+
+            <div className={isLandscape && gameStarted ? "h-full" : "w-full"}>
               {/* Show Daily Challenge Card for Gold Miner game */}
-              {(gameId === 'gold-miner' || game?.component_name === 'GoldMiner') && gameStarted && (
+              {!isLandscape && (gameId === 'gold-miner' || game?.component_name === 'GoldMiner') && gameStarted && (
                 <div className="mb-6">
                   <DailyChallengeCard />
                 </div>
