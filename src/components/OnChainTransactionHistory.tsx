@@ -118,21 +118,21 @@ export const OnChainTransactionHistory = ({ transactions, currentUserId }: OnCha
       {/* Transaction Stats Summary */}
       {transactions.length > 0 && (
         <div className="grid grid-cols-3 gap-2 mb-4">
-          <div className="bg-green-500/10 rounded-lg p-3 border border-green-500/20">
+          <div className="bg-green-500/10 rounded-lg p-3 border-2 border-green-600/40 shadow-lg shadow-green-500/20">
             <div className="flex items-center gap-2 mb-1">
               <ArrowDownLeft className="w-4 h-4 text-green-400" />
               <span className="text-black text-xs font-medium">Received</span>
             </div>
             <p className="text-black font-bold text-lg">{receivedTxs.length}</p>
           </div>
-          <div className="bg-red-500/10 rounded-lg p-3 border border-red-500/20">
+          <div className="bg-red-500/10 rounded-lg p-3 border-2 border-red-600/40 shadow-lg shadow-red-500/20">
             <div className="flex items-center gap-2 mb-1">
               <ArrowUpRight className="w-4 h-4 text-red-400" />
               <span className="text-black text-xs font-medium">Sent</span>
             </div>
             <p className="text-black font-bold text-lg">{sentTxs.length}</p>
           </div>
-          <div className="bg-orange-500/10 rounded-lg p-3 border border-orange-500/20">
+          <div className="bg-orange-500/10 rounded-lg p-3 border-2 border-orange-600/40 shadow-lg shadow-orange-500/20">
             <div className="flex items-center gap-2 mb-1">
               <Users className="w-4 h-4 text-orange-400" />
               <span className="text-black text-xs font-medium">Airdrops</span>
