@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { usePerformanceMode } from "@/hooks/usePerformanceMode";
 
 interface Game {
   id: string;
@@ -26,14 +27,40 @@ interface GameCardProps {
 
 export const GameCard = ({ game }: GameCardProps) => {
   const { user } = useAuth();
+  const { shouldReduceAnimations } = usePerformanceMode();
   const [liked, setLiked] = useState(false);
   const [likes, setLikes] = useState(game.total_likes);
   const [plays, setPlays] = useState(game.total_plays);
   const [imageError, setImageError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // Intersection Observer for lazy loading
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+            observer.disconnect();
+          }
+        });
+      },
+      { rootMargin: '50px' }
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (shouldReduceAnimations) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width;
     const y = (e.clientY - rect.top) / rect.height;
@@ -47,8 +74,8 @@ export const GameCard = ({ game }: GameCardProps) => {
   }, [user, game.id]);
 
   useEffect(() => {
-    // Reset image error when game changes or thumbnail updates
     setImageError(false);
+    setImageLoaded(false);
   }, [game.id, game.thumbnail_url]);
 
   const checkIfLiked = async () => {
@@ -155,61 +182,81 @@ export const GameCard = ({ game }: GameCardProps) => {
 
   return (
     <Card 
+      ref={cardRef}
       className="group overflow-hidden border-0 animate-fade-in h-full flex flex-col relative rounded-3xl"
       style={{
-        background: 'linear-gradient(135deg, hsl(280, 90%, 65%), hsl(190, 100%, 60%), hsl(280, 85%, 55%))',
-        backgroundSize: '200% 200%',
-        animation: 'gradient-flow 4s ease infinite',
+        background: shouldReduceAnimations 
+          ? 'linear-gradient(135deg, hsl(280, 90%, 65%), hsl(190, 100%, 60%))'
+          : 'linear-gradient(135deg, hsl(280, 90%, 65%), hsl(190, 100%, 60%), hsl(280, 85%, 55%))',
+        backgroundSize: shouldReduceAnimations ? '100% 100%' : '200% 200%',
+        animation: shouldReduceAnimations ? 'none' : 'gradient-flow 4s ease infinite',
         padding: '5px',
-        boxShadow: '0 0 15px hsla(280, 90%, 65%, 0.3), 0 0 30px hsla(190, 100%, 60%, 0.2), inset 0 1px 3px rgba(255, 255, 255, 0.4)',
+        boxShadow: shouldReduceAnimations
+          ? '0 4px 12px hsla(280, 90%, 65%, 0.3)'
+          : '0 0 15px hsla(280, 90%, 65%, 0.3), 0 0 30px hsla(190, 100%, 60%, 0.2), inset 0 1px 3px rgba(255, 255, 255, 0.4)',
+        contain: 'layout style paint',
       }}
       onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={() => !shouldReduceAnimations && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="bg-white rounded-[calc(1.5rem-5px)] h-full flex flex-col">
       <div 
-        className="relative aspect-video overflow-hidden transition-all duration-500"
+        className="relative aspect-video overflow-hidden transition-all"
         style={{
-          transform: isHovered 
+          transitionDuration: shouldReduceAnimations ? '0.2s' : '0.5s',
+          transform: !shouldReduceAnimations && isHovered 
             ? `perspective(1000px) rotateX(${(mousePosition.y - 0.5) * 10}deg) rotateY(${(mousePosition.x - 0.5) * -10}deg) translateZ(20px)` 
-            : 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)',
-          transformStyle: 'preserve-3d',
+            : 'none',
+          transformStyle: shouldReduceAnimations ? 'flat' : 'preserve-3d',
+          willChange: isHovered && !shouldReduceAnimations ? 'transform' : 'auto',
         }}
       >
-        {game.thumbnail_url && !imageError ? (
+        {isVisible && game.thumbnail_url && !imageError ? (
           <>
+            {/* Loading skeleton */}
+            {!imageLoaded && (
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 animate-pulse" />
+            )}
             <img 
               src={game.thumbnail_url} 
               alt={game.title}
               loading="lazy"
               decoding="async"
-              className="w-full h-full object-cover transition-all duration-700"
+              className="w-full h-full object-cover transition-all"
               style={{
-                filter: 'contrast(1.45) saturate(1.8) brightness(1.25) drop-shadow(0 8px 20px rgba(0,0,0,0.5)) sharpen(1.2)',
+                transitionDuration: shouldReduceAnimations ? '0.2s' : '0.7s',
+                filter: shouldReduceAnimations 
+                  ? 'none'
+                  : 'contrast(1.45) saturate(1.8) brightness(1.25) drop-shadow(0 8px 20px rgba(0,0,0,0.5)) sharpen(1.2)',
                 imageRendering: 'crisp-edges',
-                transform: isHovered 
+                transform: !shouldReduceAnimations && isHovered 
                   ? `scale(1.15) translateX(${(mousePosition.x - 0.5) * 20}px) translateY(${(mousePosition.y - 0.5) * 20}px) translateZ(30px)` 
-                  : 'scale(1) translateX(0) translateY(0) translateZ(0)',
-                transformStyle: 'preserve-3d',
-                animation: 'breathing 4s ease-in-out infinite',
+                  : isHovered ? 'scale(1.05)' : 'scale(1)',
+                transformStyle: shouldReduceAnimations ? 'flat' : 'preserve-3d',
+                animation: shouldReduceAnimations ? 'none' : 'breathing 4s ease-in-out infinite',
+                opacity: imageLoaded ? 1 : 0,
+                willChange: isHovered && !shouldReduceAnimations ? 'transform, filter' : 'auto',
               }}
+              onLoad={() => setImageLoaded(true)}
               onError={() => setImageError(true)}
             />
-            {/* Animated light overlay */}
-            <div 
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: `radial-gradient(circle at ${mousePosition.x * 100}% ${mousePosition.y * 100}%, rgba(255,255,255,0.3) 0%, transparent 50%)`,
-                opacity: isHovered ? 1 : 0,
-                transition: 'opacity 0.3s ease',
-                mixBlendMode: 'overlay',
-                transformStyle: 'preserve-3d',
-                transform: 'translateZ(40px)',
-              }}
-            />
-            {/* Particle effects */}
-            {isHovered && (
+            {/* Animated light overlay - only on desktop */}
+            {!shouldReduceAnimations && (
+              <div 
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: `radial-gradient(circle at ${mousePosition.x * 100}% ${mousePosition.y * 100}%, rgba(255,255,255,0.3) 0%, transparent 50%)`,
+                  opacity: isHovered ? 1 : 0,
+                  transition: 'opacity 0.3s ease',
+                  mixBlendMode: 'overlay',
+                  transformStyle: 'preserve-3d',
+                  transform: 'translateZ(40px)',
+                }}
+              />
+            )}
+            {/* Particle effects - only on desktop when hovered */}
+            {!shouldReduceAnimations && isHovered && (
               <>
                 <div className="absolute top-[10%] left-[20%] w-2 h-2 bg-primary/60 rounded-full animate-ping" style={{ animationDelay: '0s' }} />
                 <div className="absolute top-[60%] left-[80%] w-2 h-2 bg-secondary/60 rounded-full animate-ping" style={{ animationDelay: '0.5s' }} />
@@ -218,28 +265,45 @@ export const GameCard = ({ game }: GameCardProps) => {
               </>
             )}
           </>
-        ) : (
+        ) : isVisible ? (
           <div className={`w-full h-full bg-gradient-to-br ${genreColors[game.genre as keyof typeof genreColors] || 'from-primary to-secondary'} flex flex-col items-center justify-center gap-4 relative overflow-hidden`}>
-            {/* Animated Background Circles */}
-            <div className="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full blur-3xl animate-pulse" />
-            <div className="absolute bottom-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+            {/* Animated Background Circles - reduced on mobile */}
+            {!shouldReduceAnimations && (
+              <>
+                <div className="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full blur-3xl animate-pulse" />
+                <div className="absolute bottom-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+              </>
+            )}
             
             {/* Game Emoji */}
-            <span className="text-9xl filter drop-shadow-2xl transform group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 relative z-10">
+            <span 
+              className="text-9xl filter drop-shadow-2xl relative z-10"
+              style={{
+                transform: isHovered && !shouldReduceAnimations ? 'scale(1.25) rotate(12deg)' : 'scale(1) rotate(0deg)',
+                transition: shouldReduceAnimations ? 'transform 0.2s ease' : 'transform 0.5s ease',
+              }}
+            >
               {genreEmojis[game.genre as keyof typeof genreEmojis] || '🎮'}
             </span>
             
             {/* Game Title Overlay */}
-            <div className="text-white text-2xl font-fredoka font-bold text-center px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 relative z-10 bg-black/30 backdrop-blur-sm rounded-2xl py-2">
-              {game.title}
-            </div>
+            {!shouldReduceAnimations && (
+              <div className="text-white text-2xl font-fredoka font-bold text-center px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 relative z-10 bg-black/30 backdrop-blur-sm rounded-2xl py-2">
+                {game.title}
+              </div>
+            )}
           </div>
-        )}
+        ) : null}
         <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent opacity-40 group-hover:opacity-60 transition-opacity" />
         
-        {/* Play Icon Overlay */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className="bg-primary/90 p-6 rounded-full shadow-2xl transform scale-0 group-hover:scale-100 transition-transform duration-300">
+        {/* Play Icon Overlay - simplified on mobile */}
+        <div 
+          className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+          style={{ transitionDuration: shouldReduceAnimations ? '0.2s' : '0.3s' }}
+        >
+          <div 
+            className={`bg-primary/90 p-6 rounded-full shadow-2xl ${shouldReduceAnimations ? '' : 'transform scale-0 group-hover:scale-100 transition-transform duration-300'}`}
+          >
             <Play className="w-12 h-12 text-white" />
           </div>
         </div>
