@@ -14,6 +14,8 @@ import { LevelSelector } from "@/components/LevelSelector";
 import { FlowerFieldLevelSelector } from "@/components/FlowerFieldLevelSelector";
 import { DailyChallengeCard } from "@/components/DailyChallengeCard";
 import { LiveComboNotifications } from "@/components/LiveComboNotifications";
+import { LandscapePrompt } from "@/components/LandscapePrompt";
+import { haptics } from "@/utils/haptics";
 import confetti from "canvas-confetti";
 
 // Import all game components
@@ -183,6 +185,9 @@ const GamePlay = () => {
 
   const handleLevelComplete = async () => {
     completeLevel(currentLevel);
+    
+    // Haptic feedback for success
+    haptics.success();
     
     // Fire confetti 5 times
     const fireConfetti = () => {
@@ -385,32 +390,36 @@ const GamePlay = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className={isLandscape ? "min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5 overflow-hidden" : "min-h-screen bg-white"}>
       {!isLandscape && <Navigation />}
       <LiveComboNotifications />
+      <LandscapePrompt />
       
       {isLandscape && gameStarted && (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-primary/90 to-secondary/90 backdrop-blur-md px-3 py-2 flex items-center justify-between border-b-2 border-white/20 animate-slide-in-right">
+        <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-primary/95 to-secondary/95 backdrop-blur-md px-3 py-1.5 flex items-center justify-between border-b-2 border-white/20 shadow-xl">
           <Link to="/games">
             <Button 
               variant="ghost" 
               size="sm"
-              className="text-white hover:bg-white/20 font-fredoka font-bold h-8 px-3"
+              className="text-white hover:bg-white/20 font-fredoka font-bold h-8 px-3 active:scale-95 transition-transform"
+              onClick={() => haptics.light()}
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
           <div className="flex items-center gap-2">
-            <RotateCcw className="h-4 w-4 text-white" />
-            <span className="text-sm font-fredoka font-bold text-white">
+            <span className="text-xs font-fredoka font-bold text-white/90 truncate max-w-[200px]">
               {game?.title || 'Game'}
             </span>
           </div>
           <Button
             variant="ghost"
             size="sm"
-            onClick={toggleFullscreen}
-            className="text-white hover:bg-white/20 font-fredoka font-bold h-8 px-3"
+            onClick={() => {
+              haptics.light();
+              toggleFullscreen();
+            }}
+            className="text-white hover:bg-white/20 font-fredoka font-bold h-8 px-3 active:scale-95 transition-transform"
             title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
           >
             {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
@@ -422,16 +431,19 @@ const GamePlay = () => {
         <Button
           variant="ghost"
           size="icon"
-          onClick={toggleFullscreen}
-          className="md:hidden fixed bottom-20 right-4 z-40 bg-primary/90 hover:bg-primary text-white shadow-lg rounded-full w-12 h-12 animate-scale-in"
+          onClick={() => {
+            haptics.light();
+            toggleFullscreen();
+          }}
+          className="md:hidden fixed bottom-20 right-4 z-40 bg-primary/90 hover:bg-primary text-white shadow-lg rounded-full w-12 h-12 animate-scale-in active:scale-95 transition-transform"
           title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
         >
           {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
         </Button>
       )}
       
-      <section className={isLandscape ? "pt-12 pb-2 px-2" : "pt-24 pb-24 md:pb-12 px-4"}>
-        <div className={isLandscape ? "h-[calc(100vh-3.5rem)]" : "container mx-auto max-w-6xl"}>
+      <section className={isLandscape ? "pt-10 pb-0 px-2 h-screen" : "pt-24 pb-24 md:pb-12 px-4"}>
+        <div className={isLandscape ? "h-[calc(100vh-2.5rem)] flex items-center justify-center" : "container mx-auto max-w-6xl"}>
           {!isLandscape && (
             <div className="mb-8 flex items-center justify-between animate-fade-in">
               <Link to="/games">
@@ -460,7 +472,7 @@ const GamePlay = () => {
           )}
 
           <div className={isLandscape && gameStarted 
-            ? "h-full bg-background/95 backdrop-blur-lg rounded-2xl border-2 border-primary/30 shadow-xl p-3 animate-scale-in overflow-hidden" 
+            ? "w-full h-full bg-gradient-to-br from-background/98 to-background/95 backdrop-blur-xl rounded-2xl border border-primary/20 shadow-2xl p-2 overflow-hidden flex items-center justify-center" 
             : "bg-background/80 backdrop-blur-lg rounded-3xl border-4 border-primary/30 shadow-2xl p-8 space-y-6 animate-scale-in"
           }>
             {(!isLandscape || !gameStarted) && (
@@ -479,7 +491,7 @@ const GamePlay = () => {
               </div>
             )}
 
-            <div className={isLandscape && gameStarted ? "h-full" : "w-full"}>
+            <div className={isLandscape && gameStarted ? "w-full h-full flex items-center justify-center" : "w-full"}>
               {/* Show Daily Challenge Card for Gold Miner game */}
               {!isLandscape && (gameId === 'gold-miner' || game?.component_name === 'GoldMiner') && gameStarted && (
                 <div className="mb-6">
