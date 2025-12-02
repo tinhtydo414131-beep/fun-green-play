@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { AirdropConfirmModal } from "@/components/AirdropConfirmModal";
 import { OnChainTransactionHistory } from "@/components/OnChainTransactionHistory";
 import { useTransactionNotifications } from "@/hooks/useTransactionNotifications";
+import { P2PTransfer } from "@/components/P2PTransfer";
 
 import { toast } from "sonner";
 import { ethers } from "ethers";
@@ -1780,66 +1781,18 @@ export default function FunWallet() {
                 {/* Normal Send Tab */}
                 <TabsContent value="send">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                    {/* Send Card */}
-                    <Card className="gradient-border rounded-2xl bg-white backdrop-blur-sm shadow-2xl">
-                      <CardHeader className="pb-3 sm:pb-6">
-                        <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl text-primary">
-                          <Send className="w-5 h-5 sm:w-6 sm:h-6" />
-                          Send FUN
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3 sm:space-y-4">
-                        <div>
-                          <label className="text-xs sm:text-sm text-foreground mb-2 block font-black">Recipient Address</label>
-                          <Input
-                            type="text"
-                            inputMode="text"
-                            autoComplete="off"
-                            autoCorrect="off"
-                            spellCheck={false}
-                            autoCapitalize="off"
-                            value={sendTo}
-                            onChange={(e) => setSendTo(e.target.value)}
-                            onFocus={() => console.log("🔵 Focus recipient input")}
-                            placeholder="0x..."
-                            className="bg-background/50 border-input h-12 sm:h-10 text-base sm:text-sm px-4 sm:px-3 touch-manipulation"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-base sm:text-lg text-primary mb-2 sm:mb-3 block font-black">
-                            Amount ({selectedToken.symbol})
-                          </label>
-                          <Input
-                            type="number"
-                            value={sendAmount}
-                            onChange={(e) => setSendAmount(e.target.value)}
-                            placeholder="0.00"
-                            className="border-2 border-primary/30 text-foreground placeholder:text-muted-foreground h-14 sm:h-12 text-xl sm:text-lg px-4 font-bold"
-                            style={{
-                              background: 'rgba(255,255,255,0.1)',
-                              backdropFilter: 'blur(10px)',
-                              boxShadow: `0 0 20px ${selectedNetwork.color}30, inset 0 0 0 1px ${selectedNetwork.color}40`
-                            }}
-                          />
-                          {sendAmount && parseFloat(sendAmount) > 0 && (
-                            <p className="text-xs sm:text-sm text-foreground mt-2 font-black">
-                              ≈ ${(parseFloat(sendAmount) * (tokenPrices[selectedToken.symbol] || 0)).toFixed(2)} USD
-                              <span className="ml-2 text-primary font-black">
-                                @ ${tokenPrices[selectedToken.symbol]?.toFixed(selectedToken.symbol === 'CAMLY' ? 6 : 2)}
-                              </span>
-                            </p>
-                          )}
-                        </div>
-                        <Button
-                          onClick={handleSend}
-                          disabled={sending}
-                          className="w-full font-black text-lg sm:text-xl py-6 h-auto"
-                          size="lg"
-                        >
-                          {sending ? "SENDING..." : "SEND NOW ⚡"}
-                        </Button>
-                      </CardContent>
-                    </Card>
+                    {/* P2P Transfer Card */}
+                    {account && user && (
+                      <P2PTransfer
+                        account={account}
+                        userId={user.id}
+                        camlyBalance={camlyBalance}
+                        onTransferComplete={async () => {
+                          await getCamlyBalance(account);
+                          await fetchTransactionHistory();
+                        }}
+                      />
+                    )}
 
                     {/* Receive Card */}
                     <Card className="gradient-border rounded-2xl bg-white backdrop-blur-sm shadow-2xl relative overflow-hidden">
