@@ -121,23 +121,23 @@ export const OnChainTransactionHistory = ({ transactions, currentUserId }: OnCha
           <div className="bg-green-500/10 rounded-lg p-3 border border-green-500/20">
             <div className="flex items-center gap-2 mb-1">
               <ArrowDownLeft className="w-4 h-4 text-green-400" />
-              <span className="text-white/60 text-xs">Received</span>
+              <span className="text-black text-xs font-medium">Received</span>
             </div>
-            <p className="text-white font-bold text-lg">{receivedTxs.length}</p>
+            <p className="text-black font-bold text-lg">{receivedTxs.length}</p>
           </div>
           <div className="bg-red-500/10 rounded-lg p-3 border border-red-500/20">
             <div className="flex items-center gap-2 mb-1">
               <ArrowUpRight className="w-4 h-4 text-red-400" />
-              <span className="text-white/60 text-xs">Sent</span>
+              <span className="text-black text-xs font-medium">Sent</span>
             </div>
-            <p className="text-white font-bold text-lg">{sentTxs.length}</p>
+            <p className="text-black font-bold text-lg">{sentTxs.length}</p>
           </div>
           <div className="bg-orange-500/10 rounded-lg p-3 border border-orange-500/20">
             <div className="flex items-center gap-2 mb-1">
               <Users className="w-4 h-4 text-orange-400" />
-              <span className="text-white/60 text-xs">Airdrops</span>
+              <span className="text-black text-xs font-medium">Airdrops</span>
             </div>
-            <p className="text-white font-bold text-lg">{airdropTxs.length}</p>
+            <p className="text-black font-bold text-lg">{airdropTxs.length}</p>
           </div>
         </div>
       )}
