@@ -144,20 +144,6 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-accent/30 hover:border-accent transition-all hover:shadow-lg transform hover:scale-105 cursor-pointer" onClick={() => navigate("/camly-coins")}>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-lg font-fredoka text-muted-foreground">Camly Coins</CardTitle>
-                <Coins className="w-6 h-6 text-accent" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-fredoka font-bold text-accent">{profile.wallet_balance?.toLocaleString() || 0}</div>
-                <p className="text-sm text-muted-foreground font-comic mt-1 flex items-center gap-1">
-                  <History className="w-3 h-3" />
-                  View history 💰
-                </p>
-              </CardContent>
-            </Card>
-
             <Card className="border-2 border-accent/30 hover:border-accent transition-all hover:shadow-lg transform hover:scale-105">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-lg font-fredoka text-muted-foreground">Friends</CardTitle>

@@ -28,7 +28,6 @@ import ResetPassword from "./pages/ResetPassword";
 import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
 import ComboLeaderboard from "./pages/ComboLeaderboard";
-import CamlyCoinHistory from "./pages/CamlyCoinHistory";
 import UploadGame from "./pages/UploadGame";
 import AdminGameReview from "./pages/AdminGameReview";
 import MyGames from "./pages/MyGames";
@@ -62,7 +61,6 @@ const AnimatedRoutes = () => {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/install" element={<Install />} />
         <Route path="/combo-leaderboard" element={<ComboLeaderboard />} />
-        <Route path="/camly-coins" element={<CamlyCoinHistory />} />
         <Route path="/upload-game" element={<UploadGame />} />
         <Route path="/admin/game-review" element={<AdminGameReview />} />
         <Route path="/my-games" element={<MyGames />} />

@@ -1174,21 +1174,6 @@ export default function FunWallet() {
             </motion.button>
           </div>
 
-          {/* Camly Coins History Button */}
-          <motion.button
-            onClick={() => navigate("/camly-coins")}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.95 }}
-            className="w-full max-w-md mx-auto h-14 rounded-[28px] font-bold flex items-center justify-center gap-3 transition-all duration-300 shadow-2xl border-0 text-white text-lg"
-            style={{
-              background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
-              boxShadow: '0 8px 32px rgba(255, 165, 0, 0.4), 0 4px 16px rgba(255, 215, 0, 0.3)',
-            }}
-          >
-            <img src={camlyCoinPro} alt="Camly Coin" className="w-7 h-7" />
-            <span>Lịch Sử Camly Coins 💰</span>
-          </motion.button>
-
           {/* Google Sign In Button (if not logged in) */}
           {!user && (
             <motion.button
