@@ -98,9 +98,14 @@ Deno.serve(async (req) => {
 
     // Process each transfer event
     for (const event of events) {
-      const from = event.args?.[0]?.toLowerCase();
-      const to = event.args?.[1]?.toLowerCase();
-      const value = event.args?.[2];
+      // Type guard to ensure we have an EventLog with args
+      if (!('args' in event) || !event.args) {
+        continue;
+      }
+
+      const from = event.args[0]?.toLowerCase();
+      const to = event.args[1]?.toLowerCase();
+      const value = event.args[2];
 
       // Check if recipient is one of our users
       if (!to || !walletAddresses.has(to)) {
