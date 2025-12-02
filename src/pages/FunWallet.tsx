@@ -11,6 +11,7 @@ import { ArrowUpRight, ArrowDownLeft, Wallet, Sparkles, Copy, CheckCircle, Chevr
 import { useNavigate } from "react-router-dom";
 import { AirdropConfirmModal } from "@/components/AirdropConfirmModal";
 import { OnChainTransactionHistory } from "@/components/OnChainTransactionHistory";
+import { useTransactionNotifications } from "@/hooks/useTransactionNotifications";
 
 import { toast } from "sonner";
 import { ethers } from "ethers";
@@ -178,6 +179,9 @@ export default function FunWallet() {
   });
   const [priceChanges, setPriceChanges] = useState<{[key: string]: number}>({});
   const [chartData, setChartData] = useState<any[]>([]);
+
+  // Enable real-time transaction notifications
+  useTransactionNotifications(user?.id);
 
   useEffect(() => {
     checkConnection();
