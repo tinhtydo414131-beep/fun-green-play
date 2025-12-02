@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Wallet, Coins, Trophy, Zap, Award, Share2, ArrowLeft } from "lucide-react";
+import { haptics } from "@/utils/haptics";
 import confetti from "canvas-confetti";
 
 interface Game2048NexusProps {
@@ -173,6 +174,7 @@ export const Game2048Nexus = ({
       const maxTile = Math.max(...newBoard.flat());
       if (maxTile > highestTile) {
         setHighestTile(maxTile);
+        haptics.success();
         confetti({
           particleCount: 100,
           spread: 70,
@@ -182,6 +184,7 @@ export const Game2048Nexus = ({
 
       if (maxTile >= targetTile) {
         toast.success(`🎉 Level ${level} Complete! Target ${targetTile} reached!`);
+        haptics.success();
         updateUserStats(newScore, maxTile);
         if (onLevelComplete) onLevelComplete();
       }
@@ -223,11 +226,13 @@ export const Game2048Nexus = ({
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
       // Horizontal swipe
       if (Math.abs(deltaX) > minSwipeDistance) {
+        haptics.light();
         move(deltaX > 0 ? 'right' : 'left');
       }
     } else {
       // Vertical swipe
       if (Math.abs(deltaY) > minSwipeDistance) {
+        haptics.light();
         move(deltaY > 0 ? 'down' : 'up');
       }
     }
@@ -260,7 +265,7 @@ export const Game2048Nexus = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/10 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/10 p-4 game-area">
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header with Stats */}
         <div className="text-center space-y-4 animate-fade-in">

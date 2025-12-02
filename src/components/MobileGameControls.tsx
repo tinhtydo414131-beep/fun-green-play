@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from "lucide-react";
+import { haptics } from "@/utils/haptics";
 
 interface MobileGameControlsProps {
   onDirectionPress: (direction: 'up' | 'down' | 'left' | 'right') => void;
@@ -14,6 +15,18 @@ export const MobileGameControls = ({
   onJump,
   className = ""
 }: MobileGameControlsProps) => {
+  const handleDirectionPress = (direction: 'up' | 'down' | 'left' | 'right') => {
+    haptics.light();
+    onDirectionPress(direction);
+  };
+
+  const handleJump = () => {
+    if (onJump) {
+      haptics.medium();
+      onJump();
+    }
+  };
+
   return (
     <div className={`fixed bottom-24 left-0 right-0 flex justify-between px-4 gap-4 z-30 md:hidden ${className}`}>
       {/* Left side - Directional pad */}
@@ -25,9 +38,9 @@ export const MobileGameControls = ({
           className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-12 bg-primary/90 hover:bg-primary text-white shadow-lg rounded-lg active:scale-95 transition-transform"
           onTouchStart={(e) => {
             e.preventDefault();
-            onDirectionPress('up');
+            handleDirectionPress('up');
           }}
-          onClick={() => onDirectionPress('up')}
+          onClick={() => handleDirectionPress('up')}
         >
           <ArrowUp className="h-6 w-6" />
         </Button>
@@ -39,9 +52,9 @@ export const MobileGameControls = ({
           className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-12 bg-primary/90 hover:bg-primary text-white shadow-lg rounded-lg active:scale-95 transition-transform"
           onTouchStart={(e) => {
             e.preventDefault();
-            onDirectionPress('down');
+            handleDirectionPress('down');
           }}
-          onClick={() => onDirectionPress('down')}
+          onClick={() => handleDirectionPress('down')}
         >
           <ArrowDown className="h-6 w-6" />
         </Button>
@@ -53,9 +66,9 @@ export const MobileGameControls = ({
           className="absolute left-0 top-1/2 -translate-y-1/2 w-12 h-12 bg-primary/90 hover:bg-primary text-white shadow-lg rounded-lg active:scale-95 transition-transform"
           onTouchStart={(e) => {
             e.preventDefault();
-            onDirectionPress('left');
+            handleDirectionPress('left');
           }}
-          onClick={() => onDirectionPress('left')}
+          onClick={() => handleDirectionPress('left')}
         >
           <ArrowLeft className="h-6 w-6" />
         </Button>
@@ -67,9 +80,9 @@ export const MobileGameControls = ({
           className="absolute right-0 top-1/2 -translate-y-1/2 w-12 h-12 bg-primary/90 hover:bg-primary text-white shadow-lg rounded-lg active:scale-95 transition-transform"
           onTouchStart={(e) => {
             e.preventDefault();
-            onDirectionPress('right');
+            handleDirectionPress('right');
           }}
-          onClick={() => onDirectionPress('right')}
+          onClick={() => handleDirectionPress('right')}
         >
           <ArrowRight className="h-6 w-6" />
         </Button>
@@ -86,9 +99,9 @@ export const MobileGameControls = ({
           className="w-20 h-20 bg-secondary/90 hover:bg-secondary text-white shadow-lg rounded-full active:scale-95 transition-transform font-fredoka font-bold text-xl"
           onTouchStart={(e) => {
             e.preventDefault();
-            onJump();
+            handleJump();
           }}
-          onClick={onJump}
+          onClick={handleJump}
         >
           JUMP
         </Button>
