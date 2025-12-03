@@ -19,6 +19,7 @@ import featureFriends from "@/assets/feature-friends.png";
 import featureCompete from "@/assets/feature-compete.png";
 import featureLearning from "@/assets/feature-learning.png";
 import { JoyBot } from "@/components/JoyBot";
+import { LovableGamesHub } from "@/components/LovableGamesHub";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -191,6 +192,9 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Lovable Games Hub Section */}
+      <LovableGamesHub />
 
       {/* CTA Section */}
       <section className="py-20 px-4">
