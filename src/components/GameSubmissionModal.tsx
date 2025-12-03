@@ -17,15 +17,15 @@ interface GameSubmissionModalProps {
 }
 
 const gameSchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
-  title: z.string().trim().min(1, "Game title is required").max(100, "Title must be less than 100 characters"),
-  description: z.string().trim().max(150, "Description must be less than 150 characters").optional(),
-  projectUrl: z.string().trim().min(1, "Project URL is required").refine(
+  name: z.string().trim().min(1, "Vui lòng nhập tên của bạn").max(100, "Tên không được quá 100 ký tự"),
+  title: z.string().trim().min(1, "Vui lòng nhập tên game").max(100, "Tên game không được quá 100 ký tự"),
+  description: z.string().trim().max(150, "Mô tả không được quá 150 ký tự").optional(),
+  projectUrl: z.string().trim().min(1, "Vui lòng nhập link dự án").refine(
     (url) => url.includes("lovable.app") || url.includes("lovable.dev"),
-    "URL must be a Lovable project link (contain lovable.app or lovable.dev)"
+    "Link phải chứa lovable.app hoặc lovable.dev"
   ),
-  imageUrl: z.string().trim().url("Must be a valid URL").optional().or(z.literal("")),
-  zipUrl: z.string().trim().url("Must be a valid URL").optional().or(z.literal(""))
+  imageUrl: z.string().trim().url("Vui lòng nhập URL hợp lệ").optional().or(z.literal("")),
+  zipUrl: z.string().trim().url("Vui lòng nhập URL hợp lệ").optional().or(z.literal(""))
 });
 
 export const GameSubmissionModal = ({ isOpen, onClose }: GameSubmissionModalProps) => {
@@ -78,7 +78,7 @@ export const GameSubmissionModal = ({ isOpen, onClose }: GameSubmissionModalProp
     }
 
     if (!user) {
-      toast.error("Please log in to submit a game!");
+      toast.error("Vui lòng đăng nhập để gửi game nha!");
       return;
     }
 
@@ -98,13 +98,13 @@ export const GameSubmissionModal = ({ isOpen, onClose }: GameSubmissionModalProp
     setIsSubmitting(false);
     
     if (error) {
-      toast.error("Failed to submit game. Please try again.");
+      toast.error("Gửi game thất bại. Vui lòng thử lại nha!");
       console.error("Submission error:", error.message);
       return;
     }
 
     setIsSubmitted(true);
-    toast.success("Game submitted successfully! 🎉");
+    toast.success("Cảm ơn bạn! Game đã được gửi, Cha sẽ duyệt và up lên sớm thôi! 🎉");
     
     // Reset after showing success
     setTimeout(() => {
@@ -135,11 +135,11 @@ export const GameSubmissionModal = ({ isOpen, onClose }: GameSubmissionModalProp
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 font-fredoka text-2xl text-foreground">
             <Rocket className="w-6 h-6 text-primary" />
-            Submit Your Game
+            Gửi Game Của Bạn Lên Fun Planet!
             <Sparkles className="w-5 h-5 text-secondary animate-pulse" />
           </DialogTitle>
           <DialogDescription className="font-comic text-muted-foreground">
-            Share your Lovable creation with the community!
+            Chia sẻ trò chơi Lovable của bạn với cả cộng đồng nào!
           </DialogDescription>
         </DialogHeader>
 
@@ -160,10 +160,10 @@ export const GameSubmissionModal = ({ isOpen, onClose }: GameSubmissionModalProp
                 <CheckCircle className="w-20 h-20 text-green-500" />
               </motion.div>
               <h3 className="text-xl font-fredoka font-bold text-foreground">
-                Thank You! 🎉
+                Cảm ơn bạn! 🎉
               </h3>
               <p className="text-sm font-comic text-muted-foreground text-center">
-                We will review and add your game soon!
+                Cha sẽ duyệt và up game của bạn lên sớm thôi!
               </p>
             </motion.div>
           ) : (
@@ -177,14 +177,14 @@ export const GameSubmissionModal = ({ isOpen, onClose }: GameSubmissionModalProp
             >
               <div className="space-y-2">
                 <Label htmlFor="name" className="font-fredoka font-bold">
-                  Your Name <span className="text-red-500">*</span>
+                  Tên của bạn <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="name"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="John Doe"
+                  placeholder="Nguyễn Văn A"
                   className={`border-2 ${errors.name ? 'border-red-500' : 'border-primary/30'} focus:border-primary font-comic`}
                 />
                 {errors.name && <p className="text-xs text-red-500 font-comic">{errors.name}</p>}
@@ -192,14 +192,14 @@ export const GameSubmissionModal = ({ isOpen, onClose }: GameSubmissionModalProp
 
               <div className="space-y-2">
                 <Label htmlFor="title" className="font-fredoka font-bold">
-                  Game Title <span className="text-red-500">*</span>
+                  Tên game <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="title"
                   name="title"
                   value={formData.title}
                   onChange={handleChange}
-                  placeholder="My Awesome Game"
+                  placeholder="Game Siêu Vui"
                   className={`border-2 ${errors.title ? 'border-red-500' : 'border-primary/30'} focus:border-primary font-comic`}
                 />
                 {errors.title && <p className="text-xs text-red-500 font-comic">{errors.title}</p>}
@@ -207,14 +207,14 @@ export const GameSubmissionModal = ({ isOpen, onClose }: GameSubmissionModalProp
 
               <div className="space-y-2">
                 <Label htmlFor="description" className="font-fredoka font-bold">
-                  Short Description <span className="text-muted-foreground text-sm">({charCount}/150)</span>
+                  Mô tả ngắn <span className="text-muted-foreground text-sm">(tối đa {charCount}/150 ký tự)</span>
                 </Label>
                 <Textarea
                   id="description"
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
-                  placeholder="A fun game where you..."
+                  placeholder="Một trò chơi vui nhộn..."
                   maxLength={150}
                   className={`border-2 ${errors.description ? 'border-red-500' : 'border-primary/30'} focus:border-primary font-comic resize-none`}
                   rows={2}
@@ -224,30 +224,30 @@ export const GameSubmissionModal = ({ isOpen, onClose }: GameSubmissionModalProp
 
               <div className="space-y-2">
                 <Label htmlFor="projectUrl" className="font-fredoka font-bold">
-                  Lovable Project Link <span className="text-red-500">*</span>
+                  Link dự án Lovable <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="projectUrl"
                   name="projectUrl"
                   value={formData.projectUrl}
                   onChange={handleChange}
-                  placeholder="https://your-game.lovable.app"
+                  placeholder="https://game-cua-ban.lovable.app"
                   className={`border-2 ${errors.projectUrl ? 'border-red-500' : 'border-primary/30'} focus:border-primary font-comic`}
                 />
                 {errors.projectUrl && <p className="text-xs text-red-500 font-comic">{errors.projectUrl}</p>}
-                <p className="text-xs text-muted-foreground font-comic">Must contain lovable.app or lovable.dev</p>
+                <p className="text-xs text-muted-foreground font-comic">Phải chứa lovable.app hoặc lovable.dev</p>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="imageUrl" className="font-fredoka font-bold">
-                  Thumbnail Image URL <span className="text-muted-foreground text-sm">(optional)</span>
+                  Link ảnh thumbnail <span className="text-muted-foreground text-sm">(không bắt buộc)</span>
                 </Label>
                 <Input
                   id="imageUrl"
                   name="imageUrl"
                   value={formData.imageUrl}
                   onChange={handleChange}
-                  placeholder="https://example.com/thumbnail.png"
+                  placeholder="https://example.com/anh-game.png"
                   className={`border-2 ${errors.imageUrl ? 'border-red-500' : 'border-primary/30'} focus:border-primary font-comic`}
                 />
                 {errors.imageUrl && <p className="text-xs text-red-500 font-comic">{errors.imageUrl}</p>}
@@ -255,7 +255,7 @@ export const GameSubmissionModal = ({ isOpen, onClose }: GameSubmissionModalProp
 
               <div className="space-y-2">
                 <Label htmlFor="zipUrl" className="font-fredoka font-bold">
-                  Downloadable ZIP Link <span className="text-muted-foreground text-sm">(optional)</span>
+                  Link tải file ZIP <span className="text-muted-foreground text-sm">(không bắt buộc)</span>
                 </Label>
                 <Input
                   id="zipUrl"
@@ -266,13 +266,13 @@ export const GameSubmissionModal = ({ isOpen, onClose }: GameSubmissionModalProp
                   className={`border-2 ${errors.zipUrl ? 'border-red-500' : 'border-primary/30'} focus:border-primary font-comic`}
                 />
                 {errors.zipUrl && <p className="text-xs text-red-500 font-comic">{errors.zipUrl}</p>}
-                <p className="text-xs text-muted-foreground font-comic">GitHub, Dropbox, or any direct ZIP link</p>
+                <p className="text-xs text-muted-foreground font-comic">GitHub, Dropbox hoặc link tải trực tiếp</p>
               </div>
 
               {!user && (
                 <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
                   <p className="text-sm font-comic text-yellow-600 dark:text-yellow-400">
-                    ⚠️ Please log in to submit a game
+                    ⚠️ Vui lòng đăng nhập để gửi game nha!
                   </p>
                 </div>
               )}
@@ -285,7 +285,7 @@ export const GameSubmissionModal = ({ isOpen, onClose }: GameSubmissionModalProp
                   disabled={isSubmitting}
                   className="flex-1 font-fredoka font-bold border-2"
                 >
-                  Cancel
+                  Hủy
                 </Button>
                 <Button
                   type="submit"
@@ -299,12 +299,12 @@ export const GameSubmissionModal = ({ isOpen, onClose }: GameSubmissionModalProp
                         transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                         className="w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"
                       />
-                      Submitting...
+                      Đang gửi...
                     </>
                   ) : (
                     <>
                       <Send className="w-4 h-4 mr-2" />
-                      Submit Game
+                      Gửi Game Ngay!
                     </>
                   )}
                 </Button>
