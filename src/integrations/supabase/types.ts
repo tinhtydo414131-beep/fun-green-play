@@ -810,6 +810,45 @@ export type Database = {
         }
         Relationships: []
       }
+      lovable_games: {
+        Row: {
+          approved: boolean | null
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          name: string
+          project_url: string
+          title: string
+          user_id: string | null
+          zip_url: string | null
+        }
+        Insert: {
+          approved?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          project_url: string
+          title: string
+          user_id?: string | null
+          zip_url?: string | null
+        }
+        Update: {
+          approved?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          project_url?: string
+          title?: string
+          user_id?: string | null
+          zip_url?: string | null
+        }
+        Relationships: []
+      }
       nexus_leaderboard: {
         Row: {
           created_at: string | null

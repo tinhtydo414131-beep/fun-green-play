@@ -7,67 +7,131 @@ import { Label } from "@/components/ui/label";
 import { Rocket, Send, Sparkles, CheckCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { z } from "zod";
 
 interface GameSubmissionModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+const gameSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
+  title: z.string().trim().min(1, "Game title is required").max(100, "Title must be less than 100 characters"),
+  description: z.string().trim().max(150, "Description must be less than 150 characters").optional(),
+  projectUrl: z.string().trim().min(1, "Project URL is required").refine(
+    (url) => url.includes("lovable.app") || url.includes("lovable.dev"),
+    "URL must be a Lovable project link (contain lovable.app or lovable.dev)"
+  ),
+  imageUrl: z.string().trim().url("Must be a valid URL").optional().or(z.literal("")),
+  zipUrl: z.string().trim().url("Must be a valid URL").optional().or(z.literal(""))
+});
+
 export const GameSubmissionModal = ({ isOpen, onClose }: GameSubmissionModalProps) => {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
-    gameTitle: "",
+    name: "",
+    title: "",
     description: "",
-    lovableUrl: "",
-    githubUrl: "",
-    creatorName: "",
-    email: ""
+    projectUrl: "",
+    imageUrl: "",
+    zipUrl: ""
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [charCount, setCharCount] = useState(0);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [name]: value
     }));
+    
+    if (name === "description") {
+      setCharCount(value.length);
+    }
+    
+    // Clear error when user types
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: "" }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
     
-    if (!formData.gameTitle || !formData.lovableUrl || !formData.creatorName) {
-      toast.error("Please fill in all required fields!");
+    // Validate with zod
+    const result = gameSchema.safeParse(formData);
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach(err => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0] as string] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
+    if (!user) {
+      toast.error("Please log in to submit a game!");
       return;
     }
 
     setIsSubmitting(true);
     
-    // Simulate submission - replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    const { error } = await supabase.from("lovable_games").insert({
+      name: formData.name.trim(),
+      title: formData.title.trim(),
+      description: formData.description.trim() || null,
+      project_url: formData.projectUrl.trim(),
+      image_url: formData.imageUrl.trim() || null,
+      zip_url: formData.zipUrl.trim() || null,
+      user_id: user.id,
+      approved: false
+    });
     
     setIsSubmitting(false);
-    setIsSubmitted(true);
     
-    toast.success("Game submitted successfully! We'll review it soon. 🎉");
+    if (error) {
+      toast.error("Failed to submit game. Please try again.");
+      console.error("Submission error:", error.message);
+      return;
+    }
+
+    setIsSubmitted(true);
+    toast.success("Game submitted successfully! 🎉");
     
     // Reset after showing success
     setTimeout(() => {
       setIsSubmitted(false);
       setFormData({
-        gameTitle: "",
+        name: "",
+        title: "",
         description: "",
-        lovableUrl: "",
-        githubUrl: "",
-        creatorName: "",
-        email: ""
+        projectUrl: "",
+        imageUrl: "",
+        zipUrl: ""
       });
+      setCharCount(0);
       onClose();
-    }, 2000);
+    }, 2500);
+  };
+
+  const handleClose = () => {
+    if (!isSubmitting) {
+      setErrors({});
+      onClose();
+    }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg border-2 border-primary/50 bg-card/95 backdrop-blur-md">
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-lg border-2 border-primary/50 bg-card/95 backdrop-blur-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 font-fredoka text-2xl text-foreground">
             <Rocket className="w-6 h-6 text-primary" />
@@ -96,10 +160,10 @@ export const GameSubmissionModal = ({ isOpen, onClose }: GameSubmissionModalProp
                 <CheckCircle className="w-20 h-20 text-green-500" />
               </motion.div>
               <h3 className="text-xl font-fredoka font-bold text-foreground">
-                Submitted Successfully! 🎉
+                Thank You! 🎉
               </h3>
               <p className="text-sm font-comic text-muted-foreground text-center">
-                We'll review your game and add it to the hub soon!
+                We will review and add your game soon!
               </p>
             </motion.div>
           ) : (
@@ -112,23 +176,38 @@ export const GameSubmissionModal = ({ isOpen, onClose }: GameSubmissionModalProp
               className="space-y-4 mt-4"
             >
               <div className="space-y-2">
-                <Label htmlFor="gameTitle" className="font-fredoka font-bold">
+                <Label htmlFor="name" className="font-fredoka font-bold">
+                  Your Name <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="John Doe"
+                  className={`border-2 ${errors.name ? 'border-red-500' : 'border-primary/30'} focus:border-primary font-comic`}
+                />
+                {errors.name && <p className="text-xs text-red-500 font-comic">{errors.name}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="title" className="font-fredoka font-bold">
                   Game Title <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="gameTitle"
-                  name="gameTitle"
-                  value={formData.gameTitle}
+                  id="title"
+                  name="title"
+                  value={formData.title}
                   onChange={handleChange}
                   placeholder="My Awesome Game"
-                  className="border-2 border-primary/30 focus:border-primary font-comic"
-                  required
+                  className={`border-2 ${errors.title ? 'border-red-500' : 'border-primary/30'} focus:border-primary font-comic`}
                 />
+                {errors.title && <p className="text-xs text-red-500 font-comic">{errors.title}</p>}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="description" className="font-fredoka font-bold">
-                  Short Description
+                  Short Description <span className="text-muted-foreground text-sm">({charCount}/150)</span>
                 </Label>
                 <Textarea
                   id="description"
@@ -136,84 +215,81 @@ export const GameSubmissionModal = ({ isOpen, onClose }: GameSubmissionModalProp
                   value={formData.description}
                   onChange={handleChange}
                   placeholder="A fun game where you..."
-                  className="border-2 border-primary/30 focus:border-primary font-comic resize-none"
-                  rows={3}
+                  maxLength={150}
+                  className={`border-2 ${errors.description ? 'border-red-500' : 'border-primary/30'} focus:border-primary font-comic resize-none`}
+                  rows={2}
                 />
+                {errors.description && <p className="text-xs text-red-500 font-comic">{errors.description}</p>}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="lovableUrl" className="font-fredoka font-bold">
-                  Lovable Project URL <span className="text-red-500">*</span>
+                <Label htmlFor="projectUrl" className="font-fredoka font-bold">
+                  Lovable Project Link <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="lovableUrl"
-                  name="lovableUrl"
-                  value={formData.lovableUrl}
+                  id="projectUrl"
+                  name="projectUrl"
+                  value={formData.projectUrl}
                   onChange={handleChange}
-                  placeholder="https://lovable.dev/projects/your-game"
-                  className="border-2 border-primary/30 focus:border-primary font-comic"
-                  required
+                  placeholder="https://your-game.lovable.app"
+                  className={`border-2 ${errors.projectUrl ? 'border-red-500' : 'border-primary/30'} focus:border-primary font-comic`}
                 />
+                {errors.projectUrl && <p className="text-xs text-red-500 font-comic">{errors.projectUrl}</p>}
+                <p className="text-xs text-muted-foreground font-comic">Must contain lovable.app or lovable.dev</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="githubUrl" className="font-fredoka font-bold">
-                  GitHub ZIP URL (optional)
+                <Label htmlFor="imageUrl" className="font-fredoka font-bold">
+                  Thumbnail Image URL <span className="text-muted-foreground text-sm">(optional)</span>
                 </Label>
                 <Input
-                  id="githubUrl"
-                  name="githubUrl"
-                  value={formData.githubUrl}
+                  id="imageUrl"
+                  name="imageUrl"
+                  value={formData.imageUrl}
                   onChange={handleChange}
-                  placeholder="https://github.com/you/game/archive/main.zip"
-                  className="border-2 border-primary/30 focus:border-primary font-comic"
+                  placeholder="https://example.com/thumbnail.png"
+                  className={`border-2 ${errors.imageUrl ? 'border-red-500' : 'border-primary/30'} focus:border-primary font-comic`}
                 />
+                {errors.imageUrl && <p className="text-xs text-red-500 font-comic">{errors.imageUrl}</p>}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="creatorName" className="font-fredoka font-bold">
-                    Your Name <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="creatorName"
-                    name="creatorName"
-                    value={formData.creatorName}
-                    onChange={handleChange}
-                    placeholder="John Doe"
-                    className="border-2 border-primary/30 focus:border-primary font-comic"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="font-fredoka font-bold">
-                    Email (optional)
-                  </Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="you@email.com"
-                    className="border-2 border-primary/30 focus:border-primary font-comic"
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="zipUrl" className="font-fredoka font-bold">
+                  Downloadable ZIP Link <span className="text-muted-foreground text-sm">(optional)</span>
+                </Label>
+                <Input
+                  id="zipUrl"
+                  name="zipUrl"
+                  value={formData.zipUrl}
+                  onChange={handleChange}
+                  placeholder="https://github.com/user/repo/archive/main.zip"
+                  className={`border-2 ${errors.zipUrl ? 'border-red-500' : 'border-primary/30'} focus:border-primary font-comic`}
+                />
+                {errors.zipUrl && <p className="text-xs text-red-500 font-comic">{errors.zipUrl}</p>}
+                <p className="text-xs text-muted-foreground font-comic">GitHub, Dropbox, or any direct ZIP link</p>
               </div>
+
+              {!user && (
+                <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                  <p className="text-sm font-comic text-yellow-600 dark:text-yellow-400">
+                    ⚠️ Please log in to submit a game
+                  </p>
+                </div>
+              )}
 
               <div className="flex gap-3 pt-4">
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={onClose}
+                  onClick={handleClose}
+                  disabled={isSubmitting}
                   className="flex-1 font-fredoka font-bold border-2"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !user}
                   className="flex-1 font-fredoka font-bold bg-gradient-to-r from-primary to-secondary hover:shadow-lg transition-all"
                 >
                   {isSubmitting ? (

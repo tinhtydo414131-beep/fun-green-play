@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,69 +8,28 @@ import {
   Rocket, 
   Star,
   Sparkles,
-  Globe
+  Globe,
+  CheckCircle,
+  XCircle,
+  Loader2,
+  ShieldCheck
 } from "lucide-react";
 import { GameSubmissionModal } from "./GameSubmissionModal";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 interface LovableGame {
   id: string;
+  name: string;
   title: string;
-  description: string;
-  thumbnail?: string;
-  playUrl: string;
-  downloadUrl?: string;
-  stars?: number;
+  description: string | null;
+  project_url: string;
+  image_url: string | null;
+  zip_url: string | null;
+  approved: boolean;
+  created_at: string;
 }
-
-// Sample games data - can be replaced with API data later
-const sampleGames: LovableGame[] = [
-  {
-    id: "1",
-    title: "Cosmic Clicker",
-    description: "Click planets to earn cosmic points and build your galaxy!",
-    playUrl: "https://lovable.dev/projects/cosmic-clicker",
-    downloadUrl: "https://github.com/lovable-games/cosmic-clicker/archive/main.zip",
-    stars: 4.8
-  },
-  {
-    id: "2",
-    title: "Space Jumper",
-    description: "Jump through asteroids and collect stardust in this adventure!",
-    playUrl: "https://lovable.dev/projects/space-jumper",
-    downloadUrl: "https://github.com/lovable-games/space-jumper/archive/main.zip",
-    stars: 4.5
-  },
-  {
-    id: "3",
-    title: "Nebula Quest",
-    description: "Explore colorful nebulas and discover hidden treasures!",
-    playUrl: "https://lovable.dev/projects/nebula-quest",
-    stars: 4.9
-  },
-  {
-    id: "4",
-    title: "Rocket Builder",
-    description: "Design and launch your own rockets to explore the universe!",
-    playUrl: "https://lovable.dev/projects/rocket-builder",
-    downloadUrl: "https://github.com/lovable-games/rocket-builder/archive/main.zip",
-    stars: 4.7
-  },
-  {
-    id: "5",
-    title: "Star Collector",
-    description: "Collect falling stars and avoid black holes in this fun game!",
-    playUrl: "https://lovable.dev/projects/star-collector",
-    stars: 4.6
-  },
-  {
-    id: "6",
-    title: "Galaxy Puzzle",
-    description: "Solve puzzles to unlock new planets and solar systems!",
-    playUrl: "https://lovable.dev/projects/galaxy-puzzle",
-    downloadUrl: "https://github.com/lovable-games/galaxy-puzzle/archive/main.zip",
-    stars: 4.4
-  }
-];
 
 const planetColors = [
   "from-violet-500 via-purple-500 to-fuchsia-500",
@@ -82,8 +41,119 @@ const planetColors = [
 ];
 
 export const LovableGamesHub = () => {
+  const { user } = useAuth();
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+  const [games, setGames] = useState<LovableGame[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [pendingGames, setPendingGames] = useState<LovableGame[]>([]);
+  const [approvingId, setApprovingId] = useState<string | null>(null);
+
+  // Check if user is admin
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (!user) {
+        setIsAdmin(false);
+        return;
+      }
+      
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      
+      setIsAdmin(!!data);
+    };
+    
+    checkAdmin();
+  }, [user]);
+
+  // Fetch approved games
+  useEffect(() => {
+    const fetchGames = async () => {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from("lovable_games")
+        .select("*")
+        .eq("approved", true)
+        .order("created_at", { ascending: false });
+      
+      if (!error && data) {
+        setGames(data);
+      }
+      setIsLoading(false);
+    };
+
+    fetchGames();
+
+    // Subscribe to realtime updates for approved games
+    const channel = supabase
+      .channel("lovable-games-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "lovable_games",
+          filter: "approved=eq.true"
+        },
+        () => {
+          // Refetch on any change
+          fetchGames();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  // Fetch pending games for admin
+  useEffect(() => {
+    const fetchPending = async () => {
+      if (!isAdmin) {
+        setPendingGames([]);
+        return;
+      }
+      
+      const { data } = await supabase
+        .from("lovable_games")
+        .select("*")
+        .eq("approved", false)
+        .order("created_at", { ascending: false });
+      
+      if (data) {
+        setPendingGames(data);
+      }
+    };
+
+    fetchPending();
+
+    if (isAdmin) {
+      const channel = supabase
+        .channel("pending-games-changes")
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "lovable_games"
+          },
+          () => {
+            fetchPending();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [isAdmin]);
 
   const handlePlay = (url: string) => {
     window.open(url, "_blank", "noopener,noreferrer");
@@ -92,6 +162,174 @@ export const LovableGamesHub = () => {
   const handleDownload = (url: string) => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
+
+  const handleApprove = async (gameId: string) => {
+    setApprovingId(gameId);
+    const { error } = await supabase
+      .from("lovable_games")
+      .update({ approved: true })
+      .eq("id", gameId);
+    
+    if (error) {
+      toast.error("Failed to approve game");
+    } else {
+      toast.success("Game approved! 🎉");
+    }
+    setApprovingId(null);
+  };
+
+  const handleReject = async (gameId: string) => {
+    setApprovingId(gameId);
+    const { error } = await supabase
+      .from("lovable_games")
+      .delete()
+      .eq("id", gameId);
+    
+    if (error) {
+      toast.error("Failed to reject game");
+    } else {
+      toast.success("Game rejected");
+    }
+    setApprovingId(null);
+  };
+
+  const renderGameCard = (game: LovableGame, index: number, showAdminControls: boolean = false) => (
+    <motion.div
+      key={game.id}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      onMouseEnter={() => setHoveredCard(game.id)}
+      onMouseLeave={() => setHoveredCard(null)}
+    >
+      <Card 
+        className={`relative overflow-hidden border-2 transition-all duration-300 bg-card/80 backdrop-blur-sm group
+          ${hoveredCard === game.id 
+            ? "border-primary shadow-[0_0_30px_rgba(var(--primary),0.3)] scale-105" 
+            : "border-primary/30 hover:border-primary/60"
+          }
+          ${showAdminControls && !game.approved ? "border-yellow-500/50" : ""}`}
+      >
+        {/* Glowing border effect */}
+        <div className={`absolute inset-0 rounded-lg bg-gradient-to-r ${planetColors[index % planetColors.length]} opacity-0 group-hover:opacity-20 transition-opacity duration-300`} />
+        
+        {/* Thumbnail */}
+        <div className={`relative aspect-video bg-gradient-to-br ${planetColors[index % planetColors.length]} flex items-center justify-center overflow-hidden`}>
+          {game.image_url ? (
+            <img 
+              src={game.image_url} 
+              alt={game.title}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              loading="lazy"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          ) : (
+            <motion.div 
+              className="relative"
+              animate={hoveredCard === game.id ? { scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] } : {}}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-white/30 to-white/10 flex items-center justify-center shadow-2xl">
+                <Globe className="w-10 h-10 text-white drop-shadow-lg" />
+              </div>
+              <motion.div 
+                className="absolute inset-0 border-2 border-white/30 rounded-full"
+                style={{ transform: "rotateX(70deg)" }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+              />
+            </motion.div>
+          )}
+          
+          {/* Pending badge for admin */}
+          {showAdminControls && !game.approved && (
+            <div className="absolute top-2 left-2 bg-yellow-500 text-black rounded-full px-2 py-1 flex items-center gap-1">
+              <span className="text-xs font-bold">PENDING</span>
+            </div>
+          )}
+        </div>
+
+        {/* Content */}
+        <div className="p-4 space-y-3">
+          <h3 className="text-lg font-fredoka font-bold text-foreground truncate">
+            {game.title}
+          </h3>
+          <p className="text-xs font-comic text-muted-foreground">by {game.name}</p>
+          <p className="text-sm font-comic text-muted-foreground line-clamp-2 min-h-[2.5rem]">
+            {game.description || "A fun Lovable game!"}
+          </p>
+          
+          {/* Action Buttons */}
+          <div className="flex gap-2 pt-2">
+            <Button
+              onClick={() => handlePlay(game.project_url)}
+              className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-fredoka font-bold shadow-lg hover:shadow-xl transition-all"
+              size="sm"
+            >
+              <Play className="w-4 h-4 mr-1 fill-current" />
+              Play
+            </Button>
+            
+            {game.zip_url ? (
+              <Button
+                onClick={() => handleDownload(game.zip_url!)}
+                variant="outline"
+                className="flex-1 border-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-fredoka font-bold transition-all"
+                size="sm"
+              >
+                <Download className="w-4 h-4 mr-1" />
+                ZIP
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                className="flex-1 border-2 border-muted-foreground/30 text-muted-foreground font-fredoka cursor-not-allowed"
+                size="sm"
+                disabled
+              >
+                <Download className="w-4 h-4 mr-1" />
+                N/A
+              </Button>
+            )}
+          </div>
+
+          {/* Admin controls */}
+          {showAdminControls && !game.approved && (
+            <div className="flex gap-2 pt-2 border-t border-primary/20">
+              <Button
+                onClick={() => handleApprove(game.id)}
+                disabled={approvingId === game.id}
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-fredoka font-bold"
+                size="sm"
+              >
+                {approvingId === game.id ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <CheckCircle className="w-4 h-4 mr-1" />
+                    Approve
+                  </>
+                )}
+              </Button>
+              <Button
+                onClick={() => handleReject(game.id)}
+                disabled={approvingId === game.id}
+                variant="destructive"
+                className="flex-1 font-fredoka font-bold"
+                size="sm"
+              >
+                <XCircle className="w-4 h-4 mr-1" />
+                Reject
+              </Button>
+            </div>
+          )}
+        </div>
+      </Card>
+    </motion.div>
+  );
 
   return (
     <section className="relative py-20 px-4 overflow-hidden">
@@ -166,113 +404,38 @@ export const LovableGamesHub = () => {
           </p>
         </motion.div>
 
-        {/* Games Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
-          {sampleGames.map((game, index) => (
-            <motion.div
-              key={game.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              onMouseEnter={() => setHoveredCard(game.id)}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <Card 
-                className={`relative overflow-hidden border-2 transition-all duration-300 bg-card/80 backdrop-blur-sm group
-                  ${hoveredCard === game.id 
-                    ? "border-primary shadow-[0_0_30px_rgba(var(--primary),0.3)] scale-105" 
-                    : "border-primary/30 hover:border-primary/60"
-                  }`}
-              >
-                {/* Glowing border effect */}
-                <div className={`absolute inset-0 rounded-lg bg-gradient-to-r ${planetColors[index % planetColors.length]} opacity-0 group-hover:opacity-20 transition-opacity duration-300`} />
-                
-                {/* Thumbnail */}
-                <div className={`relative aspect-video bg-gradient-to-br ${planetColors[index % planetColors.length]} flex items-center justify-center overflow-hidden`}>
-                  {game.thumbnail ? (
-                    <img 
-                      src={game.thumbnail} 
-                      alt={game.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <motion.div 
-                      className="relative"
-                      animate={hoveredCard === game.id ? { scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] } : {}}
-                      transition={{ duration: 0.5 }}
-                    >
-                      {/* Planet icon fallback */}
-                      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-white/30 to-white/10 flex items-center justify-center shadow-2xl">
-                        <Globe className="w-10 h-10 text-white drop-shadow-lg" />
-                      </div>
-                      {/* Orbiting ring */}
-                      <motion.div 
-                        className="absolute inset-0 border-2 border-white/30 rounded-full"
-                        style={{ transform: "rotateX(70deg)" }}
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                      />
-                    </motion.div>
-                  )}
-                  
-                  {/* Stars badge */}
-                  {game.stars && (
-                    <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1">
-                      <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                      <span className="text-xs font-bold text-white">{game.stars}</span>
-                    </div>
-                  )}
-                </div>
+        {/* Admin Pending Section */}
+        {isAdmin && pendingGames.length > 0 && (
+          <div className="mb-12">
+            <div className="flex items-center gap-2 mb-6">
+              <ShieldCheck className="w-6 h-6 text-yellow-500" />
+              <h3 className="text-2xl font-fredoka font-bold text-yellow-500">
+                Pending Approval ({pendingGames.length})
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {pendingGames.map((game, index) => renderGameCard(game, index, true))}
+            </div>
+          </div>
+        )}
 
-                {/* Content */}
-                <div className="p-4 space-y-3">
-                  <h3 className="text-lg font-fredoka font-bold text-foreground truncate">
-                    {game.title}
-                  </h3>
-                  <p className="text-sm font-comic text-muted-foreground line-clamp-2 min-h-[2.5rem]">
-                    {game.description}
-                  </p>
-                  
-                  {/* Action Buttons */}
-                  <div className="flex gap-2 pt-2">
-                    <Button
-                      onClick={() => handlePlay(game.playUrl)}
-                      className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-fredoka font-bold shadow-lg hover:shadow-xl transition-all"
-                      size="sm"
-                    >
-                      <Play className="w-4 h-4 mr-1 fill-current" />
-                      Play
-                    </Button>
-                    
-                    {game.downloadUrl ? (
-                      <Button
-                        onClick={() => handleDownload(game.downloadUrl!)}
-                        variant="outline"
-                        className="flex-1 border-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-fredoka font-bold transition-all"
-                        size="sm"
-                      >
-                        <Download className="w-4 h-4 mr-1" />
-                        ZIP
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        className="flex-1 border-2 border-muted-foreground/30 text-muted-foreground font-fredoka cursor-not-allowed"
-                        size="sm"
-                        disabled
-                      >
-                        <Download className="w-4 h-4 mr-1" />
-                        N/A
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+        {/* Games Grid */}
+        {isLoading ? (
+          <div className="flex justify-center items-center py-20">
+            <Loader2 className="w-12 h-12 text-primary animate-spin" />
+          </div>
+        ) : games.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+            {games.map((game, index) => renderGameCard(game, index))}
+          </div>
+        ) : (
+          <div className="text-center py-16 mb-12">
+            <Globe className="w-20 h-20 text-muted-foreground/30 mx-auto mb-4" />
+            <p className="text-xl font-fredoka text-muted-foreground">
+              No games yet! Be the first to submit one! 🚀
+            </p>
+          </div>
+        )}
 
         {/* Submit Button */}
         <motion.div 
