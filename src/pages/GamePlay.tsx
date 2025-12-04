@@ -85,6 +85,11 @@ import { SimonSays3D } from "@/components/games/SimonSays3D";
 import { GuessNumber3D } from "@/components/games/GuessNumber3D";
 import { WordScramble3D } from "@/components/games/WordScramble3D";
 import { TriviaQuiz3D } from "@/components/games/TriviaQuiz3D";
+import { MathQuiz3D } from "@/components/games/MathQuiz3D";
+import { StarCollector3D } from "@/components/games/StarCollector3D";
+import { PetParadise3D } from "@/components/games/PetParadise3D";
+import { DreamWorld3D } from "@/components/games/DreamWorld3D";
+import { SkyCastle3D } from "@/components/games/SkyCastle3D";
 
 interface Game {
   id: string;
