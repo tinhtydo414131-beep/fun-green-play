@@ -19,10 +19,15 @@ import featureFriends from "@/assets/feature-friends.png";
 import featureCompete from "@/assets/feature-compete.png";
 import featureLearning from "@/assets/feature-learning.png";
 import { JoyBot } from "@/components/JoyBot";
+import { useReferral } from "@/hooks/useReferral";
+import ReferralWelcomeBanner from "@/components/ReferralWelcomeBanner";
+import { useWeb3Rewards } from "@/hooks/useWeb3Rewards";
 
 const Index = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const { pendingReferrer, showWelcomeBanner, dismissWelcomeBanner } = useReferral();
+  const { connectWallet } = useWeb3Rewards();
 
   useEffect(() => {
     // Auto-redirect logged-in users to dashboard
@@ -30,6 +35,15 @@ const Index = () => {
       // Don't auto-redirect, let them explore homepage
     }
   }, [user, loading]);
+
+  const handleConnectWalletFromBanner = async () => {
+    dismissWelcomeBanner();
+    if (!user) {
+      navigate('/auth');
+    } else {
+      await connectWallet();
+    }
+  };
 
   const features = [
     {
@@ -104,6 +118,16 @@ const Index = () => {
       variants={pageVariants}
       transition={pageTransition}
     >
+      {/* Referral Welcome Banner */}
+      {pendingReferrer && (
+        <ReferralWelcomeBanner
+          referrerUsername={pendingReferrer.username}
+          isVisible={showWelcomeBanner}
+          onDismiss={dismissWelcomeBanner}
+          onConnectWallet={handleConnectWalletFromBanner}
+        />
+      )}
+      
       <Navigation />
       <Hero />
       

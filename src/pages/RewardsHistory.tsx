@@ -16,7 +16,8 @@ import {
   ArrowUpRight, 
   ArrowDownLeft,
   Loader2,
-  History
+  History,
+  Users
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -44,6 +45,8 @@ const getRewardIcon = (type: string) => {
       return <Coins className="w-5 h-5" />;
     case 'claim_to_wallet':
       return <ArrowUpRight className="w-5 h-5" />;
+    case 'referral_bonus':
+      return <Users className="w-5 h-5" />;
     default:
       return <Gift className="w-5 h-5" />;
   }
@@ -61,6 +64,8 @@ const getRewardColor = (type: string) => {
       return 'bg-green-500/10 text-green-600 border-green-500/30';
     case 'claim_to_wallet':
       return 'bg-red-500/10 text-red-600 border-red-500/30';
+    case 'referral_bonus':
+      return 'bg-pink-500/10 text-pink-600 border-pink-500/30';
     default:
       return 'bg-yellow-500/10 text-yellow-600 border-yellow-500/30';
   }
@@ -78,6 +83,8 @@ const getRewardLabel = (type: string) => {
       return 'Points Converted';
     case 'claim_to_wallet':
       return 'Claimed';
+    case 'referral_bonus':
+      return 'Mời bạn bè';
     default:
       return 'Reward';
   }

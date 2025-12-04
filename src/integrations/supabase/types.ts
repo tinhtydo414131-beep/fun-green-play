@@ -975,6 +975,7 @@ export type Database = {
           email: string
           id: string
           leaderboard_score: number | null
+          referral_code: string | null
           total_friends: number | null
           total_likes: number | null
           total_messages: number | null
@@ -991,6 +992,7 @@ export type Database = {
           email: string
           id: string
           leaderboard_score?: number | null
+          referral_code?: string | null
           total_friends?: number | null
           total_likes?: number | null
           total_messages?: number | null
@@ -1007,6 +1009,7 @@ export type Database = {
           email?: string
           id?: string
           leaderboard_score?: number | null
+          referral_code?: string | null
           total_friends?: number | null
           total_likes?: number | null
           total_messages?: number | null
@@ -1017,6 +1020,54 @@ export type Database = {
           wallet_balance?: number | null
         }
         Relationships: []
+      }
+      referrals: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          referral_code: string
+          referred_id: string
+          referrer_id: string
+          reward_amount: number
+          reward_paid: boolean
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_id: string
+          referrer_id: string
+          reward_amount?: number
+          reward_paid?: boolean
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_id?: string
+          referrer_id?: string
+          reward_amount?: number
+          reward_paid?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_id_fkey"
+            columns: ["referred_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       uploaded_game_comments: {
         Row: {
@@ -1492,7 +1543,9 @@ export type Database = {
           first_wallet_claimed: boolean
           id: string
           last_daily_checkin: string | null
+          referral_earnings: number
           total_claimed_to_wallet: number
+          total_referrals: number
           updated_at: string
           user_id: string
           wallet_address: string | null
@@ -1505,7 +1558,9 @@ export type Database = {
           first_wallet_claimed?: boolean
           id?: string
           last_daily_checkin?: string | null
+          referral_earnings?: number
           total_claimed_to_wallet?: number
+          total_referrals?: number
           updated_at?: string
           user_id: string
           wallet_address?: string | null
@@ -1518,7 +1573,9 @@ export type Database = {
           first_wallet_claimed?: boolean
           id?: string
           last_daily_checkin?: string | null
+          referral_earnings?: number
           total_claimed_to_wallet?: number
+          total_referrals?: number
           updated_at?: string
           user_id?: string
           wallet_address?: string | null

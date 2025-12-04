@@ -1,4 +1,4 @@
-import { Gamepad2, User, LogOut, Trophy, Users, MessageCircle, Wallet, Music, Settings, Coins } from "lucide-react";
+import { Gamepad2, User, LogOut, Trophy, Users, MessageCircle, Wallet, Music, Settings, Coins, Gift } from "lucide-react";
 import { NavLink } from "./NavLink";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -123,6 +123,10 @@ export const Navigation = () => {
                     <DropdownMenuItem onClick={() => navigate("/wallet")}>
                       <Wallet className="mr-2 h-4 w-4" />
                       Fun Wallet
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/dashboard")} className="text-pink-600">
+                      <Gift className="mr-2 h-4 w-4" />
+                      Mời bạn bè 🎁
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate("/settings")}>
                       <Settings className="mr-2 h-4 w-4" />

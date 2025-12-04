@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { AvatarUpload } from "@/components/AvatarUpload";
 import { JoyBot } from "@/components/JoyBot";
 import { Web3RewardsPanel } from "@/components/Web3RewardsPanel";
+import ReferralCard from "@/components/ReferralCard";
 
 interface Profile {
   id: string;
@@ -124,9 +125,14 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Web3 Rewards Panel */}
-          <div className="mb-8">
-            <Web3RewardsPanel />
+          {/* Web3 Rewards Panel & Referral */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div className="lg:col-span-2">
+              <Web3RewardsPanel />
+            </div>
+            <div>
+              <ReferralCard />
+            </div>
           </div>
 
           {/* Stats Grid */}

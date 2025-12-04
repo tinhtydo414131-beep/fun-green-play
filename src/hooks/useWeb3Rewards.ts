@@ -167,6 +167,84 @@ export const useWeb3Rewards = () => {
           type: 'first_wallet_connect',
           description: 'First Wallet Connection Bonus!',
         });
+
+        // Process referral bonus for referrer (if user was referred)
+        const storedCode = localStorage.getItem('fun_planet_referral_code');
+        if (storedCode) {
+          try {
+            // Check if user already has a referral record
+            const { data: existingReferral } = await supabase
+              .from('referrals')
+              .select('id')
+              .eq('referred_id', user.id)
+              .maybeSingle();
+
+            if (!existingReferral) {
+              // Find the referrer
+              const { data: referrer } = await supabase
+                .from('profiles')
+                .select('id, username')
+                .eq('referral_code', storedCode.toUpperCase())
+                .maybeSingle();
+
+              if (referrer && referrer.id !== user.id) {
+                const REFERRAL_REWARD = 25000;
+
+                // Create referral record
+                await supabase
+                  .from('referrals')
+                  .insert({
+                    referrer_id: referrer.id,
+                    referred_id: user.id,
+                    referral_code: storedCode.toUpperCase(),
+                    reward_paid: true,
+                    reward_amount: REFERRAL_REWARD,
+                    completed_at: new Date().toISOString(),
+                  });
+
+                // Add reward to referrer's balance
+                const { data: referrerRewards } = await supabase
+                  .from('web3_rewards')
+                  .select('camly_balance, total_referrals, referral_earnings')
+                  .eq('user_id', referrer.id)
+                  .maybeSingle();
+
+                if (referrerRewards) {
+                  await supabase
+                    .from('web3_rewards')
+                    .update({
+                      camly_balance: Number(referrerRewards.camly_balance) + REFERRAL_REWARD,
+                      total_referrals: (referrerRewards.total_referrals || 0) + 1,
+                      referral_earnings: Number(referrerRewards.referral_earnings || 0) + REFERRAL_REWARD,
+                    })
+                    .eq('user_id', referrer.id);
+                } else {
+                  await supabase
+                    .from('web3_rewards')
+                    .insert({
+                      user_id: referrer.id,
+                      camly_balance: REFERRAL_REWARD,
+                      total_referrals: 1,
+                      referral_earnings: REFERRAL_REWARD,
+                    });
+                }
+
+                // Record transaction for referrer
+                await supabase.from('web3_reward_transactions').insert({
+                  user_id: referrer.id,
+                  amount: REFERRAL_REWARD,
+                  reward_type: 'referral_bonus',
+                  description: `Mời bạn ${user.email?.split('@')[0] || 'mới'} thành công`,
+                });
+
+                localStorage.removeItem('fun_planet_referral_code');
+                toast.success(`Bạn đã được ${referrer.username} mời thành công! 🎉`);
+              }
+            }
+          } catch (refError) {
+            console.error('Error processing referral:', refError);
+          }
+        }
       }
 
       setState(prev => ({
