@@ -122,6 +122,7 @@ import LilBlockBuddy3D from "@/components/games/LilBlockBuddy3D";
 import CookingMama3D from "@/components/games/CookingMama3D";
 import Game2048Nexus3D from "@/components/games/Game2048Nexus3D";
 import HappyKitchenJoy3D from "@/components/games/HappyKitchenJoy3D";
+import GoldHookMaster3D from "@/components/games/GoldHookMaster3D";
 
 interface Game {
   id: string;
@@ -410,6 +411,8 @@ const GamePlay = () => {
         return <GoldMiner {...gameProps} />;
       case "GoldHookMaster":
       case "gold-hook-master":
+        return <GoldHookMaster3D {...gameProps} />;
+      case "GoldHookMaster2D":
         return <GoldHookMaster onBack={handleBackToLevelSelect} />;
       
       // Exploration & Adventure Games
