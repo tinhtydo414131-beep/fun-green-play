@@ -271,10 +271,12 @@ const GamePlay = () => {
       case "ColorMatch2D": return <ColorMatch {...gameProps} />;
       case "BalloonPop": return <BalloonPop3D {...gameProps} />;
       case "BalloonPop2D": return <BalloonPop {...gameProps} />;
-      case "StarCollector": return <StarCollector {...gameProps} />;
+      case "StarCollector": return <StarCollector3D {...gameProps} />;
+      case "StarCollector2D": return <StarCollector {...gameProps} />;
       case "HappinessGarden": return <HappinessGarden {...gameProps} />;
       case "FlowerField": return <FlowerField {...gameProps} />;
-      case "PetParadise": return <PetParadise {...gameProps} />;
+      case "PetParadise": return <PetParadise3D {...gameProps} />;
+      case "PetParadise2D": return <PetParadise {...gameProps} />;
       case "MusicCreator": return <MusicCreator {...gameProps} />;
       
       // Brain & Educational Games
@@ -282,7 +284,8 @@ const GamePlay = () => {
       case "GuessNumber2D": return <GuessNumber {...gameProps} />;
       case "WordScramble": return <WordScramble3D {...gameProps} />;
       case "WordScramble2D": return <WordScramble {...gameProps} />;
-      case "MathQuiz": return <MathQuiz {...gameProps} />;
+      case "MathQuiz": return <MathQuiz3D {...gameProps} />;
+      case "MathQuiz2D": return <MathQuiz {...gameProps} />;
       case "SimonSays": return <SimonSays3D {...gameProps} />;
       case "SimonSays2D": return <SimonSays {...gameProps} />;
       case "TriviaQuiz": return <TriviaQuiz3D {...gameProps} />;
@@ -292,8 +295,10 @@ const GamePlay = () => {
       case "PlanetBuilder": return <PlanetBuilder {...gameProps} />;
       case "CityCreator": return <CityCreator {...gameProps} />;
       case "GardenBuilder": return <GardenBuilder {...gameProps} />;
-      case "SkyCastle": return <SkyCastle {...gameProps} />;
-      case "DreamWorld": return <DreamWorld {...gameProps} />;
+      case "SkyCastle": return <SkyCastle3D {...gameProps} />;
+      case "SkyCastle2D": return <SkyCastle {...gameProps} />;
+      case "DreamWorld": return <DreamWorld3D {...gameProps} />;
+      case "DreamWorld2D": return <DreamWorld {...gameProps} />;
       case "SchoolBuilder":
       case "school-builder":
         return <SchoolBuilder {...gameProps} />;
