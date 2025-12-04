@@ -24,6 +24,7 @@ import { CreateGroupChatModal } from "@/components/CreateGroupChatModal";
 import { MessageSearchModal } from "@/components/MessageSearchModal";
 import { MessageActionsMenu, MessageEditInput } from "@/components/MessageActions";
 import { useMessageActions } from "@/hooks/useMessageActions";
+import { ChatFileUpload, ChatAttachment } from "@/components/ChatFileUpload";
 
 interface Friend {
   id: string;
@@ -43,6 +44,9 @@ interface Message {
   message: string;
   created_at: string;
   is_read: boolean;
+  attachment_url?: string | null;
+  attachment_type?: string | null;
+  attachment_name?: string | null;
   sender?: {
     username: string;
     avatar_url: string | null;
@@ -364,6 +368,9 @@ export default function Messages() {
           message,
           created_at,
           is_read,
+          attachment_url,
+          attachment_type,
+          attachment_name,
           profiles!chat_messages_sender_id_fkey(username, avatar_url)
         `)
         .eq("room_id", roomId)
@@ -378,6 +385,9 @@ export default function Messages() {
         message: m.message,
         created_at: m.created_at,
         is_read: m.is_read || false,
+        attachment_url: m.attachment_url,
+        attachment_type: m.attachment_type,
+        attachment_name: m.attachment_name,
         sender: m.profiles
       })) || [];
 
@@ -414,6 +424,9 @@ export default function Messages() {
             message: payload.new.message,
             created_at: payload.new.created_at,
             is_read: payload.new.is_read || false,
+            attachment_url: payload.new.attachment_url,
+            attachment_type: payload.new.attachment_type,
+            attachment_name: payload.new.attachment_name,
             sender: sender || undefined
           };
 
@@ -527,8 +540,9 @@ export default function Messages() {
     setNewMessage(prev => prev + emoji);
   };
 
-  const sendMessage = async () => {
-    if (!newMessage.trim() || !selectedConversation) return;
+  const sendMessage = async (attachment?: { url: string; type: string; name: string }) => {
+    if (!newMessage.trim() && !attachment) return;
+    if (!selectedConversation) return;
 
     setSending(true);
     try {
@@ -537,8 +551,11 @@ export default function Messages() {
         .insert({
           room_id: selectedConversation.roomId,
           sender_id: user?.id,
-          message: newMessage.trim(),
-          is_read: false
+          message: newMessage.trim() || (attachment ? `📎 ${attachment.name}` : ""),
+          is_read: false,
+          attachment_url: attachment?.url || null,
+          attachment_type: attachment?.type || null,
+          attachment_name: attachment?.name || null,
         });
 
       if (error) throw error;
@@ -556,6 +573,10 @@ export default function Messages() {
     } finally {
       setSending(false);
     }
+  };
+
+  const handleFileUploaded = (fileData: { url: string; type: string; name: string }) => {
+    sendMessage(fileData);
   };
 
   const handleGroupCreated = (roomId: string) => {
@@ -855,7 +876,19 @@ export default function Messages() {
                                         : "bg-muted rounded-bl-sm"
                                     }`}
                                   >
-                                    <p className="text-sm">{msg.message}</p>
+                                    {msg.attachment_url && msg.attachment_type && msg.attachment_name && (
+                                      <div className="mb-2">
+                                        <ChatAttachment
+                                          url={msg.attachment_url}
+                                          type={msg.attachment_type}
+                                          name={msg.attachment_name}
+                                          isOwn={msg.sender_id === user?.id}
+                                        />
+                                      </div>
+                                    )}
+                                    {msg.message && !msg.message.startsWith("📎") && (
+                                      <p className="text-sm">{msg.message}</p>
+                                    )}
                                   </div>
                                 )}
                                 <div className={`absolute top-1/2 -translate-y-1/2 ${
@@ -924,6 +957,12 @@ export default function Messages() {
                           onEmojiSelect={handleEmojiSelect}
                         />
                       </div>
+                      <ChatFileUpload
+                        userId={user?.id || ""}
+                        roomId={selectedConversation.roomId}
+                        onFileUploaded={handleFileUploaded}
+                        disabled={sending}
+                      />
                       <Input
                         value={newMessage}
                         onChange={handleInputChange}

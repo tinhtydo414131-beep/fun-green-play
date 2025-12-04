@@ -79,6 +79,9 @@ export type Database = {
       }
       chat_messages: {
         Row: {
+          attachment_name: string | null
+          attachment_type: string | null
+          attachment_url: string | null
           created_at: string | null
           id: string
           is_read: boolean | null
@@ -87,6 +90,9 @@ export type Database = {
           sender_id: string
         }
         Insert: {
+          attachment_name?: string | null
+          attachment_type?: string | null
+          attachment_url?: string | null
           created_at?: string | null
           id?: string
           is_read?: boolean | null
@@ -95,6 +101,9 @@ export type Database = {
           sender_id: string
         }
         Update: {
+          attachment_name?: string | null
+          attachment_type?: string | null
+          attachment_url?: string | null
           created_at?: string | null
           id?: string
           is_read?: boolean | null
