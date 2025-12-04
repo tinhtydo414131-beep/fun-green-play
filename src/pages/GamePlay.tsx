@@ -80,6 +80,11 @@ import { WhackAMole } from "@/components/games/WhackAMole";
 import { Sudoku } from "@/components/games/Sudoku";
 import { FlappyBird } from "@/components/games/FlappyBird";
 import { MazeRunner3D } from "@/components/games/MazeRunner3D";
+import { MemoryCards3D } from "@/components/games/MemoryCards3D";
+import { SimonSays3D } from "@/components/games/SimonSays3D";
+import { GuessNumber3D } from "@/components/games/GuessNumber3D";
+import { WordScramble3D } from "@/components/games/WordScramble3D";
+import { TriviaQuiz3D } from "@/components/games/TriviaQuiz3D";
 
 interface Game {
   id: string;
@@ -255,7 +260,8 @@ const GamePlay = () => {
     // Map component_name from database to actual components
     switch (componentKey) {
       // Casual & Happy Games
-      case "MemoryCards": return <MemoryCards {...gameProps} />;
+      case "MemoryCards": return <MemoryCards3D {...gameProps} />;
+      case "MemoryCards2D": return <MemoryCards {...gameProps} />;
       case "ColorMatch": return <ColorMatch3D {...gameProps} />;
       case "ColorMatch2D": return <ColorMatch {...gameProps} />;
       case "BalloonPop": return <BalloonPop3D {...gameProps} />;
@@ -267,11 +273,15 @@ const GamePlay = () => {
       case "MusicCreator": return <MusicCreator {...gameProps} />;
       
       // Brain & Educational Games
-      case "GuessNumber": return <GuessNumber {...gameProps} />;
-      case "WordScramble": return <WordScramble {...gameProps} />;
+      case "GuessNumber": return <GuessNumber3D {...gameProps} />;
+      case "GuessNumber2D": return <GuessNumber {...gameProps} />;
+      case "WordScramble": return <WordScramble3D {...gameProps} />;
+      case "WordScramble2D": return <WordScramble {...gameProps} />;
       case "MathQuiz": return <MathQuiz {...gameProps} />;
-      case "SimonSays": return <SimonSays {...gameProps} />;
-      case "TriviaQuiz": return <TriviaQuiz {...gameProps} />;
+      case "SimonSays": return <SimonSays3D {...gameProps} />;
+      case "SimonSays2D": return <SimonSays {...gameProps} />;
+      case "TriviaQuiz": return <TriviaQuiz3D {...gameProps} />;
+      case "TriviaQuiz2D": return <TriviaQuiz {...gameProps} />;
       
       // Building & Creation Games
       case "PlanetBuilder": return <PlanetBuilder {...gameProps} />;
