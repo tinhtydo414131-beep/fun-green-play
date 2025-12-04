@@ -1,4 +1,4 @@
-import { Gamepad2, User, LogOut, Trophy, Users, MessageCircle, Wallet, Music, Settings, Coins, Gift } from "lucide-react";
+import { Gamepad2, User, LogOut, Trophy, Users, MessageCircle, Wallet, Music, Settings, Coins, Gift, Bell } from "lucide-react";
 import { NavLink } from "./NavLink";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,14 +14,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
+import { FriendRequestNotification } from "./FriendRequestNotification";
+import { useFriendRequestNotifications } from "@/hooks/useFriendRequestNotifications";
+import { Badge } from "@/components/ui/badge";
 export const Navigation = () => {
   const { user, signOut } = useAuth();
   const { camlyBalance, isLoading: isLoadingRewards } = useWeb3Rewards();
   const navigate = useNavigate();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
-
+  const {
+    pendingRequest,
+    pendingCount,
+    acceptRequest,
+    rejectRequest,
+    dismissNotification,
+  } = useFriendRequestNotifications();
   useEffect(() => {
     if (user) {
       fetchProfile();
@@ -54,6 +62,14 @@ export const Navigation = () => {
 
   return (
     <>
+      {/* Friend Request Notification */}
+      <FriendRequestNotification
+        request={pendingRequest}
+        onClose={dismissNotification}
+        onAccept={acceptRequest}
+        onReject={rejectRequest}
+      />
+
       {/* Desktop Navigation */}
       <nav className="hidden md:block fixed top-0 left-0 right-0 z-50 bg-background border-b-4 border-primary/30 shadow-lg backdrop-blur-md">
         <div className="container mx-auto px-4">
@@ -128,9 +144,14 @@ export const Navigation = () => {
                       <Wallet className="mr-2 h-4 w-4" />
                       Fun Wallet
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/find-friends")}>
+                    <DropdownMenuItem onClick={() => navigate("/find-friends")} className="relative">
                       <Users className="mr-2 h-4 w-4" />
                       Find Friends 👋
+                      {pendingCount > 0 && (
+                        <Badge className="ml-auto bg-red-500 text-white text-xs px-1.5 py-0.5 min-w-[20px] flex items-center justify-center">
+                          {pendingCount}
+                        </Badge>
+                      )}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate("/messages")}>
                       <MessageCircle className="mr-2 h-4 w-4" />
