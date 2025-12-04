@@ -480,24 +480,26 @@ const GamePlay = () => {
         </Button>
       )}
       
-      <section className={isLandscape ? "pt-10 pb-0 px-2 h-screen" : "pt-24 pb-24 md:pb-12 px-4"}>
+      <section className={isLandscape ? "pt-10 pb-0 px-2 h-screen" : "pt-20 pb-28 md:pb-12 px-2 md:px-4"}>
         <div className={isLandscape ? "h-[calc(100vh-2.5rem)] flex items-center justify-center" : "container mx-auto max-w-6xl"}>
           {!isLandscape && (
-            <div className="mb-8 flex items-center justify-between animate-fade-in">
+            <div className="mb-4 md:mb-8 flex items-center justify-between animate-fade-in">
               <Link to="/games">
                 <Button 
                   variant="outline" 
-                  className="font-fredoka font-bold border-4 border-primary/30 hover:border-primary hover:bg-primary/10 transform hover:scale-105 transition-all"
+                  size="sm"
+                  className="font-fredoka font-bold border-2 md:border-4 border-primary/30 hover:border-primary hover:bg-primary/10 transform hover:scale-105 transition-all touch-manipulation"
                 >
-                  <ArrowLeft className="mr-2 h-5 w-5" />
-                  Back to Games
+                  <ArrowLeft className="mr-1 md:mr-2 h-4 w-4" />
+                  <span className="hidden md:inline">Back to Games</span>
+                  <span className="md:hidden">Back</span>
                 </Button>
               </Link>
               
-              <div className="flex items-center gap-3 bg-gradient-to-r from-primary/10 to-secondary/10 px-4 py-3 rounded-2xl border-2 border-primary/30">
-                <Zap className="h-5 w-5 text-primary" />
-                <Label htmlFor="auto-level" className="font-fredoka font-bold text-foreground cursor-pointer">
-                  Auto Level
+              <div className="flex items-center gap-2 bg-gradient-to-r from-primary/10 to-secondary/10 px-3 py-2 md:px-4 md:py-3 rounded-xl md:rounded-2xl border-2 border-primary/30">
+                <Zap className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                <Label htmlFor="auto-level" className="font-fredoka font-bold text-xs md:text-base text-foreground cursor-pointer">
+                  Auto
                 </Label>
                 <Switch
                   id="auto-level"
@@ -511,19 +513,19 @@ const GamePlay = () => {
 
           <div className={isLandscape && gameStarted 
             ? "w-full h-full bg-gradient-to-br from-background/98 to-background/95 backdrop-blur-xl rounded-2xl border border-primary/20 shadow-2xl p-2 overflow-hidden flex items-center justify-center" 
-            : "bg-background/80 backdrop-blur-lg rounded-3xl border-4 border-primary/30 shadow-2xl p-8 space-y-6 animate-scale-in"
+            : "bg-background/80 backdrop-blur-lg rounded-2xl md:rounded-3xl border-2 md:border-4 border-primary/30 shadow-2xl p-4 md:p-8 space-y-4 md:space-y-6 animate-scale-in"
           }>
             {(!isLandscape || !gameStarted) && (
-              <div className="text-center space-y-2">
-                <h1 className="text-4xl md:text-5xl font-fredoka font-bold text-primary">
+              <div className="text-center space-y-1 md:space-y-2">
+                <h1 className="text-2xl md:text-4xl lg:text-5xl font-fredoka font-bold text-primary">
                   {game?.title || (gameId === 'cooking-mama' ? 'Cooking Mama' : 'Game')} 🎮
                 </h1>
-                <p className="text-lg font-comic text-muted-foreground max-w-2xl mx-auto">
-                  {game?.description || (gameId === 'cooking-mama' ? 'Master recipes with timing and precision mini-games!' : '')}
+                <p className="text-sm md:text-lg font-comic text-muted-foreground max-w-2xl mx-auto line-clamp-2">
+                  {game?.description || (gameId === 'cooking-mama' ? 'Master recipes!' : '')}
                 </p>
                 {game && (
-                  <p className="text-sm font-comic text-muted-foreground">
-                    🎯 Played {game.total_plays} times! Keep it up! 🌟
+                  <p className="text-xs md:text-sm font-comic text-muted-foreground">
+                    🎯 {game.total_plays} lượt chơi
                   </p>
                 )}
               </div>

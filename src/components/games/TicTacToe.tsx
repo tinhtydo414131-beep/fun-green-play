@@ -143,24 +143,25 @@ export const TicTacToe = ({
   const isDraw = !winner && !board.includes(null);
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold text-foreground">
+    <div className="flex flex-col items-center gap-3 md:gap-6 w-full">
+      <div className="text-center space-y-1">
+        <h2 className="text-xl md:text-2xl font-bold text-foreground">
           Thắng: {wins}/{targetWins}
         </h2>
-        <p className="text-muted-foreground">
-          {winner ? `${winner === "X" ? "Bạn" : "Máy"} thắng!` : isDraw ? "Hòa!" : `Lượt của: ${isXNext ? "Bạn (X)" : "Máy (O)"}`}
+        <p className="text-sm md:text-base text-muted-foreground">
+          {winner ? `${winner === "X" ? "Bạn" : "Máy"} thắng!` : isDraw ? "Hòa!" : `Lượt: ${isXNext ? "Bạn (X)" : "Máy (O)"}`}
         </p>
       </div>
 
-      <Card className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900">
-        <div className="grid grid-cols-3 gap-2">
+      <Card className="p-3 md:p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900">
+        <div className="grid grid-cols-3 gap-2 md:gap-3">
           {board.map((cell, index) => (
             <Button
               key={index}
               onClick={() => handleClick(index)}
+              onTouchStart={(e) => { e.preventDefault(); handleClick(index); }}
               disabled={!!cell || !!winner || !isXNext}
-              className={`w-20 h-20 md:w-24 md:h-24 text-4xl font-bold transition-all ${
+              className={`w-[5.5rem] h-[5.5rem] md:w-24 md:h-24 text-4xl md:text-5xl font-bold touch-manipulation will-change-transform active:scale-95 transition-transform ${
                 cell === "X" 
                   ? "bg-blue-500 hover:bg-blue-600 text-white" 
                   : cell === "O" 
@@ -176,19 +177,19 @@ export const TicTacToe = ({
         </div>
       </Card>
 
-      <div className="flex gap-4 flex-wrap justify-center">
+      <div className="flex gap-3 flex-wrap justify-center">
         {onBack && (
-          <Button onClick={onBack} size="lg" variant="outline">
+          <Button onClick={onBack} size="lg" variant="outline" className="touch-manipulation">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Quay lại
           </Button>
         )}
-        <Button onClick={resetGame} size="lg" variant="outline">
+        <Button onClick={resetGame} size="lg" variant="outline" className="touch-manipulation">
           <RotateCcw className="mr-2 h-4 w-4" />
           Ván mới
         </Button>
-        <Button onClick={resetAll} size="lg">
-          Chơi lại từ đầu
+        <Button onClick={resetAll} size="lg" className="touch-manipulation">
+          Từ đầu
         </Button>
       </div>
     </div>

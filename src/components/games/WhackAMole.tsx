@@ -92,28 +92,30 @@ export const WhackAMole = ({
   }, [isPlaying, moleSpeed]);
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold text-foreground">
+    <div className="flex flex-col items-center gap-3 md:gap-6 w-full">
+      <div className="text-center space-y-1">
+        <h2 className="text-xl md:text-2xl font-bold text-foreground">
           Điểm: {score}/{targetScore}
         </h2>
-        <div className="flex gap-4 justify-center text-muted-foreground">
+        <div className="flex gap-4 justify-center text-sm md:text-base text-muted-foreground">
           <span>⏱️ {timeLeft}s</span>
-          <span>🏆 Kỷ lục: {highScore}</span>
+          <span>🏆 {highScore}</span>
         </div>
       </div>
 
-      <Card className="p-4 bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900 dark:to-orange-900">
-        <div className="grid grid-cols-3 gap-3">
+      <Card className="p-2 md:p-4 bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900 dark:to-orange-900 w-full max-w-[340px]">
+        <div className="grid grid-cols-3 gap-2 md:gap-3">
           {Array.from({ length: 9 }).map((_, index) => {
             const hasMole = moles.includes(index);
             return (
               <div
                 key={index}
                 onClick={() => whackMole(index)}
-                className={`w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-b from-amber-700 to-amber-900 
+                onTouchStart={(e) => { e.preventDefault(); whackMole(index); }}
+                className={`aspect-square w-full max-w-[100px] rounded-full bg-gradient-to-b from-amber-700 to-amber-900 
                   flex items-center justify-center cursor-pointer overflow-hidden
-                  border-4 border-amber-800 shadow-inner relative
+                  border-4 border-amber-800 shadow-inner relative touch-manipulation will-change-transform
+                  active:scale-95 transition-transform
                   ${hasMole ? "ring-4 ring-yellow-400" : ""}`}
               >
                 <AnimatePresence>
@@ -123,7 +125,7 @@ export const WhackAMole = ({
                       animate={{ y: 0 }}
                       exit={{ y: 60 }}
                       transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                      className="text-4xl"
+                      className="text-3xl md:text-4xl"
                     >
                       🐹
                     </motion.div>
@@ -135,18 +137,18 @@ export const WhackAMole = ({
         </div>
       </Card>
 
-      <p className="text-sm text-muted-foreground text-center">
-        Chạm vào chuột chũi khi chúng xuất hiện! 🔨
+      <p className="text-xs md:text-sm text-muted-foreground text-center">
+        Chạm vào chuột chũi! 🔨
       </p>
 
-      <div className="flex gap-4">
+      <div className="flex gap-3">
         {onBack && (
-          <Button onClick={onBack} size="lg" variant="outline">
+          <Button onClick={onBack} size="lg" variant="outline" className="touch-manipulation">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Quay lại
           </Button>
         )}
-        <Button onClick={startGame} size="lg" disabled={isPlaying}>
+        <Button onClick={startGame} size="lg" disabled={isPlaying} className="touch-manipulation">
           {isPlaying ? `Đang chơi...` : "Bắt đầu"} 🔨
         </Button>
       </div>
