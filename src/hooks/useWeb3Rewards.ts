@@ -1,0 +1,403 @@
+import { useState, useEffect, useCallback } from 'react';
+import { ethers } from 'ethers';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './useAuth';
+import { toast } from 'sonner';
+
+const CAMLY_CONTRACT_ADDRESS = '0x0910320181889feFDE0BB1Ca63962b0A8882e413';
+const POINTS_TO_CAMLY_RATIO = 100; // 1 point = 100 Camly
+
+// Reward amounts
+const REWARDS = {
+  FIRST_WALLET_CONNECT: 50000,
+  FIRST_GAME_PLAY: 10000,
+  DAILY_CHECKIN: 5000,
+};
+
+// ERC20 ABI for transfer
+const ERC20_ABI = [
+  'function transfer(address to, uint256 amount) returns (bool)',
+  'function balanceOf(address owner) view returns (uint256)',
+  'function decimals() view returns (uint8)',
+];
+
+interface Web3RewardsState {
+  camlyBalance: number;
+  walletAddress: string | null;
+  isConnected: boolean;
+  isLoading: boolean;
+  firstWalletClaimed: boolean;
+  firstGameClaimed: boolean;
+  lastDailyCheckin: string | null;
+}
+
+export const useWeb3Rewards = () => {
+  const { user } = useAuth();
+  const [state, setState] = useState<Web3RewardsState>({
+    camlyBalance: 0,
+    walletAddress: null,
+    isConnected: false,
+    isLoading: true,
+    firstWalletClaimed: false,
+    firstGameClaimed: false,
+    lastDailyCheckin: null,
+  });
+  const [pendingReward, setPendingReward] = useState<{
+    amount: number;
+    type: string;
+    description: string;
+  } | null>(null);
+
+  // Load user rewards from database
+  const loadRewards = useCallback(async () => {
+    if (!user) {
+      setState(prev => ({ ...prev, isLoading: false }));
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('web3_rewards')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) {
+        setState(prev => ({
+          ...prev,
+          camlyBalance: Number(data.camly_balance) || 0,
+          walletAddress: data.wallet_address,
+          isConnected: !!data.wallet_address,
+          firstWalletClaimed: data.first_wallet_claimed,
+          firstGameClaimed: data.first_game_claimed,
+          lastDailyCheckin: data.last_daily_checkin,
+          isLoading: false,
+        }));
+      } else {
+        setState(prev => ({ ...prev, isLoading: false }));
+      }
+    } catch (error) {
+      console.error('Error loading rewards:', error);
+      setState(prev => ({ ...prev, isLoading: false }));
+    }
+  }, [user]);
+
+  useEffect(() => {
+    loadRewards();
+  }, [loadRewards]);
+
+  // Connect wallet using MetaMask
+  const connectWallet = useCallback(async (): Promise<string | null> => {
+    if (!user) {
+      toast.error('Please login first');
+      return null;
+    }
+
+    if (typeof window.ethereum === 'undefined') {
+      toast.error('MetaMask is not installed');
+      return null;
+    }
+
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const accounts = await provider.send('eth_requestAccounts', []);
+      const address = accounts[0];
+
+      // Check if this is first wallet connection
+      const { data: existing } = await supabase
+        .from('web3_rewards')
+        .select('first_wallet_claimed')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      const isFirstConnect = !existing;
+
+      // Upsert rewards record
+      const { error } = await supabase
+        .from('web3_rewards')
+        .upsert({
+          user_id: user.id,
+          wallet_address: address,
+          first_wallet_claimed: existing?.first_wallet_claimed ?? false,
+          camly_balance: isFirstConnect ? REWARDS.FIRST_WALLET_CONNECT : (existing ? undefined : 0),
+        }, { onConflict: 'user_id' });
+
+      if (error) throw error;
+
+      // Award first connection bonus
+      if (isFirstConnect) {
+        await supabase.from('web3_reward_transactions').insert({
+          user_id: user.id,
+          amount: REWARDS.FIRST_WALLET_CONNECT,
+          reward_type: 'first_wallet_connect',
+          description: 'First wallet connection bonus',
+        });
+
+        await supabase
+          .from('web3_rewards')
+          .update({ first_wallet_claimed: true })
+          .eq('user_id', user.id);
+
+        setPendingReward({
+          amount: REWARDS.FIRST_WALLET_CONNECT,
+          type: 'first_wallet_connect',
+          description: 'First Wallet Connection Bonus!',
+        });
+      }
+
+      setState(prev => ({
+        ...prev,
+        walletAddress: address,
+        isConnected: true,
+        camlyBalance: isFirstConnect ? REWARDS.FIRST_WALLET_CONNECT : prev.camlyBalance,
+        firstWalletClaimed: true,
+      }));
+
+      return address;
+    } catch (error: any) {
+      console.error('Wallet connection error:', error);
+      toast.error(error.message || 'Failed to connect wallet');
+      return null;
+    }
+  }, [user]);
+
+  // Claim first game play reward
+  const claimFirstGameReward = useCallback(async () => {
+    if (!user || state.firstGameClaimed) return false;
+
+    try {
+      // Check current state
+      const { data: current } = await supabase
+        .from('web3_rewards')
+        .select('first_game_claimed, camly_balance')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (current?.first_game_claimed) return false;
+
+      const newBalance = (Number(current?.camly_balance) || 0) + REWARDS.FIRST_GAME_PLAY;
+
+      await supabase
+        .from('web3_rewards')
+        .upsert({
+          user_id: user.id,
+          first_game_claimed: true,
+          camly_balance: newBalance,
+        }, { onConflict: 'user_id' });
+
+      await supabase.from('web3_reward_transactions').insert({
+        user_id: user.id,
+        amount: REWARDS.FIRST_GAME_PLAY,
+        reward_type: 'first_game_play',
+        description: 'First game play bonus',
+      });
+
+      setState(prev => ({
+        ...prev,
+        camlyBalance: newBalance,
+        firstGameClaimed: true,
+      }));
+
+      setPendingReward({
+        amount: REWARDS.FIRST_GAME_PLAY,
+        type: 'first_game_play',
+        description: 'First Game Play Bonus!',
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Error claiming first game reward:', error);
+      return false;
+    }
+  }, [user, state.firstGameClaimed]);
+
+  // Claim daily check-in reward
+  const claimDailyCheckin = useCallback(async () => {
+    if (!user) return false;
+
+    const today = new Date().toISOString().split('T')[0];
+
+    try {
+      const { data: current } = await supabase
+        .from('web3_rewards')
+        .select('last_daily_checkin, camly_balance')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (current?.last_daily_checkin === today) {
+        toast.info('Already claimed daily check-in today');
+        return false;
+      }
+
+      const newBalance = (Number(current?.camly_balance) || 0) + REWARDS.DAILY_CHECKIN;
+
+      await supabase
+        .from('web3_rewards')
+        .upsert({
+          user_id: user.id,
+          last_daily_checkin: today,
+          camly_balance: newBalance,
+        }, { onConflict: 'user_id' });
+
+      await supabase.from('web3_reward_transactions').insert({
+        user_id: user.id,
+        amount: REWARDS.DAILY_CHECKIN,
+        reward_type: 'daily_checkin',
+        description: 'Daily check-in reward',
+      });
+
+      setState(prev => ({
+        ...prev,
+        camlyBalance: newBalance,
+        lastDailyCheckin: today,
+      }));
+
+      setPendingReward({
+        amount: REWARDS.DAILY_CHECKIN,
+        type: 'daily_checkin',
+        description: 'Daily Check-in Reward!',
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Error claiming daily checkin:', error);
+      return false;
+    }
+  }, [user]);
+
+  // Convert points to Camly
+  const convertPointsToCamly = useCallback(async (points: number) => {
+    if (!user || points <= 0) return false;
+
+    const camlyAmount = points * POINTS_TO_CAMLY_RATIO;
+
+    try {
+      const { data: current } = await supabase
+        .from('web3_rewards')
+        .select('camly_balance')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      const newBalance = (Number(current?.camly_balance) || 0) + camlyAmount;
+
+      await supabase
+        .from('web3_rewards')
+        .upsert({
+          user_id: user.id,
+          camly_balance: newBalance,
+        }, { onConflict: 'user_id' });
+
+      await supabase.from('web3_reward_transactions').insert({
+        user_id: user.id,
+        amount: camlyAmount,
+        reward_type: 'points_conversion',
+        description: `Converted ${points} points to ${camlyAmount} Camly`,
+      });
+
+      setState(prev => ({
+        ...prev,
+        camlyBalance: newBalance,
+      }));
+
+      setPendingReward({
+        amount: camlyAmount,
+        type: 'points_conversion',
+        description: `Converted ${points} points!`,
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Error converting points:', error);
+      return false;
+    }
+  }, [user]);
+
+  // Claim Camly to wallet
+  const claimToWallet = useCallback(async (amount: number): Promise<{ success: boolean; txHash?: string }> => {
+    if (!user || !state.walletAddress || amount <= 0 || amount > state.camlyBalance) {
+      toast.error('Invalid claim amount or wallet not connected');
+      return { success: false };
+    }
+
+    if (typeof window.ethereum === 'undefined') {
+      toast.error('MetaMask is not installed');
+      return { success: false };
+    }
+
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      
+      // For demonstration - in production, this would be a contract call to mint/transfer tokens
+      // Here we're simulating a successful claim by updating the database
+      const newBalance = state.camlyBalance - amount;
+
+      const { data: current } = await supabase
+        .from('web3_rewards')
+        .select('total_claimed_to_wallet')
+        .eq('user_id', user.id)
+        .single();
+
+      const newTotalClaimed = (Number(current?.total_claimed_to_wallet) || 0) + amount;
+
+      await supabase
+        .from('web3_rewards')
+        .update({
+          camly_balance: newBalance,
+          total_claimed_to_wallet: newTotalClaimed,
+        })
+        .eq('user_id', user.id);
+
+      // Generate a mock transaction hash for demo purposes
+      const mockTxHash = `0x${Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join('')}`;
+
+      await supabase.from('web3_reward_transactions').insert({
+        user_id: user.id,
+        amount: -amount,
+        reward_type: 'claim_to_wallet',
+        description: `Claimed ${amount} Camly to wallet`,
+        transaction_hash: mockTxHash,
+        claimed_to_wallet: true,
+      });
+
+      setState(prev => ({
+        ...prev,
+        camlyBalance: newBalance,
+      }));
+
+      return { success: true, txHash: mockTxHash };
+    } catch (error: any) {
+      console.error('Claim error:', error);
+      toast.error(error.message || 'Failed to claim to wallet');
+      return { success: false };
+    }
+  }, [user, state.walletAddress, state.camlyBalance]);
+
+  // Check if daily checkin is available
+  const canClaimDailyCheckin = useCallback(() => {
+    const today = new Date().toISOString().split('T')[0];
+    return state.lastDailyCheckin !== today;
+  }, [state.lastDailyCheckin]);
+
+  const clearPendingReward = useCallback(() => {
+    setPendingReward(null);
+  }, []);
+
+  return {
+    ...state,
+    pendingReward,
+    connectWallet,
+    claimFirstGameReward,
+    claimDailyCheckin,
+    convertPointsToCamly,
+    claimToWallet,
+    canClaimDailyCheckin,
+    clearPendingReward,
+    loadRewards,
+    REWARDS,
+    POINTS_TO_CAMLY_RATIO,
+    CAMLY_CONTRACT_ADDRESS,
+  };
+};
