@@ -105,6 +105,11 @@ import ThemeParkBuilder3D from "@/components/games/ThemeParkBuilder3D";
 import EcoVillage3D from "@/components/games/EcoVillage3D";
 import HomeDesigner3D from "@/components/games/HomeDesigner3D";
 import WhackAMole3D from "@/components/games/WhackAMole3D";
+import TicTacToe3D from "@/components/games/TicTacToe3D";
+import RockPaperScissors3D from "@/components/games/RockPaperScissors3D";
+import Sudoku3D from "@/components/games/Sudoku3D";
+import FlappyBird3D from "@/components/games/FlappyBird3D";
+import PetCare3D from "@/components/games/PetCare3D";
 
 interface Game {
   id: string;
@@ -341,7 +346,8 @@ const GamePlay = () => {
       case "ArtStudio2D": return <ArtStudio {...gameProps} />;
       case "PetCare":
       case "pet-care":
-        return <PetCare {...gameProps} />;
+        return <PetCare3D {...gameProps} />;
+      case "PetCare2D": return <PetCare {...gameProps} />;
       case "FarmBuilder":
       case "farm-builder":
         return <FarmBuilder3D {...gameProps} />;
@@ -418,20 +424,24 @@ const GamePlay = () => {
         return <Snake {...gameProps} />;
       case "TicTacToe":
       case "tic-tac-toe":
-        return <TicTacToe {...gameProps} />;
+        return <TicTacToe3D {...gameProps} />;
+      case "TicTacToe2D": return <TicTacToe {...gameProps} />;
       case "RockPaperScissors":
       case "rock-paper-scissors":
-        return <RockPaperScissors {...gameProps} />;
+        return <RockPaperScissors3D {...gameProps} />;
+      case "RockPaperScissors2D": return <RockPaperScissors {...gameProps} />;
       case "WhackAMole":
       case "whack-a-mole":
         return <WhackAMole3D {...gameProps} />;
       case "WhackAMole2D": return <WhackAMole {...gameProps} />;
       case "Sudoku":
       case "sudoku":
-        return <Sudoku {...gameProps} />;
+        return <Sudoku3D {...gameProps} />;
+      case "Sudoku2D": return <Sudoku {...gameProps} />;
       case "FlappyBird":
       case "flappy-bird":
-        return <FlappyBird {...gameProps} />;
+        return <FlappyBird3D {...gameProps} />;
+      case "FlappyBird2D": return <FlappyBird {...gameProps} />;
       
       default:
         return (
