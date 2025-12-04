@@ -104,10 +104,10 @@ export default function NexusLeaderboard() {
   };
 
   const getRankIcon = (rank: number) => {
-    if (rank === 1) return <Trophy className="w-6 h-6 text-yellow-500" />;
-    if (rank === 2) return <Medal className="w-6 h-6 text-gray-400" />;
-    if (rank === 3) return <Award className="w-6 h-6 text-amber-600" />;
-    return <span className="text-lg font-bold text-muted-foreground">#{rank}</span>;
+    if (rank === 1) return <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500" />;
+    if (rank === 2) return <Medal className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400" />;
+    if (rank === 3) return <Award className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600" />;
+    return <span className="text-sm sm:text-lg font-bold text-muted-foreground">#{rank}</span>;
   };
 
   const LeaderboardTable = ({ data }: { data: LeaderboardEntry[] }) => (
@@ -120,66 +120,75 @@ export default function NexusLeaderboard() {
         data.map((entry, index) => (
           <Card 
             key={entry.id} 
-            className={`p-4 transition-all hover:scale-[1.02] ${
+            className={`p-2.5 sm:p-4 transition-all hover:scale-[1.01] ${
               index < 3 
                 ? 'bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30' 
                 : 'bg-background/50 border-border/50'
             }`}
           >
-            <div className="flex items-center gap-4">
-              <div className="flex-shrink-0 w-12 text-center">
-                {getRankIcon(index + 1)}
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold text-lg truncate">
-                  {entry.profiles?.username || 'Anonymous'}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+              {/* Top row on mobile: rank, username, score */}
+              <div className="flex items-center gap-2 sm:gap-4 w-full">
+                <div className="shrink-0 w-8 sm:w-12 text-center">
+                  {getRankIcon(index + 1)}
                 </div>
-                <div className="flex gap-2 mt-1 text-xs text-muted-foreground flex-wrap items-center">
-                  <Badge variant="secondary" className="text-xs">
-                    <TrendingUp className="w-3 h-3 mr-1" />
-                    Level {entry.level_reached}
-                  </Badge>
-                  <Badge variant="outline" className="text-xs">
-                    Best: {entry.highest_tile}
-                  </Badge>
-                  {entry.profiles?.wallet_address && (
-                    <TooltipProvider>
-                      <div className="flex items-center gap-1">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="font-mono text-xs cursor-help">
-                              {shortenAddress(entry.profiles.wallet_address)}
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p className="font-mono text-xs">{entry.profiles.wallet_address}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className={`h-5 w-5 p-0 transition-colors duration-200 ${
-                            copiedAddress === entry.profiles.wallet_address
-                              ? 'text-green-500'
-                              : ''
-                          }`}
-                          onClick={() => copyToClipboard(entry.profiles.wallet_address!)}
-                        >
-                          {copiedAddress === entry.profiles.wallet_address ? (
-                            <Check className="w-3 h-3" />
-                          ) : (
-                            <Copy className="w-3 h-3" />
-                          )}
-                        </Button>
-                      </div>
-                    </TooltipProvider>
-                  )}
+
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-sm sm:text-lg truncate">
+                    {entry.profiles?.username || 'Anonymous'}
+                  </div>
+                  <div className="flex gap-1.5 sm:gap-2 mt-0.5 sm:mt-1 text-[10px] sm:text-xs text-muted-foreground flex-wrap items-center">
+                    <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0 sm:py-0.5">
+                      <TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
+                      Lv {entry.level_reached}
+                    </Badge>
+                    <Badge variant="outline" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0 sm:py-0.5">
+                      Best: {entry.highest_tile}
+                    </Badge>
+                  </div>
+                </div>
+
+                <div className="text-right shrink-0">
+                  <div className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+                    {entry.score.toLocaleString()}
+                  </div>
+                  <div className="text-[10px] sm:text-xs text-muted-foreground">points</div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                {entry.profiles?.wallet_address && (
+              {/* Bottom row on mobile: wallet & transfer */}
+              {entry.profiles?.wallet_address && (
+                <div className="flex items-center justify-between gap-2 pl-10 sm:pl-0 sm:ml-auto">
+                  <TooltipProvider>
+                    <div className="flex items-center gap-1">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="font-mono text-[10px] sm:text-xs cursor-help text-muted-foreground">
+                            {shortenAddress(entry.profiles.wallet_address)}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="font-mono text-xs">{entry.profiles.wallet_address}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className={`h-5 w-5 p-0 transition-colors duration-200 ${
+                          copiedAddress === entry.profiles.wallet_address
+                            ? 'text-green-500'
+                            : ''
+                        }`}
+                        onClick={() => copyToClipboard(entry.profiles.wallet_address!)}
+                      >
+                        {copiedAddress === entry.profiles.wallet_address ? (
+                          <Check className="w-3 h-3" />
+                        ) : (
+                          <Copy className="w-3 h-3" />
+                        )}
+                      </Button>
+                    </div>
+                  </TooltipProvider>
                   <Button
                     size="sm"
                     onClick={() => {
@@ -189,19 +198,13 @@ export default function NexusLeaderboard() {
                       });
                       setTransferModalOpen(true);
                     }}
-                    className="h-8 flex-shrink-0"
+                    className="h-7 sm:h-8 text-xs sm:text-sm shrink-0"
                   >
-                    <Send className="w-4 h-4 mr-1" />
+                    <Send className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                     Transfer
                   </Button>
-                )}
-                <div className="text-right flex-shrink-0">
-                  <div className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                    {entry.score.toLocaleString()}
-                  </div>
-                  <div className="text-xs text-muted-foreground">points</div>
                 </div>
-              </div>
+              )}
             </div>
           </Card>
         ))
@@ -213,27 +216,27 @@ export default function NexusLeaderboard() {
     <div className="min-h-screen bg-white">
       <Navigation />
       
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="text-center mb-8 space-y-4 animate-fade-in">
-          <h1 className="text-4xl md:text-6xl font-fredoka font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+      <div className="container mx-auto px-3 sm:px-4 pt-20 sm:pt-24 pb-24 sm:pb-8 max-w-4xl">
+        <div className="text-center mb-6 sm:mb-8 space-y-2 sm:space-y-4 animate-fade-in">
+          <h1 className="text-2xl sm:text-4xl md:text-6xl font-fredoka font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
             2048 NEXUS
           </h1>
-          <h2 className="text-2xl md:text-3xl font-fredoka font-bold text-foreground">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-fredoka font-bold text-foreground">
             Leaderboard
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground px-4">
             Compete with players worldwide for the top spot!
           </p>
         </div>
 
         <Tabs defaultValue="weekly" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="weekly" className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
+          <TabsList className="grid w-full grid-cols-2 mb-4 sm:mb-6 h-9 sm:h-10">
+            <TabsTrigger value="weekly" className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
+              <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               This Week
             </TabsTrigger>
-            <TabsTrigger value="alltime" className="flex items-center gap-2">
-              <Trophy className="w-4 h-4" />
+            <TabsTrigger value="alltime" className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
+              <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               All Time
             </TabsTrigger>
           </TabsList>

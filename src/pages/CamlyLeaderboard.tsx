@@ -67,13 +67,13 @@ export default function CamlyLeaderboard() {
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
-        return <Crown className="w-6 h-6 text-yellow-500" />;
+        return <Crown className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500" />;
       case 2:
-        return <Medal className="w-6 h-6 text-gray-400" />;
+        return <Medal className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400" />;
       case 3:
-        return <Medal className="w-6 h-6 text-amber-600" />;
+        return <Medal className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600" />;
       default:
-        return <span className="w-6 h-6 flex items-center justify-center text-muted-foreground font-bold">{rank}</span>;
+        return <span className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-muted-foreground font-bold text-sm sm:text-base">{rank}</span>;
     }
   };
 
@@ -94,21 +94,22 @@ export default function CamlyLeaderboard() {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <main className="container mx-auto px-4 pt-24 pb-24 md:pb-12 max-w-2xl">
-        <div className="flex items-center gap-4 mb-6">
+      <main className="container mx-auto px-3 sm:px-4 pt-20 sm:pt-24 pb-24 md:pb-12 max-w-2xl">
+        <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
           <Button
             variant="outline"
             size="icon"
+            className="shrink-0 h-8 w-8 sm:h-10 sm:w-10"
             onClick={() => navigate(-1)}
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              <Trophy className="w-6 h-6 text-yellow-500" />
-              CAMLY Leaderboard
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-2xl font-bold flex items-center gap-2">
+              <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500 shrink-0" />
+              <span className="truncate">CAMLY Leaderboard</span>
             </h1>
-            <p className="text-sm text-muted-foreground">Top earners across all users</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">Top earners across all users</p>
           </div>
         </div>
 
@@ -134,23 +135,23 @@ export default function CamlyLeaderboard() {
 
         {/* Tabs for different leaderboards */}
         <Tabs defaultValue="camly" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="camly" className="flex items-center gap-2">
-              <Coins className="w-4 h-4" />
+          <TabsList className="grid w-full grid-cols-2 mb-4 sm:mb-6 h-9 sm:h-10">
+            <TabsTrigger value="camly" className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
+              <Coins className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               Top Camly
             </TabsTrigger>
-            <TabsTrigger value="referral" className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
+            <TabsTrigger value="referral" className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
+              <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               Top Mời Bạn
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="camly">
             <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Top 50 Earners</CardTitle>
+              <CardHeader className="pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
+                <CardTitle className="text-base sm:text-lg">Top 50 Earners</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
+              <CardContent className="space-y-2 px-2 sm:px-6 pb-3 sm:pb-6">
                 {loading ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
@@ -168,39 +169,39 @@ export default function CamlyLeaderboard() {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.03 }}
-                        className={`flex items-center gap-3 p-3 rounded-lg border ${getRankBg(rank)} ${isCurrentUser ? 'ring-2 ring-primary' : ''}`}
+                        className={`flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border ${getRankBg(rank)} ${isCurrentUser ? 'ring-2 ring-primary' : ''}`}
                       >
                         {/* Rank */}
-                        <div className="w-8 flex justify-center">
+                        <div className="w-6 sm:w-8 flex justify-center shrink-0">
                           {getRankIcon(rank)}
                         </div>
 
                         {/* Avatar */}
-                        <Avatar className="w-10 h-10 border-2 border-border">
+                        <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border-2 border-border shrink-0">
                           <AvatarImage src={entry.profiles?.avatar_url || undefined} />
-                          <AvatarFallback className="bg-primary/20 text-primary font-bold">
+                          <AvatarFallback className="bg-primary/20 text-primary font-bold text-xs sm:text-sm">
                             {entry.profiles?.username?.[0]?.toUpperCase() || '?'}
                           </AvatarFallback>
                         </Avatar>
 
                         {/* Username */}
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold truncate">
+                          <p className="font-semibold text-sm sm:text-base truncate">
                             {entry.profiles?.username || 'Anonymous'}
                             {isCurrentUser && <span className="text-primary ml-1">(You)</span>}
                           </p>
                           {entry.daily_streak > 0 && (
-                            <p className="text-xs text-muted-foreground flex items-center gap-1">
-                              <Flame className="w-3 h-3 text-orange-500" />
+                            <p className="text-[10px] sm:text-xs text-muted-foreground flex items-center gap-1">
+                              <Flame className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-orange-500" />
                               {entry.daily_streak}-day streak
                             </p>
                           )}
                         </div>
 
                         {/* Balance */}
-                        <div className="flex items-center gap-1">
-                          <Coins className="w-4 h-4 text-yellow-500" />
-                          <span className="font-bold bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+                        <div className="flex items-center gap-1 shrink-0">
+                          <Coins className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-500" />
+                          <span className="font-bold text-sm sm:text-base bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
                             {entry.camly_balance.toLocaleString()}
                           </span>
                         </div>
