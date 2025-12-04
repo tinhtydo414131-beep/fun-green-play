@@ -22,12 +22,15 @@ import { JoyBot } from "@/components/JoyBot";
 import { useReferral } from "@/hooks/useReferral";
 import ReferralWelcomeBanner from "@/components/ReferralWelcomeBanner";
 import { useWeb3Rewards } from "@/hooks/useWeb3Rewards";
+import { useLegendStatus } from "@/hooks/useLegendStatus";
+import LegendParticleEffect from "@/components/LegendParticleEffect";
 
 const Index = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { pendingReferrer, showWelcomeBanner, dismissWelcomeBanner } = useReferral();
   const { connectWallet } = useWeb3Rewards();
+  const { isLegend } = useLegendStatus();
 
   useEffect(() => {
     // Auto-redirect logged-in users to dashboard
@@ -118,6 +121,9 @@ const Index = () => {
       variants={pageVariants}
       transition={pageTransition}
     >
+      {/* Legend Particle Effect */}
+      <LegendParticleEffect isLegend={isLegend} />
+      
       {/* Referral Welcome Banner */}
       {pendingReferrer && (
         <ReferralWelcomeBanner
