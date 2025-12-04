@@ -28,6 +28,8 @@ import { ChatFileUpload, ChatAttachment } from "@/components/ChatFileUpload";
 import { ForwardMessageModal } from "@/components/ForwardMessageModal";
 import { ReplyPreview, QuotedMessage } from "@/components/ReplyPreview";
 import { PinnedMessagesBar } from "@/components/PinnedMessages";
+import { VoiceRecordButton } from "@/components/VoiceRecordButton";
+import { VoiceMessage } from "@/components/VoiceMessage";
 
 interface Friend {
   id: string;
@@ -630,6 +632,20 @@ export default function Messages() {
     sendMessage(fileData);
   };
 
+  const handleVoiceSend = (audioUrl: string, duration: number) => {
+    sendMessage({
+      url: audioUrl,
+      type: 'audio/voice',
+      name: `Voice message (${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')})`
+    });
+  };
+
+  const isVoiceMessage = (attachmentType?: string | null) => {
+    return attachmentType === 'audio/voice' || 
+           attachmentType?.includes('webm') || 
+           attachmentType?.includes('audio');
+  };
+
   const handleGroupCreated = (roomId: string) => {
     fetchConversations();
   };
@@ -1040,12 +1056,19 @@ export default function Messages() {
                                     )}
                                     {msg.attachment_url && msg.attachment_type && msg.attachment_name && (
                                       <div className="mb-2">
-                                        <ChatAttachment
-                                          url={msg.attachment_url}
-                                          type={msg.attachment_type}
-                                          name={msg.attachment_name}
-                                          isOwn={msg.sender_id === user?.id}
-                                        />
+                                        {isVoiceMessage(msg.attachment_type) ? (
+                                          <VoiceMessage
+                                            audioUrl={msg.attachment_url}
+                                            isOwn={msg.sender_id === user?.id}
+                                          />
+                                        ) : (
+                                          <ChatAttachment
+                                            url={msg.attachment_url}
+                                            type={msg.attachment_type}
+                                            name={msg.attachment_name}
+                                            isOwn={msg.sender_id === user?.id}
+                                          />
+                                        )}
                                       </div>
                                     )}
                                     {msg.message && !msg.message.startsWith("📎") && (
@@ -1151,6 +1174,10 @@ export default function Messages() {
                         onBlur={stopTyping}
                         placeholder="Type a message..."
                         className="flex-1 h-10"
+                      />
+                      <VoiceRecordButton
+                        onSendVoice={handleVoiceSend}
+                        disabled={sending || !!newMessage.trim()}
                       />
                       <Button
                         onClick={() => {
