@@ -1,7 +1,8 @@
-import { Gamepad2, User, LogOut, Trophy, Users, MessageCircle, Wallet, Music, Settings } from "lucide-react";
+import { Gamepad2, User, LogOut, Trophy, Users, MessageCircle, Wallet, Music, Settings, Coins } from "lucide-react";
 import { NavLink } from "./NavLink";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { useWeb3Rewards } from "@/hooks/useWeb3Rewards";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +17,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const Navigation = () => {
   const { user, signOut } = useAuth();
+  const { camlyBalance, isLoading: isLoadingRewards } = useWeb3Rewards();
   const navigate = useNavigate();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
@@ -84,6 +86,18 @@ export const Navigation = () => {
                 Music
               </NavLink>
 
+              {user && (
+                <button
+                  onClick={() => navigate("/rewards-history")}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 hover:border-yellow-500/50 transition-all"
+                >
+                  <Coins className="w-4 h-4 text-yellow-500" />
+                  <span className="font-bold text-sm bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+                    {isLoadingRewards ? "..." : camlyBalance.toLocaleString()}
+                  </span>
+                </button>
+              )}
+
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -148,6 +162,18 @@ export const Navigation = () => {
               FUN Planet
             </span>
           </NavLink>
+          
+          {user && (
+            <button
+              onClick={() => navigate("/rewards-history")}
+              className="flex items-center gap-1 px-2 py-1 rounded-full bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30"
+            >
+              <Coins className="w-3.5 h-3.5 text-yellow-500" />
+              <span className="font-bold text-xs bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+                {isLoadingRewards ? "..." : camlyBalance.toLocaleString()}
+              </span>
+            </button>
+          )}
           
           {user && (
             <DropdownMenu>
