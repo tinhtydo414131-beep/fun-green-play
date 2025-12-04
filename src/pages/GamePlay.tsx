@@ -8,6 +8,7 @@ import { ArrowLeft, Zap, RotateCcw, Maximize, Minimize } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useGameLevel } from "@/hooks/useGameLevel";
+import { useWeb3Rewards } from "@/hooks/useWeb3Rewards";
 import { useIsLandscape } from "@/hooks/use-mobile";
 import { useFullscreen } from "@/hooks/useFullscreen";
 import { LevelSelector } from "@/components/LevelSelector";
@@ -15,6 +16,7 @@ import { FlowerFieldLevelSelector } from "@/components/FlowerFieldLevelSelector"
 import { DailyChallengeCard } from "@/components/DailyChallengeCard";
 import { LiveComboNotifications } from "@/components/LiveComboNotifications";
 import { LandscapePrompt } from "@/components/LandscapePrompt";
+import { Web3RewardNotification } from "@/components/Web3RewardNotification";
 import { haptics } from "@/utils/haptics";
 import confetti from "canvas-confetti";
 
@@ -76,6 +78,7 @@ interface Game {
 const GamePlay = () => {
   const { gameId } = useParams();
   const { user } = useAuth();
+  const { claimFirstGameReward, pendingReward, clearPendingReward } = useWeb3Rewards();
   const isLandscape = useIsLandscape();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   const [game, setGame] = useState<Game | null>(null);
@@ -162,6 +165,9 @@ const GamePlay = () => {
           transaction_type: "game_play",
           description: `Played ${game.title}`
         });
+
+        // Claim first game reward (10,000 CAMLY bonus) - only triggers once
+        await claimFirstGameReward();
       }
     } catch (error) {
       console.error("Error tracking play:", error);
@@ -394,6 +400,12 @@ const GamePlay = () => {
       {!isLandscape && <Navigation />}
       <LiveComboNotifications />
       <LandscapePrompt />
+      <Web3RewardNotification 
+        isOpen={!!pendingReward}
+        amount={pendingReward?.amount || 0}
+        description={pendingReward?.description || ''}
+        onClose={clearPendingReward} 
+      />
       
       {isLandscape && gameStarted && (
         <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-primary/95 to-secondary/95 backdrop-blur-md px-3 py-1.5 flex items-center justify-between border-b-2 border-white/20 shadow-xl">
