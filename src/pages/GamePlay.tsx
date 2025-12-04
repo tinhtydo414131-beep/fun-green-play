@@ -95,6 +95,11 @@ import { GardenBuilder3D } from "@/components/games/GardenBuilder3D";
 import { HappinessGarden3D } from "@/components/games/HappinessGarden3D";
 import { FlowerField3D } from "@/components/games/FlowerField3D";
 import { MusicCreator3D } from "@/components/games/MusicCreator3D";
+import { PlanetBuilder3D } from "@/components/games/PlanetBuilder3D";
+import { CityCreator3D } from "@/components/games/CityCreator3D";
+import { SpaceExplorer3D } from "@/components/games/SpaceExplorer3D";
+import { SpaceStation3D } from "@/components/games/SpaceStation3D";
+import { FarmBuilder3D } from "@/components/games/FarmBuilder3D";
 
 interface Game {
   id: string;
@@ -300,8 +305,10 @@ const GamePlay = () => {
       case "TriviaQuiz2D": return <TriviaQuiz {...gameProps} />;
       
       // Building & Creation Games
-      case "PlanetBuilder": return <PlanetBuilder {...gameProps} />;
-      case "CityCreator": return <CityCreator {...gameProps} />;
+      case "PlanetBuilder": return <PlanetBuilder3D {...gameProps} />;
+      case "PlanetBuilder2D": return <PlanetBuilder {...gameProps} />;
+      case "CityCreator": return <CityCreator3D {...gameProps} />;
+      case "CityCreator2D": return <CityCreator {...gameProps} />;
       case "GardenBuilder": return <GardenBuilder3D {...gameProps} />;
       case "GardenBuilder2D": return <GardenBuilder {...gameProps} />;
       case "SkyCastle": return <SkyCastle3D {...gameProps} />;
@@ -331,10 +338,12 @@ const GamePlay = () => {
         return <PetCare {...gameProps} />;
       case "FarmBuilder":
       case "farm-builder":
-        return <FarmBuilder {...gameProps} />;
+        return <FarmBuilder3D {...gameProps} />;
+      case "FarmBuilder2D": return <FarmBuilder {...gameProps} />;
       case "SpaceStation":
       case "space-station":
-        return <SpaceStation {...gameProps} />;
+        return <SpaceStation3D {...gameProps} />;
+      case "SpaceStation2D": return <SpaceStation {...gameProps} />;
       case "ZooKeeper":
       case "zoo-keeper":
         return <ZooKeeper {...gameProps} />;
@@ -363,7 +372,8 @@ const GamePlay = () => {
         return <GoldHookMaster onBack={handleBackToLevelSelect} />;
       
       // Exploration & Adventure Games
-      case "SpaceExplorer": return <SpaceExplorer {...gameProps} />;
+      case "SpaceExplorer": return <SpaceExplorer3D {...gameProps} />;
+      case "SpaceExplorer2D": return <SpaceExplorer {...gameProps} />;
       case "OceanExplorer": return <OceanExplorer3D {...gameProps} />;
       case "OceanExplorer2D": return <OceanExplorer {...gameProps} />;
       case "MazeRunner": return <MazeRunner3D {...gameProps} />;
