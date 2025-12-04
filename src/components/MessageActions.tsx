@@ -18,7 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MoreVertical, Pencil, Trash2, Check, X, Forward } from "lucide-react";
+import { MoreVertical, Pencil, Trash2, Check, X, Forward, Reply } from "lucide-react";
 
 interface MessageActionsProps {
   messageId: string;
@@ -26,9 +26,10 @@ interface MessageActionsProps {
   onEdit: (messageId: string) => void;
   onDelete: (messageId: string) => void;
   onForward: (messageId: string) => void;
+  onReply: (messageId: string) => void;
 }
 
-export function MessageActionsMenu({ messageId, isOwn, onEdit, onDelete, onForward }: MessageActionsProps) {
+export function MessageActionsMenu({ messageId, isOwn, onEdit, onDelete, onForward, onReply }: MessageActionsProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   return (
@@ -44,6 +45,10 @@ export function MessageActionsMenu({ messageId, isOwn, onEdit, onDelete, onForwa
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => onReply(messageId)} className="gap-2">
+            <Reply className="w-4 h-4" />
+            Reply
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => onForward(messageId)} className="gap-2">
             <Forward className="w-4 h-4" />
             Forward

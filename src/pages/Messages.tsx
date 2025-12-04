@@ -26,6 +26,7 @@ import { MessageActionsMenu, MessageEditInput } from "@/components/MessageAction
 import { useMessageActions } from "@/hooks/useMessageActions";
 import { ChatFileUpload, ChatAttachment } from "@/components/ChatFileUpload";
 import { ForwardMessageModal } from "@/components/ForwardMessageModal";
+import { ReplyPreview, QuotedMessage } from "@/components/ReplyPreview";
 
 interface Friend {
   id: string;
@@ -48,6 +49,14 @@ interface Message {
   attachment_url?: string | null;
   attachment_type?: string | null;
   attachment_name?: string | null;
+  reply_to_message_id?: string | null;
+  reply_to_message?: {
+    id: string;
+    message: string;
+    sender?: {
+      username: string;
+    };
+  } | null;
   sender?: {
     username: string;
     avatar_url: string | null;
@@ -93,6 +102,7 @@ export default function Messages() {
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [showForwardModal, setShowForwardModal] = useState(false);
   const [messageToForward, setMessageToForward] = useState<Message | null>(null);
+  const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Message edit/delete actions
@@ -374,6 +384,7 @@ export default function Messages() {
           attachment_url,
           attachment_type,
           attachment_name,
+          reply_to_message_id,
           profiles!chat_messages_sender_id_fkey(username, avatar_url)
         `)
         .eq("room_id", roomId)
@@ -381,6 +392,29 @@ export default function Messages() {
         .limit(100);
 
       if (error) throw error;
+
+      // Fetch reply messages
+      const replyIds = data?.filter(m => m.reply_to_message_id).map(m => m.reply_to_message_id) || [];
+      let replyMessagesMap: Record<string, any> = {};
+      
+      if (replyIds.length > 0) {
+        const { data: replyMessages } = await supabase
+          .from("chat_messages")
+          .select(`
+            id,
+            message,
+            profiles!chat_messages_sender_id_fkey(username)
+          `)
+          .in("id", replyIds);
+        
+        replyMessages?.forEach((rm: any) => {
+          replyMessagesMap[rm.id] = {
+            id: rm.id,
+            message: rm.message,
+            sender: rm.profiles
+          };
+        });
+      }
 
       const formattedMessages = data?.map((m: any) => ({
         id: m.id,
@@ -391,6 +425,8 @@ export default function Messages() {
         attachment_url: m.attachment_url,
         attachment_type: m.attachment_type,
         attachment_name: m.attachment_name,
+        reply_to_message_id: m.reply_to_message_id,
+        reply_to_message: m.reply_to_message_id ? replyMessagesMap[m.reply_to_message_id] : null,
         sender: m.profiles
       })) || [];
 
@@ -559,11 +595,13 @@ export default function Messages() {
           attachment_url: attachment?.url || null,
           attachment_type: attachment?.type || null,
           attachment_name: attachment?.name || null,
+          reply_to_message_id: replyingTo?.id || null,
         });
 
       if (error) throw error;
 
       setNewMessage("");
+      setReplyingTo(null);
 
       await supabase
         .from("profiles")
@@ -612,6 +650,22 @@ export default function Messages() {
     if (msg) {
       setMessageToForward(msg);
       setShowForwardModal(true);
+    }
+  };
+
+  const handleReplyMessage = (messageId: string) => {
+    const msg = messages.find(m => m.id === messageId);
+    if (msg) {
+      setReplyingTo(msg);
+    }
+  };
+
+  const scrollToMessage = (messageId: string) => {
+    const element = document.getElementById(`message-${messageId}`);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "center" });
+      element.classList.add("bg-primary/20");
+      setTimeout(() => element.classList.remove("bg-primary/20"), 2000);
     }
   };
 
@@ -839,9 +893,10 @@ export default function Messages() {
                         {messages.map((msg) => (
                           <motion.div
                             key={msg.id}
+                            id={`message-${msg.id}`}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className={`group flex ${msg.sender_id === user?.id ? "justify-end" : "justify-start"}`}
+                            className={`group flex transition-colors duration-500 ${msg.sender_id === user?.id ? "justify-end" : "justify-start"}`}
                           >
                             {/* Show avatar for group messages from others */}
                             {selectedConversation.isGroup && msg.sender_id !== user?.id && (
@@ -869,6 +924,7 @@ export default function Messages() {
                                       onEdit={handleEditMessage}
                                       onDelete={handleDeleteMessage}
                                       onForward={handleForwardMessage}
+                                      onReply={handleReplyMessage}
                                     />
                                   </div>
                                 )}
@@ -897,6 +953,15 @@ export default function Messages() {
                                         : "bg-muted rounded-bl-sm"
                                     }`}
                                   >
+                                    {/* Quoted message */}
+                                    {msg.reply_to_message && (
+                                      <QuotedMessage
+                                        message={msg.reply_to_message.message}
+                                        senderName={msg.reply_to_message.sender?.username}
+                                        isOwn={msg.sender_id === user?.id}
+                                        onClick={() => scrollToMessage(msg.reply_to_message!.id)}
+                                      />
+                                    )}
                                     {msg.attachment_url && msg.attachment_type && msg.attachment_name && (
                                       <div className="mb-2">
                                         <ChatAttachment
@@ -959,6 +1024,20 @@ export default function Messages() {
                           <Bell className="w-3 h-3" />
                           Enable
                         </Button>
+                      </div>
+                    )}
+                    
+                    {/* Reply preview */}
+                    {replyingTo && (
+                      <div className="mb-3">
+                        <ReplyPreview
+                          message={{
+                            id: replyingTo.id,
+                            message: replyingTo.message,
+                            senderName: replyingTo.sender?.username,
+                          }}
+                          onCancel={() => setReplyingTo(null)}
+                        />
                       </div>
                     )}
                     
