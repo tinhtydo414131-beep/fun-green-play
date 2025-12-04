@@ -120,6 +120,8 @@ import HappyPark3D from "@/components/games/HappyPark3D";
 import CommunityHub3D from "@/components/games/CommunityHub3D";
 import LilBlockBuddy3D from "@/components/games/LilBlockBuddy3D";
 import CookingMama3D from "@/components/games/CookingMama3D";
+import Game2048Nexus3D from "@/components/games/Game2048Nexus3D";
+import HappyKitchenJoy3D from "@/components/games/HappyKitchenJoy3D";
 
 interface Game {
   id: string;
@@ -432,13 +434,14 @@ const GamePlay = () => {
 
       case "Game2048Nexus": 
       case "2048-nexus":
+        return <Game2048Nexus3D {...gameProps} />;
+      case "Game2048Nexus2D":
         return <Game2048Nexus {...gameProps} />;
       case "HappyKitchenJoy": 
       case "happy-kitchen-joy":
+        return <HappyKitchenJoy3D {...gameProps} />;
+      case "HappyKitchenJoy2D":
         return <HappyKitchenJoy onBack={handleBackToLevelSelect} />;
-      case "CookingMama":
-      case "cooking-mama":
-        return <CookingMama />;
       
       // Classic & Arcade Games
       case "Snake":
