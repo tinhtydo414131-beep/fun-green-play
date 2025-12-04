@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
-import { MessageCircle, Send, Home, ArrowLeft, Smile, Users, Circle, Coins, Bell, BellOff } from "lucide-react";
+import { MessageCircle, Send, ArrowLeft, Smile, Users, Circle, Coins, Bell, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
@@ -18,6 +18,9 @@ import { useTypingIndicator } from "@/hooks/useTypingIndicator";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { EmojiPicker, AddReactionButton, MessageReactions } from "@/components/EmojiPicker";
 import { TypingIndicator } from "@/components/TypingIndicator";
+import { ReadReceipt } from "@/components/ReadReceipt";
+import { useReadReceipts, useReadReceiptSubscription } from "@/hooks/useReadReceipts";
+import { CreateGroupChatModal } from "@/components/CreateGroupChatModal";
 
 interface Friend {
   id: string;
@@ -36,6 +39,7 @@ interface Message {
   sender_id: string;
   message: string;
   created_at: string;
+  is_read: boolean;
   sender?: {
     username: string;
     avatar_url: string | null;
@@ -43,9 +47,18 @@ interface Message {
   reactions?: MessageReaction[];
 }
 
+interface GroupMember {
+  id: string;
+  username: string;
+  avatar_url: string | null;
+}
+
 interface Conversation {
-  friendId: string;
-  friend: Friend;
+  friendId?: string;
+  friend?: Friend;
+  isGroup: boolean;
+  groupName?: string;
+  groupMembers?: GroupMember[];
   lastMessage?: Message;
   unreadCount: number;
   roomId: string;
@@ -68,11 +81,29 @@ export default function Messages() {
   const [sending, setSending] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { typingUsers, startTyping, stopTyping } = useTypingIndicator(
     selectedConversation?.roomId || null
   );
+
+  // Read receipts
+  const { markMessagesAsRead } = useReadReceipts(
+    selectedConversation?.roomId || null,
+    user?.id || null
+  );
+
+  // Subscribe to read receipt updates
+  const handleReadUpdate = useCallback((messageIds: string[]) => {
+    setMessages(prev => 
+      prev.map(msg => 
+        messageIds.includes(msg.id) ? { ...msg, is_read: true } : msg
+      )
+    );
+  }, []);
+
+  useReadReceiptSubscription(selectedConversation?.roomId || null, handleReadUpdate);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -99,6 +130,8 @@ export default function Messages() {
     if (selectedConversation) {
       fetchMessages(selectedConversation.roomId);
       subscribeToMessages(selectedConversation.roomId);
+      // Mark messages as read when selecting a conversation
+      markMessagesAsRead();
     }
   }, [selectedConversation]);
 
@@ -112,7 +145,118 @@ export default function Messages() {
 
   const fetchConversations = async () => {
     try {
-      // Get all friends
+      // Get all rooms the user is a member of
+      const { data: memberships, error: membershipsError } = await supabase
+        .from("chat_room_members")
+        .select("room_id")
+        .eq("user_id", user?.id);
+
+      if (membershipsError) throw membershipsError;
+
+      const roomIds = memberships?.map(m => m.room_id) || [];
+      
+      if (roomIds.length === 0) {
+        // Fallback: Get all friends and create/get rooms for them
+        await fetchPrivateConversations();
+        return;
+      }
+
+      // Get room details
+      const { data: rooms, error: roomsError } = await supabase
+        .from("chat_rooms")
+        .select("*")
+        .in("id", roomIds);
+
+      if (roomsError) throw roomsError;
+
+      const convs: Conversation[] = [];
+
+      for (const room of rooms || []) {
+        const isGroupRoom = room.room_type === "group";
+        if (isGroupRoom) {
+          // Group chat
+          const { data: members } = await supabase
+            .from("chat_room_members")
+            .select("user_id, profiles!chat_room_members_user_id_fkey(id, username, avatar_url)")
+            .eq("room_id", room.id);
+
+          const groupMembers = members?.map((m: any) => ({
+            id: m.profiles.id,
+            username: m.profiles.username,
+            avatar_url: m.profiles.avatar_url,
+          })).filter(m => m.id !== user?.id) || [];
+
+          const { data: lastMsg } = await supabase
+            .from("chat_messages")
+            .select("*, profiles!chat_messages_sender_id_fkey(username, avatar_url)")
+            .eq("room_id", room.id)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .single();
+
+          convs.push({
+            isGroup: true,
+            groupName: room.name || "Group Chat",
+            groupMembers,
+            lastMessage: lastMsg ? {
+              ...lastMsg,
+              sender: lastMsg.profiles
+            } : undefined,
+            unreadCount: 0,
+            roomId: room.id,
+          });
+        } else {
+          // Private chat - extract friend from room name
+          const [id1, id2] = room.name?.split("_") || [];
+          const friendId = id1 === user?.id ? id2 : id1;
+
+          if (friendId) {
+            const { data: friendProfile } = await supabase
+              .from("profiles")
+              .select("id, username, avatar_url")
+              .eq("id", friendId)
+              .single();
+
+            if (friendProfile) {
+              const { data: lastMsg } = await supabase
+                .from("chat_messages")
+                .select("*, profiles!chat_messages_sender_id_fkey(username, avatar_url)")
+                .eq("room_id", room.id)
+                .order("created_at", { ascending: false })
+                .limit(1)
+                .single();
+
+              convs.push({
+                friendId: friendProfile.id,
+                friend: {
+                  id: friendProfile.id,
+                  username: friendProfile.username,
+                  avatar_url: friendProfile.avatar_url,
+                },
+                isGroup: false,
+                lastMessage: lastMsg ? {
+                  ...lastMsg,
+                  sender: lastMsg.profiles
+                } : undefined,
+                unreadCount: 0,
+                roomId: room.id,
+              });
+            }
+          }
+        }
+      }
+
+      // Also fetch private conversations for friends without rooms
+      await fetchPrivateConversations(convs);
+
+    } catch (error) {
+      console.error("Error fetching conversations:", error);
+      setLoading(false);
+    }
+  };
+
+  const fetchPrivateConversations = async (existingConvs: Conversation[] = []) => {
+    try {
       const { data: friends, error: friendsError } = await supabase
         .from("friends")
         .select("friend_id, profiles!friends_friend_id_fkey(id, username, avatar_url)")
@@ -120,12 +264,14 @@ export default function Messages() {
 
       if (friendsError) throw friendsError;
 
-      // Get or create chat rooms for each friend
-      const convs: Conversation[] = [];
-      
+      const convs = [...existingConvs];
+      const existingFriendIds = convs.filter(c => !c.isGroup).map(c => c.friendId);
+
       for (const friend of friends || []) {
         const friendProfile = friend.profiles as any;
         
+        if (existingFriendIds.includes(friendProfile.id)) continue;
+
         // Check for existing private room
         const { data: existingRoom } = await supabase
           .from("chat_rooms")
@@ -137,13 +283,13 @@ export default function Messages() {
         let roomId = existingRoom?.id;
 
         if (!roomId) {
-          // Create private room
           const { data: newRoom, error: roomError } = await supabase
             .from("chat_rooms")
             .insert({
               room_type: "private",
               name: `${user?.id}_${friendProfile.id}`,
-              created_by: user?.id
+              created_by: user?.id,
+              is_group: false,
             })
             .select("id")
             .single();
@@ -151,14 +297,12 @@ export default function Messages() {
           if (roomError) continue;
           roomId = newRoom.id;
 
-          // Add both users to room
           await supabase.from("chat_room_members").insert([
             { room_id: roomId, user_id: user?.id },
             { room_id: roomId, user_id: friendProfile.id }
           ]);
         }
 
-        // Get last message
         const { data: lastMsg } = await supabase
           .from("chat_messages")
           .select("*")
@@ -174,13 +318,13 @@ export default function Messages() {
             username: friendProfile.username,
             avatar_url: friendProfile.avatar_url
           },
+          isGroup: false,
           lastMessage: lastMsg || undefined,
           unreadCount: 0,
           roomId
         });
       }
 
-      // Sort by last message time
       convs.sort((a, b) => {
         if (!a.lastMessage) return 1;
         if (!b.lastMessage) return -1;
@@ -189,7 +333,7 @@ export default function Messages() {
 
       setConversations(convs);
     } catch (error) {
-      console.error("Error fetching conversations:", error);
+      console.error("Error fetching private conversations:", error);
     } finally {
       setLoading(false);
     }
@@ -204,6 +348,7 @@ export default function Messages() {
           sender_id,
           message,
           created_at,
+          is_read,
           profiles!chat_messages_sender_id_fkey(username, avatar_url)
         `)
         .eq("room_id", roomId)
@@ -217,10 +362,14 @@ export default function Messages() {
         sender_id: m.sender_id,
         message: m.message,
         created_at: m.created_at,
+        is_read: m.is_read || false,
         sender: m.profiles
       })) || [];
 
       setMessages(formattedMessages);
+      
+      // Mark messages as read after fetching
+      markMessagesAsRead();
     } catch (error) {
       console.error("Error fetching messages:", error);
     }
@@ -238,7 +387,6 @@ export default function Messages() {
           filter: `room_id=eq.${roomId}`
         },
         async (payload) => {
-          // Fetch sender info
           const { data: sender } = await supabase
             .from("profiles")
             .select("username, avatar_url")
@@ -250,23 +398,43 @@ export default function Messages() {
             sender_id: payload.new.sender_id,
             message: payload.new.message,
             created_at: payload.new.created_at,
+            is_read: payload.new.is_read || false,
             sender: sender || undefined
           };
 
           setMessages(prev => [...prev, newMsg]);
 
-          // Play notification sound and push notification if not from current user
+          // Mark as read if not from current user
           if (payload.new.sender_id !== user?.id) {
             const audio = new Audio("/audio/coin-reward.mp3");
             audio.volume = 0.3;
             audio.play().catch(() => {});
             
-            // Send push notification if app is in background
             notifyNewMessage(
               sender?.username || "Someone",
               payload.new.message
             );
+            
+            // Mark message as read
+            markMessagesAsRead();
           }
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "chat_messages",
+          filter: `room_id=eq.${roomId}`
+        },
+        (payload) => {
+          // Update read status in real-time
+          setMessages(prev =>
+            prev.map(msg =>
+              msg.id === payload.new.id ? { ...msg, is_read: payload.new.is_read } : msg
+            )
+          );
         }
       )
       .subscribe();
@@ -286,13 +454,11 @@ export default function Messages() {
       );
       
       if (existingIndex >= 0) {
-        // Remove reaction
         return {
           ...prev,
           [messageId]: msgReactions.filter((_, i) => i !== existingIndex)
         };
       } else {
-        // Add reaction
         return {
           ...prev,
           [messageId]: [...msgReactions, { emoji, userId: user.id }]
@@ -341,14 +507,14 @@ export default function Messages() {
         .insert({
           room_id: selectedConversation.roomId,
           sender_id: user?.id,
-          message: newMessage.trim()
+          message: newMessage.trim(),
+          is_read: false
         });
 
       if (error) throw error;
 
       setNewMessage("");
 
-      // Update profile messages count
       await supabase
         .from("profiles")
         .update({ total_messages: (await supabase.from("profiles").select("total_messages").eq("id", user?.id).single()).data?.total_messages + 1 || 1 })
@@ -360,6 +526,29 @@ export default function Messages() {
     } finally {
       setSending(false);
     }
+  };
+
+  const handleGroupCreated = (roomId: string) => {
+    fetchConversations();
+  };
+
+  const getConversationDisplayName = (conv: Conversation) => {
+    if (conv.isGroup) {
+      return conv.groupName || "Group Chat";
+    }
+    return conv.friend?.username || "Unknown";
+  };
+
+  const getConversationAvatar = (conv: Conversation) => {
+    if (conv.isGroup) {
+      return null; // Will use group icon
+    }
+    return conv.friend?.avatar_url;
+  };
+
+  const getOnlineMembers = (conv: Conversation) => {
+    if (!conv.isGroup || !conv.groupMembers) return 0;
+    return conv.groupMembers.filter(m => isOnline(m.id)).length;
   };
 
   if (authLoading || loading) {
@@ -380,17 +569,26 @@ export default function Messages() {
       <section className="pt-24 md:pt-32 pb-20 px-4">
         <div className="container mx-auto max-w-5xl">
           {/* Header */}
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <Button
+                onClick={() => navigate(-1)}
+                variant="outline"
+                size="icon"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+              <h1 className="text-3xl font-fredoka font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                Messages 💬
+              </h1>
+            </div>
             <Button
-              onClick={() => navigate(-1)}
-              variant="outline"
-              size="icon"
+              onClick={() => setShowCreateGroupModal(true)}
+              className="gap-2 bg-gradient-to-r from-primary to-secondary"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">New Group</span>
             </Button>
-            <h1 className="text-3xl font-fredoka font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Messages 💬
-            </h1>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-[calc(100vh-200px)]">
@@ -399,7 +597,7 @@ export default function Messages() {
               <CardHeader className="py-3 border-b">
                 <CardTitle className="text-lg font-fredoka flex items-center gap-2">
                   <Users className="w-5 h-5 text-primary" />
-                  Friends
+                  Chats
                 </CardTitle>
               </CardHeader>
               <ScrollArea className="h-[calc(100%-60px)]">
@@ -407,33 +605,51 @@ export default function Messages() {
                   <div className="p-2 space-y-1">
                     {conversations.map((conv) => (
                       <button
-                        key={conv.friendId}
+                        key={conv.roomId}
                         onClick={() => setSelectedConversation(conv)}
                         className={`w-full p-3 rounded-lg flex items-center gap-3 transition-all ${
-                          selectedConversation?.friendId === conv.friendId
+                          selectedConversation?.roomId === conv.roomId
                             ? "bg-primary/10 border-2 border-primary/30"
                             : "hover:bg-muted"
                         }`}
                       >
                         <div className="relative">
-                          <Avatar className="w-12 h-12 border-2 border-primary/20">
-                            <AvatarImage src={conv.friend.avatar_url || undefined} />
-                            <AvatarFallback className="bg-primary/20 text-primary font-bold">
-                              {conv.friend.username[0].toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <Circle 
-                            className={`absolute bottom-0 right-0 w-3 h-3 ${
-                              isOnline(conv.friend.id) 
-                                ? "text-green-500 fill-green-500" 
-                                : "text-gray-400 fill-gray-400"
-                            }`} 
-                          />
+                          {conv.isGroup ? (
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                              <Users className="w-6 h-6 text-white" />
+                            </div>
+                          ) : (
+                            <Avatar className="w-12 h-12 border-2 border-primary/20">
+                              <AvatarImage src={getConversationAvatar(conv) || undefined} />
+                              <AvatarFallback className="bg-primary/20 text-primary font-bold">
+                                {getConversationDisplayName(conv)[0].toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                          )}
+                          {!conv.isGroup && conv.friend && (
+                            <Circle 
+                              className={`absolute bottom-0 right-0 w-3 h-3 ${
+                                isOnline(conv.friend.id) 
+                                  ? "text-green-500 fill-green-500" 
+                                  : "text-gray-400 fill-gray-400"
+                              }`} 
+                            />
+                          )}
                         </div>
                         <div className="flex-1 text-left min-w-0">
-                          <p className="font-fredoka font-bold truncate">{conv.friend.username}</p>
+                          <p className="font-fredoka font-bold truncate">
+                            {getConversationDisplayName(conv)}
+                          </p>
+                          {conv.isGroup && conv.groupMembers && (
+                            <p className="text-xs text-muted-foreground">
+                              {conv.groupMembers.length + 1} members • {getOnlineMembers(conv)} online
+                            </p>
+                          )}
                           {conv.lastMessage && (
                             <p className="text-xs text-muted-foreground truncate">
+                              {conv.isGroup && conv.lastMessage.sender?.username && (
+                                <span className="font-medium">{conv.lastMessage.sender.username}: </span>
+                              )}
                               {conv.lastMessage.message}
                             </p>
                           )}
@@ -466,36 +682,52 @@ export default function Messages() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="relative">
-                          <Avatar className="w-10 h-10 border-2 border-primary/20">
-                            <AvatarImage src={selectedConversation.friend.avatar_url || undefined} />
-                            <AvatarFallback className="bg-primary/20 text-primary font-bold">
-                              {selectedConversation.friend.username[0].toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <Circle 
-                            className={`absolute bottom-0 right-0 w-2.5 h-2.5 ${
-                              isOnline(selectedConversation.friend.id) 
-                                ? "text-green-500 fill-green-500" 
-                                : "text-gray-400 fill-gray-400"
-                            }`} 
-                          />
+                          {selectedConversation.isGroup ? (
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                              <Users className="w-5 h-5 text-white" />
+                            </div>
+                          ) : (
+                            <Avatar className="w-10 h-10 border-2 border-primary/20">
+                              <AvatarImage src={getConversationAvatar(selectedConversation) || undefined} />
+                              <AvatarFallback className="bg-primary/20 text-primary font-bold">
+                                {getConversationDisplayName(selectedConversation)[0].toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                          )}
+                          {!selectedConversation.isGroup && selectedConversation.friend && (
+                            <Circle 
+                              className={`absolute bottom-0 right-0 w-2.5 h-2.5 ${
+                                isOnline(selectedConversation.friend.id) 
+                                  ? "text-green-500 fill-green-500" 
+                                  : "text-gray-400 fill-gray-400"
+                              }`} 
+                            />
+                          )}
                         </div>
                         <div>
-                          <p className="font-fredoka font-bold">{selectedConversation.friend.username}</p>
-                          <p className={`text-xs ${isOnline(selectedConversation.friend.id) ? "text-green-500" : "text-muted-foreground"}`}>
-                            {isOnline(selectedConversation.friend.id) ? "Online" : "Offline"}
-                          </p>
+                          <p className="font-fredoka font-bold">{getConversationDisplayName(selectedConversation)}</p>
+                          {selectedConversation.isGroup ? (
+                            <p className="text-xs text-muted-foreground">
+                              {getOnlineMembers(selectedConversation)} of {(selectedConversation.groupMembers?.length || 0) + 1} online
+                            </p>
+                          ) : (
+                            <p className={`text-xs ${isOnline(selectedConversation.friend?.id || "") ? "text-green-500" : "text-muted-foreground"}`}>
+                              {isOnline(selectedConversation.friend?.id || "") ? "Online" : "Offline"}
+                            </p>
+                          )}
                         </div>
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowTransferModal(true)}
-                        className="gap-2 border-yellow-500/30 text-yellow-600 hover:bg-yellow-500/10"
-                      >
-                        <Coins className="w-4 h-4" />
-                        Send CAMLY
-                      </Button>
+                      {!selectedConversation.isGroup && selectedConversation.friend && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowTransferModal(true)}
+                          className="gap-2 border-yellow-500/30 text-yellow-600 hover:bg-yellow-500/10"
+                        >
+                          <Coins className="w-4 h-4" />
+                          Send CAMLY
+                        </Button>
+                      )}
                     </div>
                   </CardHeader>
 
@@ -510,7 +742,22 @@ export default function Messages() {
                             animate={{ opacity: 1, y: 0 }}
                             className={`group flex ${msg.sender_id === user?.id ? "justify-end" : "justify-start"}`}
                           >
+                            {/* Show avatar for group messages from others */}
+                            {selectedConversation.isGroup && msg.sender_id !== user?.id && (
+                              <Avatar className="w-8 h-8 mr-2 flex-shrink-0">
+                                <AvatarImage src={msg.sender?.avatar_url || undefined} />
+                                <AvatarFallback className="bg-primary/20 text-primary text-xs font-bold">
+                                  {msg.sender?.username?.[0]?.toUpperCase() || "?"}
+                                </AvatarFallback>
+                              </Avatar>
+                            )}
                             <div className={`max-w-[70%] ${msg.sender_id === user?.id ? "order-2" : "order-1"}`}>
+                              {/* Show sender name in groups */}
+                              {selectedConversation.isGroup && msg.sender_id !== user?.id && (
+                                <p className="text-xs text-muted-foreground mb-1 ml-1">
+                                  {msg.sender?.username}
+                                </p>
+                              )}
                               <div className="relative">
                                 <div
                                   className={`px-4 py-2 rounded-2xl ${
@@ -521,29 +768,31 @@ export default function Messages() {
                                 >
                                   <p className="text-sm">{msg.message}</p>
                                 </div>
-                                {/* Add reaction button */}
                                 <div className={`absolute top-1/2 -translate-y-1/2 ${
                                   msg.sender_id === user?.id ? "-left-8" : "-right-8"
                                 }`}>
                                   <AddReactionButton onReact={(emoji) => handleReaction(msg.id, emoji)} />
                                 </div>
                               </div>
-                              {/* Reactions */}
                               <MessageReactions
                                 reactions={getMessageReactions(msg.id)}
                                 onReact={(emoji) => handleReaction(msg.id, emoji)}
                               />
-                              <p className={`text-xs text-muted-foreground mt-1 ${
-                                msg.sender_id === user?.id ? "text-right" : "text-left"
+                              <div className={`flex items-center gap-1 mt-1 ${
+                                msg.sender_id === user?.id ? "justify-end" : "justify-start"
                               }`}>
-                                {format(new Date(msg.created_at), "HH:mm")}
-                              </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {format(new Date(msg.created_at), "HH:mm")}
+                                </p>
+                                {msg.sender_id === user?.id && (
+                                  <ReadReceipt isRead={msg.is_read} isSent={true} />
+                                )}
+                              </div>
                             </div>
                           </motion.div>
                         ))}
                       </AnimatePresence>
                       
-                      {/* Typing indicator */}
                       <TypingIndicator typingUsers={typingUsers} />
                       
                       <div ref={messagesEndRef} />
@@ -552,7 +801,6 @@ export default function Messages() {
 
                   {/* Input */}
                   <div className="p-4 border-t flex-shrink-0">
-                    {/* Notification permission */}
                     {permission !== "granted" && (
                       <div className="mb-3 p-2 bg-primary/10 rounded-lg flex items-center justify-between">
                         <span className="text-xs text-muted-foreground">
@@ -616,7 +864,7 @@ export default function Messages() {
                 <div className="flex-1 flex items-center justify-center">
                   <div className="text-center">
                     <MessageCircle className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-                    <p className="text-muted-foreground font-comic">Select a friend to start chatting!</p>
+                    <p className="text-muted-foreground font-comic">Select a chat or create a group!</p>
                   </div>
                 </div>
               )}
@@ -626,7 +874,7 @@ export default function Messages() {
       </section>
 
       {/* Transfer Modal */}
-      {selectedConversation && (
+      {selectedConversation && !selectedConversation.isGroup && selectedConversation.friend && (
         <ChatTransferModal
           open={showTransferModal}
           onOpenChange={setShowTransferModal}
@@ -634,8 +882,18 @@ export default function Messages() {
           recipientUsername={selectedConversation.friend.username}
           recipientAvatar={selectedConversation.friend.avatar_url}
           onTransferComplete={(amount) => {
-            toast.success(`Sent ${amount.toLocaleString()} CAMLY to ${selectedConversation.friend.username}! 🎉`);
+            toast.success(`Sent ${amount.toLocaleString()} CAMLY to ${selectedConversation.friend?.username}! 🎉`);
           }}
+        />
+      )}
+
+      {/* Create Group Modal */}
+      {user && (
+        <CreateGroupChatModal
+          open={showCreateGroupModal}
+          onOpenChange={setShowCreateGroupModal}
+          userId={user.id}
+          onGroupCreated={handleGroupCreated}
         />
       )}
     </div>
