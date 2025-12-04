@@ -83,7 +83,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <Navigation />
       
       <section className="pt-32 pb-20 px-4">
@@ -207,6 +207,7 @@ export default function Dashboard() {
               My Games 📁
             </Button>
             <Button
+              onClick={() => navigate("/find-friends")}
               variant="outline"
               className="h-24 text-xl font-fredoka font-bold border-4 border-accent/30 hover:border-accent hover:bg-accent/10 transform hover:scale-105 transition-all"
             >
@@ -214,6 +215,7 @@ export default function Dashboard() {
               Find Friends 👋
             </Button>
             <Button
+              onClick={() => navigate("/camly-leaderboard")}
               variant="outline"
               className="h-24 text-xl font-fredoka font-bold border-4 border-secondary/30 hover:border-secondary hover:bg-secondary/10 transform hover:scale-105 transition-all"
             >

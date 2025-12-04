@@ -25,7 +25,8 @@ interface BadgeItem {
 }
 
 export function ProfileBadges({ totalReferrals }: ProfileBadgesProps) {
-  const earnedReferralBadges = getEarnedBadges(totalReferrals);
+  const earnedReferralTiers = getEarnedBadges(totalReferrals);
+  const earnedTierNames = earnedReferralTiers.map(t => t.name);
 
   const getRarity = (tierId: string): BadgeRarity => {
     if (tierId === "legend") return "legendary";
@@ -42,8 +43,8 @@ export function ProfileBadges({ totalReferrals }: ProfileBadgesProps) {
       name: tier.name,
       icon: tier.id === "legend" ? Crown : tier.id === "diamond" ? Sparkles : tier.id === "gold" ? Star : Medal,
       color: tier.color,
-      bgColor: `bg-${tier.color.replace("text-", "")}/10`,
-      earned: earnedReferralBadges.includes(tier.name),
+      bgColor: `bg-${tier.color.replace("text-", "").split("-")[0]}-500/10`,
+      earned: earnedTierNames.includes(tier.name),
       description: `Invite ${tier.requiredReferrals} friends`,
       rarity: getRarity(tier.id)
     })),

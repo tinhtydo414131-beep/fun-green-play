@@ -35,6 +35,9 @@ import EditGame from "./pages/EditGame";
 import GameDetails from "./pages/GameDetails";
 import RewardsHistory from "./pages/RewardsHistory";
 import CamlyLeaderboard from "./pages/CamlyLeaderboard";
+import Profile from "./pages/Profile";
+import FindFriends from "./pages/FindFriends";
+import Messages from "./pages/Messages";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +73,9 @@ const AnimatedRoutes = () => {
         <Route path="/game-details/:id" element={<GameDetails />} />
         <Route path="/rewards-history" element={<RewardsHistory />} />
         <Route path="/camly-leaderboard" element={<CamlyLeaderboard />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/find-friends" element={<FindFriends />} />
+        <Route path="/messages" element={<Messages />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

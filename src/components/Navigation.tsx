@@ -55,7 +55,7 @@ export const Navigation = () => {
   return (
     <>
       {/* Desktop Navigation */}
-      <nav className="hidden md:block fixed top-0 left-0 right-0 z-50 bg-white border-b-4 border-primary/30 shadow-lg backdrop-blur-md">
+      <nav className="hidden md:block fixed top-0 left-0 right-0 z-50 bg-background border-b-4 border-primary/30 shadow-lg backdrop-blur-md">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
@@ -116,13 +116,25 @@ export const Navigation = () => {
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem onClick={() => navigate("/profile")}>
+                      <User className="mr-2 h-4 w-4" />
+                      My Profile
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate("/dashboard")}>
                       <User className="mr-2 h-4 w-4" />
-                      My Account
+                      Dashboard
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate("/wallet")}>
                       <Wallet className="mr-2 h-4 w-4" />
                       Fun Wallet
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/find-friends")}>
+                      <Users className="mr-2 h-4 w-4" />
+                      Find Friends 👋
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/messages")}>
+                      <MessageCircle className="mr-2 h-4 w-4" />
+                      Messages 💬
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate("/dashboard")} className="text-pink-600">
                       <Gift className="mr-2 h-4 w-4" />
@@ -153,7 +165,7 @@ export const Navigation = () => {
       </nav>
 
       {/* Mobile Top Header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b-2 border-primary/20 shadow-md">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-background border-b-2 border-primary/20 shadow-md">
         <div className="flex items-center justify-between h-14 px-4">
           <NavLink 
             to="/" 
