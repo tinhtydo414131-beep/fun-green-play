@@ -767,19 +767,20 @@ export default function Messages() {
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5">
       <Navigation />
       
-      <section className="pt-24 md:pt-32 pb-20 px-4">
+      <section className="pt-20 md:pt-32 pb-20 md:pb-20 px-2 sm:px-4">
         <div className="container mx-auto max-w-5xl">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
+          {/* Header - Hidden on mobile when in chat */}
+          <div className={`flex items-center justify-between mb-4 sm:mb-6 ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
+            <div className="flex items-center gap-2 sm:gap-4">
               <Button
                 onClick={() => navigate(-1)}
                 variant="outline"
                 size="icon"
+                className="h-10 w-10"
               >
                 <ArrowLeft className="w-5 h-5" />
               </Button>
-              <h1 className="text-3xl font-fredoka font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              <h1 className="text-xl sm:text-3xl font-fredoka font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                 Messages 💬
               </h1>
             </div>
@@ -788,12 +789,13 @@ export default function Messages() {
                 onClick={() => setShowSearchModal(true)}
                 variant="outline"
                 size="icon"
+                className="h-10 w-10"
               >
                 <Search className="w-4 h-4" />
               </Button>
               <Button
                 onClick={() => setShowCreateGroupModal(true)}
-                className="gap-2 bg-gradient-to-r from-primary to-secondary"
+                className="gap-2 bg-gradient-to-r from-primary to-secondary h-10 px-3 sm:px-4"
               >
                 <Plus className="w-4 h-4" />
                 <span className="hidden sm:inline">New Group</span>
@@ -801,9 +803,9 @@ export default function Messages() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-[calc(100vh-200px)]">
-            {/* Conversations List */}
-            <Card className="border-2 border-primary/20 overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-4 h-[calc(100vh-140px)] md:h-[calc(100vh-200px)]">
+            {/* Conversations List - Hidden on mobile when chat is selected */}
+            <Card className={`border-2 border-primary/20 overflow-hidden ${selectedConversation ? 'hidden md:block' : 'block'}`}>
               <CardHeader className="py-3 border-b">
                 <CardTitle className="text-lg font-fredoka flex items-center gap-2">
                   <Users className="w-5 h-5 text-primary" />
@@ -817,10 +819,10 @@ export default function Messages() {
                       <button
                         key={conv.roomId}
                         onClick={() => setSelectedConversation(conv)}
-                        className={`w-full p-3 rounded-lg flex items-center gap-3 transition-all ${
+                        className={`w-full p-3 rounded-lg flex items-center gap-3 transition-all touch-manipulation active:scale-[0.98] ${
                           selectedConversation?.roomId === conv.roomId
                             ? "bg-primary/10 border-2 border-primary/30"
-                            : "hover:bg-muted"
+                            : "hover:bg-muted active:bg-muted"
                         }`}
                       >
                         <div className="relative">
@@ -837,11 +839,11 @@ export default function Messages() {
                             </Avatar>
                           )}
                           {!conv.isGroup && conv.friend && (
-                            <Circle 
-                              className={`absolute bottom-0 right-0 w-3 h-3 ${
+                            <div 
+                              className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-background ${
                                 isOnline(conv.friend.id) 
-                                  ? "text-green-500 fill-green-500" 
-                                  : "text-gray-400 fill-gray-400"
+                                  ? "bg-green-500 online-dot" 
+                                  : "bg-gray-400"
                               }`} 
                             />
                           )}
@@ -883,39 +885,48 @@ export default function Messages() {
               </ScrollArea>
             </Card>
 
-            {/* Chat Area */}
-            <Card className="md:col-span-2 border-2 border-primary/20 flex flex-col overflow-hidden">
+            {/* Chat Area - Full screen on mobile */}
+            <Card className={`md:col-span-2 border-2 border-primary/20 flex flex-col overflow-hidden ${selectedConversation ? 'block' : 'hidden md:block'}`}>
               {selectedConversation ? (
                 <>
                   {/* Chat Header */}
-                  <CardHeader className="py-3 border-b flex-shrink-0">
+                  <CardHeader className="py-2 sm:py-3 border-b flex-shrink-0">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        {/* Mobile back button */}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setSelectedConversation(null)}
+                          className="md:hidden h-9 w-9 -ml-1"
+                        >
+                          <ArrowLeft className="w-5 h-5" />
+                        </Button>
                         <div className="relative">
                           {selectedConversation.isGroup ? (
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                              <Users className="w-5 h-5 text-white" />
+                            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                              <Users className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                             </div>
                           ) : (
-                            <Avatar className="w-10 h-10 border-2 border-primary/20">
+                            <Avatar className="w-9 h-9 sm:w-10 sm:h-10 border-2 border-primary/20">
                               <AvatarImage src={getConversationAvatar(selectedConversation) || undefined} />
-                              <AvatarFallback className="bg-primary/20 text-primary font-bold">
+                              <AvatarFallback className="bg-primary/20 text-primary font-bold text-sm">
                                 {getConversationDisplayName(selectedConversation)[0].toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
                           )}
                           {!selectedConversation.isGroup && selectedConversation.friend && (
-                            <Circle 
-                              className={`absolute bottom-0 right-0 w-2.5 h-2.5 ${
+                            <div 
+                              className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-background ${
                                 isOnline(selectedConversation.friend.id) 
-                                  ? "text-green-500 fill-green-500" 
-                                  : "text-gray-400 fill-gray-400"
+                                  ? "bg-green-500 online-dot" 
+                                  : "bg-gray-400"
                               }`} 
                             />
                           )}
                         </div>
-                        <div>
-                          <p className="font-fredoka font-bold">{getConversationDisplayName(selectedConversation)}</p>
+                        <div className="min-w-0">
+                          <p className="font-fredoka font-bold text-sm sm:text-base truncate">{getConversationDisplayName(selectedConversation)}</p>
                           {selectedConversation.isGroup ? (
                             <p className="text-xs text-muted-foreground">
                               {getOnlineMembers(selectedConversation)} of {(selectedConversation.groupMembers?.length || 0) + 1} online
@@ -1074,11 +1085,11 @@ export default function Messages() {
                   </ScrollArea>
 
                   {/* Input */}
-                  <div className="p-4 border-t flex-shrink-0">
+                  <div className="p-2 sm:p-4 border-t flex-shrink-0 chat-input-area">
                     {permission !== "granted" && (
-                      <div className="mb-3 p-2 bg-primary/10 rounded-lg flex items-center justify-between">
+                      <div className="mb-2 sm:mb-3 p-2 bg-primary/10 rounded-lg flex items-center justify-between">
                         <span className="text-xs text-muted-foreground">
-                          Enable notifications for new messages
+                          Enable notifications
                         </span>
                         <Button
                           variant="ghost"
@@ -1094,7 +1105,7 @@ export default function Messages() {
                     
                     {/* Reply preview */}
                     {replyingTo && (
-                      <div className="mb-3">
+                      <div className="mb-2 sm:mb-3">
                         <ReplyPreview
                           message={{
                             id: replyingTo.id,
@@ -1106,12 +1117,12 @@ export default function Messages() {
                       </div>
                     )}
                     
-                    <div className="flex gap-2 relative">
-                      <div className="relative">
+                    <div className="flex gap-1 sm:gap-2 items-center">
+                      <div className="relative flex-shrink-0">
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          className="flex-shrink-0"
+                          className="h-10 w-10"
                           onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                         >
                           <Smile className="w-5 h-5" />
@@ -1139,7 +1150,7 @@ export default function Messages() {
                         }}
                         onBlur={stopTyping}
                         placeholder="Type a message..."
-                        className="flex-1"
+                        className="flex-1 h-10"
                       />
                       <Button
                         onClick={() => {
@@ -1147,7 +1158,8 @@ export default function Messages() {
                           sendMessage();
                         }}
                         disabled={sending || !newMessage.trim()}
-                        className="flex-shrink-0 bg-gradient-to-r from-primary to-secondary"
+                        className="flex-shrink-0 bg-gradient-to-r from-primary to-secondary h-10 w-10 p-0"
+                        size="icon"
                       >
                         <Send className="w-5 h-5" />
                       </Button>

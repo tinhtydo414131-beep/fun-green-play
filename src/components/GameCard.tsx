@@ -328,19 +328,20 @@ export const GameCard = ({ game }: GameCardProps) => {
         </div>
       </div>
       
-      <CardContent className="p-6 space-y-4 flex-1 flex flex-col">
-        <h3 className="text-xl font-fredoka font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+      <CardContent className="p-3 sm:p-6 space-y-2 sm:space-y-4 flex-1 flex flex-col">
+        <h3 className="text-sm sm:text-xl font-fredoka font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 sm:line-clamp-1">
           {game.title}
         </h3>
-        <p className="text-muted-foreground text-base font-comic line-clamp-3 leading-relaxed flex-1">
+        <p className="text-muted-foreground text-xs sm:text-base font-comic line-clamp-2 sm:line-clamp-3 leading-relaxed flex-1 hidden sm:block">
           {game.description}
         </p>
 
-        <div className="flex items-center gap-2 pt-2">
+        <div className="flex items-center gap-1 sm:gap-2 pt-1 sm:pt-2">
           <Link to={`/game/${game.id}`} className="flex-1">
-            <Button className="w-full h-14 group/btn font-fredoka font-bold text-base flex items-center justify-center">
-              Play Now!
-              <Play className="ml-2 w-5 h-5 transition-transform group-hover/btn:scale-125 inline-block" />
+            <Button className="w-full h-10 sm:h-14 group/btn font-fredoka font-bold text-xs sm:text-base flex items-center justify-center px-2 sm:px-4">
+              <span className="hidden xs:inline">Play Now!</span>
+              <span className="xs:hidden">Play</span>
+              <Play className="ml-1 sm:ml-2 w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover/btn:scale-125 inline-block" />
             </Button>
           </Link>
 
@@ -348,13 +349,13 @@ export const GameCard = ({ game }: GameCardProps) => {
             variant="secondary"
             size="icon"
             onClick={handleLike}
-            className={`h-14 w-14 shrink-0 ${
+            className={`h-10 w-10 sm:h-14 sm:w-14 shrink-0 ${
               liked 
                 ? 'opacity-100' 
                 : 'opacity-80 hover:opacity-100'
             }`}
           >
-            <Heart className={`w-6 h-6 ${liked ? 'fill-white text-white' : 'text-white'}`} />
+            <Heart className={`w-4 h-4 sm:w-6 sm:h-6 ${liked ? 'fill-white text-white' : 'text-white'}`} />
           </Button>
         </div>
       </CardContent>
