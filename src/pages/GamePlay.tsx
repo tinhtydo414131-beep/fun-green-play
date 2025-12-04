@@ -66,6 +66,12 @@ import { RestaurantChef } from "@/components/games/RestaurantChef";
 import { ThemeParkBuilder } from "@/components/games/ThemeParkBuilder";
 import { GoldMiner } from "@/components/games/GoldMiner";
 import { GoldHookMaster } from "@/components/games/GoldHookMaster";
+import { Snake } from "@/components/games/Snake";
+import { TicTacToe } from "@/components/games/TicTacToe";
+import { RockPaperScissors } from "@/components/games/RockPaperScissors";
+import { WhackAMole } from "@/components/games/WhackAMole";
+import { Sudoku } from "@/components/games/Sudoku";
+import { FlappyBird } from "@/components/games/FlappyBird";
 
 interface Game {
   id: string;
@@ -332,6 +338,26 @@ const GamePlay = () => {
       case "CookingMama":
       case "cooking-mama":
         return <CookingMama />;
+      
+      // Classic & Arcade Games
+      case "Snake":
+      case "snake":
+        return <Snake {...gameProps} />;
+      case "TicTacToe":
+      case "tic-tac-toe":
+        return <TicTacToe {...gameProps} />;
+      case "RockPaperScissors":
+      case "rock-paper-scissors":
+        return <RockPaperScissors {...gameProps} />;
+      case "WhackAMole":
+      case "whack-a-mole":
+        return <WhackAMole {...gameProps} />;
+      case "Sudoku":
+      case "sudoku":
+        return <Sudoku {...gameProps} />;
+      case "FlappyBird":
+      case "flappy-bird":
+        return <FlappyBird {...gameProps} />;
       
       default:
         return (
