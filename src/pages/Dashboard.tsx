@@ -9,6 +9,7 @@ import { Gamepad2, Users, MessageCircle, Trophy, Home, Upload } from "lucide-rea
 import { toast } from "sonner";
 import { AvatarUpload } from "@/components/AvatarUpload";
 import { JoyBot } from "@/components/JoyBot";
+import { Web3RewardsPanel } from "@/components/Web3RewardsPanel";
 
 interface Profile {
   id: string;
@@ -123,8 +124,13 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
+          {/* Web3 Rewards Panel */}
+          <div className="mb-8">
+            <Web3RewardsPanel />
+          </div>
+
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <Card className="border-2 border-primary/30 hover:border-primary transition-all hover:shadow-lg transform hover:scale-105">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-lg font-fredoka text-muted-foreground">Games Played</CardTitle>

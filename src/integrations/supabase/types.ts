@@ -1442,6 +1442,94 @@ export type Database = {
         }
         Relationships: []
       }
+      web3_reward_transactions: {
+        Row: {
+          amount: number
+          claimed_to_wallet: boolean
+          created_at: string
+          description: string | null
+          id: string
+          reward_type: string
+          transaction_hash: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          claimed_to_wallet?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          reward_type: string
+          transaction_hash?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          claimed_to_wallet?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          reward_type?: string
+          transaction_hash?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "web3_reward_transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      web3_rewards: {
+        Row: {
+          camly_balance: number
+          created_at: string
+          first_game_claimed: boolean
+          first_wallet_claimed: boolean
+          id: string
+          last_daily_checkin: string | null
+          total_claimed_to_wallet: number
+          updated_at: string
+          user_id: string
+          wallet_address: string | null
+        }
+        Insert: {
+          camly_balance?: number
+          created_at?: string
+          first_game_claimed?: boolean
+          first_wallet_claimed?: boolean
+          id?: string
+          last_daily_checkin?: string | null
+          total_claimed_to_wallet?: number
+          updated_at?: string
+          user_id: string
+          wallet_address?: string | null
+        }
+        Update: {
+          camly_balance?: number
+          created_at?: string
+          first_game_claimed?: boolean
+          first_wallet_claimed?: boolean
+          id?: string
+          last_daily_checkin?: string | null
+          total_claimed_to_wallet?: number
+          updated_at?: string
+          user_id?: string
+          wallet_address?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "web3_rewards_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
