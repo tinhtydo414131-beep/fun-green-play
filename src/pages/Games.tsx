@@ -11,6 +11,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { toast } from "sonner";
 import { JoyBot } from "@/components/JoyBot";
+import { useLegendStatus } from "@/hooks/useLegendStatus";
+import LegendParticleEffect from "@/components/LegendParticleEffect";
 
 interface Game {
   id: string;
@@ -35,6 +37,7 @@ const Games = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [sortBy, setSortBy] = useState<string>('popular');
+  const { isLegend } = useLegendStatus();
   
   useScrollAnimation();
   
@@ -169,6 +172,9 @@ const Games = () => {
 
   return (
     <div className="min-h-screen bg-white pb-safe">
+      {/* Legend Particle Effect */}
+      <LegendParticleEffect isLegend={isLegend} />
+      
       <Navigation />
       
       <section className="pt-20 md:pt-24 pb-20 px-4 pb-safe">
