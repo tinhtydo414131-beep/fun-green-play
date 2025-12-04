@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
-import { MessageCircle, Send, ArrowLeft, Smile, Users, Circle, Coins, Bell, Plus, Search } from "lucide-react";
+import { MessageCircle, Send, ArrowLeft, Smile, Users, Circle, Coins, Bell, Plus, Search, Phone, Video, MoreVertical, Image, Paperclip, Info } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
@@ -779,194 +779,300 @@ export default function Messages() {
     );
   }
 
+  // Handle voice/video call (placeholder)
+  const handleVoiceCall = () => {
+    if (!selectedConversation?.friend) return;
+    toast.info(`Calling ${selectedConversation.friend.username}...`, {
+      description: "Voice calls coming soon! 📞",
+      duration: 3000,
+    });
+  };
+
+  const handleVideoCall = () => {
+    if (!selectedConversation?.friend) return;
+    toast.info(`Video calling ${selectedConversation.friend.username}...`, {
+      description: "Video calls coming soon! 📹",
+      duration: 3000,
+    });
+  };
+
+  // Get online friends for "Active Now" section
+  const getOnlineFriends = () => {
+    return conversations
+      .filter(c => !c.isGroup && c.friend && isOnline(c.friend.id))
+      .map(c => c.friend!);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5">
       <Navigation />
       
-      <section className="pt-20 md:pt-32 pb-20 md:pb-20 px-2 sm:px-4">
-        <div className="container mx-auto max-w-5xl">
-          {/* Header - Hidden on mobile when in chat */}
-          <div className={`flex items-center justify-between mb-4 sm:mb-6 ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
-            <div className="flex items-center gap-2 sm:gap-4">
-              <Button
-                onClick={() => navigate(-1)}
-                variant="outline"
-                size="icon"
-                className="h-10 w-10"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <h1 className="text-xl sm:text-3xl font-fredoka font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                Messages 💬
-              </h1>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={() => setShowSearchModal(true)}
-                variant="outline"
-                size="icon"
-                className="h-10 w-10"
-              >
-                <Search className="w-4 h-4" />
-              </Button>
-              <Button
-                onClick={() => setShowCreateGroupModal(true)}
-                className="gap-2 bg-gradient-to-r from-primary to-secondary h-10 px-3 sm:px-4"
-              >
-                <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">New Group</span>
-              </Button>
-            </div>
-          </div>
+      <section className="pt-20 md:pt-24 pb-20 md:pb-8 px-0 sm:px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-0 md:gap-4 h-[calc(100vh-100px)] md:h-[calc(100vh-120px)]">
+            {/* Left Sidebar - Conversations List */}
+            <div className={`md:col-span-4 lg:col-span-3 flex flex-col bg-card md:rounded-2xl md:border-2 md:border-primary/10 overflow-hidden ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
+              {/* Header */}
+              <div className="p-4 border-b border-border/50">
+                <div className="flex items-center justify-between mb-4">
+                  <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                    Chats
+                  </h1>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      onClick={() => setShowSearchModal(true)}
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 rounded-full hover:bg-primary/10"
+                    >
+                      <Search className="w-5 h-5" />
+                    </Button>
+                    <Button
+                      onClick={() => setShowCreateGroupModal(true)}
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 rounded-full hover:bg-primary/10"
+                    >
+                      <Plus className="w-5 h-5" />
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Search Input */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search Messenger"
+                    className="pl-10 bg-muted/50 border-0 rounded-full h-10"
+                    onClick={() => setShowSearchModal(true)}
+                    readOnly
+                  />
+                </div>
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-4 h-[calc(100vh-140px)] md:h-[calc(100vh-200px)]">
-            {/* Conversations List - Hidden on mobile when chat is selected */}
-            <Card className={`border-2 border-primary/20 overflow-hidden ${selectedConversation ? 'hidden md:block' : 'block'}`}>
-              <CardHeader className="py-3 border-b">
-                <CardTitle className="text-lg font-fredoka flex items-center gap-2">
-                  <Users className="w-5 h-5 text-primary" />
-                  Chats
-                </CardTitle>
-              </CardHeader>
-              <ScrollArea className="h-[calc(100%-60px)]">
+              {/* Active Now Section */}
+              {getOnlineFriends().length > 0 && (
+                <div className="p-4 border-b border-border/50">
+                  <p className="text-xs font-semibold text-muted-foreground mb-3">ACTIVE NOW</p>
+                  <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                    {getOnlineFriends().slice(0, 8).map((friend) => (
+                      <button
+                        key={friend.id}
+                        onClick={() => {
+                          const conv = conversations.find(c => c.friendId === friend.id);
+                          if (conv) setSelectedConversation(conv);
+                        }}
+                        className="flex flex-col items-center gap-1 min-w-[60px]"
+                      >
+                        <div className="relative">
+                          <Avatar className="w-12 h-12 border-2 border-green-500">
+                            <AvatarImage src={friend.avatar_url || undefined} />
+                            <AvatarFallback className="bg-primary/20 text-primary font-bold">
+                              {friend.username[0].toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-background" />
+                        </div>
+                        <span className="text-xs truncate w-full text-center">{friend.username.split(' ')[0]}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Conversations */}
+              <ScrollArea className="flex-1">
                 {conversations.length > 0 ? (
-                  <div className="p-2 space-y-1">
+                  <div className="p-2">
                     {conversations.map((conv) => (
                       <button
                         key={conv.roomId}
                         onClick={() => setSelectedConversation(conv)}
-                        className={`w-full p-3 rounded-lg flex items-center gap-3 transition-all touch-manipulation active:scale-[0.98] ${
+                        className={`w-full p-3 rounded-xl flex items-center gap-3 transition-all touch-manipulation active:scale-[0.98] mb-1 ${
                           selectedConversation?.roomId === conv.roomId
-                            ? "bg-primary/10 border-2 border-primary/30"
-                            : "hover:bg-muted active:bg-muted"
+                            ? "bg-primary/15"
+                            : "hover:bg-muted/80 active:bg-muted"
                         }`}
                       >
-                        <div className="relative">
+                        <div className="relative flex-shrink-0">
                           {conv.isGroup ? (
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                              <Users className="w-6 h-6 text-white" />
+                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                              <Users className="w-7 h-7 text-white" />
                             </div>
                           ) : (
-                            <Avatar className="w-12 h-12 border-2 border-primary/20">
+                            <Avatar className="w-14 h-14">
                               <AvatarImage src={getConversationAvatar(conv) || undefined} />
-                              <AvatarFallback className="bg-primary/20 text-primary font-bold">
+                              <AvatarFallback className="bg-gradient-to-br from-primary/20 to-secondary/20 text-primary font-bold text-lg">
                                 {getConversationDisplayName(conv)[0].toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
                           )}
                           {!conv.isGroup && conv.friend && (
                             <div 
-                              className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-background ${
+                              className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-[3px] border-card ${
                                 isOnline(conv.friend.id) 
-                                  ? "bg-green-500 online-dot" 
+                                  ? "bg-green-500" 
                                   : "bg-gray-400"
                               }`} 
                             />
                           )}
                         </div>
                         <div className="flex-1 text-left min-w-0">
-                          <p className="font-fredoka font-bold truncate">
-                            {getConversationDisplayName(conv)}
-                          </p>
+                          <div className="flex items-center justify-between">
+                            <p className="font-semibold truncate text-[15px]">
+                              {getConversationDisplayName(conv)}
+                            </p>
+                            {conv.lastMessage && (
+                              <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
+                                {format(new Date(conv.lastMessage.created_at), "HH:mm")}
+                              </span>
+                            )}
+                          </div>
                           {conv.isGroup && conv.groupMembers && (
-                            <p className="text-xs text-muted-foreground">
-                              {conv.groupMembers.length + 1} members • {getOnlineMembers(conv)} online
+                            <p className="text-sm text-muted-foreground">
+                              {getOnlineMembers(conv)} active now
                             </p>
                           )}
                           {conv.lastMessage && (
-                            <p className="text-xs text-muted-foreground truncate">
-                              {conv.isGroup && conv.lastMessage.sender?.username && (
-                                <span className="font-medium">{conv.lastMessage.sender.username}: </span>
-                              )}
-                              {conv.lastMessage.message}
+                            <p className="text-sm text-muted-foreground truncate">
+                              {conv.lastMessage.sender_id === user?.id && "You: "}
+                              {conv.lastMessage.attachment_type?.startsWith('audio') 
+                                ? "🎤 Voice message" 
+                                : conv.lastMessage.attachment_type?.startsWith('image')
+                                  ? "📷 Photo"
+                                  : conv.lastMessage.message || "Attachment"}
+                            </p>
+                          )}
+                          {!conv.lastMessage && !conv.isGroup && (
+                            <p className="text-sm text-muted-foreground italic">
+                              Start a conversation
                             </p>
                           )}
                         </div>
+                        {conv.unreadCount > 0 && (
+                          <div className="w-5 h-5 rounded-full bg-primary text-white text-xs flex items-center justify-center font-bold">
+                            {conv.unreadCount}
+                          </div>
+                        )}
                       </button>
                     ))}
                   </div>
                 ) : (
-                  <div className="p-8 text-center">
-                    <Users className="w-12 h-12 text-muted-foreground/30 mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">No friends yet</p>
+                  <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center mb-4">
+                      <MessageCircle className="w-12 h-12 text-primary/50" />
+                    </div>
+                    <h3 className="font-semibold text-lg mb-2">No conversations yet</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Add friends to start chatting!
+                    </p>
                     <Button
                       onClick={() => navigate("/find-friends")}
-                      variant="link"
-                      className="mt-2"
+                      className="bg-gradient-to-r from-primary to-secondary"
                     >
+                      <Users className="w-4 h-4 mr-2" />
                       Find Friends
                     </Button>
                   </div>
                 )}
               </ScrollArea>
-            </Card>
+            </div>
 
             {/* Chat Area - Full screen on mobile */}
-            <Card className={`md:col-span-2 border-2 border-primary/20 flex flex-col overflow-hidden ${selectedConversation ? 'block' : 'hidden md:block'}`}>
+            <div className={`md:col-span-8 lg:col-span-9 flex flex-col bg-card md:rounded-2xl md:border-2 md:border-primary/10 overflow-hidden ${selectedConversation ? 'flex' : 'hidden md:flex'}`}>
               {selectedConversation ? (
                 <>
-                  {/* Chat Header */}
-                  <CardHeader className="py-2 sm:py-3 border-b flex-shrink-0">
+                  {/* Chat Header - Facebook Messenger Style */}
+                  <div className="px-4 py-3 border-b border-border/50 flex-shrink-0 bg-card/95 backdrop-blur-sm">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="flex items-center gap-3">
                         {/* Mobile back button */}
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => setSelectedConversation(null)}
-                          className="md:hidden h-9 w-9 -ml-1"
+                          className="md:hidden h-10 w-10 -ml-2 rounded-full"
                         >
                           <ArrowLeft className="w-5 h-5" />
                         </Button>
-                        <div className="relative">
+                        <div className="relative cursor-pointer" onClick={() => selectedConversation.friend && navigate(`/profile/${selectedConversation.friend.id}`)}>
                           {selectedConversation.isGroup ? (
-                            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                              <Users className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                              <Users className="w-5 h-5 text-white" />
                             </div>
                           ) : (
-                            <Avatar className="w-9 h-9 sm:w-10 sm:h-10 border-2 border-primary/20">
+                            <Avatar className="w-10 h-10">
                               <AvatarImage src={getConversationAvatar(selectedConversation) || undefined} />
-                              <AvatarFallback className="bg-primary/20 text-primary font-bold text-sm">
+                              <AvatarFallback className="bg-gradient-to-br from-primary/20 to-secondary/20 text-primary font-bold">
                                 {getConversationDisplayName(selectedConversation)[0].toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
                           )}
                           {!selectedConversation.isGroup && selectedConversation.friend && (
                             <div 
-                              className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-background ${
+                              className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-card ${
                                 isOnline(selectedConversation.friend.id) 
-                                  ? "bg-green-500 online-dot" 
+                                  ? "bg-green-500" 
                                   : "bg-gray-400"
                               }`} 
                             />
                           )}
                         </div>
                         <div className="min-w-0">
-                          <p className="font-fredoka font-bold text-sm sm:text-base truncate">{getConversationDisplayName(selectedConversation)}</p>
+                          <p className="font-semibold text-[15px] truncate">{getConversationDisplayName(selectedConversation)}</p>
                           {selectedConversation.isGroup ? (
                             <p className="text-xs text-muted-foreground">
-                              {getOnlineMembers(selectedConversation)} of {(selectedConversation.groupMembers?.length || 0) + 1} online
+                              {getOnlineMembers(selectedConversation)} active now
                             </p>
                           ) : (
-                            <p className={`text-xs ${isOnline(selectedConversation.friend?.id || "") ? "text-green-500" : "text-muted-foreground"}`}>
-                              {isOnline(selectedConversation.friend?.id || "") ? "Online" : "Offline"}
+                            <p className={`text-xs ${isOnline(selectedConversation.friend?.id || "") ? "text-green-500 font-medium" : "text-muted-foreground"}`}>
+                              {isOnline(selectedConversation.friend?.id || "") ? "Active now" : "Offline"}
                             </p>
                           )}
                         </div>
                       </div>
-                      {!selectedConversation.isGroup && selectedConversation.friend && (
+                      
+                      {/* Action Buttons - Like Messenger */}
+                      <div className="flex items-center gap-1">
+                        {!selectedConversation.isGroup && selectedConversation.friend && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={handleVoiceCall}
+                              className="h-10 w-10 rounded-full hover:bg-primary/10 text-primary"
+                            >
+                              <Phone className="w-5 h-5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={handleVideoCall}
+                              className="h-10 w-10 rounded-full hover:bg-primary/10 text-primary"
+                            >
+                              <Video className="w-5 h-5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setShowTransferModal(true)}
+                              className="h-10 w-10 rounded-full hover:bg-yellow-500/10 text-yellow-600"
+                            >
+                              <Coins className="w-5 h-5" />
+                            </Button>
+                          </>
+                        )}
                         <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setShowTransferModal(true)}
-                          className="gap-2 border-yellow-500/30 text-yellow-600 hover:bg-yellow-500/10"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setShowSearchModal(true)}
+                          className="h-10 w-10 rounded-full hover:bg-primary/10"
                         >
-                          <Coins className="w-4 h-4" />
-                          Send CAMLY
+                          <Info className="w-5 h-5" />
                         </Button>
-                      )}
+                      </div>
                     </div>
-                  </CardHeader>
+                  </div>
 
                   {/* Pinned Messages */}
                   <PinnedMessagesBar
@@ -1201,7 +1307,7 @@ export default function Messages() {
                   </div>
                 </div>
               )}
-            </Card>
+            </div>
           </div>
         </div>
       </section>
