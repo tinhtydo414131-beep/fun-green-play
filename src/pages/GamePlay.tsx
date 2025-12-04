@@ -256,8 +256,10 @@ const GamePlay = () => {
     switch (componentKey) {
       // Casual & Happy Games
       case "MemoryCards": return <MemoryCards {...gameProps} />;
-      case "ColorMatch": return <ColorMatch {...gameProps} />;
-      case "BalloonPop": return <BalloonPop {...gameProps} />;
+      case "ColorMatch": return <ColorMatch3D {...gameProps} />;
+      case "ColorMatch2D": return <ColorMatch {...gameProps} />;
+      case "BalloonPop": return <BalloonPop3D {...gameProps} />;
+      case "BalloonPop2D": return <BalloonPop {...gameProps} />;
       case "StarCollector": return <StarCollector {...gameProps} />;
       case "HappinessGarden": return <HappinessGarden {...gameProps} />;
       case "FlowerField": return <FlowerField {...gameProps} />;
@@ -341,8 +343,7 @@ const GamePlay = () => {
       case "Platformer": return <Platformer3D {...gameProps} />;
       case "Platformer2D": return <Platformer {...gameProps} />;
       case "Racing": return <Racing3D {...gameProps} />;
-      case "BalloonPop": return <BalloonPop3D {...gameProps} />;
-      case "ColorMatch": return <ColorMatch3D {...gameProps} />;
+      case "Racing2D": return <Racing {...gameProps} />;
       case "LilBlockBuddy": return <LilBlockBuddy {...gameProps} />;
       case "Game2048Nexus": 
       case "2048-nexus":
