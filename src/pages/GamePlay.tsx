@@ -90,6 +90,11 @@ import { StarCollector3D } from "@/components/games/StarCollector3D";
 import { PetParadise3D } from "@/components/games/PetParadise3D";
 import { DreamWorld3D } from "@/components/games/DreamWorld3D";
 import { SkyCastle3D } from "@/components/games/SkyCastle3D";
+import { OceanExplorer3D } from "@/components/games/OceanExplorer3D";
+import { GardenBuilder3D } from "@/components/games/GardenBuilder3D";
+import { HappinessGarden3D } from "@/components/games/HappinessGarden3D";
+import { FlowerField3D } from "@/components/games/FlowerField3D";
+import { MusicCreator3D } from "@/components/games/MusicCreator3D";
 
 interface Game {
   id: string;
