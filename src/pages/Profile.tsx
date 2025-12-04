@@ -300,14 +300,14 @@ export default function Profile() {
             </TabsContent>
 
             <TabsContent value="badges">
-              <ProfileBadges totalReferrals={referralStats.totalReferrals} />
+              <ProfileBadges totalReferrals={totalReferrals} />
             </TabsContent>
 
             <TabsContent value="referral">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <ReferralTierProgress 
-                  totalReferrals={referralStats.totalReferrals} 
-                  referralEarnings={referralStats.referralEarnings} 
+                  totalReferrals={totalReferrals} 
+                  referralEarnings={referralEarnings} 
                 />
                 <Card className="border-2 border-primary/20">
                   <CardHeader>
@@ -319,12 +319,12 @@ export default function Profile() {
                   <CardContent className="space-y-4">
                     <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
                       <span className="text-muted-foreground">Total Invited</span>
-                      <span className="font-bold text-xl text-primary">{referralStats.totalReferrals}</span>
+                      <span className="font-bold text-xl text-primary">{totalReferrals}</span>
                     </div>
                     <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
                       <span className="text-muted-foreground">Total Earned</span>
                       <span className="font-bold text-xl text-yellow-500">
-                        {referralStats.referralEarnings.toLocaleString()} CAMLY
+                        {referralEarnings.toLocaleString()} CAMLY
                       </span>
                     </div>
                     <Button 
