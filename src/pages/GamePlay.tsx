@@ -278,11 +278,14 @@ const GamePlay = () => {
       case "BalloonPop2D": return <BalloonPop {...gameProps} />;
       case "StarCollector": return <StarCollector3D {...gameProps} />;
       case "StarCollector2D": return <StarCollector {...gameProps} />;
-      case "HappinessGarden": return <HappinessGarden {...gameProps} />;
-      case "FlowerField": return <FlowerField {...gameProps} />;
+      case "HappinessGarden": return <HappinessGarden3D {...gameProps} />;
+      case "HappinessGarden2D": return <HappinessGarden {...gameProps} />;
+      case "FlowerField": return <FlowerField3D {...gameProps} />;
+      case "FlowerField2D": return <FlowerField {...gameProps} />;
       case "PetParadise": return <PetParadise3D {...gameProps} />;
       case "PetParadise2D": return <PetParadise {...gameProps} />;
-      case "MusicCreator": return <MusicCreator {...gameProps} />;
+      case "MusicCreator": return <MusicCreator3D {...gameProps} />;
+      case "MusicCreator2D": return <MusicCreator {...gameProps} />;
       
       // Brain & Educational Games
       case "GuessNumber": return <GuessNumber3D {...gameProps} />;
@@ -299,7 +302,8 @@ const GamePlay = () => {
       // Building & Creation Games
       case "PlanetBuilder": return <PlanetBuilder {...gameProps} />;
       case "CityCreator": return <CityCreator {...gameProps} />;
-      case "GardenBuilder": return <GardenBuilder {...gameProps} />;
+      case "GardenBuilder": return <GardenBuilder3D {...gameProps} />;
+      case "GardenBuilder2D": return <GardenBuilder {...gameProps} />;
       case "SkyCastle": return <SkyCastle3D {...gameProps} />;
       case "SkyCastle2D": return <SkyCastle {...gameProps} />;
       case "DreamWorld": return <DreamWorld3D {...gameProps} />;
@@ -360,7 +364,8 @@ const GamePlay = () => {
       
       // Exploration & Adventure Games
       case "SpaceExplorer": return <SpaceExplorer {...gameProps} />;
-      case "OceanExplorer": return <OceanExplorer {...gameProps} />;
+      case "OceanExplorer": return <OceanExplorer3D {...gameProps} />;
+      case "OceanExplorer2D": return <OceanExplorer {...gameProps} />;
       case "MazeRunner": return <MazeRunner3D {...gameProps} />;
       case "MazeRunner2D": return <MazeRunner {...gameProps} />;
       case "TreasureHunt": return <TreasureHunt3D {...gameProps} />;
