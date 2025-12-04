@@ -8,11 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
-import { MessageCircle, Send, Home, ArrowLeft, Smile, Users, Circle } from "lucide-react";
+import { MessageCircle, Send, Home, ArrowLeft, Smile, Users, Circle, Coins } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
-
+import { useOnlinePresence } from "@/hooks/useOnlinePresence";
+import { ChatTransferModal } from "@/components/ChatTransferModal";
 interface Friend {
   id: string;
   username: string;
@@ -44,6 +45,7 @@ export default function Messages() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const initialFriendId = searchParams.get("with");
+  const { isOnline } = useOnlinePresence();
   
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
@@ -51,6 +53,7 @@ export default function Messages() {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -340,7 +343,13 @@ export default function Messages() {
                               {conv.friend.username[0].toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
-                          <Circle className="absolute bottom-0 right-0 w-3 h-3 text-green-500 fill-green-500" />
+                          <Circle 
+                            className={`absolute bottom-0 right-0 w-3 h-3 ${
+                              isOnline(conv.friend.id) 
+                                ? "text-green-500 fill-green-500" 
+                                : "text-gray-400 fill-gray-400"
+                            }`} 
+                          />
                         </div>
                         <div className="flex-1 text-left min-w-0">
                           <p className="font-fredoka font-bold truncate">{conv.friend.username}</p>
@@ -375,17 +384,39 @@ export default function Messages() {
                 <>
                   {/* Chat Header */}
                   <CardHeader className="py-3 border-b flex-shrink-0">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="w-10 h-10 border-2 border-primary/20">
-                        <AvatarImage src={selectedConversation.friend.avatar_url || undefined} />
-                        <AvatarFallback className="bg-primary/20 text-primary font-bold">
-                          {selectedConversation.friend.username[0].toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-fredoka font-bold">{selectedConversation.friend.username}</p>
-                        <p className="text-xs text-green-500">Online</p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          <Avatar className="w-10 h-10 border-2 border-primary/20">
+                            <AvatarImage src={selectedConversation.friend.avatar_url || undefined} />
+                            <AvatarFallback className="bg-primary/20 text-primary font-bold">
+                              {selectedConversation.friend.username[0].toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <Circle 
+                            className={`absolute bottom-0 right-0 w-2.5 h-2.5 ${
+                              isOnline(selectedConversation.friend.id) 
+                                ? "text-green-500 fill-green-500" 
+                                : "text-gray-400 fill-gray-400"
+                            }`} 
+                          />
+                        </div>
+                        <div>
+                          <p className="font-fredoka font-bold">{selectedConversation.friend.username}</p>
+                          <p className={`text-xs ${isOnline(selectedConversation.friend.id) ? "text-green-500" : "text-muted-foreground"}`}>
+                            {isOnline(selectedConversation.friend.id) ? "Online" : "Offline"}
+                          </p>
+                        </div>
                       </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowTransferModal(true)}
+                        className="gap-2 border-yellow-500/30 text-yellow-600 hover:bg-yellow-500/10"
+                      >
+                        <Coins className="w-4 h-4" />
+                        Send CAMLY
+                      </Button>
                     </div>
                   </CardHeader>
 
@@ -458,6 +489,20 @@ export default function Messages() {
           </div>
         </div>
       </section>
+
+      {/* Transfer Modal */}
+      {selectedConversation && (
+        <ChatTransferModal
+          open={showTransferModal}
+          onOpenChange={setShowTransferModal}
+          recipientId={selectedConversation.friend.id}
+          recipientUsername={selectedConversation.friend.username}
+          recipientAvatar={selectedConversation.friend.avatar_url}
+          onTransferComplete={(amount) => {
+            toast.success(`Sent ${amount.toLocaleString()} CAMLY to ${selectedConversation.friend.username}! 🎉`);
+          }}
+        />
+      )}
     </div>
   );
 }
