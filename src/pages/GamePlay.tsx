@@ -110,6 +110,11 @@ import RockPaperScissors3D from "@/components/games/RockPaperScissors3D";
 import Sudoku3D from "@/components/games/Sudoku3D";
 import FlappyBird3D from "@/components/games/FlappyBird3D";
 import PetCare3D from "@/components/games/PetCare3D";
+import ZooKeeper3D from "@/components/games/ZooKeeper3D";
+import HospitalManager3D from "@/components/games/HospitalManager3D";
+import CinemaBoss3D from "@/components/games/CinemaBoss3D";
+import LibraryKeeper3D from "@/components/games/LibraryKeeper3D";
+import RestaurantChef3D from "@/components/games/RestaurantChef3D";
 
 interface Game {
   id: string;
@@ -358,19 +363,24 @@ const GamePlay = () => {
       case "SpaceStation2D": return <SpaceStation {...gameProps} />;
       case "ZooKeeper":
       case "zoo-keeper":
-        return <ZooKeeper {...gameProps} />;
+        return <ZooKeeper3D {...gameProps} />;
+      case "ZooKeeper2D": return <ZooKeeper {...gameProps} />;
       case "HospitalManager":
       case "hospital-manager":
-        return <HospitalManager {...gameProps} />;
+        return <HospitalManager3D {...gameProps} />;
+      case "HospitalManager2D": return <HospitalManager {...gameProps} />;
       case "CinemaBoss":
       case "cinema-boss":
-        return <CinemaBoss {...gameProps} />;
+        return <CinemaBoss3D {...gameProps} />;
+      case "CinemaBoss2D": return <CinemaBoss {...gameProps} />;
       case "LibraryKeeper":
       case "library-keeper":
-        return <LibraryKeeper {...gameProps} />;
+        return <LibraryKeeper3D {...gameProps} />;
+      case "LibraryKeeper2D": return <LibraryKeeper {...gameProps} />;
       case "RestaurantChef":
       case "restaurant-chef":
-        return <RestaurantChef {...gameProps} />;
+        return <RestaurantChef3D {...gameProps} />;
+      case "RestaurantChef2D": return <RestaurantChef {...gameProps} />;
       case "ThemeParkBuilder":
       case "theme-park-builder":
         return <ThemeParkBuilder3D {...gameProps} />;
