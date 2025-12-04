@@ -84,38 +84,38 @@ export const RockPaperScissors = ({
   };
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold text-foreground">
+    <div className="flex flex-col items-center gap-3 md:gap-6 w-full">
+      <div className="text-center space-y-1">
+        <h2 className="text-xl md:text-2xl font-bold text-foreground">
           Bạn {score.player} - {score.computer} Máy
         </h2>
-        <p className="text-muted-foreground">Thắng {targetScore} để hoàn thành!</p>
+        <p className="text-sm md:text-base text-muted-foreground">Thắng {targetScore} để qua!</p>
       </div>
 
-      <div className="flex gap-8 items-center">
-        <Card className="p-6 text-center bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800">
-          <p className="text-sm text-muted-foreground mb-2">Bạn</p>
+      <div className="flex gap-4 md:gap-8 items-center">
+        <Card className="p-4 md:p-6 text-center bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800">
+          <p className="text-xs md:text-sm text-muted-foreground mb-1">Bạn</p>
           <motion.div
             key={playerChoice}
             initial={{ scale: 0, rotate: -180 }}
             animate={{ scale: 1, rotate: 0 }}
-            className="text-6xl"
+            className="text-5xl md:text-6xl"
           >
             {getEmoji(playerChoice)}
           </motion.div>
         </Card>
 
-        <div className="text-4xl font-bold text-primary">VS</div>
+        <div className="text-2xl md:text-4xl font-bold text-primary">VS</div>
 
-        <Card className="p-6 text-center bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900 dark:to-red-800">
-          <p className="text-sm text-muted-foreground mb-2">Máy</p>
+        <Card className="p-4 md:p-6 text-center bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900 dark:to-red-800">
+          <p className="text-xs md:text-sm text-muted-foreground mb-1">Máy</p>
           <AnimatePresence mode="wait">
             <motion.div
               key={computerChoice || "waiting"}
               initial={{ scale: 0, rotate: 180 }}
               animate={{ scale: 1, rotate: 0 }}
               exit={{ scale: 0 }}
-              className="text-6xl"
+              className="text-5xl md:text-6xl"
             >
               {isAnimating ? "🔄" : getEmoji(computerChoice)}
             </motion.div>
@@ -127,20 +127,21 @@ export const RockPaperScissors = ({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-2xl font-bold text-foreground"
+          className="text-xl md:text-2xl font-bold text-foreground"
         >
           {result}
         </motion.div>
       )}
 
-      <div className="flex gap-4 flex-wrap justify-center">
+      <div className="flex gap-3 md:gap-4 flex-wrap justify-center">
         {choices.map(({ name, emoji }) => (
           <Button
             key={name}
             onClick={() => play(name)}
+            onTouchStart={(e) => { e.preventDefault(); play(name); }}
             disabled={isAnimating}
             size="lg"
-            className="text-4xl p-8 h-auto hover:scale-110 transition-transform"
+            className="text-4xl md:text-5xl p-5 md:p-8 h-auto touch-manipulation will-change-transform active:scale-95 transition-transform"
             variant="outline"
           >
             {emoji}
@@ -148,14 +149,14 @@ export const RockPaperScissors = ({
         ))}
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex gap-3">
         {onBack && (
-          <Button onClick={onBack} size="lg" variant="outline">
+          <Button onClick={onBack} size="lg" variant="outline" className="touch-manipulation">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Quay lại
           </Button>
         )}
-        <Button onClick={resetGame} size="lg">
+        <Button onClick={resetGame} size="lg" className="touch-manipulation">
           Chơi lại
         </Button>
       </div>

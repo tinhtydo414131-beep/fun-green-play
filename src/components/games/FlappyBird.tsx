@@ -21,8 +21,10 @@ export const FlappyBird = ({
   onLevelComplete?: () => void;
   onBack?: () => void;
 } = {}) => {
-  const canvasWidth = 320;
-  const canvasHeight = 480;
+  // Responsive canvas size
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const canvasWidth = isMobile ? Math.min(window.innerWidth * 0.92, 380) : 360;
+  const canvasHeight = isMobile ? Math.min(window.innerHeight * 0.55, 520) : 500;
   const birdSize = 30;
   const pipeWidth = 50;
   const gapSize = Math.max(100, 150 - (level * 10));
@@ -171,18 +173,19 @@ export const FlappyBird = ({
   }, [isPlaying, velocity, birdY, pipeSpeed, gapSize, targetScore, onLevelComplete]);
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold text-foreground">
+    <div className="flex flex-col items-center gap-2 md:gap-4 w-full">
+      <div className="text-center space-y-1">
+        <h2 className="text-xl md:text-2xl font-bold text-foreground">
           Điểm: {score}/{targetScore}
         </h2>
-        <p className="text-muted-foreground">Chạm hoặc nhấn Space để bay!</p>
+        <p className="text-sm text-muted-foreground">Chạm để bay!</p>
       </div>
 
       <Card 
-        className="relative overflow-hidden cursor-pointer select-none"
+        className="relative overflow-hidden cursor-pointer select-none touch-manipulation will-change-transform"
         style={{ width: canvasWidth, height: canvasHeight }}
         onClick={jump}
+        onTouchStart={(e) => { e.preventDefault(); jump(); }}
       >
         {/* Sky background */}
         <div className="absolute inset-0 bg-gradient-to-b from-sky-400 to-sky-200" />
@@ -248,14 +251,14 @@ export const FlappyBird = ({
         )}
       </Card>
 
-      <div className="flex gap-4">
+      <div className="flex gap-3 mt-2">
         {onBack && (
-          <Button onClick={onBack} size="lg" variant="outline">
+          <Button onClick={onBack} size="lg" variant="outline" className="touch-manipulation">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Quay lại
           </Button>
         )}
-        <Button onClick={resetGame} size="lg">
+        <Button onClick={resetGame} size="lg" className="touch-manipulation">
           Chơi lại 🐦
         </Button>
       </div>

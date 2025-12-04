@@ -135,13 +135,13 @@ export const Sudoku = ({
   };
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold text-foreground">Sudoku</h2>
-        <p className="text-muted-foreground">💡 Gợi ý còn: {hints}</p>
+    <div className="flex flex-col items-center gap-3 md:gap-4 w-full">
+      <div className="text-center space-y-1">
+        <h2 className="text-xl md:text-2xl font-bold text-foreground">Sudoku</h2>
+        <p className="text-sm text-muted-foreground">💡 Gợi ý: {hints}</p>
       </div>
 
-      <Card className="p-2 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950">
+      <Card className="p-1 md:p-2 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950">
         <div className="grid grid-cols-9 gap-[1px] bg-gray-400 dark:bg-gray-600 border-2 border-gray-600 dark:border-gray-400">
           {board.map((row, rowIndex) =>
             row.map((cell, colIndex) => {
@@ -153,9 +153,10 @@ export const Sudoku = ({
                 <button
                   key={`${rowIndex}-${colIndex}`}
                   onClick={() => setSelected({ row: rowIndex, col: colIndex })}
+                  onTouchStart={(e) => { e.preventDefault(); setSelected({ row: rowIndex, col: colIndex }); }}
                   className={`
-                    w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-lg font-bold
-                    transition-all
+                    w-9 h-9 md:w-10 md:h-10 flex items-center justify-center text-base md:text-lg font-bold
+                    touch-manipulation will-change-transform active:scale-95 transition-transform
                     ${isSelected ? "bg-blue-200 dark:bg-blue-700" : "bg-white dark:bg-gray-800"}
                     ${isError ? "bg-red-200 dark:bg-red-800 text-red-600" : ""}
                     ${isOriginalCell ? "text-gray-700 dark:text-gray-300" : "text-blue-600 dark:text-blue-400"}
@@ -172,14 +173,15 @@ export const Sudoku = ({
         </div>
       </Card>
 
-      {/* Number pad */}
+      {/* Number pad - larger touch targets */}
       <div className="grid grid-cols-5 gap-2">
         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map(num => (
           <Button
             key={num}
             onClick={() => handleNumberInput(num)}
+            onTouchStart={(e) => { e.preventDefault(); handleNumberInput(num); }}
             variant="outline"
-            className="w-12 h-12 text-xl font-bold"
+            className="w-14 h-14 md:w-12 md:h-12 text-xl font-bold touch-manipulation will-change-transform active:scale-95 transition-transform"
           >
             {num === 0 ? "❌" : num}
           </Button>
@@ -188,18 +190,18 @@ export const Sudoku = ({
 
       <div className="flex gap-2 flex-wrap justify-center">
         {onBack && (
-          <Button onClick={onBack} size="lg" variant="outline">
+          <Button onClick={onBack} size="lg" variant="outline" className="touch-manipulation">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Quay lại
           </Button>
         )}
-        <Button onClick={useHint} size="lg" variant="outline" disabled={hints <= 0 || !selected}>
+        <Button onClick={useHint} size="lg" variant="outline" disabled={hints <= 0 || !selected} className="touch-manipulation">
           <Lightbulb className="mr-2 h-4 w-4" />
           Gợi ý ({hints})
         </Button>
-        <Button onClick={resetGame} size="lg">
+        <Button onClick={resetGame} size="lg" className="touch-manipulation">
           <RotateCcw className="mr-2 h-4 w-4" />
-          Chơi lại
+          Lại
         </Button>
       </div>
     </div>

@@ -106,7 +106,7 @@ export const Snake = ({
         if (head.x < 0 || head.x >= gridSize || head.y < 0 || head.y >= gridSize) {
           setGameOver(true);
           setIsPlaying(false);
-          toast.error("Game Over! Đụng tường rồi! 🐍");
+          toast.error("Game Over! 🐍");
           return prevSnake;
         }
 
@@ -114,7 +114,7 @@ export const Snake = ({
         if (prevSnake.some(segment => segment.x === head.x && segment.y === head.y)) {
           setGameOver(true);
           setIsPlaying(false);
-          toast.error("Game Over! Cắn đuôi rồi! 🐍");
+          toast.error("Game Over! 🐍");
           return prevSnake;
         }
 
@@ -125,13 +125,13 @@ export const Snake = ({
           setScore(prev => {
             const newScore = prev + 1;
             if (newScore >= targetScore && onLevelComplete) {
-              toast.success("Tuyệt vời! Hoàn thành level! 🎉");
+              toast.success("Hoàn thành! 🎉");
               setTimeout(() => onLevelComplete(), 500);
             }
             return newScore;
           });
           setFood(generateFood());
-          toast.success("+1 điểm! 🍎");
+          toast.success("+1! 🍎");
         } else {
           newSnake.pop();
         }
@@ -158,21 +158,21 @@ export const Snake = ({
   };
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold text-foreground">
+    <div className="flex flex-col items-center gap-2 md:gap-4 w-full">
+      <div className="text-center space-y-1">
+        <h2 className="text-xl md:text-2xl font-bold text-foreground">
           Điểm: {score}/{targetScore}
         </h2>
-        <p className="text-muted-foreground">Level {level} - Dùng mũi tên để điều khiển!</p>
+        <p className="text-sm md:text-base text-muted-foreground">Level {level}</p>
       </div>
 
-      <Card className="p-2 bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900 dark:to-green-800">
+      <Card className="p-1 md:p-2 bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900 dark:to-green-800">
         <div 
-          className="grid gap-[1px] bg-green-300 dark:bg-green-700 rounded"
+          className="grid gap-[1px] bg-green-300 dark:bg-green-700 rounded will-change-transform"
           style={{ 
             gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
-            width: `min(85vw, ${gridSize * 20}px)`,
-            height: `min(85vw, ${gridSize * 20}px)`
+            width: `min(92vw, 400px)`,
+            height: `min(92vw, 400px)`
           }}
         >
           {Array.from({ length: gridSize * gridSize }).map((_, i) => {
@@ -185,7 +185,7 @@ export const Snake = ({
             return (
               <div
                 key={i}
-                className={`aspect-square rounded-sm transition-all ${
+                className={`aspect-square rounded-sm ${
                   isSnakeHead 
                     ? "bg-green-600 dark:bg-green-400 scale-110" 
                     : isSnake 
@@ -203,52 +203,60 @@ export const Snake = ({
         </div>
       </Card>
 
-      {/* Mobile Controls */}
-      <div className="grid grid-cols-3 gap-2 md:hidden">
+      {/* Mobile Controls - Larger touch targets */}
+      <div className="grid grid-cols-3 gap-3 md:hidden mt-2">
         <div />
         <Button 
           size="lg" 
           variant="outline"
+          className="h-14 w-14 touch-manipulation active:scale-95 transition-transform"
+          onTouchStart={(e) => { e.preventDefault(); handleDirectionButton("UP"); }}
           onClick={() => handleDirectionButton("UP")}
           disabled={!isPlaying}
         >
-          <ArrowUp className="h-6 w-6" />
+          <ArrowUp className="h-7 w-7" />
         </Button>
         <div />
         <Button 
           size="lg" 
           variant="outline"
+          className="h-14 w-14 touch-manipulation active:scale-95 transition-transform"
+          onTouchStart={(e) => { e.preventDefault(); handleDirectionButton("LEFT"); }}
           onClick={() => handleDirectionButton("LEFT")}
           disabled={!isPlaying}
         >
-          <ArrowLeft className="h-6 w-6" />
+          <ArrowLeft className="h-7 w-7" />
         </Button>
         <Button 
           size="lg" 
           variant="outline"
+          className="h-14 w-14 touch-manipulation active:scale-95 transition-transform"
+          onTouchStart={(e) => { e.preventDefault(); handleDirectionButton("DOWN"); }}
           onClick={() => handleDirectionButton("DOWN")}
           disabled={!isPlaying}
         >
-          <ArrowDown className="h-6 w-6" />
+          <ArrowDown className="h-7 w-7" />
         </Button>
         <Button 
           size="lg" 
           variant="outline"
+          className="h-14 w-14 touch-manipulation active:scale-95 transition-transform"
+          onTouchStart={(e) => { e.preventDefault(); handleDirectionButton("RIGHT"); }}
           onClick={() => handleDirectionButton("RIGHT")}
           disabled={!isPlaying}
         >
-          <ArrowRight className="h-6 w-6" />
+          <ArrowRight className="h-7 w-7" />
         </Button>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex gap-3 mt-2">
         {onBack && (
-          <Button onClick={onBack} size="lg" variant="outline">
+          <Button onClick={onBack} size="lg" variant="outline" className="touch-manipulation">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Quay lại
           </Button>
         )}
-        <Button onClick={startGame} size="lg">
+        <Button onClick={startGame} size="lg" className="touch-manipulation">
           {isPlaying ? "Chơi lại" : gameOver ? "Chơi lại" : "Bắt đầu"} 🐍
         </Button>
       </div>
