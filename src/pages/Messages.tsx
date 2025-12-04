@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { useAuth } from "@/hooks/useAuth";
@@ -8,17 +8,27 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
-import { MessageCircle, Send, Home, ArrowLeft, Smile, Users, Circle, Coins } from "lucide-react";
+import { MessageCircle, Send, Home, ArrowLeft, Smile, Users, Circle, Coins, Bell, BellOff } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { useOnlinePresence } from "@/hooks/useOnlinePresence";
 import { ChatTransferModal } from "@/components/ChatTransferModal";
+import { useTypingIndicator } from "@/hooks/useTypingIndicator";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { EmojiPicker, AddReactionButton, MessageReactions } from "@/components/EmojiPicker";
+import { TypingIndicator } from "@/components/TypingIndicator";
+
 interface Friend {
   id: string;
   username: string;
   avatar_url: string | null;
   isOnline?: boolean;
+}
+
+interface MessageReaction {
+  emoji: string;
+  userId: string;
 }
 
 interface Message {
@@ -30,6 +40,7 @@ interface Message {
     username: string;
     avatar_url: string | null;
   };
+  reactions?: MessageReaction[];
 }
 
 interface Conversation {
@@ -46,15 +57,22 @@ export default function Messages() {
   const [searchParams] = useSearchParams();
   const initialFriendId = searchParams.get("with");
   const { isOnline } = useOnlinePresence();
+  const { permission, requestPermission, notifyNewMessage } = usePushNotifications();
   
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [messageReactions, setMessageReactions] = useState<Record<string, MessageReaction[]>>({});
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const { typingUsers, startTyping, stopTyping } = useTypingIndicator(
+    selectedConversation?.roomId || null
+  );
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -237,11 +255,17 @@ export default function Messages() {
 
           setMessages(prev => [...prev, newMsg]);
 
-          // Play notification sound if not from current user
+          // Play notification sound and push notification if not from current user
           if (payload.new.sender_id !== user?.id) {
             const audio = new Audio("/audio/coin-reward.mp3");
             audio.volume = 0.3;
             audio.play().catch(() => {});
+            
+            // Send push notification if app is in background
+            notifyNewMessage(
+              sender?.username || "Someone",
+              payload.new.message
+            );
           }
         }
       )
@@ -250,6 +274,61 @@ export default function Messages() {
     return () => {
       supabase.removeChannel(channel);
     };
+  };
+
+  const handleReaction = useCallback((messageId: string, emoji: string) => {
+    if (!user) return;
+    
+    setMessageReactions(prev => {
+      const msgReactions = prev[messageId] || [];
+      const existingIndex = msgReactions.findIndex(
+        r => r.userId === user.id && r.emoji === emoji
+      );
+      
+      if (existingIndex >= 0) {
+        // Remove reaction
+        return {
+          ...prev,
+          [messageId]: msgReactions.filter((_, i) => i !== existingIndex)
+        };
+      } else {
+        // Add reaction
+        return {
+          ...prev,
+          [messageId]: [...msgReactions, { emoji, userId: user.id }]
+        };
+      }
+    });
+  }, [user]);
+
+  const getMessageReactions = useCallback((messageId: string) => {
+    const reactions = messageReactions[messageId] || [];
+    const grouped: Record<string, { count: number; hasReacted: boolean }> = {};
+    
+    reactions.forEach(r => {
+      if (!grouped[r.emoji]) {
+        grouped[r.emoji] = { count: 0, hasReacted: false };
+      }
+      grouped[r.emoji].count++;
+      if (r.userId === user?.id) {
+        grouped[r.emoji].hasReacted = true;
+      }
+    });
+    
+    return Object.entries(grouped).map(([emoji, data]) => ({
+      emoji,
+      count: data.count,
+      hasReacted: data.hasReacted
+    }));
+  }, [messageReactions, user?.id]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewMessage(e.target.value);
+    startTyping();
+  };
+
+  const handleEmojiSelect = (emoji: string) => {
+    setNewMessage(prev => prev + emoji);
   };
 
   const sendMessage = async () => {
@@ -429,18 +508,31 @@ export default function Messages() {
                             key={msg.id}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className={`flex ${msg.sender_id === user?.id ? "justify-end" : "justify-start"}`}
+                            className={`group flex ${msg.sender_id === user?.id ? "justify-end" : "justify-start"}`}
                           >
                             <div className={`max-w-[70%] ${msg.sender_id === user?.id ? "order-2" : "order-1"}`}>
-                              <div
-                                className={`px-4 py-2 rounded-2xl ${
-                                  msg.sender_id === user?.id
-                                    ? "bg-gradient-to-r from-primary to-secondary text-white rounded-br-sm"
-                                    : "bg-muted rounded-bl-sm"
-                                }`}
-                              >
-                                <p className="text-sm">{msg.message}</p>
+                              <div className="relative">
+                                <div
+                                  className={`px-4 py-2 rounded-2xl ${
+                                    msg.sender_id === user?.id
+                                      ? "bg-gradient-to-r from-primary to-secondary text-white rounded-br-sm"
+                                      : "bg-muted rounded-bl-sm"
+                                  }`}
+                                >
+                                  <p className="text-sm">{msg.message}</p>
+                                </div>
+                                {/* Add reaction button */}
+                                <div className={`absolute top-1/2 -translate-y-1/2 ${
+                                  msg.sender_id === user?.id ? "-left-8" : "-right-8"
+                                }`}>
+                                  <AddReactionButton onReact={(emoji) => handleReaction(msg.id, emoji)} />
+                                </div>
                               </div>
+                              {/* Reactions */}
+                              <MessageReactions
+                                reactions={getMessageReactions(msg.id)}
+                                onReact={(emoji) => handleReaction(msg.id, emoji)}
+                              />
                               <p className={`text-xs text-muted-foreground mt-1 ${
                                 msg.sender_id === user?.id ? "text-right" : "text-left"
                               }`}>
@@ -450,25 +542,68 @@ export default function Messages() {
                           </motion.div>
                         ))}
                       </AnimatePresence>
+                      
+                      {/* Typing indicator */}
+                      <TypingIndicator typingUsers={typingUsers} />
+                      
                       <div ref={messagesEndRef} />
                     </div>
                   </ScrollArea>
 
                   {/* Input */}
                   <div className="p-4 border-t flex-shrink-0">
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="icon" className="flex-shrink-0">
-                        <Smile className="w-5 h-5" />
-                      </Button>
+                    {/* Notification permission */}
+                    {permission !== "granted" && (
+                      <div className="mb-3 p-2 bg-primary/10 rounded-lg flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">
+                          Enable notifications for new messages
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={requestPermission}
+                          className="h-7 text-xs gap-1"
+                        >
+                          <Bell className="w-3 h-3" />
+                          Enable
+                        </Button>
+                      </div>
+                    )}
+                    
+                    <div className="flex gap-2 relative">
+                      <div className="relative">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="flex-shrink-0"
+                          onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                        >
+                          <Smile className="w-5 h-5" />
+                        </Button>
+                        <EmojiPicker
+                          isOpen={showEmojiPicker}
+                          onOpenChange={setShowEmojiPicker}
+                          onEmojiSelect={handleEmojiSelect}
+                        />
+                      </div>
                       <Input
                         value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
+                        onChange={handleInputChange}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            stopTyping();
+                            sendMessage();
+                          }
+                        }}
+                        onBlur={stopTyping}
                         placeholder="Type a message..."
                         className="flex-1"
                       />
                       <Button
-                        onClick={sendMessage}
+                        onClick={() => {
+                          stopTyping();
+                          sendMessage();
+                        }}
                         disabled={sending || !newMessage.trim()}
                         className="flex-shrink-0 bg-gradient-to-r from-primary to-secondary"
                       >

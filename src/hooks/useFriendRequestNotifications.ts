@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { toast } from "sonner";
+import { usePushNotifications } from "./usePushNotifications";
 
 interface FriendRequest {
   id: string;
@@ -15,6 +16,7 @@ interface FriendRequest {
 
 export function useFriendRequestNotifications() {
   const { user } = useAuth();
+  const { notifyFriendRequest } = usePushNotifications();
   const [pendingRequest, setPendingRequest] = useState<FriendRequest | null>(null);
   const [pendingCount, setPendingCount] = useState(0);
 
@@ -64,6 +66,9 @@ export function useFriendRequestNotifications() {
 
           setPendingRequest(newRequest);
           setPendingCount((prev) => prev + 1);
+          
+          // Send push notification
+          notifyFriendRequest(sender?.username || "Someone");
         }
       )
       .on(
