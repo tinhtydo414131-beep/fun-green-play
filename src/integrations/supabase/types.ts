@@ -84,8 +84,11 @@ export type Database = {
           attachment_url: string | null
           created_at: string | null
           id: string
+          is_pinned: boolean | null
           is_read: boolean | null
           message: string
+          pinned_at: string | null
+          pinned_by: string | null
           reply_to_message_id: string | null
           room_id: string
           sender_id: string
@@ -96,8 +99,11 @@ export type Database = {
           attachment_url?: string | null
           created_at?: string | null
           id?: string
+          is_pinned?: boolean | null
           is_read?: boolean | null
           message: string
+          pinned_at?: string | null
+          pinned_by?: string | null
           reply_to_message_id?: string | null
           room_id: string
           sender_id: string
@@ -108,13 +114,23 @@ export type Database = {
           attachment_url?: string | null
           created_at?: string | null
           id?: string
+          is_pinned?: boolean | null
           is_read?: boolean | null
           message?: string
+          pinned_at?: string | null
+          pinned_by?: string | null
           reply_to_message_id?: string | null
           room_id?: string
           sender_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "chat_messages_pinned_by_fkey"
+            columns: ["pinned_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "chat_messages_reply_to_message_id_fkey"
             columns: ["reply_to_message_id"]

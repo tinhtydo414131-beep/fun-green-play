@@ -18,18 +18,20 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MoreVertical, Pencil, Trash2, Check, X, Forward, Reply } from "lucide-react";
+import { MoreVertical, Pencil, Trash2, Check, X, Forward, Reply, Pin, PinOff } from "lucide-react";
 
 interface MessageActionsProps {
   messageId: string;
   isOwn: boolean;
+  isPinned?: boolean;
   onEdit: (messageId: string) => void;
   onDelete: (messageId: string) => void;
   onForward: (messageId: string) => void;
   onReply: (messageId: string) => void;
+  onPin: (messageId: string) => void;
 }
 
-export function MessageActionsMenu({ messageId, isOwn, onEdit, onDelete, onForward, onReply }: MessageActionsProps) {
+export function MessageActionsMenu({ messageId, isOwn, isPinned, onEdit, onDelete, onForward, onReply, onPin }: MessageActionsProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   return (
@@ -48,6 +50,19 @@ export function MessageActionsMenu({ messageId, isOwn, onEdit, onDelete, onForwa
           <DropdownMenuItem onClick={() => onReply(messageId)} className="gap-2">
             <Reply className="w-4 h-4" />
             Reply
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onPin(messageId)} className="gap-2">
+            {isPinned ? (
+              <>
+                <PinOff className="w-4 h-4" />
+                Unpin
+              </>
+            ) : (
+              <>
+                <Pin className="w-4 h-4" />
+                Pin
+              </>
+            )}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => onForward(messageId)} className="gap-2">
             <Forward className="w-4 h-4" />

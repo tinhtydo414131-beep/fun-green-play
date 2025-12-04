@@ -27,6 +27,7 @@ import { useMessageActions } from "@/hooks/useMessageActions";
 import { ChatFileUpload, ChatAttachment } from "@/components/ChatFileUpload";
 import { ForwardMessageModal } from "@/components/ForwardMessageModal";
 import { ReplyPreview, QuotedMessage } from "@/components/ReplyPreview";
+import { PinnedMessagesBar } from "@/components/PinnedMessages";
 
 interface Friend {
   id: string;
@@ -50,6 +51,9 @@ interface Message {
   attachment_type?: string | null;
   attachment_name?: string | null;
   reply_to_message_id?: string | null;
+  is_pinned?: boolean;
+  pinned_at?: string | null;
+  pinned_by?: string | null;
   reply_to_message?: {
     id: string;
     message: string;
@@ -385,6 +389,9 @@ export default function Messages() {
           attachment_type,
           attachment_name,
           reply_to_message_id,
+          is_pinned,
+          pinned_at,
+          pinned_by,
           profiles!chat_messages_sender_id_fkey(username, avatar_url)
         `)
         .eq("room_id", roomId)
@@ -426,6 +433,9 @@ export default function Messages() {
         attachment_type: m.attachment_type,
         attachment_name: m.attachment_name,
         reply_to_message_id: m.reply_to_message_id,
+        is_pinned: m.is_pinned || false,
+        pinned_at: m.pinned_at,
+        pinned_by: m.pinned_by,
         reply_to_message: m.reply_to_message_id ? replyMessagesMap[m.reply_to_message_id] : null,
         sender: m.profiles
       })) || [];
@@ -669,6 +679,51 @@ export default function Messages() {
     }
   };
 
+  const handlePinMessage = async (messageId: string) => {
+    const msg = messages.find(m => m.id === messageId);
+    if (!msg) return;
+
+    const isPinned = msg.is_pinned;
+    
+    try {
+      const { error } = await supabase
+        .from("chat_messages")
+        .update({
+          is_pinned: !isPinned,
+          pinned_at: isPinned ? null : new Date().toISOString(),
+          pinned_by: isPinned ? null : user?.id,
+        })
+        .eq("id", messageId);
+
+      if (error) throw error;
+
+      setMessages(prev =>
+        prev.map(m =>
+          m.id === messageId
+            ? { ...m, is_pinned: !isPinned, pinned_at: isPinned ? null : new Date().toISOString(), pinned_by: isPinned ? null : user?.id }
+            : m
+        )
+      );
+
+      toast.success(isPinned ? "Message unpinned" : "Message pinned");
+    } catch (error) {
+      console.error("Error pinning message:", error);
+      toast.error("Couldn't pin message");
+    }
+  };
+
+  const getPinnedMessages = () => {
+    return messages
+      .filter(m => m.is_pinned)
+      .sort((a, b) => new Date(b.pinned_at || 0).getTime() - new Date(a.pinned_at || 0).getTime())
+      .map(m => ({
+        id: m.id,
+        message: m.message,
+        senderName: m.sender?.username,
+        pinnedAt: m.pinned_at || undefined,
+      }));
+  };
+
   const getForwardConversations = () => {
     return conversations.map(conv => ({
       roomId: conv.roomId,
@@ -886,6 +941,14 @@ export default function Messages() {
                     </div>
                   </CardHeader>
 
+                  {/* Pinned Messages */}
+                  <PinnedMessagesBar
+                    messages={getPinnedMessages()}
+                    onUnpin={handlePinMessage}
+                    onScrollTo={scrollToMessage}
+                    canUnpin={true}
+                  />
+
                   {/* Messages */}
                   <ScrollArea className="flex-1 p-4">
                     <div className="space-y-4">
@@ -921,10 +984,12 @@ export default function Messages() {
                                     <MessageActionsMenu
                                       messageId={msg.id}
                                       isOwn={msg.sender_id === user?.id}
+                                      isPinned={msg.is_pinned}
                                       onEdit={handleEditMessage}
                                       onDelete={handleDeleteMessage}
                                       onForward={handleForwardMessage}
                                       onReply={handleReplyMessage}
+                                      onPin={handlePinMessage}
                                     />
                                   </div>
                                 )}
