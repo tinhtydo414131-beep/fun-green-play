@@ -18,7 +18,7 @@ interface TransferModalProps {
 
 export function TransferModal({ open, onOpenChange, recipientAddress, recipientUsername }: TransferModalProps) {
   const [amount, setAmount] = useState("");
-  const [tokenType, setTokenType] = useState("ETH");
+  const [tokenType, setTokenType] = useState("CAMLY");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
