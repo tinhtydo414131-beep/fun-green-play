@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Wallet, Coins, Gift, Calendar, ArrowUpRight, Loader2 } from 'lucide-react';
+import { Wallet, Coins, Gift, Calendar, ArrowUpRight, Loader2, History } from 'lucide-react';
 import { useWeb3Rewards } from '@/hooks/useWeb3Rewards';
 import { WalletConnectModal } from './WalletConnectModal';
 import { ClaimRewardsModal } from './ClaimRewardsModal';
@@ -9,6 +10,7 @@ import { Web3RewardNotification } from './Web3RewardNotification';
 import { motion } from 'framer-motion';
 
 export const Web3RewardsPanel = () => {
+  const navigate = useNavigate();
   const {
     camlyBalance,
     walletAddress,
@@ -126,6 +128,16 @@ export const Web3RewardsPanel = () => {
               Claim to Wallet
             </Button>
           )}
+
+          {/* View History */}
+          <Button
+            onClick={() => navigate('/rewards-history')}
+            variant="ghost"
+            className="w-full text-muted-foreground hover:text-foreground"
+          >
+            <History className="w-4 h-4 mr-2" />
+            View Transaction History
+          </Button>
 
           {/* Reward Info */}
           <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t border-border/50">

@@ -33,6 +33,7 @@ import AdminGameReview from "./pages/AdminGameReview";
 import MyGames from "./pages/MyGames";
 import EditGame from "./pages/EditGame";
 import GameDetails from "./pages/GameDetails";
+import RewardsHistory from "./pages/RewardsHistory";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +67,7 @@ const AnimatedRoutes = () => {
         <Route path="/my-games" element={<MyGames />} />
         <Route path="/edit-game/:id" element={<EditGame />} />
         <Route path="/game-details/:id" element={<GameDetails />} />
+        <Route path="/rewards-history" element={<RewardsHistory />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
