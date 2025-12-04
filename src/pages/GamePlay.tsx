@@ -348,14 +348,16 @@ const GamePlay = () => {
       case "HappyPark2D": return <HappyPark {...gameProps} />;
       case "HomeDesigner":
       case "home-designer":
-        return <HomeDesigner {...gameProps} />;
+        return <HomeDesigner3D {...gameProps} />;
+      case "HomeDesigner2D": return <HomeDesigner {...gameProps} />;
       case "CommunityHub":
       case "community-hub":
         return <CommunityHub3D {...gameProps} />;
       case "CommunityHub2D": return <CommunityHub {...gameProps} />;
       case "EcoVillage":
       case "eco-village":
-        return <EcoVillage {...gameProps} />;
+        return <EcoVillage3D {...gameProps} />;
+      case "EcoVillage2D": return <EcoVillage {...gameProps} />;
       case "ArtStudio":
       case "art-studio":
         return <ArtStudio3D {...gameProps} />;
@@ -396,14 +398,6 @@ const GamePlay = () => {
       case "theme-park-builder":
         return <ThemeParkBuilder3D {...gameProps} />;
       case "ThemeParkBuilder2D": return <ThemeParkBuilder {...gameProps} />;
-      case "EcoVillage":
-      case "eco-village":
-        return <EcoVillage3D {...gameProps} />;
-      case "EcoVillage2D": return <EcoVillage {...gameProps} />;
-      case "HomeDesigner":
-      case "home-designer":
-        return <HomeDesigner3D {...gameProps} />;
-      case "HomeDesigner2D": return <HomeDesigner {...gameProps} />;
       case "GoldMiner":
       case "gold-miner":
         return <GoldMiner3D {...gameProps} />;
