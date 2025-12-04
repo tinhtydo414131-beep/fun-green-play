@@ -122,57 +122,63 @@ export default function Leaderboard() {
 
           {/* Top 3 Podium */}
           {leaders.length >= 3 && (
-            <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6 sm:mb-12 max-w-4xl mx-auto">
-              {/* 2nd Place */}
-              <div className="mt-4 sm:mt-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                <Card className="border-2 sm:border-4 border-gray-400 shadow-xl transform hover:scale-105 transition-all">
-                  <CardContent className="p-2 sm:p-6 text-center">
-                    <div className="flex justify-center mb-1 sm:mb-3">
-                      <Medal className="w-6 h-6 sm:w-12 sm:h-12 text-gray-400" />
+            <div className="flex flex-col sm:grid sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-12 max-w-4xl mx-auto">
+              {/* 1st Place - Shows first on mobile */}
+              <div className="animate-fade-in sm:order-2">
+                <Card className="border-2 sm:border-4 border-yellow-500 shadow-2xl transform hover:scale-105 transition-all bg-gradient-to-br from-yellow-50 to-yellow-100">
+                  <CardContent className="p-3 sm:p-6 text-center">
+                    <div className="flex sm:flex-col items-center sm:items-center gap-3 sm:gap-0">
+                      <Trophy className="w-10 h-10 sm:w-16 sm:h-16 text-yellow-500 animate-pulse sm:mb-3" />
+                      <div className="w-14 h-14 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-xl sm:text-4xl font-bold text-white shadow-2xl sm:mb-3 shrink-0">
+                        {leaders[0].username[0].toUpperCase()}
+                      </div>
+                      <div className="flex-1 sm:flex-none text-left sm:text-center">
+                        <p className="font-fredoka font-bold text-base sm:text-2xl text-foreground truncate">{leaders[0].username}</p>
+                        <p className="text-xl sm:text-4xl font-fredoka font-bold text-yellow-600">{leaders[0].leaderboard_score} <span className="text-xs sm:text-sm font-comic text-muted-foreground font-normal">points</span></p>
+                      </div>
+                      <span className="px-3 py-1 bg-yellow-500 text-white font-fredoka font-bold rounded-full text-xs sm:hidden shrink-0">👑</span>
                     </div>
-                    <div className="w-10 h-10 sm:w-20 sm:h-20 mx-auto mb-1 sm:mb-3 rounded-full bg-gradient-to-br from-gray-300 to-gray-500 flex items-center justify-center text-sm sm:text-3xl font-bold text-white shadow-lg">
-                      {leaders[1].username[0].toUpperCase()}
+                    <div className="hidden sm:block mt-3">
+                      <span className="px-4 py-1 bg-yellow-500 text-white font-fredoka font-bold rounded-full text-sm">👑 Champion!</span>
                     </div>
-                    <p className="font-fredoka font-bold text-xs sm:text-xl text-foreground mb-0.5 sm:mb-1 truncate px-1">{leaders[1].username}</p>
-                    <p className="text-sm sm:text-3xl font-fredoka font-bold text-gray-500">{leaders[1].leaderboard_score}</p>
-                    <p className="text-[10px] sm:text-sm font-comic text-muted-foreground">points</p>
                   </CardContent>
                 </Card>
               </div>
 
-              {/* 1st Place */}
-              <div className="animate-fade-in">
-                <Card className="border-2 sm:border-4 border-yellow-500 shadow-2xl transform hover:scale-105 transition-all bg-gradient-to-br from-yellow-50 to-yellow-100">
-                  <CardContent className="p-2 sm:p-6 text-center">
-                    <div className="flex justify-center mb-1 sm:mb-3">
-                      <Trophy className="w-8 h-8 sm:w-16 sm:h-16 text-yellow-500 animate-pulse" />
-                    </div>
-                    <div className="w-12 h-12 sm:w-24 sm:h-24 mx-auto mb-1 sm:mb-3 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-base sm:text-4xl font-bold text-white shadow-2xl">
-                      {leaders[0].username[0].toUpperCase()}
-                    </div>
-                    <p className="font-fredoka font-bold text-xs sm:text-2xl text-foreground mb-0.5 sm:mb-1 truncate px-1">{leaders[0].username}</p>
-                    <p className="text-base sm:text-4xl font-fredoka font-bold text-yellow-600">{leaders[0].leaderboard_score}</p>
-                    <p className="text-[10px] sm:text-sm font-comic text-muted-foreground">points</p>
-                    <div className="mt-1 sm:mt-3">
-                      <span className="px-2 sm:px-4 py-0.5 sm:py-1 bg-yellow-500 text-white font-fredoka font-bold rounded-full text-[10px] sm:text-sm">👑 Champion!</span>
+              {/* 2nd Place */}
+              <div className="animate-fade-in sm:order-1 sm:mt-8" style={{ animationDelay: '0.2s' }}>
+                <Card className="border-2 sm:border-4 border-gray-400 shadow-xl transform hover:scale-105 transition-all">
+                  <CardContent className="p-3 sm:p-6 text-center">
+                    <div className="flex sm:flex-col items-center sm:items-center gap-3 sm:gap-0">
+                      <Medal className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 sm:mb-3" />
+                      <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-gray-300 to-gray-500 flex items-center justify-center text-lg sm:text-3xl font-bold text-white shadow-lg sm:mb-3 shrink-0">
+                        {leaders[1].username[0].toUpperCase()}
+                      </div>
+                      <div className="flex-1 sm:flex-none text-left sm:text-center">
+                        <p className="font-fredoka font-bold text-sm sm:text-xl text-foreground truncate">{leaders[1].username}</p>
+                        <p className="text-lg sm:text-3xl font-fredoka font-bold text-gray-500">{leaders[1].leaderboard_score} <span className="text-xs sm:text-sm font-comic text-muted-foreground font-normal">points</span></p>
+                      </div>
+                      <span className="text-lg font-fredoka font-bold text-gray-400 sm:hidden shrink-0">#2</span>
                     </div>
                   </CardContent>
                 </Card>
               </div>
 
               {/* 3rd Place */}
-              <div className="mt-4 sm:mt-8 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+              <div className="animate-fade-in sm:order-3 sm:mt-8" style={{ animationDelay: '0.4s' }}>
                 <Card className="border-2 sm:border-4 border-orange-600 shadow-xl transform hover:scale-105 transition-all">
-                  <CardContent className="p-2 sm:p-6 text-center">
-                    <div className="flex justify-center mb-1 sm:mb-3">
-                      <Medal className="w-6 h-6 sm:w-12 sm:h-12 text-orange-600" />
+                  <CardContent className="p-3 sm:p-6 text-center">
+                    <div className="flex sm:flex-col items-center sm:items-center gap-3 sm:gap-0">
+                      <Medal className="w-8 h-8 sm:w-12 sm:h-12 text-orange-600 sm:mb-3" />
+                      <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-lg sm:text-3xl font-bold text-white shadow-lg sm:mb-3 shrink-0">
+                        {leaders[2].username[0].toUpperCase()}
+                      </div>
+                      <div className="flex-1 sm:flex-none text-left sm:text-center">
+                        <p className="font-fredoka font-bold text-sm sm:text-xl text-foreground truncate">{leaders[2].username}</p>
+                        <p className="text-lg sm:text-3xl font-fredoka font-bold text-orange-600">{leaders[2].leaderboard_score} <span className="text-xs sm:text-sm font-comic text-muted-foreground font-normal">points</span></p>
+                      </div>
+                      <span className="text-lg font-fredoka font-bold text-orange-600 sm:hidden shrink-0">#3</span>
                     </div>
-                    <div className="w-10 h-10 sm:w-20 sm:h-20 mx-auto mb-1 sm:mb-3 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-sm sm:text-3xl font-bold text-white shadow-lg">
-                      {leaders[2].username[0].toUpperCase()}
-                    </div>
-                    <p className="font-fredoka font-bold text-xs sm:text-xl text-foreground mb-0.5 sm:mb-1 truncate px-1">{leaders[2].username}</p>
-                    <p className="text-sm sm:text-3xl font-fredoka font-bold text-orange-600">{leaders[2].leaderboard_score}</p>
-                    <p className="text-[10px] sm:text-sm font-comic text-muted-foreground">points</p>
                   </CardContent>
                 </Card>
               </div>
