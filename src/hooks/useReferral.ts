@@ -1,10 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
+import { getCurrentTier, REFERRAL_TIERS, ReferralTier } from '@/utils/referralTiers';
 
 const REFERRAL_REWARD_FOR_REFERRER = 25000;
 const REFERRAL_STORAGE_KEY = 'fun_planet_referral_code';
+const CLAIMED_TIERS_KEY = 'fun_planet_claimed_tiers';
 
 interface ReferralStats {
   referralCode: string | null;
@@ -12,6 +14,8 @@ interface ReferralStats {
   referralEarnings: number;
   referrerUsername: string | null;
   isLoading: boolean;
+  claimedTiers: string[];
+  newTierAchieved: ReferralTier | null;
 }
 
 interface PendingReferrer {
@@ -28,9 +32,12 @@ export const useReferral = () => {
     referralEarnings: 0,
     referrerUsername: null,
     isLoading: true,
+    claimedTiers: [],
+    newTierAchieved: null,
   });
   const [pendingReferrer, setPendingReferrer] = useState<PendingReferrer | null>(null);
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
+  const previousReferralsRef = useRef<number | null>(null);
 
   // Check URL for referral code on mount
   useEffect(() => {
@@ -107,18 +114,98 @@ export const useReferral = () => {
         .eq('user_id', user.id)
         .maybeSingle();
 
+      // Get claimed tiers from localStorage
+      const claimedTiersStr = localStorage.getItem(`${CLAIMED_TIERS_KEY}_${user.id}`);
+      const claimedTiers = claimedTiersStr ? JSON.parse(claimedTiersStr) : [];
+
+      const totalReferrals = rewards?.total_referrals || 0;
+
       setStats({
         referralCode: profile?.referral_code || null,
-        totalReferrals: rewards?.total_referrals || 0,
+        totalReferrals,
         referralEarnings: Number(rewards?.referral_earnings) || 0,
         referrerUsername: null,
         isLoading: false,
+        claimedTiers,
+        newTierAchieved: null,
       });
+
+      // Check and claim tier rewards
+      await checkAndClaimTierRewards(totalReferrals, claimedTiers);
     } catch (error) {
       console.error('Error loading referral stats:', error);
       setStats(prev => ({ ...prev, isLoading: false }));
     }
   }, [user]);
+
+  // Check and claim tier rewards
+  const checkAndClaimTierRewards = useCallback(async (totalReferrals: number, claimedTiers: string[]) => {
+    if (!user) return;
+
+    const currentTier = getCurrentTier(totalReferrals);
+    if (currentTier.id === 'none') return;
+
+    // Find unclaimed tiers that user has achieved
+    const unclaimedTiers = REFERRAL_TIERS.filter(
+      tier => 
+        tier.id !== 'none' && 
+        totalReferrals >= tier.requiredReferrals && 
+        !claimedTiers.includes(tier.id)
+    );
+
+    if (unclaimedTiers.length === 0) return;
+
+    // Claim all unclaimed tiers
+    for (const tier of unclaimedTiers) {
+      try {
+        // Add tier reward to user's balance
+        const { data: currentRewards } = await supabase
+          .from('web3_rewards')
+          .select('camly_balance, referral_earnings')
+          .eq('user_id', user.id)
+          .single();
+
+        if (currentRewards) {
+          await supabase
+            .from('web3_rewards')
+            .update({
+              camly_balance: Number(currentRewards.camly_balance) + tier.reward,
+              referral_earnings: Number(currentRewards.referral_earnings) + tier.reward,
+            })
+            .eq('user_id', user.id);
+
+          // Record the transaction
+          await supabase.from('web3_reward_transactions').insert({
+            user_id: user.id,
+            amount: tier.reward,
+            reward_type: 'referral_tier_bonus',
+            description: `Đạt cấp ${tier.name} - Thưởng ${tier.reward.toLocaleString()} Camly`,
+          });
+        }
+
+        // Update claimed tiers
+        const newClaimedTiers = [...claimedTiers, tier.id];
+        localStorage.setItem(`${CLAIMED_TIERS_KEY}_${user.id}`, JSON.stringify(newClaimedTiers));
+        claimedTiers.push(tier.id);
+
+        // Show achievement for the highest tier achieved
+        if (tier === unclaimedTiers[unclaimedTiers.length - 1]) {
+          setStats(prev => ({
+            ...prev,
+            claimedTiers: newClaimedTiers,
+            referralEarnings: prev.referralEarnings + tier.reward,
+            newTierAchieved: tier,
+          }));
+        }
+      } catch (error) {
+        console.error('Error claiming tier reward:', error);
+      }
+    }
+  }, [user]);
+
+  const clearNewTierAchieved = useCallback(() => {
+    setStats(prev => ({ ...prev, newTierAchieved: null }));
+  }, []);
 
   useEffect(() => {
     loadStats();
@@ -253,6 +340,7 @@ export const useReferral = () => {
     copyReferralLink,
     dismissWelcomeBanner,
     loadStats,
+    clearNewTierAchieved,
     REFERRAL_REWARD_FOR_REFERRER,
   };
 };

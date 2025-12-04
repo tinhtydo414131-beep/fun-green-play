@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navigation } from '@/components/Navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, Trophy, Coins, Flame, Medal, Crown } from 'lucide-react';
+import { ArrowLeft, Trophy, Coins, Flame, Medal, Crown, Users } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
+import { ReferralLeaderboard } from '@/components/ReferralLeaderboard';
 
 interface LeaderboardEntry {
   user_id: string;
@@ -130,71 +132,90 @@ export default function CamlyLeaderboard() {
           </motion.div>
         )}
 
-        {/* Leaderboard */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Top 50 Earners</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {loading ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
-              </div>
-            ) : leaderboard.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">No data yet</p>
-            ) : (
-              leaderboard.map((entry, index) => {
-                const rank = index + 1;
-                const isCurrentUser = user?.id === entry.user_id;
-                
-                return (
-                  <motion.div
-                    key={entry.user_id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.03 }}
-                    className={`flex items-center gap-3 p-3 rounded-lg border ${getRankBg(rank)} ${isCurrentUser ? 'ring-2 ring-primary' : ''}`}
-                  >
-                    {/* Rank */}
-                    <div className="w-8 flex justify-center">
-                      {getRankIcon(rank)}
-                    </div>
+        {/* Tabs for different leaderboards */}
+        <Tabs defaultValue="camly" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="camly" className="flex items-center gap-2">
+              <Coins className="w-4 h-4" />
+              Top Camly
+            </TabsTrigger>
+            <TabsTrigger value="referral" className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              Top Mời Bạn
+            </TabsTrigger>
+          </TabsList>
 
-                    {/* Avatar */}
-                    <Avatar className="w-10 h-10 border-2 border-border">
-                      <AvatarImage src={entry.profiles?.avatar_url || undefined} />
-                      <AvatarFallback className="bg-primary/20 text-primary font-bold">
-                        {entry.profiles?.username?.[0]?.toUpperCase() || '?'}
-                      </AvatarFallback>
-                    </Avatar>
+          <TabsContent value="camly">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Top 50 Earners</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {loading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+                  </div>
+                ) : leaderboard.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">No data yet</p>
+                ) : (
+                  leaderboard.map((entry, index) => {
+                    const rank = index + 1;
+                    const isCurrentUser = user?.id === entry.user_id;
+                    
+                    return (
+                      <motion.div
+                        key={entry.user_id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.03 }}
+                        className={`flex items-center gap-3 p-3 rounded-lg border ${getRankBg(rank)} ${isCurrentUser ? 'ring-2 ring-primary' : ''}`}
+                      >
+                        {/* Rank */}
+                        <div className="w-8 flex justify-center">
+                          {getRankIcon(rank)}
+                        </div>
 
-                    {/* Username */}
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold truncate">
-                        {entry.profiles?.username || 'Anonymous'}
-                        {isCurrentUser && <span className="text-primary ml-1">(You)</span>}
-                      </p>
-                      {entry.daily_streak > 0 && (
-                        <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Flame className="w-3 h-3 text-orange-500" />
-                          {entry.daily_streak}-day streak
-                        </p>
-                      )}
-                    </div>
+                        {/* Avatar */}
+                        <Avatar className="w-10 h-10 border-2 border-border">
+                          <AvatarImage src={entry.profiles?.avatar_url || undefined} />
+                          <AvatarFallback className="bg-primary/20 text-primary font-bold">
+                            {entry.profiles?.username?.[0]?.toUpperCase() || '?'}
+                          </AvatarFallback>
+                        </Avatar>
 
-                    {/* Balance */}
-                    <div className="flex items-center gap-1">
-                      <Coins className="w-4 h-4 text-yellow-500" />
-                      <span className="font-bold bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
-                        {entry.camly_balance.toLocaleString()}
-                      </span>
-                    </div>
-                  </motion.div>
-                );
-              })
-            )}
-          </CardContent>
-        </Card>
+                        {/* Username */}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold truncate">
+                            {entry.profiles?.username || 'Anonymous'}
+                            {isCurrentUser && <span className="text-primary ml-1">(You)</span>}
+                          </p>
+                          {entry.daily_streak > 0 && (
+                            <p className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Flame className="w-3 h-3 text-orange-500" />
+                              {entry.daily_streak}-day streak
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Balance */}
+                        <div className="flex items-center gap-1">
+                          <Coins className="w-4 h-4 text-yellow-500" />
+                          <span className="font-bold bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+                            {entry.camly_balance.toLocaleString()}
+                          </span>
+                        </div>
+                      </motion.div>
+                    );
+                  })
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="referral">
+            <ReferralLeaderboard />
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
