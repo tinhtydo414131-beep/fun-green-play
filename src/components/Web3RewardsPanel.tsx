@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Wallet, Coins, Gift, Calendar, ArrowUpRight, Loader2, History } from 'lucide-react';
+import { Wallet, Coins, Gift, Calendar, ArrowUpRight, Loader2, History, Flame, Trophy } from 'lucide-react';
 import { useWeb3Rewards } from '@/hooks/useWeb3Rewards';
 import { WalletConnectModal } from './WalletConnectModal';
 import { ClaimRewardsModal } from './ClaimRewardsModal';
@@ -17,6 +17,7 @@ export const Web3RewardsPanel = () => {
     isConnected,
     isLoading,
     lastDailyCheckin,
+    dailyStreak,
     pendingReward,
     connectWallet,
     claimDailyCheckin,
@@ -24,6 +25,8 @@ export const Web3RewardsPanel = () => {
     canClaimDailyCheckin,
     clearPendingReward,
     REWARDS,
+    STREAK_BONUSES,
+    getStreakMultiplier,
     CAMLY_CONTRACT_ADDRESS,
   } = useWeb3Rewards();
 
@@ -99,23 +102,36 @@ export const Web3RewardsPanel = () => {
             </Button>
           )}
 
-          {/* Daily Check-in */}
-          <Button
-            onClick={handleDailyCheckin}
-            disabled={!canClaimDailyCheckin() || isCheckingIn}
-            variant="outline"
-            className="w-full border-yellow-500/30 hover:bg-yellow-500/10"
-          >
-            {isCheckingIn ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Calendar className="w-4 h-4 mr-2" />
+          {/* Daily Check-in with Streak */}
+          <div className="space-y-2">
+            {dailyStreak > 0 && (
+              <div className="flex items-center gap-2 text-sm">
+                <Flame className="w-4 h-4 text-orange-500" />
+                <span className="font-semibold">{dailyStreak}-day streak</span>
+                {getStreakMultiplier(dailyStreak) > 1 && (
+                  <span className="text-xs bg-orange-500/20 text-orange-500 px-2 py-0.5 rounded-full">
+                    {getStreakMultiplier(dailyStreak)}x bonus
+                  </span>
+                )}
+              </div>
             )}
-            Daily Check-in
-            <span className="ml-auto text-xs text-yellow-500">
-              +{REWARDS.DAILY_CHECKIN.toLocaleString()} CAMLY
-            </span>
-          </Button>
+            <Button
+              onClick={handleDailyCheckin}
+              disabled={!canClaimDailyCheckin() || isCheckingIn}
+              variant="outline"
+              className="w-full border-yellow-500/30 hover:bg-yellow-500/10"
+            >
+              {isCheckingIn ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Calendar className="w-4 h-4 mr-2" />
+              )}
+              Daily Check-in
+              <span className="ml-auto text-xs text-yellow-500">
+                +{Math.floor(REWARDS.DAILY_CHECKIN * getStreakMultiplier(dailyStreak + 1)).toLocaleString()} CAMLY
+              </span>
+            </Button>
+          </div>
 
           {/* Claim to Wallet */}
           {isConnected && camlyBalance > 0 && (
@@ -128,6 +144,16 @@ export const Web3RewardsPanel = () => {
               Claim to Wallet
             </Button>
           )}
+
+          {/* Leaderboard */}
+          <Button
+            onClick={() => navigate('/camly-leaderboard')}
+            variant="outline"
+            className="w-full border-yellow-500/30 hover:bg-yellow-500/10"
+          >
+            <Trophy className="w-4 h-4 mr-2 text-yellow-500" />
+            View Leaderboard
+          </Button>
 
           {/* View History */}
           <Button

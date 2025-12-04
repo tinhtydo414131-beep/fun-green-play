@@ -14,6 +14,14 @@ const REWARDS = {
   DAILY_CHECKIN: 5000,
 };
 
+// Streak bonus multipliers
+const STREAK_BONUSES: Record<number, number> = {
+  3: 1.5,   // 3-day streak = 1.5x
+  7: 2.0,   // 7-day streak = 2x
+  14: 2.5,  // 14-day streak = 2.5x
+  30: 3.0,  // 30-day streak = 3x
+};
+
 // ERC20 ABI for transfer
 const ERC20_ABI = [
   'function transfer(address to, uint256 amount) returns (bool)',
@@ -29,7 +37,19 @@ interface Web3RewardsState {
   firstWalletClaimed: boolean;
   firstGameClaimed: boolean;
   lastDailyCheckin: string | null;
+  dailyStreak: number;
 }
+
+// Calculate streak bonus multiplier
+const getStreakMultiplier = (streak: number): number => {
+  let multiplier = 1;
+  for (const [threshold, bonus] of Object.entries(STREAK_BONUSES)) {
+    if (streak >= parseInt(threshold)) {
+      multiplier = bonus;
+    }
+  }
+  return multiplier;
+};
 
 export const useWeb3Rewards = () => {
   const { user } = useAuth();
@@ -41,6 +61,7 @@ export const useWeb3Rewards = () => {
     firstWalletClaimed: false,
     firstGameClaimed: false,
     lastDailyCheckin: null,
+    dailyStreak: 0,
   });
   const [pendingReward, setPendingReward] = useState<{
     amount: number;
@@ -73,6 +94,7 @@ export const useWeb3Rewards = () => {
           firstWalletClaimed: data.first_wallet_claimed,
           firstGameClaimed: data.first_game_claimed,
           lastDailyCheckin: data.last_daily_checkin,
+          dailyStreak: data.daily_streak || 0,
           isLoading: false,
         }));
       } else {
@@ -218,11 +240,12 @@ export const useWeb3Rewards = () => {
     if (!user) return false;
 
     const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
 
     try {
       const { data: current } = await supabase
         .from('web3_rewards')
-        .select('last_daily_checkin, camly_balance')
+        .select('last_daily_checkin, camly_balance, daily_streak')
         .eq('user_id', user.id)
         .maybeSingle();
 
@@ -231,7 +254,20 @@ export const useWeb3Rewards = () => {
         return false;
       }
 
-      const newBalance = (Number(current?.camly_balance) || 0) + REWARDS.DAILY_CHECKIN;
+      // Calculate new streak
+      let newStreak = 1;
+      if (current?.last_daily_checkin === yesterday) {
+        // Consecutive day - increase streak
+        newStreak = (current.daily_streak || 0) + 1;
+      }
+      // If not yesterday, streak resets to 1
+
+      // Calculate bonus with streak multiplier
+      const multiplier = getStreakMultiplier(newStreak);
+      const baseReward = REWARDS.DAILY_CHECKIN;
+      const bonusReward = Math.floor(baseReward * multiplier);
+
+      const newBalance = (Number(current?.camly_balance) || 0) + bonusReward;
 
       await supabase
         .from('web3_rewards')
@@ -239,25 +275,33 @@ export const useWeb3Rewards = () => {
           user_id: user.id,
           last_daily_checkin: today,
           camly_balance: newBalance,
+          daily_streak: newStreak,
         }, { onConflict: 'user_id' });
+
+      const description = multiplier > 1 
+        ? `Daily Check-in (${newStreak}-day streak, ${multiplier}x bonus!)` 
+        : 'Daily check-in reward';
 
       await supabase.from('web3_reward_transactions').insert({
         user_id: user.id,
-        amount: REWARDS.DAILY_CHECKIN,
+        amount: bonusReward,
         reward_type: 'daily_checkin',
-        description: 'Daily check-in reward',
+        description,
       });
 
       setState(prev => ({
         ...prev,
         camlyBalance: newBalance,
         lastDailyCheckin: today,
+        dailyStreak: newStreak,
       }));
 
       setPendingReward({
-        amount: REWARDS.DAILY_CHECKIN,
+        amount: bonusReward,
         type: 'daily_checkin',
-        description: 'Daily Check-in Reward!',
+        description: multiplier > 1 
+          ? `${newStreak}-Day Streak! (${multiplier}x Bonus)` 
+          : 'Daily Check-in Reward!',
       });
 
       return true;
@@ -397,6 +441,8 @@ export const useWeb3Rewards = () => {
     clearPendingReward,
     loadRewards,
     REWARDS,
+    STREAK_BONUSES,
+    getStreakMultiplier,
     POINTS_TO_CAMLY_RATIO,
     CAMLY_CONTRACT_ADDRESS,
   };

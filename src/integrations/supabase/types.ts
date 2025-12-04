@@ -1487,6 +1487,7 @@ export type Database = {
         Row: {
           camly_balance: number
           created_at: string
+          daily_streak: number
           first_game_claimed: boolean
           first_wallet_claimed: boolean
           id: string
@@ -1499,6 +1500,7 @@ export type Database = {
         Insert: {
           camly_balance?: number
           created_at?: string
+          daily_streak?: number
           first_game_claimed?: boolean
           first_wallet_claimed?: boolean
           id?: string
@@ -1511,6 +1513,7 @@ export type Database = {
         Update: {
           camly_balance?: number
           created_at?: string
+          daily_streak?: number
           first_game_claimed?: boolean
           first_wallet_claimed?: boolean
           id?: string
