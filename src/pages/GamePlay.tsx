@@ -100,6 +100,11 @@ import { CityCreator3D } from "@/components/games/CityCreator3D";
 import { SpaceExplorer3D } from "@/components/games/SpaceExplorer3D";
 import { SpaceStation3D } from "@/components/games/SpaceStation3D";
 import { FarmBuilder3D } from "@/components/games/FarmBuilder3D";
+import ArtStudio3D from "@/components/games/ArtStudio3D";
+import ThemeParkBuilder3D from "@/components/games/ThemeParkBuilder3D";
+import EcoVillage3D from "@/components/games/EcoVillage3D";
+import HomeDesigner3D from "@/components/games/HomeDesigner3D";
+import WhackAMole3D from "@/components/games/WhackAMole3D";
 
 interface Game {
   id: string;
@@ -332,7 +337,8 @@ const GamePlay = () => {
         return <EcoVillage {...gameProps} />;
       case "ArtStudio":
       case "art-studio":
-        return <ArtStudio {...gameProps} />;
+        return <ArtStudio3D {...gameProps} />;
+      case "ArtStudio2D": return <ArtStudio {...gameProps} />;
       case "PetCare":
       case "pet-care":
         return <PetCare {...gameProps} />;
@@ -361,7 +367,16 @@ const GamePlay = () => {
         return <RestaurantChef {...gameProps} />;
       case "ThemeParkBuilder":
       case "theme-park-builder":
-        return <ThemeParkBuilder {...gameProps} />;
+        return <ThemeParkBuilder3D {...gameProps} />;
+      case "ThemeParkBuilder2D": return <ThemeParkBuilder {...gameProps} />;
+      case "EcoVillage":
+      case "eco-village":
+        return <EcoVillage3D {...gameProps} />;
+      case "EcoVillage2D": return <EcoVillage {...gameProps} />;
+      case "HomeDesigner":
+      case "home-designer":
+        return <HomeDesigner3D {...gameProps} />;
+      case "HomeDesigner2D": return <HomeDesigner {...gameProps} />;
       case "GoldMiner":
       case "gold-miner":
         return <GoldMiner3D {...gameProps} />;
@@ -409,7 +424,8 @@ const GamePlay = () => {
         return <RockPaperScissors {...gameProps} />;
       case "WhackAMole":
       case "whack-a-mole":
-        return <WhackAMole {...gameProps} />;
+        return <WhackAMole3D {...gameProps} />;
+      case "WhackAMole2D": return <WhackAMole {...gameProps} />;
       case "Sudoku":
       case "sudoku":
         return <Sudoku {...gameProps} />;
