@@ -115,6 +115,11 @@ import HospitalManager3D from "@/components/games/HospitalManager3D";
 import CinemaBoss3D from "@/components/games/CinemaBoss3D";
 import LibraryKeeper3D from "@/components/games/LibraryKeeper3D";
 import RestaurantChef3D from "@/components/games/RestaurantChef3D";
+import SchoolBuilder3D from "@/components/games/SchoolBuilder3D";
+import HappyPark3D from "@/components/games/HappyPark3D";
+import CommunityHub3D from "@/components/games/CommunityHub3D";
+import LilBlockBuddy3D from "@/components/games/LilBlockBuddy3D";
+import CookingMama3D from "@/components/games/CookingMama3D";
 
 interface Game {
   id: string;
@@ -332,16 +337,19 @@ const GamePlay = () => {
       case "DreamWorld2D": return <DreamWorld {...gameProps} />;
       case "SchoolBuilder":
       case "school-builder":
-        return <SchoolBuilder {...gameProps} />;
+        return <SchoolBuilder3D {...gameProps} />;
+      case "SchoolBuilder2D": return <SchoolBuilder {...gameProps} />;
       case "HappyPark":
       case "happy-park":
-        return <HappyPark {...gameProps} />;
+        return <HappyPark3D {...gameProps} />;
+      case "HappyPark2D": return <HappyPark {...gameProps} />;
       case "HomeDesigner":
       case "home-designer":
         return <HomeDesigner {...gameProps} />;
       case "CommunityHub":
       case "community-hub":
-        return <CommunityHub {...gameProps} />;
+        return <CommunityHub3D {...gameProps} />;
+      case "CommunityHub2D": return <CommunityHub {...gameProps} />;
       case "EcoVillage":
       case "eco-village":
         return <EcoVillage {...gameProps} />;
@@ -415,7 +423,13 @@ const GamePlay = () => {
       case "Platformer2D": return <Platformer {...gameProps} />;
       case "Racing": return <Racing3D {...gameProps} />;
       case "Racing2D": return <Racing {...gameProps} />;
-      case "LilBlockBuddy": return <LilBlockBuddy {...gameProps} />;
+      case "LilBlockBuddy": return <LilBlockBuddy3D {...gameProps} />;
+      case "LilBlockBuddy2D": return <LilBlockBuddy {...gameProps} />;
+      case "CookingMama":
+      case "cooking-mama":
+        return <CookingMama3D {...gameProps} />;
+      case "CookingMama2D": return <CookingMama />;
+
       case "Game2048Nexus": 
       case "2048-nexus":
         return <Game2048Nexus {...gameProps} />;
