@@ -1,4 +1,4 @@
-import { Home, Gamepad2, MessageCircle, User, Trophy } from "lucide-react";
+import { Home, Gamepad2, MessageCircle, User, Newspaper } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,10 +9,10 @@ export const MobileBottomNav = () => {
   
   const navItems = [
     { icon: Home, label: "Home", path: "/" },
+    { icon: Newspaper, label: "Feed", path: user ? "/feed" : "/auth" },
     { icon: Gamepad2, label: "Games", path: "/games" },
     { icon: MessageCircle, label: "Chat", path: user ? "/messages" : "/auth" },
     { icon: User, label: "Profile", path: user ? "/dashboard" : "/auth" },
-    { icon: Trophy, label: "Rank", path: "/leaderboard" },
   ];
 
   const isActive = (path: string) => {

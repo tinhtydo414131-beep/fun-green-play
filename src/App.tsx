@@ -38,6 +38,7 @@ import CamlyLeaderboard from "./pages/CamlyLeaderboard";
 import Profile from "./pages/Profile";
 import FindFriends from "./pages/FindFriends";
 import Messages from "./pages/Messages";
+import Feed from "./pages/Feed";
 
 const queryClient = new QueryClient();
 
@@ -76,6 +77,7 @@ const AnimatedRoutes = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/find-friends" element={<FindFriends />} />
         <Route path="/messages" element={<Messages />} />
+        <Route path="/feed" element={<Feed />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

@@ -30,6 +30,8 @@ import { ReplyPreview, QuotedMessage } from "@/components/ReplyPreview";
 import { PinnedMessagesBar } from "@/components/PinnedMessages";
 import { VoiceRecordButton } from "@/components/VoiceRecordButton";
 import { VoiceMessage } from "@/components/VoiceMessage";
+import { VideoCall } from "@/components/VideoCall";
+import { useVideoCall } from "@/hooks/useVideoCall";
 
 interface Friend {
   id: string;
@@ -779,21 +781,26 @@ export default function Messages() {
     );
   }
 
-  // Handle voice/video call (placeholder)
+  // Video call hook
+  const { isCallOpen, callTarget, callType, isIncoming, startCall, endCall } = useVideoCall();
+
+  // Handle voice/video call
   const handleVoiceCall = () => {
     if (!selectedConversation?.friend) return;
-    toast.info(`Calling ${selectedConversation.friend.username}...`, {
-      description: "Voice calls coming soon! 📞",
-      duration: 3000,
-    });
+    startCall({
+      id: selectedConversation.friend.id,
+      username: selectedConversation.friend.username,
+      avatar_url: selectedConversation.friend.avatar_url
+    }, "audio");
   };
 
   const handleVideoCall = () => {
     if (!selectedConversation?.friend) return;
-    toast.info(`Video calling ${selectedConversation.friend.username}...`, {
-      description: "Video calls coming soon! 📹",
-      duration: 3000,
-    });
+    startCall({
+      id: selectedConversation.friend.id,
+      username: selectedConversation.friend.username,
+      avatar_url: selectedConversation.friend.avatar_url
+    }, "video");
   };
 
   // Get online friends for "Active Now" section
@@ -1359,6 +1366,17 @@ export default function Messages() {
           conversations={getForwardConversations()}
           userId={user.id}
           currentRoomId={selectedConversation.roomId}
+        />
+      )}
+
+      {/* Video Call Modal */}
+      {callTarget && (
+        <VideoCall
+          isOpen={isCallOpen}
+          onClose={endCall}
+          targetUser={callTarget}
+          isIncoming={isIncoming}
+          callType={callType}
         />
       )}
     </div>

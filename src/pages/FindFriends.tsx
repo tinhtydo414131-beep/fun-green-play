@@ -11,6 +11,7 @@ import { Search, UserPlus, Users, Home, Trophy, Sparkles, CheckCircle } from "lu
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
+import { Stories } from "@/components/Stories";
 
 interface UserResult {
   id: string;
@@ -277,6 +278,9 @@ export default function FindFriends() {
       
       <section className="pt-24 md:pt-32 pb-20 px-4">
         <div className="container mx-auto max-w-4xl">
+          {/* Stories Section */}
+          <Stories />
+
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <Button
