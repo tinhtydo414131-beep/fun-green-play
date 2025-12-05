@@ -3,9 +3,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Coins, Wallet, ArrowRight, Loader2, CheckCircle2, ExternalLink } from 'lucide-react';
+import { Wallet, ArrowRight, Loader2, CheckCircle2, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import camlyCoinIcon from "@/assets/camly-coin-notification.png";
 
 interface ClaimRewardsModalProps {
   isOpen: boolean;
@@ -66,7 +67,7 @@ export const ClaimRewardsModal = ({
       <DialogContent className="sm:max-w-md bg-gradient-to-br from-background to-muted border-2 border-primary/20">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center flex items-center justify-center gap-2">
-            <Coins className="w-6 h-6 text-yellow-500" />
+            <img src={camlyCoinIcon} alt="Camly Coin" className="w-8 h-8" />
             Claim Camly Coins
           </DialogTitle>
           <DialogDescription className="text-center">

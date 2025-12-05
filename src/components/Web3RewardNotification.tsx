@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Coins, Sparkles, X } from 'lucide-react';
+import { Sparkles, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import camlyCoinIcon from "@/assets/camly-coin-notification.png";
 
 interface Web3RewardNotificationProps {
   isOpen: boolean;
@@ -151,17 +152,19 @@ export const Web3RewardNotification = ({
                   <motion.div
                     className="relative"
                     animate={{
-                      rotateY: [0, 360],
+                      scale: [1, 1.1, 1],
                     }}
                     transition={{
-                      duration: 2,
+                      duration: 1.5,
                       repeat: Infinity,
-                      ease: 'linear',
+                      ease: 'easeInOut',
                     }}
                   >
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-300 via-yellow-400 to-orange-500 flex items-center justify-center shadow-lg">
-                      <Coins className="w-10 h-10 text-white drop-shadow-lg" />
-                    </div>
+                    <img 
+                      src={camlyCoinIcon} 
+                      alt="Camly Coin" 
+                      className="w-24 h-24 drop-shadow-2xl"
+                    />
                     
                     {/* Sparkle effects */}
                     <motion.div

@@ -2,9 +2,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
-import { Trophy, Coins, Star, RotateCcw, Home, Share2, Sparkles } from "lucide-react";
+import { Trophy, Star, RotateCcw, Home, Share2, Sparkles } from "lucide-react";
 import confetti from "canvas-confetti";
 import { useEffect } from "react";
+import camlyCoinIcon from "@/assets/camly-coin-notification.png";
 
 interface GameOverModalProps {
   isOpen: boolean;
@@ -124,7 +125,7 @@ export const GameOverModal = ({
           >
             <div className="flex items-center justify-between">
               <span className="font-medium flex items-center gap-2">
-                <Coins className="h-5 w-5 text-yellow-500" />
+                <img src={camlyCoinIcon} alt="Camly Coin" className="h-6 w-6" />
                 Camly Coin nhận được
               </span>
               <Badge className="bg-yellow-500 text-white text-lg px-3 py-1">

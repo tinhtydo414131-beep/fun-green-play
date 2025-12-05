@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
-import camlyCoin from "@/assets/camly-coin.png";
+import camlyCoin from "@/assets/camly-coin-notification.png";
 
 interface CamlyCoinRewardProps {
   amount: number;
