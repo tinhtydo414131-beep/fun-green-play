@@ -1903,6 +1903,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      update_wallet_balance: {
+        Args: { p_amount: number; p_operation?: string; p_user_id: string }
+        Returns: number
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

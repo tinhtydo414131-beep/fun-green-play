@@ -5,3 +5,18 @@ verify_jwt = false
 
 [functions.get-ice-servers]
 verify_jwt = false
+
+[functions.wallet-auth]
+verify_jwt = false
+
+[functions.update-balance]
+verify_jwt = true
+
+[functions.watch-camly-transfers]
+verify_jwt = true
+
+[functions.rotate-daily-challenge]
+verify_jwt = true
+
+[functions.reset-combo-periods]
+verify_jwt = true
