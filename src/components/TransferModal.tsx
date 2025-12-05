@@ -6,9 +6,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Loader2, Send, Copy, Check, Wallet, AlertTriangle } from "lucide-react";
+import { Loader2, Send, Copy, Check, Wallet, AlertTriangle, History, ArrowUpRight } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { formatDistanceToNow } from "date-fns";
+
+interface RecentTransfer {
+  id: string;
+  amount: number;
+  token_type: string;
+  status: string;
+  created_at: string;
+}
 
 interface TransferModalProps {
   open: boolean;
@@ -26,23 +35,44 @@ export function TransferModal({ open, onOpenChange, recipientAddress, recipientU
   const [camlyBalance, setCamlyBalance] = useState<number>(0);
   const [loadingBalance, setLoadingBalance] = useState(true);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [recentTransfers, setRecentTransfers] = useState<RecentTransfer[]>([]);
 
   useEffect(() => {
-    const fetchBalance = async () => {
+    const fetchData = async () => {
       setLoadingBalance(true);
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { data } = await supabase
+        // Fetch balance
+        const { data: balanceData } = await supabase
           .from("web3_rewards")
           .select("camly_balance")
           .eq("user_id", user.id)
           .maybeSingle();
-        setCamlyBalance(data?.camly_balance || 0);
+        setCamlyBalance(balanceData?.camly_balance || 0);
+
+        // Get recipient profile id
+        const { data: recipientProfile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("wallet_address", recipientAddress)
+          .maybeSingle();
+
+        if (recipientProfile) {
+          // Fetch recent transfers to this recipient
+          const { data: transfers } = await supabase
+            .from("wallet_transactions")
+            .select("id, amount, token_type, status, created_at")
+            .eq("from_user_id", user.id)
+            .eq("to_user_id", recipientProfile.id)
+            .order("created_at", { ascending: false })
+            .limit(3);
+          setRecentTransfers(transfers || []);
+        }
       }
       setLoadingBalance(false);
     };
-    if (open) fetchBalance();
-  }, [open]);
+    if (open) fetchData();
+  }, [open, recipientAddress]);
 
   const copyAddress = () => {
     navigator.clipboard.writeText(recipientAddress);
@@ -236,6 +266,45 @@ export function TransferModal({ open, onOpenChange, recipientAddress, recipientU
               disabled={loading}
             />
           </div>
+
+          {/* Recent Transfers */}
+          {recentTransfers.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <History className="w-4 h-4" />
+                <span>Recent transfers to {recipientUsername}</span>
+              </div>
+              <div className="space-y-1">
+                {recentTransfers.map((transfer) => (
+                  <div
+                    key={transfer.id}
+                    className="flex items-center justify-between p-2 bg-muted/50 rounded text-xs"
+                  >
+                    <div className="flex items-center gap-2">
+                      <ArrowUpRight className="w-3 h-3 text-muted-foreground" />
+                      <span className="font-medium">
+                        {transfer.amount.toLocaleString()} {transfer.token_type}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] ${
+                        transfer.status === "completed" 
+                          ? "bg-green-500/10 text-green-600" 
+                          : transfer.status === "pending"
+                          ? "bg-amber-500/10 text-amber-600"
+                          : "bg-muted text-muted-foreground"
+                      }`}>
+                        {transfer.status}
+                      </span>
+                      <span className="text-muted-foreground">
+                        {formatDistanceToNow(new Date(transfer.created_at), { addSuffix: true })}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <DialogFooter className="gap-2">
