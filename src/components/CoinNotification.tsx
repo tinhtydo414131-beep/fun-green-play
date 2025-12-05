@@ -1,9 +1,10 @@
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
-import { Coins, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import confetti from "canvas-confetti";
 import { useNotificationPreferences } from "@/hooks/useNotificationPreferences";
+import camlyCoinIcon from "@/assets/camly-coin-notification.png";
 
 interface CoinNotification {
   id: string;
@@ -193,7 +194,7 @@ export function CoinNotification() {
                       repeatDelay: 1,
                     }}
                   >
-                    <Coins className="w-10 h-10 text-white drop-shadow-lg" />
+                    <img src={camlyCoinIcon} alt="Camly Coin" className="w-12 h-12 drop-shadow-lg" />
                   </motion.div>
                   <motion.div
                     className="absolute -top-1 -right-1"
