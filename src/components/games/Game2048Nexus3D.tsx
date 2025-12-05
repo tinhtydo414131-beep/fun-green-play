@@ -2,8 +2,9 @@ import React, { useState, useEffect, useCallback, Suspense, useRef } from 'react
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Environment, Html, Float } from '@react-three/drei';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, RotateCcw, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, RotateCcw, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Map } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
+import { NexusLevelMap } from './NexusLevelMap';
 
 interface Game2048Nexus3DProps {
   level?: number;
@@ -151,6 +152,8 @@ export const Game2048Nexus3D: React.FC<Game2048Nexus3DProps> = ({
   const [currentLevel, setCurrentLevel] = useState(level);
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
   const [showLevelUp, setShowLevelUp] = useState(false);
+  const [showLevelMap, setShowLevelMap] = useState(true);
+  const [highestUnlocked, setHighestUnlocked] = useState(1);
   
   // Calculate target score for current level (each level needs 200 more points)
   // Max level is 100
@@ -179,6 +182,10 @@ export const Game2048Nexus3D: React.FC<Game2048Nexus3DProps> = ({
       haptics.success();
       onLevelComplete?.(score, Math.floor(score / 50));
       
+      // Update highest unlocked level
+      const nextLevel = currentLevel + 1;
+      setHighestUnlocked(prev => Math.max(prev, nextLevel));
+      
       // Auto advance to next level after 1.5 seconds
       const timer = setTimeout(() => {
         setCurrentLevel(prev => Math.min(prev + 1, MAX_LEVEL));
@@ -187,7 +194,7 @@ export const Game2048Nexus3D: React.FC<Game2048Nexus3DProps> = ({
       
       return () => clearTimeout(timer);
     }
-  }, [score, targetScore, gameOver, onLevelComplete, isMaxLevel]);
+  }, [score, targetScore, gameOver, onLevelComplete, isMaxLevel, currentLevel]);
 
   function initializeGrid(size: number): Grid {
     const newGrid: Grid = Array(size).fill(null).map(() => Array(size).fill(null));
@@ -302,8 +309,16 @@ export const Game2048Nexus3D: React.FC<Game2048Nexus3DProps> = ({
     setGrid(initializeGrid(gridSize));
     setScore(0);
     setGameOver(false);
-    setCurrentLevel(level);
     setShowLevelUp(false);
+  };
+
+  const handleSelectLevel = (selectedLevel: number) => {
+    setCurrentLevel(selectedLevel);
+    setGrid(initializeGrid(gridSize));
+    setScore(0);
+    setGameOver(false);
+    setShowLevelUp(false);
+    setShowLevelMap(false);
   };
 
   // Touch handlers for swipe gestures
@@ -339,6 +354,24 @@ export const Game2048Nexus3D: React.FC<Game2048Nexus3DProps> = ({
     e.preventDefault();
   };
 
+  // Show level map
+  if (showLevelMap) {
+    return (
+      <div className="w-full p-4">
+        <div className="flex justify-between items-center mb-4">
+          <Button variant="outline" size="sm" onClick={onBack} className="font-fredoka">
+            <ArrowLeft className="w-4 h-4 mr-1" /> Back
+          </Button>
+        </div>
+        <NexusLevelMap
+          currentLevel={currentLevel}
+          highestUnlocked={highestUnlocked}
+          onSelectLevel={handleSelectLevel}
+        />
+      </div>
+    );
+  }
+
   return (
     <div 
       className="w-full h-[500px] md:h-[600px] relative touch-none"
@@ -347,8 +380,8 @@ export const Game2048Nexus3D: React.FC<Game2048Nexus3DProps> = ({
       onTouchMove={handleTouchMove}
     >
       <div className="absolute top-2 left-2 right-2 z-10 flex justify-between items-center">
-        <Button variant="outline" size="sm" onClick={onBack} className="font-fredoka">
-          <ArrowLeft className="w-4 h-4 mr-1" /> Back
+        <Button variant="outline" size="sm" onClick={() => setShowLevelMap(true)} className="font-fredoka">
+          <Map className="w-4 h-4 mr-1" /> Levels
         </Button>
         <div className="flex items-center gap-2">
           <span className="font-fredoka text-sm bg-accent/30 px-2 py-1 rounded-lg">
