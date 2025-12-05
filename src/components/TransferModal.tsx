@@ -172,17 +172,31 @@ export function TransferModal({ open, onOpenChange, recipientAddress, recipientU
           {/* Amount Input */}
           <div className="space-y-2">
             <Label htmlFor="amount">Amount</Label>
-            <Input
-              id="amount"
-              type="number"
-              step="0.000001"
-              min="0"
-              placeholder="0.00"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              disabled={loading}
-              className={insufficientBalance ? "border-destructive focus-visible:ring-destructive" : ""}
-            />
+            <div className="flex gap-2">
+              <Input
+                id="amount"
+                type="number"
+                step="0.000001"
+                min="0"
+                placeholder="0.00"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                disabled={loading}
+                className={insufficientBalance ? "border-destructive focus-visible:ring-destructive" : ""}
+              />
+              {tokenType === "CAMLY" && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setAmount(camlyBalance.toString())}
+                  disabled={loading || loadingBalance || camlyBalance <= 0}
+                  className="shrink-0"
+                >
+                  Max
+                </Button>
+              )}
+            </div>
             {insufficientBalance && (
               <p className="text-xs text-destructive">
                 Insufficient balance. You have {camlyBalance.toLocaleString()} CAMLY
