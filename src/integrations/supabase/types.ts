@@ -1721,33 +1721,6 @@ export type Database = {
           },
         ]
       }
-      wallet_auth_nonces: {
-        Row: {
-          created_at: string
-          expires_at: string
-          id: string
-          nonce: string
-          used: boolean
-          wallet_address: string
-        }
-        Insert: {
-          created_at?: string
-          expires_at?: string
-          id?: string
-          nonce: string
-          used?: boolean
-          wallet_address: string
-        }
-        Update: {
-          created_at?: string
-          expires_at?: string
-          id?: string
-          nonce?: string
-          used?: boolean
-          wallet_address?: string
-        }
-        Relationships: []
-      }
       wallet_transactions: {
         Row: {
           amount: number
@@ -1895,7 +1868,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      cleanup_expired_nonces: { Args: never; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
