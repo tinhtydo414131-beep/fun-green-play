@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.get-ice-servers]
 verify_jwt = false
+
+[functions.wallet-auth]
+verify_jwt = false
