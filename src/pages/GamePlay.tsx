@@ -11,6 +11,7 @@ import { useGameLevel } from "@/hooks/useGameLevel";
 import { useWeb3Rewards } from "@/hooks/useWeb3Rewards";
 import { useIsLandscape } from "@/hooks/use-mobile";
 import { useFullscreen } from "@/hooks/useFullscreen";
+import { useDoubleTap } from "@/hooks/useDoubleTap";
 import { LevelSelector } from "@/components/LevelSelector";
 import { FlowerFieldLevelSelector } from "@/components/FlowerFieldLevelSelector";
 import { DailyChallengeCard } from "@/components/DailyChallengeCard";
@@ -19,6 +20,7 @@ import { LandscapePrompt } from "@/components/LandscapePrompt";
 import { Web3RewardNotification } from "@/components/Web3RewardNotification";
 import { haptics } from "@/utils/haptics";
 import confetti from "canvas-confetti";
+import { toast } from "sonner";
 
 // Import all game components
 import { MemoryCards } from "@/components/games/MemoryCards";
@@ -143,10 +145,35 @@ const GamePlay = () => {
   const [showLevelSelector, setShowLevelSelector] = useState(true);
   const [gameStarted, setGameStarted] = useState(false);
   const hasTrackedPlayRef = useRef(false);
+  const [shownDoubleTapHint, setShownDoubleTapHint] = useState(() => {
+    return localStorage.getItem("shownDoubleTapHint") === "true";
+  });
   const [autoLevel, setAutoLevel] = useState(() => {
     const saved = localStorage.getItem("autoLevel");
     return saved !== null ? JSON.parse(saved) : true;
   });
+
+  // Double-tap to toggle fullscreen
+  const doubleTapHandlers = useDoubleTap({
+    onDoubleTap: () => {
+      haptics.medium();
+      toggleFullscreen();
+      toast.success(isFullscreen ? "Thoát toàn màn hình" : "Chế độ toàn màn hình", {
+        duration: 1500,
+      });
+    },
+  });
+
+  // Auto-hide double-tap hint after 5 seconds
+  useEffect(() => {
+    if (gameStarted && !shownDoubleTapHint) {
+      const timer = setTimeout(() => {
+        setShownDoubleTapHint(true);
+        localStorage.setItem("shownDoubleTapHint", "true");
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [gameStarted, shownDoubleTapHint]);
   
   const {
     currentLevel,
@@ -619,10 +646,23 @@ const GamePlay = () => {
             </div>
           )}
 
-          <div className={isLandscape && gameStarted 
-            ? "w-full h-full bg-gradient-to-br from-background/98 to-background/95 backdrop-blur-xl rounded-2xl border border-primary/20 shadow-2xl p-2 overflow-hidden flex items-center justify-center" 
-            : "bg-background/80 backdrop-blur-lg rounded-2xl md:rounded-3xl border-2 md:border-4 border-primary/30 shadow-2xl p-4 md:p-8 space-y-4 md:space-y-6 animate-scale-in"
-          }>
+          <div 
+            {...(gameStarted ? doubleTapHandlers : {})}
+            className={isLandscape && gameStarted 
+              ? "w-full h-full bg-gradient-to-br from-background/98 to-background/95 backdrop-blur-xl rounded-2xl border border-primary/20 shadow-2xl p-2 overflow-hidden flex items-center justify-center game-container" 
+              : "bg-background/80 backdrop-blur-lg rounded-2xl md:rounded-3xl border-2 md:border-4 border-primary/30 shadow-2xl p-4 md:p-8 space-y-4 md:space-y-6 animate-scale-in game-container"
+            }
+          >
+            {/* Double-tap hint for mobile */}
+            {gameStarted && !shownDoubleTapHint && (
+              <div 
+                className="md:hidden fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-primary/90 text-white px-4 py-2 rounded-full text-sm font-comic animate-bounce shadow-lg"
+                onClick={() => setShownDoubleTapHint(true)}
+              >
+                👆👆 Nhấn đúp 2 lần để phóng to
+              </div>
+            )}
+            
             {(!isLandscape || !gameStarted) && (
               <div className="text-center space-y-1 md:space-y-2">
                 <h1 className="text-2xl md:text-4xl lg:text-5xl font-fredoka font-bold text-primary">
