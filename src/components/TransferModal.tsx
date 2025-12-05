@@ -232,6 +232,23 @@ export function TransferModal({ open, onOpenChange, recipientAddress, recipientU
                 </Button>
               )}
             </div>
+            {tokenType === "CAMLY" && (
+              <div className="flex gap-2">
+                {[100, 500, 1000].map((quickAmount) => (
+                  <Button
+                    key={quickAmount}
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setAmount(quickAmount.toString())}
+                    disabled={loading || quickAmount > camlyBalance}
+                    className="flex-1 h-7 text-xs"
+                  >
+                    {quickAmount.toLocaleString()}
+                  </Button>
+                ))}
+              </div>
+            )}
             {insufficientBalance && (
               <p className="text-xs text-destructive">
                 Insufficient balance. You have {camlyBalance.toLocaleString()} CAMLY
