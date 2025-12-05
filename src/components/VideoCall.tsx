@@ -11,6 +11,8 @@ import {
   VideoOff,
   Maximize2,
   Minimize2,
+  Monitor,
+  MonitorOff,
 } from "lucide-react";
 import { useWebRTCSignaling } from "@/hooks/useWebRTCSignaling";
 import { useCallQualityStats } from "@/hooks/useCallQualityStats";
@@ -46,6 +48,8 @@ export function VideoCall({
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
+  const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const screenStreamRef = useRef<MediaStream | null>(null);
 
   const {
     connectionState,
@@ -56,6 +60,8 @@ export function VideoCall({
     rejectCall,
     toggleMute,
     toggleVideo,
+    startScreenShare,
+    stopScreenShare,
   } = useWebRTCSignaling();
 
   // Call quality monitoring
@@ -146,6 +152,31 @@ export function VideoCall({
     const newVideoOff = !isVideoOff;
     setIsVideoOff(newVideoOff);
     toggleVideo(newVideoOff);
+  };
+
+  const handleToggleScreenShare = async () => {
+    if (isScreenSharing) {
+      // Stop screen sharing
+      if (screenStreamRef.current) {
+        screenStreamRef.current.getTracks().forEach(track => track.stop());
+        screenStreamRef.current = null;
+      }
+      await stopScreenShare();
+      setIsScreenSharing(false);
+    } else {
+      // Start screen sharing
+      const stream = await startScreenShare();
+      if (stream) {
+        screenStreamRef.current = stream;
+        setIsScreenSharing(true);
+        
+        // Handle when user stops via browser UI
+        stream.getVideoTracks()[0].onended = () => {
+          screenStreamRef.current = null;
+          setIsScreenSharing(false);
+        };
+      }
+    }
   };
 
   const handleEndCall = async () => {
@@ -309,9 +340,25 @@ export function VideoCall({
                       : "bg-white/10 border-white/20 text-white hover:bg-white/20"
                   }`}
                   onClick={handleToggleVideo}
-                  disabled={callStatus === "ended"}
+                  disabled={callStatus === "ended" || isScreenSharing}
                 >
                   {isVideoOff ? <VideoOff className="h-6 w-6" /> : <Video className="h-6 w-6" />}
+                </Button>
+              )}
+
+              {/* Screen Share Button (only for video calls when connected) */}
+              {callType === "video" && callStatus === "connected" && (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className={`w-14 h-14 rounded-full ${
+                    isScreenSharing
+                      ? "bg-blue-500/20 border-blue-500 text-blue-500"
+                      : "bg-white/10 border-white/20 text-white hover:bg-white/20"
+                  }`}
+                  onClick={handleToggleScreenShare}
+                >
+                  {isScreenSharing ? <MonitorOff className="h-6 w-6" /> : <Monitor className="h-6 w-6" />}
                 </Button>
               )}
 

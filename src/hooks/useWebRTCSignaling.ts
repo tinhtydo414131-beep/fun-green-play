@@ -408,6 +408,48 @@ export function useWebRTCSignaling() {
     }
   }, []);
 
+  const startScreenShare = useCallback(async (): Promise<MediaStream | null> => {
+    try {
+      const screenStream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        audio: false,
+      });
+
+      const screenTrack = screenStream.getVideoTracks()[0];
+      const pc = peerConnectionRef.current;
+
+      if (pc && localStreamRef.current) {
+        const sender = pc.getSenders().find(s => s.track?.kind === "video");
+        if (sender) {
+          await sender.replaceTrack(screenTrack);
+        }
+
+        // Handle when user stops sharing via browser UI
+        screenTrack.onended = () => {
+          stopScreenShare();
+        };
+      }
+
+      return screenStream;
+    } catch (error) {
+      console.error("[WebRTC] Error starting screen share:", error);
+      return null;
+    }
+  }, []);
+
+  const stopScreenShare = useCallback(async () => {
+    const pc = peerConnectionRef.current;
+    if (pc && localStreamRef.current) {
+      const videoTrack = localStreamRef.current.getVideoTracks()[0];
+      if (videoTrack) {
+        const sender = pc.getSenders().find(s => s.track?.kind === "video");
+        if (sender) {
+          await sender.replaceTrack(videoTrack);
+        }
+      }
+    }
+  }, []);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -427,6 +469,8 @@ export function useWebRTCSignaling() {
     rejectCall,
     toggleMute,
     toggleVideo,
+    startScreenShare,
+    stopScreenShare,
     cleanup,
   };
 }
