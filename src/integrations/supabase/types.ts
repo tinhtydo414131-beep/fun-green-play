@@ -994,6 +994,39 @@ export type Database = {
           },
         ]
       }
+      minted_achievement_nfts: {
+        Row: {
+          achievement_type: string
+          created_at: string
+          id: string
+          minted_at: string
+          token_id: string
+          tx_hash: string
+          user_id: string
+          wallet_address: string
+        }
+        Insert: {
+          achievement_type: string
+          created_at?: string
+          id?: string
+          minted_at?: string
+          token_id: string
+          tx_hash: string
+          user_id: string
+          wallet_address: string
+        }
+        Update: {
+          achievement_type?: string
+          created_at?: string
+          id?: string
+          minted_at?: string
+          token_id?: string
+          tx_hash?: string
+          user_id?: string
+          wallet_address?: string
+        }
+        Relationships: []
+      }
       nexus_leaderboard: {
         Row: {
           created_at: string | null
