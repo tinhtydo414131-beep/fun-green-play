@@ -1,14 +1,16 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface PeriodResetRequest {
-  periodType?: 'daily' | 'weekly';
-}
+// Input validation schema
+const periodResetSchema = z.object({
+  periodType: z.enum(['daily', 'weekly']).optional(),
+});
 
 type PeriodType = 'daily' | 'weekly';
 
@@ -32,7 +34,25 @@ serve(async (req: Request) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { periodType } = await req.json() as PeriodResetRequest;
+    // Parse and validate input
+    const body = await req.json().catch(() => ({}));
+    const validationResult = periodResetSchema.safeParse(body);
+    
+    if (!validationResult.success) {
+      console.error("Invalid input:", validationResult.error);
+      return new Response(
+        JSON.stringify({ 
+          error: "Invalid input", 
+          details: validationResult.error.errors 
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        }
+      );
+    }
+
+    const { periodType } = validationResult.data;
     const now = new Date();
     
     console.log(`Starting reset for period type: ${periodType || 'both'}`);

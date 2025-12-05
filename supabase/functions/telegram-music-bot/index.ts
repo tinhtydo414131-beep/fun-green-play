@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.84.0';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -6,6 +7,7 @@ const corsHeaders = {
 };
 
 const TELEGRAM_BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN');
+const TELEGRAM_WEBHOOK_SECRET = Deno.env.get('TELEGRAM_WEBHOOK_SECRET');
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
@@ -15,33 +17,46 @@ if (!TELEGRAM_BOT_TOKEN || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-interface TelegramUpdate {
-  message?: {
-    message_id: number;
-    from: {
-      id: number;
-      username?: string;
-      first_name: string;
-    };
-    chat: {
-      id: number;
-    };
-    text?: string;
-    audio?: {
-      file_id: string;
-      file_name?: string;
-      title?: string;
-      performer?: string;
-      duration?: number;
-      file_size?: number;
-    };
-    voice?: {
-      file_id: string;
-      duration?: number;
-      file_size?: number;
-    };
-  };
-}
+// Input validation schemas
+const telegramUserSchema = z.object({
+  id: z.number(),
+  username: z.string().optional(),
+  first_name: z.string(),
+});
+
+const telegramChatSchema = z.object({
+  id: z.number(),
+});
+
+const telegramAudioSchema = z.object({
+  file_id: z.string(),
+  file_name: z.string().optional(),
+  title: z.string().optional(),
+  performer: z.string().optional(),
+  duration: z.number().optional(),
+  file_size: z.number().optional(),
+}).optional();
+
+const telegramVoiceSchema = z.object({
+  file_id: z.string(),
+  duration: z.number().optional(),
+  file_size: z.number().optional(),
+}).optional();
+
+const telegramMessageSchema = z.object({
+  message_id: z.number(),
+  from: telegramUserSchema,
+  chat: telegramChatSchema,
+  text: z.string().optional(),
+  audio: telegramAudioSchema,
+  voice: telegramVoiceSchema,
+}).optional();
+
+const telegramUpdateSchema = z.object({
+  message: telegramMessageSchema,
+});
+
+type TelegramUpdate = z.infer<typeof telegramUpdateSchema>;
 
 async function sendTelegramMessage(chatId: number, text: string) {
   const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
@@ -125,10 +140,12 @@ async function handleAudioMessage(update: TelegramUpdate) {
     const fileUrl = await getFileUrl(audio.file_id);
     const fileData = await downloadFile(fileUrl);
 
-    // Generate filename
-    const title = message.audio?.title || message.audio?.file_name || `Audio_${Date.now()}`;
-    const artist = message.audio?.performer || message.from.first_name;
-    const fileName = `${Date.now()}-${title.replace(/[^a-zA-Z0-9]/g, '_')}.mp3`;
+    // Generate filename - sanitize to prevent path traversal
+    const rawTitle = message.audio?.title || message.audio?.file_name || `Audio_${Date.now()}`;
+    const title = rawTitle.substring(0, 100);
+    const artist = (message.audio?.performer || message.from.first_name).substring(0, 100);
+    const sanitizedTitle = title.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const fileName = `${Date.now()}-${sanitizedTitle}.mp3`;
     const filePath = `${userId}/${fileName}`;
 
     // Upload to Supabase Storage
@@ -155,8 +172,8 @@ async function handleAudioMessage(update: TelegramUpdate) {
       .from('user_music')
       .insert({
         user_id: userId,
-        title: title.replace('.mp3', '').substring(0, 100),
-        artist: artist.substring(0, 100),
+        title: title.replace('.mp3', ''),
+        artist: artist,
         storage_path: filePath,
         file_size: audio.file_size || 0,
         duration: duration,
@@ -189,8 +206,37 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const update: TelegramUpdate = await req.json();
-    console.log('Received update:', JSON.stringify(update, null, 2));
+    // Verify Telegram webhook signature if secret is configured
+    if (TELEGRAM_WEBHOOK_SECRET) {
+      const signature = req.headers.get('X-Telegram-Bot-Api-Secret-Token');
+      if (!signature || signature !== TELEGRAM_WEBHOOK_SECRET) {
+        console.error('Invalid or missing Telegram webhook signature');
+        return new Response('Unauthorized', { status: 401, headers: corsHeaders });
+      }
+    } else {
+      console.warn('TELEGRAM_WEBHOOK_SECRET not configured - webhook signature verification disabled');
+    }
+
+    // Parse and validate input
+    const rawBody = await req.json().catch(() => null);
+    if (!rawBody) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON body' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const validationResult = telegramUpdateSchema.safeParse(rawBody);
+    if (!validationResult.success) {
+      console.error('Invalid Telegram update format:', validationResult.error);
+      return new Response(
+        JSON.stringify({ error: 'Invalid update format', details: validationResult.error.errors }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const update = validationResult.data;
+    console.log('Received valid update for chat:', update.message?.chat?.id);
 
     if (!update.message) {
       return new Response('OK', { status: 200, headers: corsHeaders });
