@@ -49,9 +49,17 @@ export function TransferModal({ open, onOpenChange, recipientAddress, recipientU
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const parsedAmount = parseFloat(amount) || 0;
+  const insufficientBalance = tokenType === "CAMLY" && parsedAmount > camlyBalance;
+
   const handleTransfer = async () => {
-    if (!amount || parseFloat(amount) <= 0) {
+    if (!amount || parsedAmount <= 0) {
       toast.error("Please enter a valid amount");
+      return;
+    }
+
+    if (insufficientBalance) {
+      toast.error("Insufficient CAMLY balance");
       return;
     }
 
@@ -173,7 +181,13 @@ export function TransferModal({ open, onOpenChange, recipientAddress, recipientU
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               disabled={loading}
+              className={insufficientBalance ? "border-destructive focus-visible:ring-destructive" : ""}
             />
+            {insufficientBalance && (
+              <p className="text-xs text-destructive">
+                Insufficient balance. You have {camlyBalance.toLocaleString()} CAMLY
+              </p>
+            )}
           </div>
 
           {/* Token Type */}
@@ -215,7 +229,7 @@ export function TransferModal({ open, onOpenChange, recipientAddress, recipientU
           </Button>
           <Button
             onClick={handleTransfer}
-            disabled={loading || !amount}
+            disabled={loading || !amount || insufficientBalance}
           >
             {loading ? (
               <>
