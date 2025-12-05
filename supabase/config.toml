@@ -2,3 +2,6 @@ project_id = "epcjxoacajoaidglrvai"
 
 [functions.telegram-music-bot]
 verify_jwt = false
+
+[functions.get-ice-servers]
+verify_jwt = false

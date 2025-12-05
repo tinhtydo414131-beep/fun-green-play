@@ -22,13 +22,33 @@ interface VideoCall {
   created_at: string;
 }
 
-const ICE_SERVERS = {
+// Fallback ICE servers (STUN only)
+const FALLBACK_ICE_SERVERS: RTCConfiguration = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" },
     { urls: "stun:stun1.l.google.com:19302" },
     { urls: "stun:stun2.l.google.com:19302" },
   ],
 };
+
+// Fetch ICE servers including TURN from edge function
+async function fetchIceServers(): Promise<RTCConfiguration> {
+  try {
+    console.log("[WebRTC] Fetching ICE servers from edge function...");
+    const { data, error } = await supabase.functions.invoke("get-ice-servers");
+    
+    if (error || !data?.iceServers) {
+      console.warn("[WebRTC] Failed to fetch ICE servers, using fallback:", error);
+      return FALLBACK_ICE_SERVERS;
+    }
+    
+    console.log("[WebRTC] Got", data.iceServers.length, "ICE servers (including TURN)");
+    return { iceServers: data.iceServers };
+  } catch (err) {
+    console.warn("[WebRTC] Error fetching ICE servers, using fallback:", err);
+    return FALLBACK_ICE_SERVERS;
+  }
+}
 
 export function useWebRTCSignaling() {
   const { user } = useAuth();
@@ -40,6 +60,7 @@ export function useWebRTCSignaling() {
   const remoteStreamRef = useRef<MediaStream | null>(null);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const pendingCandidatesRef = useRef<RTCIceCandidateInit[]>([]);
+  const iceServersRef = useRef<RTCConfiguration | null>(null);
 
   const cleanup = useCallback(() => {
     console.log("[WebRTC] Cleaning up...");
@@ -64,13 +85,18 @@ export function useWebRTCSignaling() {
     setConnectionState(null);
   }, []);
 
-  const setupPeerConnection = useCallback((
+  const setupPeerConnection = useCallback(async (
     callId: string,
     onRemoteStream: (stream: MediaStream) => void
   ) => {
     console.log("[WebRTC] Setting up peer connection for call:", callId);
     
-    const pc = new RTCPeerConnection(ICE_SERVERS);
+    // Fetch ICE servers if not cached
+    if (!iceServersRef.current) {
+      iceServersRef.current = await fetchIceServers();
+    }
+    
+    const pc = new RTCPeerConnection(iceServersRef.current);
     peerConnectionRef.current = pc;
 
     pc.onconnectionstatechange = () => {
@@ -223,7 +249,7 @@ export function useWebRTCSignaling() {
       setCurrentCall(typedCall);
 
       // Setup peer connection
-      const pc = setupPeerConnection(call.id, onRemoteStream);
+      const pc = await setupPeerConnection(call.id, onRemoteStream);
       
       // Add local tracks
       localStream.getTracks().forEach(track => {
@@ -278,7 +304,7 @@ export function useWebRTCSignaling() {
         .eq("id", call.id);
 
       // Setup peer connection
-      const pc = setupPeerConnection(call.id, onRemoteStream);
+      const pc = await setupPeerConnection(call.id, onRemoteStream);
 
       // Add local tracks
       localStream.getTracks().forEach(track => {
