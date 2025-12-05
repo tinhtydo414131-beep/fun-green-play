@@ -13,6 +13,8 @@ import {
   Minimize2,
   Monitor,
   MonitorOff,
+  Circle,
+  StopCircle,
 } from "lucide-react";
 import { useWebRTCSignaling } from "@/hooks/useWebRTCSignaling";
 import { useCallQualityStats } from "@/hooks/useCallQualityStats";
@@ -49,7 +51,10 @@ export function VideoCall({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const screenStreamRef = useRef<MediaStream | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordedChunksRef = useRef<Blob[]>([]);
 
   const {
     connectionState,
@@ -179,8 +184,78 @@ export function VideoCall({
     }
   };
 
+  const handleToggleRecording = async () => {
+    if (isRecording) {
+      // Stop recording
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+      }
+    } else {
+      // Start recording - combine local and remote streams
+      try {
+        const tracks: MediaStreamTrack[] = [];
+        
+        // Get remote video/audio
+        if (remoteVideoRef.current?.srcObject) {
+          const remoteStream = remoteVideoRef.current.srcObject as MediaStream;
+          remoteStream.getTracks().forEach(track => tracks.push(track));
+        }
+        
+        // Get local audio (for your own voice)
+        if (localVideoRef.current?.srcObject) {
+          const localStream = localVideoRef.current.srcObject as MediaStream;
+          localStream.getAudioTracks().forEach(track => tracks.push(track.clone()));
+        }
+
+        if (tracks.length === 0) {
+          console.warn("[Recording] No tracks available to record");
+          return;
+        }
+
+        const combinedStream = new MediaStream(tracks);
+        const mediaRecorder = new MediaRecorder(combinedStream, {
+          mimeType: MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
+            ? "video/webm;codecs=vp9"
+            : "video/webm",
+        });
+
+        recordedChunksRef.current = [];
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            recordedChunksRef.current.push(event.data);
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunksRef.current, { type: "video/webm" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `call-${targetUser?.username || "recording"}-${new Date().toISOString().slice(0, 10)}.webm`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          setIsRecording(false);
+        };
+
+        mediaRecorder.start(1000); // Collect data every second
+        mediaRecorderRef.current = mediaRecorder;
+        setIsRecording(true);
+      } catch (error) {
+        console.error("[Recording] Error starting recording:", error);
+      }
+    }
+  };
+
   const handleEndCall = async () => {
     setCallStatus("ended");
+    
+    // Stop recording if active
+    if (isRecording && mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+    }
     
     // Prepare quality stats for saving
     const avgQualityStats = callDuration > 0 && qualityStats ? {
@@ -305,7 +380,10 @@ export function VideoCall({
 
             {/* Call Duration (for video calls when connected) */}
             {callStatus === "connected" && callType === "video" && (
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full">
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/50 px-3 py-1 rounded-full">
+                {isRecording && (
+                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                )}
                 <p className="text-white text-sm">{formatDuration(callDuration)}</p>
               </div>
             )}
@@ -359,6 +437,22 @@ export function VideoCall({
                   onClick={handleToggleScreenShare}
                 >
                   {isScreenSharing ? <MonitorOff className="h-6 w-6" /> : <Monitor className="h-6 w-6" />}
+                </Button>
+              )}
+
+              {/* Record Button (when connected) */}
+              {callStatus === "connected" && (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className={`w-14 h-14 rounded-full ${
+                    isRecording
+                      ? "bg-red-500/20 border-red-500 text-red-500 animate-pulse"
+                      : "bg-white/10 border-white/20 text-white hover:bg-white/20"
+                  }`}
+                  onClick={handleToggleRecording}
+                >
+                  {isRecording ? <StopCircle className="h-6 w-6" /> : <Circle className="h-6 w-6" />}
                 </Button>
               )}
 
