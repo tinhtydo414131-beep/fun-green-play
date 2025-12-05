@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import confetti from "canvas-confetti";
-import { useNotificationPreferences } from "@/hooks/useNotificationPreferences";
+import { useNotificationPreferences, NOTIFICATION_THEMES } from "@/hooks/useNotificationPreferences";
 import camlyCoinIcon from "@/assets/camly-coin-notification.png";
 
 interface CoinNotification {
@@ -159,14 +159,14 @@ export function CoinNotification() {
     // Add notification
     setNotifications((prev) => [...prev, notification]);
 
-    // Auto-remove after 5 seconds
+    // Auto-remove based on user's duration preference
     setTimeout(() => {
       setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
       // Clean up from tracking set after a delay to prevent rapid re-additions
       setTimeout(() => {
         shownNotificationsRef.current.delete(notification.id);
       }, 1000);
-    }, 5000);
+    }, preferences.duration * 1000);
   };
 
   const getPositionClasses = () => {
@@ -203,7 +203,7 @@ export function CoinNotification() {
             exit={preferences.animationsEnabled ? { opacity: 0, ...animDir.exit, scale: 0.8 } : { opacity: 0 }}
             className="pointer-events-auto"
           >
-            <div className="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 rounded-2xl shadow-2xl p-3 sm:p-4 min-w-0 sm:min-w-[280px] border-4 border-white">
+            <div className={`bg-gradient-to-r ${NOTIFICATION_THEMES[preferences.theme].gradient} rounded-2xl shadow-2xl p-3 sm:p-4 min-w-0 sm:min-w-[280px] border-4 border-white`}>
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <motion.div

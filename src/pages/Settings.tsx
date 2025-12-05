@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Save, Loader2, Lock, LogOut, Trash2, Key, Mail, User as UserIcon, Video, Upload, Check, X, Bell, Volume2, Sparkles } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Lock, LogOut, Trash2, Key, Mail, User as UserIcon, Video, Upload, Check, X, Bell, Volume2, Sparkles, Clock, Palette, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { AvatarUpload } from "@/components/AvatarUpload";
 import { z } from "zod";
@@ -16,7 +16,9 @@ import { Separator } from "@/components/ui/separator";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
-import { useNotificationPreferences } from "@/hooks/useNotificationPreferences";
+import { useNotificationPreferences, NOTIFICATION_THEMES, NotificationTheme } from "@/hooks/useNotificationPreferences";
+import confetti from "canvas-confetti";
+import camlyCoinIcon from "@/assets/camly-coin-notification.png";
 
 const profileSchema = z.object({
   username: z.string()
@@ -874,6 +876,139 @@ export default function Settings() {
                     </Button>
                   ))}
                 </div>
+              </div>
+
+              <Separator />
+
+              {/* Duration Setting */}
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <Label className="text-base font-fredoka text-foreground flex items-center gap-2">
+                    <Clock className="w-5 h-5" />
+                    Thời gian hiển thị
+                  </Label>
+                  <p className="text-sm text-muted-foreground font-comic">
+                    Thời gian thông báo hiển thị trước khi biến mất
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-comic text-muted-foreground">
+                      {preferences.duration} giây
+                    </span>
+                  </div>
+                  <Slider
+                    value={[preferences.duration]}
+                    onValueChange={([value]) => updatePreferences({ duration: value })}
+                    min={2}
+                    max={15}
+                    step={1}
+                    disabled={!preferences.enabled}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>2s</span>
+                    <span>15s</span>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Theme Selector */}
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <Label className="text-base font-fredoka text-foreground flex items-center gap-2">
+                    <Palette className="w-5 h-5" />
+                    Giao diện thông báo
+                  </Label>
+                  <p className="text-sm text-muted-foreground font-comic">
+                    Chọn màu sắc cho thông báo
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {(Object.entries(NOTIFICATION_THEMES) as [NotificationTheme, { name: string; gradient: string; icon: string }][]).map(([key, theme]) => (
+                    <Button
+                      key={key}
+                      variant={preferences.theme === key ? "default" : "outline"}
+                      onClick={() => updatePreferences({ theme: key })}
+                      disabled={!preferences.enabled}
+                      className={`h-14 text-sm font-comic relative overflow-hidden ${
+                        preferences.theme === key ? '' : ''
+                      }`}
+                    >
+                      <div className={`absolute inset-0 bg-gradient-to-r ${theme.gradient} opacity-${preferences.theme === key ? '100' : '30'} transition-opacity`} />
+                      <span className="relative z-10 flex items-center gap-1">
+                        {theme.icon} {theme.name}
+                      </span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Preview Button */}
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <Label className="text-base font-fredoka text-foreground flex items-center gap-2">
+                    <Eye className="w-5 h-5" />
+                    Xem trước thông báo
+                  </Label>
+                  <p className="text-sm text-muted-foreground font-comic">
+                    Xem thử thông báo với cài đặt hiện tại
+                  </p>
+                </div>
+                <Button
+                  onClick={() => {
+                    // Trigger preview notification
+                    const audio = new Audio("/audio/coin-reward.mp3");
+                    audio.volume = preferences.volume / 100;
+                    
+                    if (preferences.soundEnabled) {
+                      audio.play().catch(console.error);
+                    }
+                    
+                    if (preferences.confettiEnabled) {
+                      confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 },
+                        colors: ["#FFD700", "#FFA500", "#FF6347"],
+                      });
+                    }
+                    
+                    toast.custom(
+                      (t) => (
+                        <div className={`bg-gradient-to-r ${NOTIFICATION_THEMES[preferences.theme].gradient} rounded-2xl shadow-2xl p-4 min-w-[280px] border-4 border-white`}>
+                          <div className="flex items-center gap-3">
+                            <img src={camlyCoinIcon} alt="Camly Coin" className="w-12 h-12 drop-shadow-lg animate-bounce" />
+                            <div>
+                              <p className="text-2xl font-fredoka font-bold text-white drop-shadow-md">
+                                +1,000
+                              </p>
+                              <span className="text-lg font-bold text-white/90">Camly Coins</span>
+                              <p className="text-sm text-white/80 font-comic mt-1">
+                                🎉 Đây là thông báo xem trước!
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ),
+                      {
+                        duration: preferences.duration * 1000,
+                        position: preferences.position.includes('top') 
+                          ? (preferences.position.includes('left') ? 'top-left' : 'top-right')
+                          : (preferences.position.includes('left') ? 'bottom-left' : 'bottom-right'),
+                      }
+                    );
+                  }}
+                  disabled={!preferences.enabled}
+                  className="w-full h-12 text-base font-fredoka bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                >
+                  <Eye className="mr-2 w-5 h-5" />
+                  Xem trước thông báo
+                </Button>
               </div>
 
               <Separator />
