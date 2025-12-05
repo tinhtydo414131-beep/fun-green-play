@@ -160,17 +160,19 @@ export function CoinNotification() {
     setNotifications((prev) => [...prev, notification]);
 
     // Auto-remove based on user's duration preference
+    const duration = preferences.duration || 5;
     setTimeout(() => {
       setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
       // Clean up from tracking set after a delay to prevent rapid re-additions
       setTimeout(() => {
         shownNotificationsRef.current.delete(notification.id);
       }, 1000);
-    }, preferences.duration * 1000);
+    }, duration * 1000);
   };
 
   const getPositionClasses = () => {
-    switch (preferences.position) {
+    const position = preferences.position || 'top-right';
+    switch (position) {
       case 'top-left':
         return 'top-16 sm:top-20 left-2 sm:left-4 right-2 sm:right-auto';
       case 'bottom-right':
@@ -184,7 +186,8 @@ export function CoinNotification() {
   };
 
   const getAnimationDirection = () => {
-    if (preferences.position.includes('left')) {
+    const position = preferences.position || 'top-right';
+    if (position.includes('left')) {
       return { initial: { x: -100 }, exit: { x: -100 } };
     }
     return { initial: { x: 100 }, exit: { x: 100 } };
@@ -203,7 +206,7 @@ export function CoinNotification() {
             exit={preferences.animationsEnabled ? { opacity: 0, ...animDir.exit, scale: 0.8 } : { opacity: 0 }}
             className="pointer-events-auto"
           >
-            <div className={`bg-gradient-to-r ${NOTIFICATION_THEMES[preferences.theme].gradient} rounded-2xl shadow-2xl p-3 sm:p-4 min-w-0 sm:min-w-[280px] border-4 border-white`}>
+            <div className={`bg-gradient-to-r ${NOTIFICATION_THEMES[preferences.theme || 'sunset'].gradient} rounded-2xl shadow-2xl p-3 sm:p-4 min-w-0 sm:min-w-[280px] border-4 border-white`}>
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <motion.div
