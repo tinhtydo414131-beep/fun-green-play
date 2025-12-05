@@ -247,17 +247,17 @@ export const MONSTER_CONFIGS: Record<MonsterType, {
   },
 };
 
-export const HERO_SKINS: Record<string, { name: string; emoji: string; unlockLevel: number }> = {
-  wizard_kid: { name: 'Wizard Kid', emoji: '🧙', unlockLevel: 1 },
-  robot_builder: { name: 'Robot Builder', emoji: '🤖', unlockLevel: 1 },
-  animal_hero: { name: 'Animal Hero', emoji: '🦁', unlockLevel: 1 },
-  ninja_star: { name: 'Ninja Star', emoji: '🥷', unlockLevel: 5 },
-  fairy_builder: { name: 'Fairy Builder', emoji: '🧚', unlockLevel: 8 },
-  dragon_tamer: { name: 'Dragon Tamer', emoji: '🐲', unlockLevel: 12 },
-  space_explorer: { name: 'Space Explorer', emoji: '🚀', unlockLevel: 15 },
-  pirate_captain: { name: 'Pirate Captain', emoji: '🏴‍☠️', unlockLevel: 20 },
-  knight_builder: { name: 'Knight Builder', emoji: '⚔️', unlockLevel: 25 },
-  nature_spirit: { name: 'Nature Spirit', emoji: '🌿', unlockLevel: 30 },
+export const HERO_SKINS: Record<string, { name: string; emoji: string; unlockLevel: number; color: string }> = {
+  wizard_kid: { name: 'Wizard Kid', emoji: '🧙', unlockLevel: 1, color: '#9B59B6' },
+  robot_builder: { name: 'Robot Builder', emoji: '🤖', unlockLevel: 1, color: '#3498DB' },
+  animal_hero: { name: 'Animal Hero', emoji: '🦁', unlockLevel: 1, color: '#F39C12' },
+  ninja_star: { name: 'Ninja Star', emoji: '🥷', unlockLevel: 5, color: '#2C3E50' },
+  fairy_builder: { name: 'Fairy Builder', emoji: '🧚', unlockLevel: 8, color: '#E91E63' },
+  dragon_tamer: { name: 'Dragon Tamer', emoji: '🐲', unlockLevel: 12, color: '#E74C3C' },
+  space_explorer: { name: 'Space Explorer', emoji: '🚀', unlockLevel: 15, color: '#1ABC9C' },
+  pirate_captain: { name: 'Pirate Captain', emoji: '🏴‍☠️', unlockLevel: 20, color: '#8B4513' },
+  knight_builder: { name: 'Knight Builder', emoji: '⚔️', unlockLevel: 25, color: '#7F8C8D' },
+  nature_spirit: { name: 'Nature Spirit', emoji: '🌿', unlockLevel: 30, color: '#27AE60' },
 };
 
 const QUEST_NPCS = ['👨‍🌾 Farmer Joe', '👑 Mayor Belle', '🧙‍♂️ Wizard Zap', '🛡️ Guard Rex', '📦 Trader Max'];

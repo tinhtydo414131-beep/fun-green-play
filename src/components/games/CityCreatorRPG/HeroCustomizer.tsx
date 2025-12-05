@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
 import { useCityCreatorStore } from '@/stores/cityCreatorStore';
 import { HERO_SKINS } from '@/utils/cityCreatorConfig';
 import type { HeroSkin } from '@/types/cityCreatorRPG';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { SimpleCharacter } from '@/components/games/3d/ReadyPlayerMeAvatar';
 
 interface HeroCustomizerProps {
   isOpen: boolean;
@@ -80,15 +83,39 @@ export const HeroCustomizer: React.FC<HeroCustomizerProps> = ({ isOpen, onClose 
               </button>
             </div>
 
-            {/* Current Hero Display */}
+            {/* Current Hero Display - 3D Character */}
             <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl p-4 mb-4 text-white text-center">
-              <motion.span 
-                className="text-7xl block"
-                animate={{ y: [0, -10, 0] }}
-                transition={{ repeat: Infinity, duration: 2 }}
-              >
-                {HERO_SKINS[hero.skin].emoji}
-              </motion.span>
+              <div className="h-40 w-full relative">
+                <Suspense fallback={
+                  <motion.span 
+                    className="text-7xl block"
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ repeat: Infinity, duration: 2 }}
+                  >
+                    {HERO_SKINS[hero.skin].emoji}
+                  </motion.span>
+                }>
+                  <Canvas
+                    camera={{ position: [0, 1.5, 3], fov: 50 }}
+                    style={{ background: 'transparent' }}
+                  >
+                    <ambientLight intensity={0.8} />
+                    <directionalLight position={[5, 5, 5]} intensity={1} />
+                    <SimpleCharacter 
+                      position={[0, -0.8, 0]}
+                      color={HERO_SKINS[hero.skin].color || "#4ECDC4"}
+                      animation="idle"
+                      scale={1.2}
+                    />
+                    <OrbitControls 
+                      enableZoom={false} 
+                      enablePan={false}
+                      minPolarAngle={Math.PI / 3}
+                      maxPolarAngle={Math.PI / 2}
+                    />
+                  </Canvas>
+                </Suspense>
+              </div>
               <div className="mt-2 flex items-center justify-center gap-2">
                 <Input
                   value={nameInput}
