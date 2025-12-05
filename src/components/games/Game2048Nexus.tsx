@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Wallet, Trophy, Zap, Award, Share2, ArrowLeft } from "lucide-react";
+import { Wallet, Trophy, Zap, Award, Share2, ArrowLeft, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { haptics } from "@/utils/haptics";
 import confetti from "canvas-confetti";
 import camlyCoinIcon from "@/assets/camly-coin-notification.png";
@@ -31,9 +31,23 @@ export const Game2048Nexus = ({
   const [gameOver, setGameOver] = useState(false);
   const [walletConnected, setWalletConnected] = useState(false);
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
+  
+  // Use refs to avoid stale closures in event handlers
+  const boardRef = useRef<number[][]>([]);
+  const scoreRef = useRef(0);
+  const gameOverRef = useRef(false);
+  const highestTileRef = useRef(0);
 
   const gridSize = level <= 5 ? 4 : level <= 10 ? 5 : level <= 15 ? 6 : 7;
   const targetTile = Math.pow(2, Math.min(17, 11 + Math.floor(level / 5)));
+  
+  // Keep refs in sync with state
+  useEffect(() => {
+    boardRef.current = board;
+    scoreRef.current = score;
+    gameOverRef.current = gameOver;
+    highestTileRef.current = highestTile;
+  }, [board, score, gameOver, highestTile]);
 
   useEffect(() => {
     initializeGame();
@@ -115,12 +129,15 @@ export const Game2048Nexus = ({
     }
   }, [user, nexusTokens, highestTile]);
 
-  const move = (direction: 'up' | 'down' | 'left' | 'right') => {
-    if (gameOver) return;
+  const move = useCallback((direction: 'up' | 'down' | 'left' | 'right') => {
+    if (gameOverRef.current) return;
 
-    let newBoard = board.map(row => [...row]);
+    let newBoard = boardRef.current.map(row => [...row]);
     let moved = false;
-    let newScore = score;
+    let newScore = scoreRef.current;
+    const currentGridSize = newBoard.length;
+    
+    if (currentGridSize === 0) return;
 
     const slide = (row: number[]) => {
       const filtered = row.filter(cell => cell !== 0);
@@ -136,7 +153,7 @@ export const Game2048Nexus = ({
         }
       }
       
-      while (merged.length < gridSize) {
+      while (merged.length < currentGridSize) {
         merged.push(0);
       }
       
@@ -146,34 +163,47 @@ export const Game2048Nexus = ({
     if (direction === 'left') {
       newBoard = newBoard.map(row => slide(row));
     } else if (direction === 'right') {
-      newBoard = newBoard.map(row => slide(row.reverse()).reverse());
+      newBoard = newBoard.map(row => slide([...row].reverse()).reverse());
     } else if (direction === 'up') {
-      for (let col = 0; col < gridSize; col++) {
+      for (let col = 0; col < currentGridSize; col++) {
         const column = newBoard.map(row => row[col]);
         const slided = slide(column);
-        for (let row = 0; row < gridSize; row++) {
+        for (let row = 0; row < currentGridSize; row++) {
           newBoard[row][col] = slided[row];
         }
       }
     } else if (direction === 'down') {
-      for (let col = 0; col < gridSize; col++) {
+      for (let col = 0; col < currentGridSize; col++) {
         const column = newBoard.map(row => row[col]).reverse();
         const slided = slide(column).reverse();
-        for (let row = 0; row < gridSize; row++) {
+        for (let row = 0; row < currentGridSize; row++) {
           newBoard[row][col] = slided[row];
         }
       }
     }
 
-    moved = JSON.stringify(board) !== JSON.stringify(newBoard);
+    moved = JSON.stringify(boardRef.current) !== JSON.stringify(newBoard);
 
     if (moved) {
-      addNewTile(newBoard);
+      // Add new tile
+      const emptyCells: [number, number][] = [];
+      for (let i = 0; i < currentGridSize; i++) {
+        for (let j = 0; j < currentGridSize; j++) {
+          if (newBoard[i][j] === 0) {
+            emptyCells.push([i, j]);
+          }
+        }
+      }
+      if (emptyCells.length > 0) {
+        const [row, col] = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+        newBoard[row][col] = Math.random() < 0.9 ? 2 : 4;
+      }
+      
       setBoard(newBoard);
       setScore(newScore);
       
       const maxTile = Math.max(...newBoard.flat());
-      if (maxTile > highestTile) {
+      if (maxTile > highestTileRef.current) {
         setHighestTile(maxTile);
         haptics.success();
         confetti({
@@ -186,19 +216,28 @@ export const Game2048Nexus = ({
       if (maxTile >= targetTile) {
         toast.success(`🎉 Level ${level} Complete! Target ${targetTile} reached!`);
         haptics.success();
-        updateUserStats(newScore, maxTile);
         if (onLevelComplete) onLevelComplete();
       }
 
-      // Update stats every 1000 points
-      if (Math.floor(newScore / 1000) > Math.floor(score / 1000)) {
-        updateUserStats(newScore, maxTile);
+      // Check game over
+      let canMove = false;
+      for (let i = 0; i < currentGridSize && !canMove; i++) {
+        for (let j = 0; j < currentGridSize && !canMove; j++) {
+          if (newBoard[i][j] === 0) canMove = true;
+          if (i < currentGridSize - 1 && newBoard[i][j] === newBoard[i + 1][j]) canMove = true;
+          if (j < currentGridSize - 1 && newBoard[i][j] === newBoard[i][j + 1]) canMove = true;
+        }
+      }
+      if (!canMove) {
+        setGameOver(true);
+        toast.error('Game Over! No more moves available.');
       }
     }
-  };
+  }, [level, targetTile, onLevelComplete]);
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
+      e.preventDefault();
       switch(e.key) {
         case 'ArrowUp': move('up'); break;
         case 'ArrowDown': move('down'); break;
@@ -209,7 +248,7 @@ export const Game2048Nexus = ({
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [board]);
+  }, [move]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0];
@@ -222,16 +261,14 @@ export const Game2048Nexus = ({
     const touch = e.changedTouches[0];
     const deltaX = touch.clientX - touchStart.x;
     const deltaY = touch.clientY - touchStart.y;
-    const minSwipeDistance = 50;
+    const minSwipeDistance = 30; // Reduced for easier mobile control
 
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
-      // Horizontal swipe
       if (Math.abs(deltaX) > minSwipeDistance) {
         haptics.light();
         move(deltaX > 0 ? 'right' : 'left');
       }
     } else {
-      // Vertical swipe
       if (Math.abs(deltaY) > minSwipeDistance) {
         haptics.light();
         move(deltaY > 0 ? 'down' : 'up');
@@ -239,6 +276,11 @@ export const Game2048Nexus = ({
     }
 
     setTouchStart(null);
+  };
+  
+  // Prevent page scroll when swiping on game area
+  const handleTouchMove = (e: React.TouchEvent) => {
+    e.preventDefault();
   };
 
   const getTileColor = (value: number) => {
@@ -313,12 +355,13 @@ export const Game2048Nexus = ({
 
         {/* Game Board */}
         <Card 
-          className="p-4 bg-background/30 backdrop-blur border-primary/20 shadow-2xl"
+          className="p-4 bg-background/30 backdrop-blur border-primary/20 shadow-2xl touch-none select-none"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
+          onTouchMove={handleTouchMove}
         >
           <div 
-            className="grid gap-3"
+            className="grid gap-2 md:gap-3"
             style={{
               gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
             }}
@@ -327,7 +370,7 @@ export const Game2048Nexus = ({
               row.map((cell, j) => (
                 <div
                   key={`${i}-${j}`}
-                  className={`aspect-square rounded-xl flex items-center justify-center text-2xl md:text-3xl font-fredoka font-bold shadow-lg transition-all duration-200 ${getTileColor(cell)} ${cell !== 0 ? 'animate-scale-in border-2 border-white/20' : ''}`}
+                  className={`aspect-square rounded-xl flex items-center justify-center text-lg sm:text-2xl md:text-3xl font-fredoka font-bold shadow-lg transition-all duration-200 ${getTileColor(cell)} ${cell !== 0 ? 'animate-scale-in border-2 border-white/20' : ''}`}
                   style={{ 
                     animationDelay: `${(i * gridSize + j) * 20}ms`,
                     textShadow: cell !== 0 ? '0 2px 4px rgba(0,0,0,0.3)' : 'none',
@@ -342,6 +385,42 @@ export const Game2048Nexus = ({
             )}
           </div>
         </Card>
+
+        {/* Mobile Direction Controls */}
+        <div className="flex justify-center md:hidden">
+          <div className="grid grid-cols-3 gap-2 w-40">
+            <div />
+            <Button
+              onClick={() => { haptics.light(); move('up'); }}
+              size="lg"
+              className="aspect-square bg-gradient-to-br from-primary/80 to-accent/80 hover:scale-105 transition-transform"
+            >
+              <ChevronUp className="w-6 h-6" />
+            </Button>
+            <div />
+            <Button
+              onClick={() => { haptics.light(); move('left'); }}
+              size="lg"
+              className="aspect-square bg-gradient-to-br from-primary/80 to-accent/80 hover:scale-105 transition-transform"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </Button>
+            <Button
+              onClick={() => { haptics.light(); move('down'); }}
+              size="lg"
+              className="aspect-square bg-gradient-to-br from-primary/80 to-accent/80 hover:scale-105 transition-transform"
+            >
+              <ChevronDown className="w-6 h-6" />
+            </Button>
+            <Button
+              onClick={() => { haptics.light(); move('right'); }}
+              size="lg"
+              className="aspect-square bg-gradient-to-br from-primary/80 to-accent/80 hover:scale-105 transition-transform"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </Button>
+          </div>
+        </div>
 
         {/* Controls */}
         <div className="flex gap-4 justify-center flex-wrap">
