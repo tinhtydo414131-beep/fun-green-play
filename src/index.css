@@ -504,6 +504,41 @@
     }
   }
 
+  /* CSS Fullscreen fallback for iOS and unsupported browsers */
+  body.css-fullscreen {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden !important;
+  }
+  
+  body.css-fullscreen > * {
+    display: none !important;
+  }
+  
+  body.css-fullscreen #root {
+    display: block !important;
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: hsl(var(--background));
+  }
+  
+  body.css-fullscreen #root > * {
+    display: block !important;
+  }
+  
+  body.css-fullscreen .game-container {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 99999 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    max-height: none !important;
+  }
+
   /* Game area - prevent selection */
   .game-area {
     -webkit-user-select: none;
