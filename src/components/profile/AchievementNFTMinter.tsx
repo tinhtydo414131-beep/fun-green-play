@@ -7,9 +7,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { 
   Sparkles, Trophy, Users, Upload, Coins, Crown, Music,
-  ExternalLink, CheckCircle, Lock, Loader2, Gem
+  ExternalLink, CheckCircle, Lock, Loader2, Gem, ImageIcon
 } from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ethers } from "ethers";
 
@@ -338,6 +339,17 @@ export function AchievementNFTMinter({ walletAddress }: AchievementNFTMinterProp
             </p>
           </div>
         )}
+
+        {/* Link to Gallery */}
+        <div className="pt-4 border-t border-border/50">
+          <Link to="/nft-gallery">
+            <Button variant="outline" className="w-full gap-2">
+              <ImageIcon className="w-4 h-4" />
+              View NFT Gallery
+              <ExternalLink className="w-3 h-3 ml-auto" />
+            </Button>
+          </Link>
+        </div>
       </CardContent>
     </Card>
   );
