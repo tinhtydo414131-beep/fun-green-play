@@ -153,8 +153,11 @@ export const Game2048Nexus3D: React.FC<Game2048Nexus3DProps> = ({
   const [showLevelUp, setShowLevelUp] = useState(false);
   
   // Calculate target score for current level (each level needs 200 more points)
+  // Max level is 100
+  const MAX_LEVEL = 100;
   const getTargetScore = (lvl: number) => lvl * 200;
   const targetScore = getTargetScore(currentLevel);
+  const isMaxLevel = currentLevel >= MAX_LEVEL;
   
   // Use refs to avoid stale closures
   const gridRef = useRef<Grid>(grid);
@@ -171,20 +174,20 @@ export const Game2048Nexus3D: React.FC<Game2048Nexus3DProps> = ({
 
   // Check for level up
   useEffect(() => {
-    if (score >= targetScore && !gameOver) {
+    if (score >= targetScore && !gameOver && !isMaxLevel) {
       setShowLevelUp(true);
       haptics.success();
       onLevelComplete?.(score, Math.floor(score / 50));
       
       // Auto advance to next level after 1.5 seconds
       const timer = setTimeout(() => {
-        setCurrentLevel(prev => prev + 1);
+        setCurrentLevel(prev => Math.min(prev + 1, MAX_LEVEL));
         setShowLevelUp(false);
       }, 1500);
       
       return () => clearTimeout(timer);
     }
-  }, [score, targetScore, gameOver, onLevelComplete]);
+  }, [score, targetScore, gameOver, onLevelComplete, isMaxLevel]);
 
   function initializeGrid(size: number): Grid {
     const newGrid: Grid = Array(size).fill(null).map(() => Array(size).fill(null));

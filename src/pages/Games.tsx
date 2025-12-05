@@ -123,8 +123,14 @@ const Games = () => {
       );
     }
 
-    // Sort games
+    // Sort games - Always put 2048 Nexus at the top
     const sorted = [...filtered].sort((a, b) => {
+      // 2048 Nexus always comes first
+      const aIs2048 = a.title.toLowerCase().includes('2048');
+      const bIs2048 = b.title.toLowerCase().includes('2048');
+      if (aIs2048 && !bIs2048) return -1;
+      if (!aIs2048 && bIs2048) return 1;
+      
       switch (sortBy) {
         case 'popular':
           return (b.total_plays || 0) - (a.total_plays || 0);
