@@ -32,6 +32,9 @@ import { VoiceRecordButton } from "@/components/VoiceRecordButton";
 import { VoiceMessage } from "@/components/VoiceMessage";
 import { VideoCall } from "@/components/VideoCall";
 import { useVideoCall } from "@/hooks/useVideoCall";
+import { useIncomingCalls } from "@/hooks/useIncomingCalls";
+import { IncomingCallNotification } from "@/components/IncomingCallNotification";
+import { useWebRTCSignaling } from "@/hooks/useWebRTCSignaling";
 
 interface Friend {
   id: string;
@@ -781,8 +784,10 @@ export default function Messages() {
     );
   }
 
-  // Video call hook
+  // Video call hooks
   const { isCallOpen, callTarget, callType, isIncoming, startCall, endCall } = useVideoCall();
+  const { incomingCall, dismissIncomingCall } = useIncomingCalls();
+  const { rejectCall: rejectIncomingCall } = useWebRTCSignaling();
 
   // Handle voice/video call
   const handleVoiceCall = () => {
@@ -801,6 +806,24 @@ export default function Messages() {
       username: selectedConversation.friend.username,
       avatar_url: selectedConversation.friend.avatar_url
     }, "video");
+  };
+
+  // Handle incoming call accept
+  const handleAcceptIncomingCall = () => {
+    if (!incomingCall?.caller) return;
+    startCall({
+      id: incomingCall.caller.id,
+      username: incomingCall.caller.username,
+      avatar_url: incomingCall.caller.avatar_url
+    }, incomingCall.call_type as "audio" | "video");
+    dismissIncomingCall();
+  };
+
+  // Handle incoming call reject
+  const handleRejectIncomingCall = async () => {
+    if (!incomingCall) return;
+    await rejectIncomingCall(incomingCall.id);
+    dismissIncomingCall();
   };
 
   // Get online friends for "Active Now" section
@@ -1369,6 +1392,16 @@ export default function Messages() {
         />
       )}
 
+      {/* Incoming Call Notification */}
+      {incomingCall?.caller && (
+        <IncomingCallNotification
+          caller={incomingCall.caller}
+          callType={incomingCall.call_type as "audio" | "video"}
+          onAccept={handleAcceptIncomingCall}
+          onReject={handleRejectIncomingCall}
+        />
+      )}
+
       {/* Video Call Modal */}
       {callTarget && (
         <VideoCall
@@ -1376,6 +1409,7 @@ export default function Messages() {
           onClose={endCall}
           targetUser={callTarget}
           isIncoming={isIncoming}
+          incomingCallId={incomingCall?.id}
           callType={callType}
         />
       )}
