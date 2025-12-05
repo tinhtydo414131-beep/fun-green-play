@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Loader2, Send, Copy, Check, Wallet } from "lucide-react";
+import { Loader2, Send, Copy, Check, Wallet, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -24,6 +25,7 @@ export function TransferModal({ open, onOpenChange, recipientAddress, recipientU
   const [copied, setCopied] = useState(false);
   const [camlyBalance, setCamlyBalance] = useState<number>(0);
   const [loadingBalance, setLoadingBalance] = useState(true);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   useEffect(() => {
     const fetchBalance = async () => {
@@ -52,17 +54,20 @@ export function TransferModal({ open, onOpenChange, recipientAddress, recipientU
   const parsedAmount = parseFloat(amount) || 0;
   const insufficientBalance = tokenType === "CAMLY" && parsedAmount > camlyBalance;
 
-  const handleTransfer = async () => {
+  const handleConfirmTransfer = () => {
     if (!amount || parsedAmount <= 0) {
       toast.error("Please enter a valid amount");
       return;
     }
-
     if (insufficientBalance) {
       toast.error("Insufficient CAMLY balance");
       return;
     }
+    setShowConfirmation(true);
+  };
 
+  const handleTransfer = async () => {
+    setShowConfirmation(false);
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -242,7 +247,7 @@ export function TransferModal({ open, onOpenChange, recipientAddress, recipientU
             Cancel
           </Button>
           <Button
-            onClick={handleTransfer}
+            onClick={handleConfirmTransfer}
             disabled={loading || !amount || insufficientBalance}
           >
             {loading ? (
@@ -259,6 +264,48 @@ export function TransferModal({ open, onOpenChange, recipientAddress, recipientU
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      {/* Confirmation Dialog */}
+      <AlertDialog open={showConfirmation} onOpenChange={setShowConfirmation}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-amber-500" />
+              Confirm Transfer
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3">
+                <p>Are you sure you want to send this transfer?</p>
+                <div className="bg-muted p-3 rounded-lg space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Amount:</span>
+                    <span className="font-semibold">{amount} {tokenType}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">To:</span>
+                    <span className="font-semibold">{recipientUsername}</span>
+                  </div>
+                  {notes && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Note:</span>
+                      <span className="font-semibold truncate max-w-[150px]">{notes}</span>
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  This action cannot be undone.
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleTransfer}>
+              Confirm Send
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }
