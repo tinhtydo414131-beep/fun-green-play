@@ -7,9 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { Gamepad2, User, Wallet, Mail, Lock, Shield } from "lucide-react";
+import { Gamepad2, User, Wallet, Mail, Lock } from "lucide-react";
 import { web3Modal } from '@/lib/web3';
-import { useAccount, useDisconnect, useSignMessage, useChainId } from 'wagmi';
+import { useAccount, useDisconnect } from 'wagmi';
 import { z } from "zod";
 
 // Email/Password validation schema
@@ -24,25 +24,19 @@ export default function Auth() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [resetEmail, setResetEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState<"connect" | "sign" | "register">("connect");
+  const [step, setStep] = useState<"connect" | "register">("connect");
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [siweNonce, setSiweNonce] = useState<string | null>(null);
-  const [siweMessage, setSiweMessage] = useState<string | null>(null);
-  const [isNewWalletUser, setIsNewWalletUser] = useState(false);
   const navigate = useNavigate();
   
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
-  const chainId = useChainId();
-  const { signMessageAsync } = useSignMessage();
 
-  // Auto-proceed to sign step when wallet connects
+  // Auto-proceed to register step when wallet connects
   useEffect(() => {
     if (isConnected && address && step === "connect") {
-      setStep("sign");
-      requestSiweNonce();
+      setStep("register");
     }
   }, [isConnected, address, step]);
 
@@ -56,139 +50,6 @@ export default function Auth() {
     };
     checkAuth();
   }, [navigate]);
-
-  // Request a nonce from the edge function for SIWE
-  const requestSiweNonce = async () => {
-    if (!address) return;
-    
-    try {
-      setLoading(true);
-      
-      const { data, error } = await supabase.functions.invoke('wallet-auth', {
-        body: {
-          action: 'request_nonce',
-          walletAddress: address,
-          chainId: chainId || 1
-        }
-      });
-
-      if (error) throw error;
-
-      setSiweNonce(data.nonce);
-      setSiweMessage(data.message);
-    } catch (error: any) {
-      console.error('Failed to get nonce:', error);
-      toast.error("Không thể tạo yêu cầu xác thực. Vui lòng thử lại!");
-      setStep("connect");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Sign the SIWE message with wallet
-  const handleSignMessage = async () => {
-    if (!siweMessage || !address) {
-      toast.error("Không có tin nhắn để ký!");
-      return;
-    }
-
-    try {
-      setLoading(true);
-      
-      // Request signature from wallet
-      const signature = await signMessageAsync({ message: siweMessage, account: address as `0x${string}` });
-      
-      // Verify signature with backend
-      await verifySignatureAndAuth(signature);
-    } catch (error: any) {
-      console.error('Signing error:', error);
-      if (error.message?.includes('User rejected') || error.message?.includes('rejected')) {
-        toast.error("Bạn đã từ chối ký tin nhắn!");
-      } else {
-        toast.error("Không thể ký tin nhắn. Vui lòng thử lại!");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Verify signature with backend and authenticate
-  const verifySignatureAndAuth = async (signature: string) => {
-    if (!siweNonce || !address) return;
-
-    try {
-      setLoading(true);
-      
-      const { data, error } = await supabase.functions.invoke('wallet-auth', {
-        body: {
-          action: 'verify_signature',
-          walletAddress: address,
-          signature,
-          nonce: siweNonce,
-          chainId: chainId || 1
-        }
-      });
-
-      if (error) throw error;
-
-      if (data.isNewUser) {
-        // New user - need to register with username
-        setIsNewWalletUser(true);
-        setStep("register");
-        toast.info("🎉 Ví đã được xác thực! Vui lòng chọn tên người dùng.");
-      } else {
-        // Existing user - complete login with signature
-        toast.info("🔐 Đang đăng nhập...");
-        await completeWalletLogin(signature);
-      }
-    } catch (error: any) {
-      console.error('Verification error:', error);
-      toast.error(error.message || "Xác thực thất bại. Vui lòng thử lại!");
-      // Reset to get new nonce
-      setSiweNonce(null);
-      setSiweMessage(null);
-      await requestSiweNonce();
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Complete wallet login for existing users
-  const completeWalletLogin = async (signature: string) => {
-    try {
-      setLoading(true);
-      
-      const { data, error } = await supabase.functions.invoke('wallet-auth', {
-        body: {
-          action: 'login',
-          walletAddress: address,
-          signature
-        }
-      });
-
-      if (error) throw error;
-
-      if (data.session) {
-        // Set the session
-        await supabase.auth.setSession({
-          access_token: data.session.access_token,
-          refresh_token: data.session.refresh_token
-        });
-
-        localStorage.setItem("funplanet_session", JSON.stringify(data.session));
-        
-        toast.success("🎉 Đăng nhập thành công!");
-        navigate("/");
-      } else {
-        throw new Error("Không nhận được phiên đăng nhập");
-      }
-    } catch (error: any) {
-      console.error('Login error:', error);
-      toast.error(error.message || "Đăng nhập thất bại!");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleConnect = async () => {
     try {
@@ -214,9 +75,6 @@ export default function Auth() {
     disconnect();
     setStep("connect");
     setUsername("");
-    setSiweNonce(null);
-    setSiweMessage(null);
-    setIsNewWalletUser(false);
     toast.info("Đã ngắt kết nối ví");
   };
 
@@ -333,12 +191,11 @@ export default function Auth() {
     }
   };
 
-  // Register new wallet user with username (secure SIWE flow)
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!address || !siweNonce) {
-      toast.error("Vui lòng xác thực ví trước!");
+    if (!address) {
+      toast.error("Ví chưa kết nối!");
       return;
     }
 
@@ -355,114 +212,69 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      // Request a fresh signature for registration
-      const signature = await signMessageAsync({ message: siweMessage!, account: address as `0x${string}` });
+      const walletEmail = `${address.toLowerCase()}@wallet.funplanet`;
+      const walletPassword = address.toLowerCase();
 
-      const { data, error } = await supabase.functions.invoke('wallet-auth', {
-        body: {
-          action: 'register',
-          walletAddress: address,
-          username: username.trim(),
-          signature,
-          nonce: siweNonce
-        }
+      // Try sign in first
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: walletEmail,
+        password: walletPassword,
       });
 
-      if (error) throw error;
-
-      if (data.session) {
-        await supabase.auth.setSession({
-          access_token: data.session.access_token,
-          refresh_token: data.session.refresh_token
+      if (signInError && signInError.message.includes("Invalid login credentials")) {
+        // Account doesn't exist, create new
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: walletEmail,
+          password: walletPassword,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+            data: {
+              username: username.trim(),
+              wallet_address: address.toLowerCase(),
+            },
+          },
         });
 
-        localStorage.setItem("funplanet_session", JSON.stringify(data.session));
+        if (signUpError) {
+          throw new Error(signUpError.message || "Không thể tạo tài khoản");
+        }
+
+        if (!signUpData.session) {
+          throw new Error("Không thể tạo phiên đăng nhập");
+        }
+
+        localStorage.setItem("funplanet_session", JSON.stringify(signUpData.session));
         
+        // Update profile
+        await supabase
+          .from("profiles")
+          .update({ wallet_address: address.toLowerCase() })
+          .eq("id", signUpData.user!.id);
+
         toast.success("🎊 Chào mừng đến với FUN Planet!");
         navigate("/");
+      } else if (signInData?.session) {
+        // Login successful
+        localStorage.setItem("funplanet_session", JSON.stringify(signInData.session));
+        
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("username")
+          .eq("id", signInData.user.id)
+          .single();
+
+        toast.success(`🎉 Chào mừng trở lại, ${profile?.username || "bạn"}!`);
+        navigate("/");
       } else {
-        throw new Error("Không nhận được phiên đăng nhập");
+        throw new Error(signInError?.message || "Đăng nhập thất bại");
       }
     } catch (error: any) {
-      console.error("Register error:", error);
-      if (error.message?.includes("Username already taken")) {
-        toast.error("Tên người dùng đã được sử dụng!");
-      } else if (error.message?.includes("User rejected") || error.message?.includes("rejected")) {
-        toast.error("Bạn đã từ chối ký tin nhắn!");
-      } else {
-        toast.error(error.message || "Có lỗi xảy ra. Vui lòng thử lại!");
-      }
+      console.error("Auth error:", error);
+      toast.error(error.message || "Có lỗi xảy ra. Vui lòng thử lại!");
     } finally {
       setLoading(false);
     }
   };
-
-  // Step: Sign SIWE message
-  if (step === "sign") {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md border-2 border-primary/20 shadow-2xl rounded-3xl">
-          <CardHeader className="text-center space-y-4 pb-4">
-            <div className="flex justify-center">
-              <div className="bg-gradient-to-br from-accent to-secondary p-4 rounded-full">
-                <Shield className="w-12 h-12 text-white" />
-              </div>
-            </div>
-            <CardTitle className="text-3xl font-fredoka text-primary">
-              Xác thực ví 🔐
-            </CardTitle>
-            <CardDescription className="text-base font-comic">
-              Ký tin nhắn để chứng minh bạn sở hữu ví này
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent className="space-y-6 px-6 pb-6">
-            {/* Connected Wallet Info */}
-            <div className="p-4 bg-accent/10 border-2 border-accent/30 rounded-xl">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-accent to-secondary rounded-full flex items-center justify-center">
-                  <Wallet className="w-5 h-5 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-muted-foreground">Ví đã kết nối</p>
-                  <p className="font-mono text-xs truncate">{address}</p>
-                </div>
-                <Button
-                  onClick={handleDisconnect}
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs"
-                >
-                  Đổi
-                </Button>
-              </div>
-            </div>
-
-            {/* Security Notice */}
-            <div className="p-4 bg-green-500/10 border-2 border-green-500/30 rounded-xl">
-              <p className="text-sm font-comic text-green-700 dark:text-green-300">
-                <Shield className="w-4 h-4 inline mr-2" />
-                <strong>Bảo mật:</strong> Chúng tôi yêu cầu bạn ký một tin nhắn duy nhất để xác minh quyền sở hữu ví. Hành động này KHÔNG tốn phí gas và KHÔNG cho phép chuyển tiền.
-              </p>
-            </div>
-
-            {/* Sign Button */}
-            <Button
-              onClick={handleSignMessage}
-              disabled={loading || !siweMessage}
-              className="w-full h-14 text-lg font-fredoka font-bold bg-gradient-to-r from-accent to-secondary hover:shadow-xl transition-all"
-            >
-              {loading ? "Đang xử lý... ⏳" : "✍️ Ký tin nhắn xác thực"}
-            </Button>
-
-            <p className="text-xs text-center text-muted-foreground font-comic">
-              🔒 Tin nhắn ký sẽ hết hạn sau 5 phút
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   if (step === "connect") {
     return (
@@ -497,49 +309,6 @@ export default function Auth() {
 
               {/* Email/Password Tab */}
               <TabsContent value="email" className="space-y-4">
-                {/* Google Login Button */}
-                <Button
-                  onClick={async () => {
-                    setLoading(true);
-                    try {
-                      const { error } = await supabase.auth.signInWithOAuth({
-                        provider: 'google',
-                        options: {
-                          redirectTo: `${window.location.origin}/`,
-                        }
-                      });
-                      if (error) throw error;
-                    } catch (error: any) {
-                      console.error('Google login error:', error);
-                      toast.error("Không thể đăng nhập với Google. Vui lòng thử lại!");
-                    } finally {
-                      setLoading(false);
-                    }
-                  }}
-                  disabled={loading}
-                  variant="outline"
-                  className="w-full h-14 text-lg font-fredoka border-2 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all"
-                >
-                  <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                  </svg>
-                  Đăng nhập với Google
-                </Button>
-
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground font-comic">
-                      hoặc
-                    </span>
-                  </div>
-                </div>
-
                 <div className="flex justify-center gap-2 mb-4">
                   <Button
                     variant={authMode === "login" ? "default" : "outline"}
@@ -739,7 +508,6 @@ export default function Auth() {
     );
   }
 
-  // Step: Register with username (for new wallet users)
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 flex items-center justify-center p-4">
       <Card className="w-full max-w-md border-2 border-primary/20 shadow-2xl rounded-3xl">

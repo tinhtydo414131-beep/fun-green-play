@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
-import { MessageCircle, Send, ArrowLeft, Smile, Users, Circle, Coins, Bell, Plus, Search, Phone, Video, MoreVertical, Image, Paperclip, Info, History } from "lucide-react";
+import { MessageCircle, Send, ArrowLeft, Smile, Users, Circle, Coins, Bell, Plus, Search, Phone, Video, MoreVertical, Image, Paperclip, Info } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
@@ -30,11 +30,6 @@ import { ReplyPreview, QuotedMessage } from "@/components/ReplyPreview";
 import { PinnedMessagesBar } from "@/components/PinnedMessages";
 import { VoiceRecordButton } from "@/components/VoiceRecordButton";
 import { VoiceMessage } from "@/components/VoiceMessage";
-import { VideoCall } from "@/components/VideoCall";
-import { useVideoCall } from "@/hooks/useVideoCall";
-import { useIncomingCalls } from "@/hooks/useIncomingCalls";
-import { IncomingCallNotification } from "@/components/IncomingCallNotification";
-import { useWebRTCSignaling } from "@/hooks/useWebRTCSignaling";
 
 interface Friend {
   id: string;
@@ -784,46 +779,21 @@ export default function Messages() {
     );
   }
 
-  // Video call hooks
-  const { isCallOpen, callTarget, callType, isIncoming, startCall, endCall } = useVideoCall();
-  const { incomingCall, dismissIncomingCall } = useIncomingCalls();
-  const { rejectCall: rejectIncomingCall } = useWebRTCSignaling();
-
-  // Handle voice/video call
+  // Handle voice/video call (placeholder)
   const handleVoiceCall = () => {
     if (!selectedConversation?.friend) return;
-    startCall({
-      id: selectedConversation.friend.id,
-      username: selectedConversation.friend.username,
-      avatar_url: selectedConversation.friend.avatar_url
-    }, "audio");
+    toast.info(`Calling ${selectedConversation.friend.username}...`, {
+      description: "Voice calls coming soon! 📞",
+      duration: 3000,
+    });
   };
 
   const handleVideoCall = () => {
     if (!selectedConversation?.friend) return;
-    startCall({
-      id: selectedConversation.friend.id,
-      username: selectedConversation.friend.username,
-      avatar_url: selectedConversation.friend.avatar_url
-    }, "video");
-  };
-
-  // Handle incoming call accept
-  const handleAcceptIncomingCall = () => {
-    if (!incomingCall?.caller) return;
-    startCall({
-      id: incomingCall.caller.id,
-      username: incomingCall.caller.username,
-      avatar_url: incomingCall.caller.avatar_url
-    }, incomingCall.call_type as "audio" | "video");
-    dismissIncomingCall();
-  };
-
-  // Handle incoming call reject
-  const handleRejectIncomingCall = async () => {
-    if (!incomingCall) return;
-    await rejectIncomingCall(incomingCall.id);
-    dismissIncomingCall();
+    toast.info(`Video calling ${selectedConversation.friend.username}...`, {
+      description: "Video calls coming soon! 📹",
+      duration: 3000,
+    });
   };
 
   // Get online friends for "Active Now" section
@@ -849,15 +819,6 @@ export default function Messages() {
                     Chats
                   </h1>
                   <div className="flex items-center gap-1">
-                    <Button
-                      onClick={() => navigate("/call-history")}
-                      variant="ghost"
-                      size="icon"
-                      className="h-9 w-9 rounded-full hover:bg-primary/10"
-                      title="Call History"
-                    >
-                      <History className="w-5 h-5" />
-                    </Button>
                     <Button
                       onClick={() => setShowSearchModal(true)}
                       variant="ghost"
@@ -1398,28 +1359,6 @@ export default function Messages() {
           conversations={getForwardConversations()}
           userId={user.id}
           currentRoomId={selectedConversation.roomId}
-        />
-      )}
-
-      {/* Incoming Call Notification */}
-      {incomingCall?.caller && (
-        <IncomingCallNotification
-          caller={incomingCall.caller}
-          callType={incomingCall.call_type as "audio" | "video"}
-          onAccept={handleAcceptIncomingCall}
-          onReject={handleRejectIncomingCall}
-        />
-      )}
-
-      {/* Video Call Modal */}
-      {callTarget && (
-        <VideoCall
-          isOpen={isCallOpen}
-          onClose={endCall}
-          targetUser={callTarget}
-          isIncoming={isIncoming}
-          incomingCallId={incomingCall?.id}
-          callType={callType}
         />
       )}
     </div>

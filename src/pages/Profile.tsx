@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { 
   Gamepad2, Users, MessageCircle, Trophy, Home, Upload, 
   Edit2, Save, X, Wallet, Crown, Music, Image as ImageIcon,
-  TrendingUp, Medal, Star, Sparkles, History
+  TrendingUp, Medal, Star, Sparkles
 } from "lucide-react";
 import { toast } from "sonner";
 import { AvatarUpload } from "@/components/AvatarUpload";
@@ -341,7 +341,7 @@ export default function Profile() {
 
           {/* Quick Actions */}
           <motion.div 
-            className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-8"
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
@@ -368,14 +368,6 @@ export default function Profile() {
             >
               <MessageCircle className="mr-2 h-5 w-5" />
               Chat 💬
-            </Button>
-            <Button
-              onClick={() => navigate("/call-history")}
-              variant="outline"
-              className="h-20 text-lg font-fredoka font-bold border-2 border-blue-500/30 hover:border-blue-500 hover:bg-blue-500/10"
-            >
-              <History className="mr-2 h-5 w-5" />
-              Calls 📞
             </Button>
             <Button
               onClick={() => navigate("/camly-leaderboard")}
