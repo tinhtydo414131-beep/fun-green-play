@@ -18,7 +18,7 @@ interface TransferModalProps {
 
 export function TransferModal({ open, onOpenChange, recipientAddress, recipientUsername }: TransferModalProps) {
   const [amount, setAmount] = useState("");
-  const [tokenType, setTokenType] = useState("ETH");
+  const [tokenType, setTokenType] = useState("CAMLY");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -154,6 +154,7 @@ export function TransferModal({ open, onOpenChange, recipientAddress, recipientU
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="CAMLY">🪙 Camly Coin</SelectItem>
                 <SelectItem value="ETH">ETH</SelectItem>
                 <SelectItem value="USDT">USDT</SelectItem>
                 <SelectItem value="BNB">BNB</SelectItem>
