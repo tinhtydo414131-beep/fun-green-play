@@ -148,22 +148,43 @@ export const Game2048Nexus3D: React.FC<Game2048Nexus3DProps> = ({
   const [grid, setGrid] = useState<Grid>(() => initializeGrid(gridSize));
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
-  const [won, setWon] = useState(false);
+  const [currentLevel, setCurrentLevel] = useState(level);
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
-  const targetTile = 2048 + (level - 1) * 1024;
+  const [showLevelUp, setShowLevelUp] = useState(false);
+  
+  // Calculate target score for current level (each level needs 200 more points)
+  const getTargetScore = (lvl: number) => lvl * 200;
+  const targetScore = getTargetScore(currentLevel);
   
   // Use refs to avoid stale closures
   const gridRef = useRef<Grid>(grid);
   const scoreRef = useRef(score);
   const gameOverRef = useRef(gameOver);
-  const wonRef = useRef(won);
+  const currentLevelRef = useRef(currentLevel);
   
   useEffect(() => {
     gridRef.current = grid;
     scoreRef.current = score;
     gameOverRef.current = gameOver;
-    wonRef.current = won;
-  }, [grid, score, gameOver, won]);
+    currentLevelRef.current = currentLevel;
+  }, [grid, score, gameOver, currentLevel]);
+
+  // Check for level up
+  useEffect(() => {
+    if (score >= targetScore && !gameOver) {
+      setShowLevelUp(true);
+      haptics.success();
+      onLevelComplete?.(score, Math.floor(score / 50));
+      
+      // Auto advance to next level after 1.5 seconds
+      const timer = setTimeout(() => {
+        setCurrentLevel(prev => prev + 1);
+        setShowLevelUp(false);
+      }, 1500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [score, targetScore, gameOver, onLevelComplete]);
 
   function initializeGrid(size: number): Grid {
     const newGrid: Grid = Array(size).fill(null).map(() => Array(size).fill(null));
@@ -188,7 +209,7 @@ export const Game2048Nexus3D: React.FC<Game2048Nexus3DProps> = ({
   }
 
   const move = useCallback((direction: 'up' | 'down' | 'left' | 'right') => {
-    if (gameOver || won) return;
+    if (gameOver || showLevelUp) return;
 
     const newGrid = grid.map(row => [...row]);
     let moved = false;
@@ -203,10 +224,6 @@ export const Game2048Nexus3D: React.FC<Game2048Nexus3DProps> = ({
           const mergedValue = filtered[i] * 2;
           merged.push(mergedValue);
           newScore += mergedValue;
-          if (mergedValue >= targetTile) {
-            setWon(true);
-            onLevelComplete?.(newScore, Math.floor(newScore / 100));
-          }
           i++;
         } else {
           merged.push(filtered[i]);
@@ -263,7 +280,7 @@ export const Game2048Nexus3D: React.FC<Game2048Nexus3DProps> = ({
         if (!canMove) setGameOver(true);
       }
     }
-  }, [grid, score, gameOver, won, targetTile, onLevelComplete]);
+  }, [grid, score, gameOver, showLevelUp]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -282,7 +299,8 @@ export const Game2048Nexus3D: React.FC<Game2048Nexus3DProps> = ({
     setGrid(initializeGrid(gridSize));
     setScore(0);
     setGameOver(false);
-    setWon(false);
+    setCurrentLevel(level);
+    setShowLevelUp(false);
   };
 
   // Touch handlers for swipe gestures
@@ -330,11 +348,11 @@ export const Game2048Nexus3D: React.FC<Game2048Nexus3DProps> = ({
           <ArrowLeft className="w-4 h-4 mr-1" /> Back
         </Button>
         <div className="flex items-center gap-2">
-          <span className="font-fredoka text-lg bg-primary/20 px-3 py-1 rounded-lg">
-            Score: {score}
+          <span className="font-fredoka text-sm bg-accent/30 px-2 py-1 rounded-lg">
+            Lv.{currentLevel}
           </span>
-          <span className="font-fredoka text-sm bg-secondary/20 px-2 py-1 rounded-lg">
-            Target: {targetTile}
+          <span className="font-fredoka text-lg bg-primary/20 px-3 py-1 rounded-lg">
+            {score}/{targetScore}
           </span>
         </div>
         <Button variant="outline" size="sm" onClick={resetGame} className="font-fredoka">
@@ -342,13 +360,26 @@ export const Game2048Nexus3D: React.FC<Game2048Nexus3DProps> = ({
         </Button>
       </div>
 
-      {(gameOver || won) && (
+      {showLevelUp && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 rounded-xl animate-pulse">
+          <div className="bg-gradient-to-br from-primary/90 to-accent/90 p-8 rounded-xl text-center space-y-2 shadow-2xl">
+            <h2 className="text-3xl font-fredoka font-bold text-white">
+              🎉 Level Up!
+            </h2>
+            <p className="font-comic text-white/90 text-xl">Level {currentLevel + 1}</p>
+            <p className="font-comic text-white/70 text-sm">Next target: {getTargetScore(currentLevel + 1)} points</p>
+          </div>
+        </div>
+      )}
+
+      {gameOver && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 rounded-xl">
           <div className="bg-background p-6 rounded-xl text-center space-y-4">
             <h2 className="text-2xl font-fredoka font-bold text-primary">
-              {won ? '🎉 You Won!' : '😔 Game Over'}
+              😔 Game Over
             </h2>
             <p className="font-comic text-muted-foreground">Final Score: {score}</p>
+            <p className="font-comic text-muted-foreground">Reached Level: {currentLevel}</p>
             <Button onClick={resetGame} className="font-fredoka">
               Play Again
             </Button>
