@@ -82,6 +82,48 @@ export type Database = {
           },
         ]
       }
+      call_signals: {
+        Row: {
+          call_id: string
+          created_at: string
+          id: string
+          sender_id: string
+          signal_data: Json
+          signal_type: string
+        }
+        Insert: {
+          call_id: string
+          created_at?: string
+          id?: string
+          sender_id: string
+          signal_data: Json
+          signal_type: string
+        }
+        Update: {
+          call_id?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+          signal_data?: Json
+          signal_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_signals_call_id_fkey"
+            columns: ["call_id"]
+            isOneToOne: false
+            referencedRelation: "video_calls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_signals_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       camly_coin_transactions: {
         Row: {
           amount: number
@@ -1624,6 +1666,54 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      video_calls: {
+        Row: {
+          call_type: string
+          callee_id: string
+          caller_id: string
+          created_at: string
+          ended_at: string | null
+          id: string
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          call_type?: string
+          callee_id: string
+          caller_id: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          call_type?: string
+          callee_id?: string
+          caller_id?: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_calls_callee_id_fkey"
+            columns: ["callee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_calls_caller_id_fkey"
+            columns: ["caller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       wallet_transactions: {
         Row: {
