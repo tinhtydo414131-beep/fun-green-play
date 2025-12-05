@@ -170,7 +170,7 @@ export function CoinNotification() {
   };
 
   return (
-    <div className="fixed top-20 right-4 z-50 space-y-2 pointer-events-none">
+    <div className="fixed top-16 sm:top-20 right-2 sm:right-4 left-2 sm:left-auto z-50 space-y-2 pointer-events-none">
       <AnimatePresence>
         {notifications.map((notification) => (
           <motion.div
@@ -180,7 +180,7 @@ export function CoinNotification() {
             exit={preferences.animationsEnabled ? { opacity: 0, x: 100, scale: 0.8 } : { opacity: 0 }}
             className="pointer-events-auto"
           >
-            <div className="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 rounded-2xl shadow-2xl p-4 min-w-[280px] border-4 border-white">
+            <div className="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 rounded-2xl shadow-2xl p-3 sm:p-4 min-w-0 sm:min-w-[280px] border-4 border-white">
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <motion.div
