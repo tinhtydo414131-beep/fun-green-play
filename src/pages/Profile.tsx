@@ -296,7 +296,13 @@ export default function Profile() {
             </TabsList>
 
             <TabsContent value="overview">
-              <HonorBoard profile={profile} userRank={userRank} />
+              <HonorBoard 
+                profile={{
+                  ...profile,
+                  wallet_address: profile.wallet_address
+                }} 
+                userRank={userRank} 
+              />
             </TabsContent>
 
             <TabsContent value="badges">
