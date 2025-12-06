@@ -178,7 +178,7 @@ export default function Leaderboard() {
               <Trophy className="w-8 h-8 sm:w-16 sm:h-16 text-secondary animate-bounce hidden sm:block" style={{ animationDelay: '0.2s' }} />
             </div>
             <p className="text-base sm:text-xl text-muted-foreground font-comic max-w-2xl mx-auto px-4">
-              See who's the top player! 1 Point = 100 Camly Coins 🪙
+              Top 100 players with scores & wallet addresses! 1 Point = 100 Camly Coins 🪙
             </p>
           </div>
 
@@ -334,38 +334,46 @@ export default function Leaderboard() {
                     </div>
 
                     {/* Mobile: Bottom row with wallet & transfer */}
-                    {leader.wallet_address && (
-                      <div className="flex items-center justify-between gap-2 pl-11 sm:pl-0 sm:ml-auto">
-                        <TooltipProvider>
-                          <div className="flex items-center gap-1">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="text-xs font-mono text-muted-foreground/80 cursor-help">
-                                  {shortenAddress(leader.wallet_address)}
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p className="font-mono text-xs">{leader.wallet_address}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className={`h-5 w-5 p-0 transition-colors duration-200 ${
-                                copiedAddress === leader.wallet_address
-                                  ? 'text-green-500'
-                                  : ''
-                              }`}
-                              onClick={() => copyToClipboard(leader.wallet_address!)}
-                            >
-                              {copiedAddress === leader.wallet_address ? (
-                                <Check className="w-3 h-3" />
-                              ) : (
-                                <Copy className="w-3 h-3" />
-                              )}
-                            </Button>
-                          </div>
-                        </TooltipProvider>
+                    <div className="flex items-center justify-between gap-2 pl-11 sm:pl-0 sm:ml-auto">
+                      <TooltipProvider>
+                        <div className="flex items-center gap-1">
+                          {leader.wallet_address ? (
+                            <>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="text-xs font-mono text-muted-foreground/80 cursor-help">
+                                    {shortenAddress(leader.wallet_address)}
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="font-mono text-xs">{leader.wallet_address}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className={`h-5 w-5 p-0 transition-colors duration-200 ${
+                                  copiedAddress === leader.wallet_address
+                                    ? 'text-green-500'
+                                    : ''
+                                }`}
+                                onClick={() => copyToClipboard(leader.wallet_address!)}
+                              >
+                                {copiedAddress === leader.wallet_address ? (
+                                  <Check className="w-3 h-3" />
+                                ) : (
+                                  <Copy className="w-3 h-3" />
+                                )}
+                              </Button>
+                            </>
+                          ) : (
+                            <span className="text-xs font-mono text-muted-foreground/50 italic">
+                              No wallet
+                            </span>
+                          )}
+                        </div>
+                      </TooltipProvider>
+                      {leader.wallet_address && (
                         <Button
                           size="sm"
                           onClick={() => {
@@ -380,8 +388,8 @@ export default function Leaderboard() {
                           <Send className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                           Transfer
                         </Button>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
