@@ -1,21 +1,13 @@
 import { useEffect, useState, useCallback } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { 
-  Trophy, Gamepad2, Users, Music, Upload, 
-  Coins, Crown, Wallet, TrendingUp, Star, Sparkles,
-  CheckCircle, Image as ImageIcon, RefreshCw, Zap, Medal,
-  Search, SortDesc
-} from "lucide-react";
+import { Crown, Medal, Award, Search, ChevronDown, Sparkles, Trophy, Gamepad2, Upload, Users, Music, Coins, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import { ethers } from "ethers";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 
 interface HonorBoardProps {
   profile: {
@@ -47,10 +39,6 @@ interface TopUser {
   total_plays: number;
 }
 
-const GAME_NFT_CONTRACTS = [
-  "0x1234567890123456789012345678901234567890",
-];
-
 const ITEMS_PER_PAGE = 10;
 
 export function HonorBoard({ profile, userRank }: HonorBoardProps) {
@@ -68,7 +56,6 @@ export function HonorBoard({ profile, userRank }: HonorBoardProps) {
   const [topUsers, setTopUsers] = useState<TopUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState(false);
-  const [scanningNFTs, setScanningNFTs] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"score" | "plays">("score");
   const [displayCount, setDisplayCount] = useState(ITEMS_PER_PAGE);
@@ -146,43 +133,6 @@ export function HonorBoard({ profile, userRank }: HonorBoardProps) {
     }
   }, [sortBy, displayCount]);
 
-  const scanWalletNFTs = async () => {
-    if (!profile.wallet_address) {
-      toast.error("Connect your wallet first to scan NFTs");
-      return;
-    }
-
-    setScanningNFTs(true);
-    try {
-      if (typeof window !== "undefined" && (window as any).ethereum) {
-        const provider = new ethers.BrowserProvider((window as any).ethereum);
-        const erc721ABI = ["function balanceOf(address owner) view returns (uint256)"];
-        
-        let totalNFTs = 0;
-        
-        for (const contractAddress of GAME_NFT_CONTRACTS) {
-          try {
-            const contract = new ethers.Contract(contractAddress, erc721ABI, provider);
-            const balance = await contract.balanceOf(profile.wallet_address);
-            totalNFTs += Number(balance);
-          } catch (err) {
-            console.log(`Contract ${contractAddress} not found`);
-          }
-        }
-        
-        setStats(prev => ({ ...prev, nftCount: totalNFTs }));
-        toast.success(`Found ${totalNFTs} NFTs in your collection!`);
-      } else {
-        toast.error("Please install MetaMask to scan NFTs");
-      }
-    } catch (error) {
-      console.error("Error scanning NFTs:", error);
-      toast.error("Failed to scan NFTs");
-    } finally {
-      setScanningNFTs(false);
-    }
-  };
-
   const handleClaimRewards = async () => {
     if (stats.unclaimedRewards <= 0) {
       toast.info("No rewards to claim!");
@@ -254,320 +204,383 @@ export function HonorBoard({ profile, userRank }: HonorBoardProps) {
     };
   }, [user, fetchHonorStats, fetchTopUsers]);
 
-  const getRankBadge = (rank: number) => {
-    if (rank === 1) return { icon: "🥇", color: "rank-badge-1", label: "Champion" };
-    if (rank === 2) return { icon: "🥈", color: "rank-badge-2", label: "Runner-up" };
-    if (rank === 3) return { icon: "🥉", color: "rank-badge-3", label: "Third" };
-    return { icon: `${rank}`, color: "rank-badge-regular", label: "Player" };
+  const getRankIcon = (rank: number) => {
+    if (rank === 1) return <Crown className="w-10 h-10 md:w-12 md:h-12 text-yellow-400 drop-shadow-lg animate-pulse" />;
+    if (rank === 2) return <Medal className="w-8 h-8 md:w-10 md:h-10 text-gray-300 drop-shadow-lg" />;
+    if (rank === 3) return <Award className="w-8 h-8 md:w-10 md:h-10 text-orange-500 drop-shadow-lg" />;
+    return (
+      <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
+        #{rank}
+      </div>
+    );
+  };
+
+  const getRewardForRank = (rank: number) => {
+    if (rank === 1) return "50,000 CAMLY";
+    if (rank === 2) return "30,000 CAMLY";
+    if (rank === 3) return "20,000 CAMLY";
+    if (rank <= 10) return "10,000 CAMLY";
+    return "5,000 CAMLY";
   };
 
   const filteredUsers = topUsers.filter(u => 
     u.username?.toLowerCase().includes(searchQuery.toLowerCase())
   ).slice(0, displayCount);
 
+  const top3Users = filteredUsers.slice(0, 3);
+  const restUsers = filteredUsers.slice(3);
+
   const honorItems = [
     {
       icon: Crown,
-      label: "Your Rank",
+      label: "Hạng của bạn",
       value: `#${userRank || "—"}`,
-      color: "from-yellow-500 to-orange-500",
-      bgColor: "bg-yellow-500/10",
-      description: "Based on total income"
+      color: "from-yellow-400 to-orange-500",
+      bgColor: "bg-gradient-to-br from-yellow-100 to-orange-100 dark:from-yellow-900/30 dark:to-orange-900/30"
     },
     {
       icon: Coins,
-      label: "Total Income",
+      label: "Tổng thu nhập",
       value: stats.totalIncome.toLocaleString(),
       suffix: "CAMLY",
-      color: "from-primary to-secondary",
-      bgColor: "bg-primary/10",
-      description: "Points + Rewards combined",
-      action: stats.unclaimedRewards > 0 ? {
-        label: `Claim ${stats.unclaimedRewards.toLocaleString()}`,
-        onClick: handleClaimRewards,
-        loading: claiming
-      } : undefined
+      color: "from-purple-500 to-pink-500",
+      bgColor: "bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30"
     },
     {
       icon: Upload,
-      label: "Games Uploaded",
+      label: "Game đã upload",
       value: stats.gamesUploaded.toString(),
-      color: "from-green-500 to-emerald-500",
-      bgColor: "bg-green-500/10",
-      description: `${stats.approvedGames} approved`
+      color: "from-green-400 to-emerald-500",
+      bgColor: "bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30"
     },
     {
       icon: Users,
-      label: "Friends",
+      label: "Bạn bè",
       value: profile.total_friends.toString(),
-      color: "from-blue-500 to-cyan-500",
-      bgColor: "bg-blue-500/10",
-      description: "Your gaming buddies"
+      color: "from-blue-400 to-cyan-500",
+      bgColor: "bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-900/30 dark:to-cyan-900/30"
     },
     {
       icon: Music,
-      label: "Music",
+      label: "Nhạc",
       value: stats.musicUploaded.toString(),
-      color: "from-pink-500 to-rose-500",
-      bgColor: "bg-pink-500/10",
-      description: "Shared tunes"
+      color: "from-pink-400 to-rose-500",
+      bgColor: "bg-gradient-to-br from-pink-100 to-rose-100 dark:from-pink-900/30 dark:to-rose-900/30"
     },
     {
       icon: Gamepad2,
-      label: "Games Played",
+      label: "Lượt chơi",
       value: stats.gamesPlayed.toString(),
-      color: "from-purple-500 to-violet-500",
-      bgColor: "bg-purple-500/10",
-      description: "Play sessions"
+      color: "from-violet-400 to-purple-500",
+      bgColor: "bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30"
     }
   ];
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="animate-pulse bg-muted rounded-xl h-20" />
-        ))}
+      <div className="w-full max-w-4xl mx-auto px-4 py-8">
+        <div className="space-y-6">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="animate-pulse bg-gradient-to-r from-purple-200 to-pink-200 dark:from-purple-800 dark:to-pink-800 rounded-3xl h-32" />
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-10 md:space-y-16">
-      {/* Top Players Leaderboard - Card-based design */}
-      <section>
-        <div className="flex flex-col gap-4 mb-6">
-          <div className="flex items-center justify-between">
-            <h2 className="font-inter font-bold text-xl md:text-2xl flex items-center gap-3">
-              <Trophy className="w-6 h-6 md:w-7 md:h-7 text-yellow-500" />
-              Top Players
-              <Badge variant="secondary" className="ml-2 text-xs">
-                <Zap className="w-3 h-3 mr-1" />
-                Live
-              </Badge>
-            </h2>
-          </div>
-          
-          {/* Search and Sort Controls */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <Input
-                placeholder="Search player..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-12 rounded-xl text-base"
-              />
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => setSortBy(prev => prev === "score" ? "plays" : "score")}
-              className="h-12 rounded-xl gap-2 font-semibold"
-            >
-              <SortDesc className="w-5 h-5" />
-              Sort by {sortBy === "score" ? "Score" : "Plays"}
-            </Button>
-          </div>
-        </div>
+    <div className="w-full max-w-4xl mx-auto px-4 py-8">
+      {/* Header */}
+      <motion.div 
+        className="text-center mb-10"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 bg-clip-text text-transparent flex items-center justify-center gap-3">
+          HONOR BOARD
+          <Sparkles className="w-8 h-8 md:w-10 md:h-10 text-yellow-400 animate-pulse" />
+        </h1>
+        <p className="text-lg text-muted-foreground mt-2">Top vui vẻ nhất Fun Planet!</p>
+      </motion.div>
 
-        {/* Leaderboard Cards */}
-        <div className="space-y-3">
-          <AnimatePresence mode="popLayout">
-            {filteredUsers.map((topUser, index) => {
-              const rank = index + 1;
-              const rankBadge = getRankBadge(rank);
-              const isCurrentUser = topUser.id === user?.id;
-              const isTopThree = rank <= 3;
-              
-              return (
-                <motion.div
-                  key={topUser.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3, delay: index * 0.03 }}
-                  layout
-                  className={`
-                    honor-card
-                    ${isTopThree ? `honor-card-top honor-card-${rank}` : 'honor-card-regular'}
-                    ${isCurrentUser ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}
-                  `}
-                >
-                  {/* Rank Badge */}
-                  <div className={`rank-badge ${rankBadge.color} shrink-0`}>
-                    {isTopThree ? (
-                      <span className="text-2xl">{rankBadge.icon}</span>
-                    ) : (
-                      <span className="font-bold">{rank}</span>
-                    )}
+      {/* Search + Sort */}
+      <motion.div 
+        className="flex flex-col md:flex-row gap-4 mb-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+        <div className="relative flex-1">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
+          <input
+            type="text"
+            placeholder="Tìm tên người chơi..."
+            className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-purple-200 dark:border-purple-700 bg-white dark:bg-gray-800 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 text-lg transition-all"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <button 
+          onClick={() => setSortBy(prev => prev === "score" ? "plays" : "score")}
+          className="flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl font-bold hover:scale-105 hover:shadow-xl transition-all duration-300 shadow-lg"
+        >
+          Sắp xếp theo {sortBy === "score" ? "điểm" : "lượt chơi"}
+          <ChevronDown className="w-5 h-5" />
+        </button>
+      </motion.div>
+
+      {/* Top 3 Special Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        {[2, 1, 3].map((pos, gridIndex) => {
+          const player = top3Users.find((_, idx) => idx + 1 === pos);
+          if (!player) return null;
+          const isCurrentUser = player.id === user?.id;
+          
+          return (
+            <motion.div 
+              key={pos} 
+              className={`relative ${
+                pos === 1 ? 'md:-mt-8 md:order-2' : pos === 2 ? 'md:mt-4 md:order-1' : 'md:mt-8 md:order-3'
+              }`}
+              initial={{ opacity: 0, scale: 0.8, y: 50 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 + gridIndex * 0.1 }}
+              whileHover={{ scale: 1.05, y: -10 }}
+            >
+              <div className={`
+                bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden 
+                border-4 transition-all duration-300
+                ${pos === 1 ? 'border-yellow-400 shadow-yellow-400/30' : 
+                  pos === 2 ? 'border-gray-300 dark:border-gray-500 shadow-gray-400/20' : 
+                  'border-orange-400 shadow-orange-400/20'}
+                ${isCurrentUser ? 'ring-4 ring-purple-500 ring-offset-2' : ''}
+              `}>
+                {/* Top Gradient Section */}
+                <div className={`
+                  p-6 text-center relative overflow-hidden
+                  ${pos === 1 ? 'bg-gradient-to-br from-yellow-300 via-yellow-400 to-orange-400' : 
+                    pos === 2 ? 'bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 dark:from-gray-600 dark:via-gray-500 dark:to-gray-400' : 
+                    'bg-gradient-to-br from-orange-300 via-orange-400 to-amber-500'}
+                `}>
+                  {/* Sparkle effects */}
+                  {pos === 1 && (
+                    <>
+                      <div className="absolute top-2 left-4 w-2 h-2 bg-white rounded-full animate-ping" />
+                      <div className="absolute top-6 right-6 w-3 h-3 bg-white rounded-full animate-pulse" />
+                      <div className="absolute bottom-4 left-8 w-2 h-2 bg-white rounded-full animate-bounce" />
+                    </>
+                  )}
+                  
+                  <div className="relative z-10">
+                    {getRankIcon(pos)}
                   </div>
                   
                   {/* Avatar */}
-                  <Avatar className="h-12 w-12 border-2 border-background shrink-0">
-                    <AvatarImage src={topUser.avatar_url || ""} />
-                    <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-primary-foreground font-bold text-lg">
-                      {topUser.username?.charAt(0).toUpperCase()}
+                  <Avatar className={`
+                    mx-auto mt-4 border-4 border-white shadow-xl
+                    ${pos === 1 ? 'h-20 w-20' : 'h-16 w-16'}
+                  `}>
+                    <AvatarImage src={player.avatar_url || ""} />
+                    <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white font-bold text-2xl">
+                      {player.username?.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  
-                  {/* User Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`font-inter font-bold text-base truncate ${isCurrentUser ? 'text-primary' : 'text-foreground'}`}>
-                        {topUser.username}
-                      </span>
-                      {isCurrentUser && (
-                        <Badge variant="outline" className="text-xs border-primary text-primary font-semibold">
-                          You
-                        </Badge>
-                      )}
-                      {isTopThree && (
-                        <Crown className={`w-5 h-5 ${rank === 1 ? 'text-yellow-500' : rank === 2 ? 'text-gray-400' : 'text-orange-500'}`} />
-                      )}
-                    </div>
-                    <p className="text-sm text-muted-foreground font-medium">
-                      {topUser.total_plays} games played
-                    </p>
-                  </div>
-                  
-                  {/* Score */}
-                  <div className="text-right shrink-0">
-                    <p className="font-inter font-extrabold text-lg md:text-xl bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
-                      {topUser.wallet_balance.toLocaleString()}
-                    </p>
-                    <p className="text-xs text-muted-foreground font-medium">CAMLY</p>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </div>
+                </div>
+                
+                {/* Info Section */}
+                <div className="p-6 text-center">
+                  <h3 className="text-xl md:text-2xl font-bold text-foreground truncate">
+                    {player.username}
+                  </h3>
+                  {isCurrentUser && (
+                    <span className="inline-block mt-1 px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 text-xs font-bold rounded-full">
+                      Đây là bạn!
+                    </span>
+                  )}
+                  <p className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent mt-3">
+                    {player.wallet_balance.toLocaleString()}
+                  </p>
+                  <p className="text-sm text-muted-foreground">CAMLY</p>
+                  <p className="text-lg font-bold text-green-500 mt-2 flex items-center justify-center gap-1">
+                    <Trophy className="w-5 h-5" />
+                    {getRewardForRank(pos)}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
 
-        {/* Load More Button */}
-        {hasMore && filteredUsers.length >= displayCount && (
-          <div className="mt-6 text-center">
-            <Button
-              variant="outline"
-              onClick={loadMore}
-              className="h-12 px-8 rounded-xl font-semibold"
-            >
-              Load More
-            </Button>
-          </div>
-        )}
-      </section>
+      {/* Danh sách từ rank 4 trở xuống - Card list mobile friendly */}
+      <div className="space-y-3">
+        <AnimatePresence mode="popLayout">
+          {restUsers.map((player, index) => {
+            const actualRank = index + 4;
+            const isCurrentUser = player.id === user?.id;
+            
+            return (
+              <motion.div 
+                key={player.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                whileHover={{ scale: 1.02, x: 10 }}
+                className={`
+                  bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-4 flex items-center gap-4 
+                  hover:shadow-xl transition-all border-2 border-transparent
+                  ${isCurrentUser ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20' : 'hover:border-purple-200 dark:hover:border-purple-700'}
+                `}
+              >
+                <div className="flex-shrink-0">
+                  {getRankIcon(actualRank)}
+                </div>
+                
+                <Avatar className="h-12 w-12 border-2 border-purple-200 dark:border-purple-700 flex-shrink-0">
+                  <AvatarImage src={player.avatar_url || ""} />
+                  <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white font-bold">
+                    {player.username?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg md:text-xl font-bold text-foreground truncate flex items-center gap-2">
+                    {player.username}
+                    {isCurrentUser && (
+                      <span className="text-xs bg-purple-500 text-white px-2 py-0.5 rounded-full">Bạn</span>
+                    )}
+                  </h3>
+                  <p className="text-muted-foreground text-sm">
+                    {player.total_plays} lượt chơi
+                  </p>
+                </div>
+                
+                <div className="text-right flex-shrink-0">
+                  <p className="text-lg md:text-xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
+                    {player.wallet_balance.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-muted-foreground">CAMLY</p>
+                </div>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+      </div>
 
-      {/* Personal Stats Grid */}
-      <section>
-        <h3 className="font-inter font-bold text-xl md:text-2xl mb-6 flex items-center gap-3">
-          <Medal className="w-6 h-6 text-primary" />
-          Your Honor Stats
-        </h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+      {/* Load More Button */}
+      {hasMore && filteredUsers.length >= displayCount && (
+        <motion.div 
+          className="text-center mt-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+        >
+          <button 
+            onClick={loadMore}
+            className="px-10 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-lg font-bold rounded-full hover:scale-110 hover:shadow-2xl transition-all duration-300 shadow-xl"
+          >
+            Xem thêm người chơi ✨
+          </button>
+        </motion.div>
+      )}
+
+      {/* Your Honor Stats Section */}
+      <motion.div 
+        className="mt-16"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
+        <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent flex items-center justify-center gap-3">
+          <Medal className="w-8 h-8 text-purple-500" />
+          Thành tích của bạn
+        </h2>
+        
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {honorItems.map((item, index) => (
             <motion.div
               key={item.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.08 }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: 0.4 + index * 0.08 }}
+              whileHover={{ scale: 1.05, y: -5 }}
             >
-              <Card className={`h-full border-2 border-transparent hover:border-primary/30 transition-all hover:shadow-lg hover:scale-[1.02] ${item.bgColor}`}>
-                <CardContent className="p-5 md:p-6">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className={`p-3 rounded-xl bg-gradient-to-br ${item.color} shadow-lg`}>
-                      <item.icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                    </div>
+              <Card className={`h-full ${item.bgColor} border-2 border-transparent hover:border-purple-300 dark:hover:border-purple-600 transition-all shadow-lg hover:shadow-xl`}>
+                <CardContent className="p-5 text-center">
+                  <div className={`w-14 h-14 mx-auto mb-3 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-lg`}>
+                    <item.icon className="w-7 h-7 text-white" />
                   </div>
-                  
                   <p className="text-sm text-muted-foreground font-medium mb-1">{item.label}</p>
-                  <div className="flex items-baseline gap-1.5">
-                    <span className={`text-2xl md:text-3xl font-inter font-extrabold bg-gradient-to-r ${item.color} bg-clip-text text-transparent`}>
-                      {item.value}
-                    </span>
-                    {item.suffix && (
-                      <span className="text-xs font-medium text-muted-foreground">{item.suffix}</span>
-                    )}
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-2">{item.description}</p>
-                  
-                  {item.action && (
-                    <Button
-                      onClick={item.action.onClick}
-                      disabled={item.action.loading}
-                      size="sm"
-                      className="w-full mt-4 h-11 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 font-semibold"
-                    >
-                      {item.action.loading ? (
-                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                      ) : (
-                        <Wallet className="w-4 h-4 mr-2" />
-                      )}
-                      {item.action.label}
-                    </Button>
+                  <p className={`text-2xl md:text-3xl font-bold bg-gradient-to-r ${item.color} bg-clip-text text-transparent`}>
+                    {item.value}
+                  </p>
+                  {item.suffix && (
+                    <p className="text-xs text-muted-foreground mt-1">{item.suffix}</p>
                   )}
                 </CardContent>
               </Card>
             </motion.div>
           ))}
         </div>
-      </section>
 
-      {/* Achievement Progress */}
-      <section>
-        <Card className="border-2 border-primary/20 bg-gradient-to-br from-card to-primary/5">
-          <CardHeader className="pb-4">
-            <CardTitle className="font-inter font-bold text-xl flex items-center gap-3">
-              <Star className="w-6 h-6 text-yellow-500" />
-              Achievement Progress
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div>
-              <div className="flex justify-between text-sm mb-3">
-                <span className="text-muted-foreground flex items-center gap-2 font-medium">
-                  <Gamepad2 className="w-5 h-5" />
-                  Games Master (Play 100 games)
-                </span>
-                <span className="font-bold text-primary">{Math.min(stats.gamesPlayed, 100)}/100</span>
+        {/* Claim Rewards Button */}
+        {stats.unclaimedRewards > 0 && (
+          <motion.div 
+            className="mt-8 text-center"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            <button
+              onClick={handleClaimRewards}
+              disabled={claiming}
+              className="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-lg font-bold rounded-2xl hover:scale-105 hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 mx-auto"
+            >
+              <Wallet className="w-6 h-6" />
+              {claiming ? "Đang nhận..." : `Nhận ${stats.unclaimedRewards.toLocaleString()} CAMLY`}
+              <Sparkles className="w-5 h-5" />
+            </button>
+          </motion.div>
+        )}
+
+        {/* Achievement Progress */}
+        <motion.div 
+          className="mt-10 space-y-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7 }}
+        >
+          <h3 className="text-xl font-bold text-center mb-6 text-foreground">Tiến độ thành tích</h3>
+          
+          <div className="space-y-4">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-lg">
+              <div className="flex justify-between items-center mb-2">
+                <span className="font-medium text-foreground">Mục tiêu 10 game</span>
+                <span className="text-sm text-muted-foreground">{stats.gamesUploaded}/10</span>
+              </div>
+              <Progress value={Math.min((stats.gamesUploaded / 10) * 100, 100)} className="h-3" />
+            </div>
+            
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-lg">
+              <div className="flex justify-between items-center mb-2">
+                <span className="font-medium text-foreground">Mục tiêu 100 lượt chơi</span>
+                <span className="text-sm text-muted-foreground">{stats.gamesPlayed}/100</span>
               </div>
               <Progress value={Math.min((stats.gamesPlayed / 100) * 100, 100)} className="h-3" />
             </div>
             
-            <div>
-              <div className="flex justify-between text-sm mb-3">
-                <span className="text-muted-foreground flex items-center gap-2 font-medium">
-                  <Users className="w-5 h-5" />
-                  Social Butterfly (10 friends)
-                </span>
-                <span className="font-bold text-primary">{Math.min(profile.total_friends, 10)}/10</span>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-lg">
+              <div className="flex justify-between items-center mb-2">
+                <span className="font-medium text-foreground">Mục tiêu 50 bạn bè</span>
+                <span className="text-sm text-muted-foreground">{profile.total_friends}/50</span>
               </div>
-              <Progress value={Math.min((profile.total_friends / 10) * 100, 100)} className="h-3" />
+              <Progress value={Math.min((profile.total_friends / 50) * 100, 100)} className="h-3" />
             </div>
-            
-            <div>
-              <div className="flex justify-between text-sm mb-3">
-                <span className="text-muted-foreground flex items-center gap-2 font-medium">
-                  <Upload className="w-5 h-5" />
-                  Creator (Upload 5 games)
-                </span>
-                <span className="font-bold text-primary">{Math.min(stats.gamesUploaded, 5)}/5</span>
-              </div>
-              <Progress value={Math.min((stats.gamesUploaded / 5) * 100, 100)} className="h-3" />
-            </div>
-
-            <div>
-              <div className="flex justify-between text-sm mb-3">
-                <span className="text-muted-foreground flex items-center gap-2 font-medium">
-                  <Coins className="w-5 h-5" />
-                  Wealthy (Earn 10M CAMLY)
-                </span>
-                <span className="font-bold text-primary">{Math.min(stats.totalIncome, 10000000).toLocaleString()}/10,000,000</span>
-              </div>
-              <Progress value={Math.min((stats.totalIncome / 10000000) * 100, 100)} className="h-3" />
-            </div>
-          </CardContent>
-        </Card>
-      </section>
+          </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }
