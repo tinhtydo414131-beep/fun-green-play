@@ -518,7 +518,27 @@ export default function PublicMusic() {
 
       if (dbError) throw dbError;
 
-      toast.success("Đã tải nhạc lên thành công! 🎵");
+      // Reward 50,000 Camly coins for uploading music
+      const UPLOAD_REWARD = 50000;
+      
+      // Update wallet balance in profiles
+      await supabase.rpc('update_wallet_balance', {
+        p_user_id: user.id,
+        p_amount: UPLOAD_REWARD,
+        p_operation: 'add'
+      });
+
+      // Record the transaction
+      await supabase
+        .from('camly_coin_transactions')
+        .insert({
+          user_id: user.id,
+          amount: UPLOAD_REWARD,
+          transaction_type: 'music_upload_reward',
+          description: `Phần thưởng tải nhạc: ${uploadTitle}`
+        });
+
+      toast.success(`Đã tải nhạc lên thành công! 🎵 Bạn nhận được ${UPLOAD_REWARD.toLocaleString()} Camly Coins!`);
       setUploadDialogOpen(false);
       setUploadTitle("");
       setUploadArtist("");
