@@ -487,40 +487,39 @@ export function HonorBoard({ profile, userRank, compact = false }: HonorBoardPro
         </motion.div>
       )}
 
-      {/* Your Honor Stats Section - Horizontal Layout */}
+      {/* Your Honor Stats Section - Grid Layout */}
       <motion.div 
         className="mt-12"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
       >
-        <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent flex items-center justify-center gap-3">
-          <Medal className="w-8 h-8 text-purple-500" />
+        <h2 className="text-xl md:text-2xl font-bold text-center mb-5 bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent flex items-center justify-center gap-2">
+          <Medal className="w-6 h-6 text-purple-500" />
           Thành tích của bạn
         </h2>
         
-        {/* Horizontal scrolling stats */}
-        <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
+        {/* Responsive grid for stats */}
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-3">
           {honorItems.map((item, index) => (
             <motion.div
               key={item.label}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3, delay: 0.4 + index * 0.05 }}
-              whileHover={{ scale: 1.05, y: -3 }}
-              className="snap-center flex-shrink-0"
+              whileHover={{ scale: 1.05, y: -2 }}
             >
-              <Card className={`w-32 md:w-40 ${item.bgColor} border-2 border-transparent hover:border-purple-300 dark:hover:border-purple-600 transition-all shadow-lg hover:shadow-xl`}>
-                <CardContent className="p-4 text-center">
-                  <div className={`w-10 h-10 md:w-12 md:h-12 mx-auto mb-2 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-md`}>
-                    <item.icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
+              <Card className={`h-full ${item.bgColor} border border-transparent hover:border-purple-300 dark:hover:border-purple-600 transition-all shadow-md hover:shadow-lg`}>
+                <CardContent className="p-2 md:p-3 text-center">
+                  <div className={`w-8 h-8 md:w-10 md:h-10 mx-auto mb-1 rounded-lg bg-gradient-to-br ${item.color} flex items-center justify-center shadow-sm`}>
+                    <item.icon className="w-4 h-4 md:w-5 md:h-5 text-white" />
                   </div>
-                  <p className="text-xs text-muted-foreground font-medium truncate">{item.label}</p>
-                  <p className={`text-lg md:text-xl font-bold bg-gradient-to-r ${item.color} bg-clip-text text-transparent`}>
+                  <p className="text-[10px] md:text-xs text-muted-foreground font-medium truncate">{item.label}</p>
+                  <p className={`text-sm md:text-base font-bold bg-gradient-to-r ${item.color} bg-clip-text text-transparent`}>
                     {item.value}
                   </p>
                   {item.suffix && (
-                    <p className="text-[10px] text-muted-foreground">{item.suffix}</p>
+                    <p className="text-[8px] md:text-[10px] text-muted-foreground">{item.suffix}</p>
                   )}
                 </CardContent>
               </Card>
@@ -528,7 +527,7 @@ export function HonorBoard({ profile, userRank, compact = false }: HonorBoardPro
           ))}
         </div>
 
-        {/* Claim Rewards Button - Inline */}
+        {/* Claim Rewards Button */}
         {stats.unclaimedRewards > 0 && (
           <motion.div 
             className="mt-4 text-center"
@@ -539,47 +538,47 @@ export function HonorBoard({ profile, userRank, compact = false }: HonorBoardPro
             <button
               onClick={handleClaimRewards}
               disabled={claiming}
-              className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold rounded-xl hover:scale-105 hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto text-sm md:text-base"
+              className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold rounded-lg hover:scale-105 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto text-sm"
             >
-              <Wallet className="w-5 h-5" />
+              <Wallet className="w-4 h-4" />
               {claiming ? "Đang nhận..." : `Nhận ${stats.unclaimedRewards.toLocaleString()} CAMLY`}
-              <Sparkles className="w-4 h-4" />
+              <Sparkles className="w-3 h-3" />
             </button>
           </motion.div>
         )}
 
-        {/* Achievement Progress - Horizontal */}
+        {/* Achievement Progress - Grid Layout */}
         <motion.div 
-          className="mt-6"
+          className="mt-5"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
         >
-          <h3 className="text-lg font-bold text-center mb-4 text-foreground">Tiến độ thành tích</h3>
+          <h3 className="text-base font-bold text-center mb-3 text-foreground">Tiến độ thành tích</h3>
           
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory">
-            <div className="snap-center flex-shrink-0 w-64 bg-white dark:bg-gray-800 rounded-xl p-3 shadow-lg">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-3 shadow-md">
               <div className="flex justify-between items-center mb-1">
-                <span className="font-medium text-foreground text-sm">🎮 10 game</span>
-                <span className="text-xs text-muted-foreground">{stats.gamesUploaded}/10</span>
+                <span className="font-medium text-foreground text-xs md:text-sm">🎮 10 game</span>
+                <span className="text-[10px] md:text-xs text-muted-foreground">{stats.gamesUploaded}/10</span>
               </div>
-              <Progress value={Math.min((stats.gamesUploaded / 10) * 100, 100)} className="h-2" />
+              <Progress value={Math.min((stats.gamesUploaded / 10) * 100, 100)} className="h-1.5 md:h-2" />
             </div>
             
-            <div className="snap-center flex-shrink-0 w-64 bg-white dark:bg-gray-800 rounded-xl p-3 shadow-lg">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-3 shadow-md">
               <div className="flex justify-between items-center mb-1">
-                <span className="font-medium text-foreground text-sm">🕹️ 100 lượt chơi</span>
-                <span className="text-xs text-muted-foreground">{stats.gamesPlayed}/100</span>
+                <span className="font-medium text-foreground text-xs md:text-sm">🕹️ 100 lượt chơi</span>
+                <span className="text-[10px] md:text-xs text-muted-foreground">{stats.gamesPlayed}/100</span>
               </div>
-              <Progress value={Math.min((stats.gamesPlayed / 100) * 100, 100)} className="h-2" />
+              <Progress value={Math.min((stats.gamesPlayed / 100) * 100, 100)} className="h-1.5 md:h-2" />
             </div>
             
-            <div className="snap-center flex-shrink-0 w-64 bg-white dark:bg-gray-800 rounded-xl p-3 shadow-lg">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-3 shadow-md">
               <div className="flex justify-between items-center mb-1">
-                <span className="font-medium text-foreground text-sm">👥 50 bạn bè</span>
-                <span className="text-xs text-muted-foreground">{profile.total_friends}/50</span>
+                <span className="font-medium text-foreground text-xs md:text-sm">👥 50 bạn bè</span>
+                <span className="text-[10px] md:text-xs text-muted-foreground">{profile.total_friends}/50</span>
               </div>
-              <Progress value={Math.min((profile.total_friends / 50) * 100, 100)} className="h-2" />
+              <Progress value={Math.min((profile.total_friends / 50) * 100, 100)} className="h-1.5 md:h-2" />
             </div>
           </div>
         </motion.div>
