@@ -10,7 +10,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { TransferModal } from "@/components/TransferModal";
 import { useAuth } from "@/hooks/useAuth";
-
 const POINTS_TO_CAMLY_RATIO = 100; // 1 point = 100 Camly Coins
 
 interface LeaderboardEntry {
@@ -23,31 +22,33 @@ interface LeaderboardEntry {
   total_friends: number;
   wallet_address: string | null;
 }
-
 export default function Leaderboard() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const {
+    user
+  } = useAuth();
   const [leaders, setLeaders] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
   const [transferModalOpen, setTransferModalOpen] = useState(false);
-  const [selectedRecipient, setSelectedRecipient] = useState<{ address: string; username: string } | null>(null);
+  const [selectedRecipient, setSelectedRecipient] = useState<{
+    address: string;
+    username: string;
+  } | null>(null);
   const [claimingReward, setClaimingReward] = useState(false);
   const [userRank, setUserRank] = useState<number | null>(null);
   const [userScore, setUserScore] = useState<number>(0);
-
   useEffect(() => {
     fetchLeaderboard();
   }, [user]);
-
   const fetchLeaderboard = async () => {
     try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("id, username, avatar_url, leaderboard_score, total_plays, total_likes, total_friends, wallet_address")
-        .order("leaderboard_score", { ascending: false })
-        .limit(100);
-
+      const {
+        data,
+        error
+      } = await supabase.from("profiles").select("id, username, avatar_url, leaderboard_score, total_plays, total_likes, total_friends, wallet_address").order("leaderboard_score", {
+        ascending: false
+      }).limit(100);
       if (error) throw error;
       setLeaders(data || []);
 
@@ -66,44 +67,37 @@ export default function Leaderboard() {
       setLoading(false);
     }
   };
-
   const calculateCamlyCoins = (points: number) => points * POINTS_TO_CAMLY_RATIO;
-
   const claimRankingReward = async () => {
     if (!user || userScore <= 0) {
       toast.error("No points to claim!");
       return;
     }
-
     setClaimingReward(true);
     try {
       const camlyAmount = calculateCamlyCoins(userScore);
 
       // Get current balance
-      const { data: current } = await supabase
-        .from('web3_rewards')
-        .select('camly_balance')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
+      const {
+        data: current
+      } = await supabase.from('web3_rewards').select('camly_balance').eq('user_id', user.id).maybeSingle();
       const newBalance = (Number(current?.camly_balance) || 0) + camlyAmount;
 
       // Update or insert rewards
-      await supabase
-        .from('web3_rewards')
-        .upsert({
-          user_id: user.id,
-          camly_balance: newBalance,
-        }, { onConflict: 'user_id' });
+      await supabase.from('web3_rewards').upsert({
+        user_id: user.id,
+        camly_balance: newBalance
+      }, {
+        onConflict: 'user_id'
+      });
 
       // Record transaction
       await supabase.from('web3_reward_transactions').insert({
         user_id: user.id,
         amount: camlyAmount,
         reward_type: 'ranking_reward',
-        description: `Ranking reward: ${userScore} points × 100 = ${camlyAmount.toLocaleString()} Camly`,
+        description: `Ranking reward: ${userScore} points × 100 = ${camlyAmount.toLocaleString()} Camly`
       });
-
       toast.success(`🎉 Claimed ${camlyAmount.toLocaleString()} Camly Coins!`);
     } catch (error) {
       console.error('Error claiming reward:', error);
@@ -112,59 +106,45 @@ export default function Leaderboard() {
       setClaimingReward(false);
     }
   };
-
   const shortenAddress = (address: string | null) => {
     if (!address) return null;
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
-
   const copyToClipboard = (address: string) => {
     navigator.clipboard.writeText(address);
     setCopiedAddress(address);
     toast.success("Address copied to clipboard!");
     setTimeout(() => setCopiedAddress(null), 2000);
   };
-
   const getRankIcon = (rank: number) => {
     if (rank === 1) return <Trophy className="w-5 h-5 sm:w-8 sm:h-8 text-yellow-500" />;
     if (rank === 2) return <Medal className="w-5 h-5 sm:w-8 sm:h-8 text-gray-400" />;
     if (rank === 3) return <Medal className="w-5 h-5 sm:w-8 sm:h-8 text-orange-600" />;
     return <Star className="w-4 h-4 sm:w-6 sm:h-6 text-primary" />;
   };
-
   const getRankColor = (rank: number) => {
     if (rank === 1) return "from-yellow-400 to-yellow-600";
     if (rank === 2) return "from-gray-300 to-gray-500";
     if (rank === 3) return "from-orange-400 to-orange-600";
     return "from-primary to-secondary";
   };
-
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
+    return <div className="min-h-screen bg-background">
         <Navigation />
         <div className="container mx-auto py-32 px-4 text-center">
           <Trophy className="w-16 h-16 text-primary animate-bounce mx-auto mb-4" />
           <p className="text-2xl font-fredoka text-primary">Loading rankings... ⏳</p>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-white">
+  return <div className="min-h-screen bg-white">
       <Navigation />
       
       <section className="pt-20 sm:pt-32 pb-16 sm:pb-20 px-3 sm:px-4">
         <div className="container mx-auto max-w-5xl">
           {/* Back to Home Button */}
           <div className="mb-4 sm:mb-8">
-            <Button
-              onClick={() => navigate("/")}
-              variant="outline"
-              size="default"
-              className="font-bold group text-sm sm:text-base"
-            >
+            <Button onClick={() => navigate("/")} variant="outline" size="default" className="font-bold group text-sm sm:text-base">
               <Home className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 text-primary group-hover:scale-110 transition-transform" />
               <span>Về Trang Chính</span>
             </Button>
@@ -176,16 +156,15 @@ export default function Leaderboard() {
               <h1 className="text-3xl sm:text-5xl md:text-6xl font-fredoka font-bold text-primary">
                 Kids Ranking! 🏆
               </h1>
-              <Trophy className="w-8 h-8 sm:w-16 sm:h-16 text-secondary animate-bounce hidden sm:block" style={{ animationDelay: '0.2s' }} />
+              <Trophy className="w-8 h-8 sm:w-16 sm:h-16 text-secondary animate-bounce hidden sm:block" style={{
+              animationDelay: '0.2s'
+            }} />
             </div>
-            <p className="text-base sm:text-xl text-muted-foreground font-comic max-w-2xl mx-auto px-4">
-              Top 100 players with scores & wallet addresses! 1 Point = 100 Camly Coins 🪙
-            </p>
+            <p className="text-base sm:text-xl text-muted-foreground font-comic max-w-2xl mx-auto px-4">Top 100 players with scores & wallet addresses! 1 Point = 100 Camly Coins </p>
           </div>
 
           {/* User's Ranking Reward Card */}
-          {user && userRank && userScore > 0 && (
-            <Card className="mb-6 sm:mb-8 border-2 border-primary/50 bg-gradient-to-r from-primary/10 to-secondary/10 animate-fade-in">
+          {user && userRank && userScore > 0 && <Card className="mb-6 sm:mb-8 border-2 border-primary/50 bg-gradient-to-r from-primary/10 to-secondary/10 animate-fade-in">
               <CardContent className="p-4 sm:p-6">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="flex items-center gap-3 sm:gap-4">
@@ -202,23 +181,16 @@ export default function Leaderboard() {
                       </p>
                     </div>
                   </div>
-                  <Button
-                    onClick={claimRankingReward}
-                    disabled={claimingReward}
-                    className="w-full sm:w-auto"
-                    size="lg"
-                  >
+                  <Button onClick={claimRankingReward} disabled={claimingReward} className="w-full sm:w-auto" size="lg">
                     <Gift className="w-5 h-5 mr-2" />
                     {claimingReward ? 'Claiming...' : 'Claim Reward'}
                   </Button>
                 </div>
               </CardContent>
-            </Card>
-          )}
+            </Card>}
 
           {/* Top 3 Podium */}
-          {leaders.length >= 3 && (
-            <div className="flex flex-col sm:grid sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-12 max-w-4xl mx-auto">
+          {leaders.length >= 3 && <div className="flex flex-col sm:grid sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-12 max-w-4xl mx-auto">
               {/* 1st Place - Shows first on mobile */}
               <div className="animate-fade-in sm:order-2">
                 <Card className="border-2 sm:border-4 border-yellow-500 shadow-2xl transform hover:scale-105 transition-all bg-gradient-to-br from-yellow-50 to-yellow-100">
@@ -249,7 +221,9 @@ export default function Leaderboard() {
               </div>
 
               {/* 2nd Place */}
-              <div className="animate-fade-in sm:order-1 sm:mt-8" style={{ animationDelay: '0.2s' }}>
+              <div className="animate-fade-in sm:order-1 sm:mt-8" style={{
+            animationDelay: '0.2s'
+          }}>
                 <Card className="border-2 sm:border-4 border-gray-400 shadow-xl transform hover:scale-105 transition-all">
                   <CardContent className="p-3 sm:p-6 text-center">
                     <div className="flex sm:flex-col items-center sm:items-center gap-3 sm:gap-0">
@@ -275,7 +249,9 @@ export default function Leaderboard() {
               </div>
 
               {/* 3rd Place */}
-              <div className="animate-fade-in sm:order-3 sm:mt-8" style={{ animationDelay: '0.4s' }}>
+              <div className="animate-fade-in sm:order-3 sm:mt-8" style={{
+            animationDelay: '0.4s'
+          }}>
                 <Card className="border-2 sm:border-4 border-orange-600 shadow-xl transform hover:scale-105 transition-all">
                   <CardContent className="p-3 sm:p-6 text-center">
                     <div className="flex sm:flex-col items-center sm:items-center gap-3 sm:gap-0">
@@ -299,20 +275,13 @@ export default function Leaderboard() {
                   </CardContent>
                 </Card>
               </div>
-            </div>
-          )}
+            </div>}
 
           {/* Full Leaderboard */}
           <Card className="border-2 sm:border-4 border-primary/30 shadow-2xl">
             <CardContent className="p-3 sm:p-6">
               <div className="space-y-2 sm:space-y-3">
-                {leaders.map((leader, index) => (
-                  <div
-                    key={leader.id}
-                    className={`flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl border-2 transition-all hover:shadow-lg ${
-                      index < 3 ? 'bg-gradient-to-r ' + getRankColor(index + 1) + ' bg-opacity-10 border-current' : 'bg-muted/10 border-border/50 hover:border-primary/50'
-                    }`}
-                  >
+                {leaders.map((leader, index) => <div key={leader.id} className={`flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl border-2 transition-all hover:shadow-lg ${index < 3 ? 'bg-gradient-to-r ' + getRankColor(index + 1) + ' bg-opacity-10 border-current' : 'bg-muted/10 border-border/50 hover:border-primary/50'}`}>
                     {/* Mobile: Top row with rank, avatar, name, score */}
                     <div className="flex items-center gap-3 w-full">
                       <div className="flex items-center justify-center w-8 h-8 sm:w-12 sm:h-12 font-fredoka font-bold text-lg sm:text-2xl shrink-0">
@@ -348,8 +317,7 @@ export default function Leaderboard() {
                     <div className="flex items-center justify-between gap-2 pl-11 sm:pl-0 sm:ml-auto">
                       <TooltipProvider>
                         <div className="flex items-center gap-1">
-                          {leader.wallet_address ? (
-                            <>
+                          {leader.wallet_address ? <>
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <span className="text-xs font-mono text-muted-foreground/80 cursor-help">
@@ -360,71 +328,38 @@ export default function Leaderboard() {
                                   <p className="font-mono text-xs">{leader.wallet_address}</p>
                                 </TooltipContent>
                               </Tooltip>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className={`h-5 w-5 p-0 transition-colors duration-200 ${
-                                  copiedAddress === leader.wallet_address
-                                    ? 'text-green-500'
-                                    : ''
-                                }`}
-                                onClick={() => copyToClipboard(leader.wallet_address!)}
-                              >
-                                {copiedAddress === leader.wallet_address ? (
-                                  <Check className="w-3 h-3" />
-                                ) : (
-                                  <Copy className="w-3 h-3" />
-                                )}
+                              <Button size="sm" variant="ghost" className={`h-5 w-5 p-0 transition-colors duration-200 ${copiedAddress === leader.wallet_address ? 'text-green-500' : ''}`} onClick={() => copyToClipboard(leader.wallet_address!)}>
+                                {copiedAddress === leader.wallet_address ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                               </Button>
-                            </>
-                          ) : (
-                            <span className="text-xs font-mono text-muted-foreground/50 italic">
+                            </> : <span className="text-xs font-mono text-muted-foreground/50 italic">
                               No wallet
-                            </span>
-                          )}
+                            </span>}
                         </div>
                       </TooltipProvider>
-                      {leader.wallet_address && (
-                        <Button
-                          size="sm"
-                          onClick={() => {
-                            setSelectedRecipient({
-                              address: leader.wallet_address!,
-                              username: leader.username
-                            });
-                            setTransferModalOpen(true);
-                          }}
-                          className="h-7 sm:h-8 text-xs sm:text-sm"
-                        >
+                      {leader.wallet_address && <Button size="sm" onClick={() => {
+                    setSelectedRecipient({
+                      address: leader.wallet_address!,
+                      username: leader.username
+                    });
+                    setTransferModalOpen(true);
+                  }} className="h-7 sm:h-8 text-xs sm:text-sm">
                           <Send className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                           Transfer
-                        </Button>
-                      )}
+                        </Button>}
                     </div>
-                  </div>
-                ))}
+                  </div>)}
               </div>
             </CardContent>
           </Card>
 
-          {leaders.length === 0 && (
-            <div className="text-center py-20">
+          {leaders.length === 0 && <div className="text-center py-20">
               <Trophy className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-50" />
               <p className="text-2xl font-fredoka text-muted-foreground">No rankings yet! Be the first! 🌟</p>
-            </div>
-          )}
+            </div>}
         </div>
       </section>
 
       {/* Transfer Modal */}
-      {selectedRecipient && (
-        <TransferModal
-          open={transferModalOpen}
-          onOpenChange={setTransferModalOpen}
-          recipientAddress={selectedRecipient.address}
-          recipientUsername={selectedRecipient.username}
-        />
-      )}
-    </div>
-  );
+      {selectedRecipient && <TransferModal open={transferModalOpen} onOpenChange={setTransferModalOpen} recipientAddress={selectedRecipient.address} recipientUsername={selectedRecipient.username} />}
+    </div>;
 }
