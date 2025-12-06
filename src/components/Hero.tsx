@@ -56,8 +56,29 @@ export const Hero = () => {
               className="w-12 h-12 sm:w-20 sm:h-20 md:w-28 md:h-28 lg:w-32 lg:h-32 animate-spin drop-shadow-[0_0_20px_rgba(139,70,255,0.8)]" 
               style={{ animationDuration: '10s' }}
             />
-            <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-orbitron font-black tracking-wider drop-shadow-[0_0_40px_rgba(139,70,255,1)]">
-              <span className="bg-gradient-to-r from-yellow-300 via-pink-400 to-cyan-300 bg-clip-text text-transparent animate-gradient-shift bg-[length:200%_200%]">
+            <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-orbitron font-black tracking-wider">
+              <span 
+                className="bg-gradient-to-b from-yellow-200 via-yellow-400 to-amber-600 bg-clip-text text-transparent"
+                style={{
+                  textShadow: `
+                    0 1px 0 hsl(40, 60%, 50%),
+                    0 2px 0 hsl(40, 60%, 45%),
+                    0 3px 0 hsl(40, 60%, 40%),
+                    0 4px 0 hsl(40, 60%, 35%),
+                    0 5px 0 hsl(40, 60%, 30%),
+                    0 6px 1px rgba(0,0,0,.1),
+                    0 0 5px rgba(0,0,0,.1),
+                    0 1px 3px rgba(0,0,0,.3),
+                    0 3px 5px rgba(0,0,0,.2),
+                    0 5px 10px rgba(0,0,0,.25),
+                    0 10px 10px rgba(0,0,0,.2),
+                    0 20px 20px rgba(0,0,0,.15),
+                    2px 2px 4px rgba(255,255,255,0.3) inset
+                  `,
+                  WebkitTextStroke: '1px rgba(180, 130, 50, 0.5)',
+                  filter: 'drop-shadow(0 0 20px rgba(255, 200, 100, 0.5))'
+                }}
+              >
                 FUN PLANET
               </span>
             </h1>
