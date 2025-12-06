@@ -85,7 +85,7 @@ export default function PublicMusic() {
   // Upload state
   const [userTracks, setUserTracks] = useState<MusicTrack[]>([]);
   const [pendingTracks, setPendingTracks] = useState<MusicTrack[]>([]);
-  const [healingTracks, setHealingTracks] = useState<MusicTrack[]>([]);
+  
   const [uploading, setUploading] = useState(false);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [uploadTitle, setUploadTitle] = useState("");
@@ -292,34 +292,6 @@ export default function PublicMusic() {
     }
   };
 
-  // Load 432Hz healing music
-  const loadHealingMusic = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('healing_music_432hz')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      const tracks: MusicTrack[] = data.map(music => ({
-        id: music.id,
-        title: music.title,
-        artist: music.artist || 'FUN Planet Healing',
-        src: `/audio/432hz/${music.storage_path.split('/').pop()}`,
-        duration: music.duration || '0:00',
-        genre: 'healing',
-        description: music.description,
-        category: music.category,
-        frequency: music.frequency
-      }));
-
-      setHealingTracks(tracks);
-    } catch (error) {
-      console.error('Error loading healing music:', error);
-    }
-  };
 
   // Load playlists
   const loadPlaylists = async () => {
@@ -384,7 +356,6 @@ export default function PublicMusic() {
 
   useEffect(() => {
     loadUserTracks();
-    loadHealingMusic();
     if (user) {
       loadPlaylists();
       loadPendingTracks();
@@ -1043,10 +1014,6 @@ export default function PublicMusic() {
                 <Music className="w-4 h-4" />
                 Tất cả nhạc
               </TabsTrigger>
-              <TabsTrigger value="healing" className="flex items-center gap-2">
-                <Heart className="w-4 h-4" />
-                432Hz Healing
-              </TabsTrigger>
               {user && pendingTracks.length > 0 && (
                 <TabsTrigger value="pending" className="flex items-center gap-2">
                   <Clock className="w-4 h-4" />
@@ -1232,76 +1199,6 @@ export default function PublicMusic() {
               </Card>
             </TabsContent>
 
-            {/* 432Hz Healing Music Tab */}
-            <TabsContent value="healing" className="space-y-4">
-              <Card className="border-4 border-secondary/40 bg-gradient-to-br from-secondary/5 to-accent/5">
-                <CardHeader>
-                  <CardTitle className="font-fredoka text-2xl flex items-center gap-2">
-                    <Heart className="w-6 h-6 text-secondary animate-pulse" />
-                    432Hz Healing Music Library
-                  </CardTitle>
-                  <CardDescription className="text-base">
-                    Nhạc thiền định và chữa lành với tần số 432Hz, tần số tự nhiên của vũ trụ
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {healingTracks.length === 0 ? (
-                    <div className="text-center py-12">
-                      <Sparkles className="w-16 h-16 text-secondary mx-auto mb-4 opacity-50" />
-                      <p className="text-lg text-muted-foreground">Đang cập nhật thư viện...</p>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {healingTracks.map((track) => (
-                        <div
-                          key={track.id}
-                          className="p-6 border-4 border-secondary/30 rounded-2xl hover:border-secondary hover:shadow-lg transition-all bg-gradient-to-br from-white to-secondary/10"
-                        >
-                          <div className="flex items-start gap-4 mb-4">
-                            <div className="p-3 rounded-xl bg-gradient-to-br from-secondary/20 to-accent/20">
-                              {track.category === 'meditation' && <Brain className="w-8 h-8 text-secondary" />}
-                              {track.category === 'sleep' && <Moon className="w-8 h-8 text-secondary" />}
-                              {track.category === 'focus' && <Sparkles className="w-8 h-8 text-secondary" />}
-                              {track.category === 'nature' && <Heart className="w-8 h-8 text-secondary" />}
-                              {track.category === 'chakra' && <Sparkles className="w-8 h-8 text-secondary" />}
-                            </div>
-                            <div className="flex-1">
-                              <h3 className="text-lg font-fredoka font-bold text-foreground mb-1">
-                                {track.title}
-                              </h3>
-                              <p className="text-sm text-muted-foreground font-comic mb-2">
-                                {track.duration} • {track.frequency}
-                              </p>
-                              {track.description && (
-                                <p className="text-xs text-muted-foreground italic">
-                                  {track.description}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                          <Button
-                            onClick={() => handlePlayPause(track)}
-                            className="w-full bg-gradient-to-r from-secondary to-accent hover:shadow-xl transition-all"
-                          >
-                            {isPlaying && currentTrack?.id === track.id ? (
-                              <>
-                                <Pause className="w-4 h-4 mr-2" />
-                                Đang phát...
-                              </>
-                            ) : (
-                              <>
-                                <Play className="w-4 h-4 mr-2" />
-                                Nghe ngay
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
 
             {/* Pending Approval Tab (Parents only) */}
             {user && pendingTracks.length > 0 && (
