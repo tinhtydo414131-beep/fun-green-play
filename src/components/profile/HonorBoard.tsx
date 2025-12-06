@@ -18,6 +18,7 @@ interface HonorBoardProps {
     total_friends: number;
   };
   userRank: number;
+  compact?: boolean;
 }
 
 interface HonorStats {
@@ -41,7 +42,7 @@ interface TopUser {
 
 const ITEMS_PER_PAGE = 10;
 
-export function HonorBoard({ profile, userRank }: HonorBoardProps) {
+export function HonorBoard({ profile, userRank, compact = false }: HonorBoardProps) {
   const { user } = useAuth();
   const [stats, setStats] = useState<HonorStats>({
     totalIncome: 0,

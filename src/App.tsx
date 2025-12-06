@@ -12,7 +12,7 @@ import Index from "./pages/Index";
 import Games from "./pages/Games";
 import GamePlay from "./pages/GamePlay";
 import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
+// Dashboard removed - merged into Profile
 import Settings from "./pages/Settings";
 import PublicProfile from "./pages/PublicProfile";
 import Leaderboard from "./pages/Leaderboard";
@@ -52,7 +52,7 @@ const AnimatedRoutes = () => {
         <Route path="/games" element={<Games />} />
         <Route path="/game/:gameId" element={<GamePlay />} />
         <Route path="/auth" element={<Auth />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Profile />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/profile/:userId" element={<PublicProfile />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
