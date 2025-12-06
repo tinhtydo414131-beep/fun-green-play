@@ -310,7 +310,7 @@ export default function Leaderboard() {
                   <div
                     key={leader.id}
                     className={`flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl border-2 transition-all hover:shadow-lg ${
-                      index < 3 ? 'bg-gradient-to-r ' + getRankColor(index + 1) + ' bg-opacity-10 border-current' : 'bg-muted/30 border-border hover:border-primary'
+                      index < 3 ? 'bg-gradient-to-r ' + getRankColor(index + 1) + ' bg-opacity-10 border-current' : 'bg-muted/10 border-border/50 hover:border-primary/50'
                     }`}
                   >
                     {/* Mobile: Top row with rank, avatar, name, score */}
