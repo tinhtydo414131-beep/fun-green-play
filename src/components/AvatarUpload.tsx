@@ -109,14 +109,15 @@ export const AvatarUpload = ({ currentAvatarUrl, onAvatarUpdate }: AvatarUploadP
   return (
     <>
       <div className="flex flex-col items-center gap-4">
-        <div className="relative group">
-          <Avatar className="w-24 h-24 border-4 border-primary/20">
+      <div className="relative group">
+          <Avatar className="w-32 h-32 border-[3px] border-orange-400 ring-2 ring-orange-200 shadow-lg">
             <AvatarImage 
               src={avatarUrl || undefined}
               loading="lazy"
               decoding="async"
+              className="object-cover"
             />
-            <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl">
+            <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-3xl font-bold">
               {user.email?.charAt(0).toUpperCase() || '?'}
             </AvatarFallback>
           </Avatar>
