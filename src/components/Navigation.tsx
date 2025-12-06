@@ -158,10 +158,6 @@ export const Navigation = () => {
                       <User className="mr-3 h-5 w-5" />
                       <span className="font-medium">My Profile</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/dashboard")} className="py-3">
-                      <User className="mr-3 h-5 w-5" />
-                      <span className="font-medium">Dashboard</span>
-                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate("/wallet")} className="py-3">
                       <Wallet className="mr-3 h-5 w-5" />
                       <span className="font-medium">Fun Wallet</span>
