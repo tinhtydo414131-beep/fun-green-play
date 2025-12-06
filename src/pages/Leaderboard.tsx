@@ -335,7 +335,7 @@ export default function Leaderboard() {
 
                       {/* Score & Camly - visible on all sizes */}
                       <div className="text-right shrink-0">
-                        <p className="text-xl sm:text-3xl font-fredoka font-bold text-primary">{leader.leaderboard_score}</p>
+                        <p className="text-xl sm:text-3xl font-fredoka font-bold text-red-500">{leader.leaderboard_score}</p>
                         <p className="text-xs sm:text-sm font-comic text-muted-foreground">points</p>
                         <p className="text-xs sm:text-sm font-comic text-primary/80 flex items-center justify-end gap-1">
                           <Coins className="w-3 h-3" />
