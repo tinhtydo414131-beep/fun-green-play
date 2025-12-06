@@ -664,6 +664,36 @@ export type Database = {
           },
         ]
       }
+      daily_upload_rewards: {
+        Row: {
+          created_at: string
+          id: string
+          reward_count: number
+          reward_date: string
+          total_coins_earned: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reward_count?: number
+          reward_date?: string
+          total_coins_earned?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reward_count?: number
+          reward_date?: string
+          total_coins_earned?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       friend_requests: {
         Row: {
           created_at: string | null
@@ -1671,6 +1701,45 @@ export type Database = {
           },
         ]
       }
+      uploaded_file_hashes: {
+        Row: {
+          bitrate: number | null
+          created_at: string
+          duration_ms: number | null
+          file_hash: string
+          file_size: number | null
+          id: string
+          music_id: string | null
+          rewarded: boolean
+          sample_rate: number | null
+          user_id: string
+        }
+        Insert: {
+          bitrate?: number | null
+          created_at?: string
+          duration_ms?: number | null
+          file_hash: string
+          file_size?: number | null
+          id?: string
+          music_id?: string | null
+          rewarded?: boolean
+          sample_rate?: number | null
+          user_id: string
+        }
+        Update: {
+          bitrate?: number | null
+          created_at?: string
+          duration_ms?: number | null
+          file_hash?: string
+          file_size?: number | null
+          id?: string
+          music_id?: string | null
+          rewarded?: boolean
+          sample_rate?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       uploaded_game_comments: {
         Row: {
           comment: string
@@ -2467,12 +2536,41 @@ export type Database = {
       }
     }
     Functions: {
+      check_file_hash_exists: {
+        Args: { p_file_hash: string; p_user_id: string }
+        Returns: {
+          exists_for_others: boolean
+          exists_for_user: boolean
+          original_user_id: string
+        }[]
+      }
+      check_similar_file_exists: {
+        Args: {
+          p_bitrate: number
+          p_duration_ms: number
+          p_tolerance_ms?: number
+          p_user_id: string
+        }
+        Returns: boolean
+      }
       cleanup_expired_nonces: { Args: never; Returns: undefined }
+      get_or_create_daily_reward: {
+        Args: { p_user_id: string }
+        Returns: {
+          can_receive_reward: boolean
+          remaining_rewards: number
+          reward_count: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      increment_daily_reward: {
+        Args: { p_coins_amount?: number; p_user_id: string }
         Returns: boolean
       }
       is_room_member: {
