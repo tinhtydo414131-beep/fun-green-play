@@ -56,28 +56,8 @@ export const Hero = () => {
               className="w-12 h-12 sm:w-20 sm:h-20 md:w-28 md:h-28 lg:w-32 lg:h-32 animate-spin drop-shadow-[0_0_20px_rgba(139,70,255,0.8)]" 
               style={{ animationDuration: '10s' }}
             />
-            <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-orbitron font-black tracking-wider">
-              <span 
-                className="bg-gradient-to-b from-cyan-200 via-blue-400 to-purple-600 bg-clip-text text-transparent"
-                style={{
-                  textShadow: `
-                    0 1px 0 hsl(260, 70%, 60%),
-                    0 2px 0 hsl(260, 70%, 55%),
-                    0 3px 0 hsl(260, 70%, 50%),
-                    0 4px 0 hsl(260, 70%, 45%),
-                    0 5px 0 hsl(260, 70%, 40%),
-                    0 6px 1px rgba(0,0,0,.1),
-                    0 0 5px rgba(100,150,255,.3),
-                    0 1px 3px rgba(0,0,0,.3),
-                    0 3px 5px rgba(0,0,0,.2),
-                    0 5px 10px rgba(100,100,255,.25),
-                    0 10px 10px rgba(0,0,0,.2),
-                    0 20px 20px rgba(100,50,200,.15)
-                  `,
-                  WebkitTextStroke: '1px rgba(150, 100, 255, 0.4)',
-                  filter: 'drop-shadow(0 0 25px rgba(150, 100, 255, 0.6))'
-                }}
-              >
+            <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-orbitron font-black tracking-wider drop-shadow-[0_0_40px_rgba(139,70,255,1)]">
+              <span className="bg-gradient-to-r from-yellow-300 via-pink-400 to-cyan-300 bg-clip-text text-transparent animate-gradient-shift bg-[length:200%_200%]">
                 FUN PLANET
               </span>
             </h1>
