@@ -202,7 +202,25 @@ serve(async (req) => {
 
     // Record a minted NFT
     if (req.method === 'POST') {
-      const { userId, achievementType, tokenId, txHash, walletAddress } = await req.json();
+      let body;
+      try {
+        const text = await req.text();
+        if (!text) {
+          return new Response(
+            JSON.stringify({ error: 'Request body is required' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        body = JSON.parse(text);
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError);
+        return new Response(
+          JSON.stringify({ error: 'Invalid JSON body' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      const { userId, achievementType, tokenId, txHash, walletAddress } = body;
 
       console.log(`Recording minted NFT - user: ${userId}, type: ${achievementType}, tokenId: ${tokenId}`);
 
