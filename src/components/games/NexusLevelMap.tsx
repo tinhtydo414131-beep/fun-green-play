@@ -36,11 +36,6 @@ export const NexusLevelMap: React.FC<NexusLevelMapProps> = ({
           >
             ← Back to Games
           </Button>
-          
-          <div className="flex items-center gap-2 bg-muted/50 px-4 py-2 rounded-full">
-            <span className="text-sm text-muted-foreground">Auto</span>
-            <div className="w-12 h-6 bg-muted rounded-full" />
-          </div>
         </div>
 
         {/* Game Title */}
@@ -57,16 +52,6 @@ export const NexusLevelMap: React.FC<NexusLevelMapProps> = ({
             <span>{totalScore} lượt chơi</span>
           </div>
         </div>
-
-        {/* Back Button */}
-        <Button
-          onClick={onBack}
-          variant="outline"
-          size="sm"
-          className="mb-4 bg-gradient-to-r from-purple-300 to-purple-400 text-white border-0 hover:from-purple-400 hover:to-purple-500"
-        >
-          ← Back
-        </Button>
 
         {/* Level Grid */}
         <div className="bg-gradient-to-br from-orange-100/80 to-white dark:from-gray-800 dark:to-gray-900 rounded-2xl border-2 border-orange-200 dark:border-orange-800 p-4 md:p-6">
