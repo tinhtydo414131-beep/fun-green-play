@@ -10,19 +10,25 @@ import { NexusHUD } from "./nexus2048/NexusHUD";
 import { NexusControls } from "./nexus2048/NexusControls";
 import { NexusGameOver } from "./nexus2048/NexusGameOver";
 import { NexusAudioSystem } from "./nexus2048/NexusAudio";
+import NexusLevelMap from "./NexusLevelMap";
 
 interface Game2048NexusProps {
-  level?: number;
-  difficultyMultiplier?: number;
-  onLevelComplete?: () => void;
   onBack?: () => void;
 }
 
-export const Game2048Nexus = ({ level = 1, onLevelComplete, onBack }: Game2048NexusProps) => {
+const POINTS_PER_LEVEL = 600;
+
+export const Game2048Nexus = ({ onBack }: Game2048NexusProps) => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
   const containerRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<NexusAudioSystem | null>(null);
+  
+  // Level selection state
+  const [showLevelMap, setShowLevelMap] = useState(true);
+  const [currentLevel, setCurrentLevel] = useState(1);
+  const [highestUnlocked, setHighestUnlocked] = useState(1);
+  const [totalPlays, setTotalPlays] = useState(0);
   
   const [board, setBoard] = useState<number[][]>([]);
   const [score, setScore] = useState(0);
@@ -43,8 +49,8 @@ export const Game2048Nexus = ({ level = 1, onLevelComplete, onBack }: Game2048Ne
   const [spawnEffects, setSpawnEffects] = useState<{ x: number; y: number }[]>([]);
   const [containerSize, setContainerSize] = useState({ width: 400, height: 600 });
 
-  const gridSize = level <= 5 ? 4 : level <= 10 ? 5 : 6;
-  const targetTile = Math.pow(2, Math.min(17, 11 + Math.floor(level / 5)));
+  const gridSize = currentLevel <= 5 ? 4 : currentLevel <= 10 ? 5 : 6;
+  const targetScore = currentLevel * POINTS_PER_LEVEL;
 
   // Initialize audio
   useEffect(() => {
@@ -72,16 +78,22 @@ export const Game2048Nexus = ({ level = 1, onLevelComplete, onBack }: Game2048Ne
     return () => window.removeEventListener('resize', updateSize);
   }, []);
 
-  // Load user stats
+  // Load user stats and level progress
   useEffect(() => {
     if (!user) return;
-    supabase.from('user_nexus_stats').select('nexus_tokens, highest_tile, total_score')
+    
+    // Load nexus stats
+    supabase.from('user_nexus_stats').select('nexus_tokens, highest_tile, total_score, games_played')
       .eq('user_id', user.id).maybeSingle()
       .then(({ data }) => {
         if (data) {
           setNexusTokens(data.nexus_tokens);
           setHighScore(data.total_score || 0);
           setHighestTile(data.highest_tile);
+          setTotalPlays(data.games_played || 0);
+          // Calculate highest unlocked level based on total score
+          const unlockedLevel = Math.min(100, Math.floor((data.total_score || 0) / POINTS_PER_LEVEL) + 1);
+          setHighestUnlocked(Math.max(1, unlockedLevel));
         }
       });
   }, [user]);
@@ -97,7 +109,11 @@ export const Game2048Nexus = ({ level = 1, onLevelComplete, onBack }: Game2048Ne
     setIsWin(false);
   }, [gridSize]);
 
-  useEffect(() => { initializeGame(); }, [initializeGame]);
+  useEffect(() => { 
+    if (!showLevelMap) {
+      initializeGame(); 
+    }
+  }, [initializeGame, showLevelMap]);
 
   const addNewTile = (currentBoard: number[][]) => {
     const emptyCells: [number, number][] = [];
@@ -114,6 +130,31 @@ export const Game2048Nexus = ({ level = 1, onLevelComplete, onBack }: Game2048Ne
     }
   };
 
+  const handleLevelComplete = useCallback(async () => {
+    if (!user) return;
+    
+    // Unlock next level
+    const nextLevel = Math.min(100, currentLevel + 1);
+    if (nextLevel > highestUnlocked) {
+      setHighestUnlocked(nextLevel);
+    }
+    
+    // Save progress
+    try {
+      await supabase.from('user_nexus_stats').upsert({
+        user_id: user.id,
+        total_score: Math.max(highScore, score),
+        games_played: totalPlays + 1,
+        highest_tile: highestTile,
+        level_reached: nextLevel
+      }, { onConflict: 'user_id' });
+      
+      setTotalPlays(prev => prev + 1);
+    } catch (error) {
+      console.error('Error saving progress:', error);
+    }
+  }, [user, currentLevel, highestUnlocked, highScore, score, totalPlays, highestTile]);
+
   const move = useCallback((direction: 'up' | 'down' | 'left' | 'right') => {
     if (gameOver || isPaused) return;
     if (isSoundOn) audioRef.current?.playSlide();
@@ -122,7 +163,6 @@ export const Game2048Nexus = ({ level = 1, onLevelComplete, onBack }: Game2048Ne
     let newBoard = board.map(row => [...row]);
     let moved = false;
     let newScore = score;
-    const newMerged = new Set<string>();
     const size = newBoard.length;
 
     const slide = (row: number[]) => {
@@ -170,11 +210,12 @@ export const Game2048Nexus = ({ level = 1, onLevelComplete, onBack }: Game2048Ne
         haptics.success();
       }
 
-      if (maxTile >= targetTile && !isWin) {
+      // Check if level is complete (score reached target)
+      if (newScore >= targetScore && !isWin) {
         setIsWin(true);
         if (isSoundOn) audioRef.current?.playWin();
-        toast.success(`🎉 Level ${level} Complete!`);
-        onLevelComplete?.();
+        toast.success(`🎉 Level ${currentLevel} Complete! +${targetScore} points!`);
+        handleLevelComplete();
       }
 
       // Check game over
@@ -191,7 +232,7 @@ export const Game2048Nexus = ({ level = 1, onLevelComplete, onBack }: Game2048Ne
         if (isSoundOn) audioRef.current?.playGameOver();
       }
     }
-  }, [board, score, gameOver, isPaused, highestTile, targetTile, isWin, level, isSoundOn, onLevelComplete]);
+  }, [board, score, gameOver, isPaused, highestTile, targetScore, isWin, currentLevel, isSoundOn, handleLevelComplete]);
 
   // Keyboard controls
   useEffect(() => {
@@ -220,7 +261,7 @@ export const Game2048Nexus = ({ level = 1, onLevelComplete, onBack }: Game2048Ne
   };
 
   const shareScore = () => {
-    const text = `🎮 I scored ${score} with a ${highestTile} tile in 2048 Nexus! #2048Nexus`;
+    const text = `🎮 I scored ${score} with a ${highestTile} tile in 2048 Nexus Level ${currentLevel}! #2048Nexus`;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
   };
 
@@ -229,6 +270,29 @@ export const Game2048Nexus = ({ level = 1, onLevelComplete, onBack }: Game2048Ne
     else document.exitFullscreen();
     setIsFullscreen(!isFullscreen);
   };
+
+  const handleSelectLevel = (level: number) => {
+    setCurrentLevel(level);
+    setShowLevelMap(false);
+  };
+
+  const handleBackToLevelMap = () => {
+    setShowLevelMap(true);
+    setGameOver(false);
+    setIsWin(false);
+  };
+
+  // Show level map
+  if (showLevelMap) {
+    return (
+      <NexusLevelMap
+        highestUnlocked={highestUnlocked}
+        totalScore={highScore}
+        onSelectLevel={handleSelectLevel}
+        onBack={onBack}
+      />
+    );
+  }
 
   return (
     <div
@@ -254,8 +318,8 @@ export const Game2048Nexus = ({ level = 1, onLevelComplete, onBack }: Game2048Ne
           highScore={highScore}
           nexusTokens={nexusTokens}
           moves={moves}
-          targetTile={targetTile}
-          level={level}
+          targetTile={targetScore}
+          level={currentLevel}
           gridSize={gridSize}
           isMusicOn={isMusicOn}
           isSoundOn={isSoundOn}
@@ -269,7 +333,7 @@ export const Game2048Nexus = ({ level = 1, onLevelComplete, onBack }: Game2048Ne
           onMove={move}
           onRestart={initializeGame}
           onShare={shareScore}
-          onBack={onBack}
+          onBack={handleBackToLevelMap}
           onTogglePause={() => setIsPaused(!isPaused)}
           onToggleFullscreen={toggleFullscreen}
           isPaused={isPaused}
@@ -284,7 +348,7 @@ export const Game2048Nexus = ({ level = 1, onLevelComplete, onBack }: Game2048Ne
         score={score}
         highScore={Math.max(score, highScore)}
         highestTile={highestTile}
-        onRestart={initializeGame}
+        onRestart={isWin ? handleBackToLevelMap : initializeGame}
         onShare={shareScore}
       />
     </div>

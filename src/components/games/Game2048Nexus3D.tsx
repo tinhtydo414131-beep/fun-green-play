@@ -364,9 +364,10 @@ export const Game2048Nexus3D: React.FC<Game2048Nexus3DProps> = ({
           </Button>
         </div>
         <NexusLevelMap
-          currentLevel={currentLevel}
           highestUnlocked={highestUnlocked}
+          totalScore={0}
           onSelectLevel={handleSelectLevel}
+          onBack={onBack}
         />
       </div>
     );
