@@ -6,14 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { 
-  Gamepad2, Users, MessageCircle, Trophy, Home, 
+  Gamepad2, Users, MessageCircle, Trophy, 
   Edit2, Save, X, Wallet, Crown, Copy, Check,
   ArrowUpRight, ArrowDownLeft, Settings, LogOut, Share2,
-  Sparkles, TrendingUp, Flame, Calendar, History, Medal, Star
+  Sparkles, Flame, Calendar, History, Camera, MapPin,
+  ThumbsUp, MessageSquare, MoreHorizontal, Image as ImageIcon,
+  Video, Smile, Send, Heart, UserPlus, Phone
 } from "lucide-react";
 import { toast } from "sonner";
 import { AvatarUpload } from "@/components/AvatarUpload";
@@ -25,12 +26,7 @@ import { Web3RewardNotification } from "@/components/Web3RewardNotification";
 import { useWeb3Rewards } from "@/hooks/useWeb3Rewards";
 import { useReferral } from "@/hooks/useReferral";
 import { motion, AnimatePresence } from "framer-motion";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import camlyCoinPro from "@/assets/camly-coin-pro.png";
-import bnbLogo from "@/assets/tokens/bnb-logo.png";
-import ethLogo from "@/assets/tokens/eth-logo.png";
-import usdtLogo from "@/assets/tokens/usdt-logo.png";
 
 interface Profile {
   id: string;
@@ -55,12 +51,14 @@ interface Transaction {
   created_at: string;
 }
 
-const tokens = [
-  { symbol: "CAMLY", name: "CAMLY", gradient: "from-pink-400 via-yellow-300 to-pink-500", image: camlyCoinPro },
-  { symbol: "BNB", name: "BNB", gradient: "from-yellow-400 to-yellow-600", image: bnbLogo },
-  { symbol: "ETH", name: "ETH", gradient: "from-blue-400 to-purple-600", image: ethLogo },
-  { symbol: "USDT", name: "USDT", gradient: "from-green-400 to-green-600", image: usdtLogo },
-];
+interface ChatPreview {
+  id: string;
+  username: string;
+  avatar_url: string | null;
+  lastMessage: string;
+  unread: boolean;
+  online: boolean;
+}
 
 export default function Profile() {
   const { user, loading: authLoading, signOut } = useAuth();
@@ -73,17 +71,17 @@ export default function Profile() {
   const [userRank, setUserRank] = useState<number>(0);
   const [copied, setCopied] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [selectedToken, setSelectedToken] = useState(tokens[0]);
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
-  const [chartData, setChartData] = useState<any[]>([]);
+  const [chatPreviews, setChatPreviews] = useState<ChatPreview[]>([]);
+  const [friends, setFriends] = useState<any[]>([]);
+  const [postContent, setPostContent] = useState("");
   
   const { totalReferrals } = useReferral();
   const {
     camlyBalance,
     walletAddress,
     isConnected,
-    isLoading: web3Loading,
     dailyStreak,
     pendingReward,
     connectWallet,
@@ -107,7 +105,8 @@ export default function Profile() {
       fetchProfile();
       fetchUserRank();
       fetchTransactions();
-      generateChartData();
+      fetchChatPreviews();
+      fetchFriends();
     }
   }, [user]);
 
@@ -152,7 +151,7 @@ export default function Profile() {
         .select("*")
         .eq("user_id", user?.id)
         .order("created_at", { ascending: false })
-        .limit(20);
+        .limit(5);
 
       if (error) throw error;
       setTransactions(data || []);
@@ -161,18 +160,48 @@ export default function Profile() {
     }
   };
 
-  const generateChartData = () => {
-    // Generate sample chart data
-    const data = [];
-    const now = Date.now();
-    for (let i = 7; i >= 0; i--) {
-      const date = new Date(now - i * 24 * 60 * 60 * 1000);
-      data.push({
-        time: date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' }),
-        price: 0.000004 + Math.random() * 0.000001
-      });
+  const fetchChatPreviews = async () => {
+    try {
+      const { data: friendsData } = await supabase
+        .from("friends")
+        .select(`
+          friend:profiles!friends_friend_id_fkey(id, username, avatar_url)
+        `)
+        .eq("user_id", user?.id)
+        .limit(8);
+
+      if (friendsData) {
+        const previews: ChatPreview[] = friendsData.map((f: any, index: number) => ({
+          id: f.friend.id,
+          username: f.friend.username,
+          avatar_url: f.friend.avatar_url,
+          lastMessage: "Click to chat",
+          unread: index < 2,
+          online: Math.random() > 0.5
+        }));
+        setChatPreviews(previews);
+      }
+    } catch (error) {
+      console.error("Error fetching chat previews:", error);
     }
-    setChartData(data);
+  };
+
+  const fetchFriends = async () => {
+    try {
+      const { data } = await supabase
+        .from("friends")
+        .select(`
+          friend:profiles!friends_friend_id_fkey(id, username, avatar_url)
+        `)
+        .eq("user_id", user?.id)
+        .limit(9);
+
+      if (data) {
+        setFriends(data.map((f: any) => f.friend));
+      }
+    } catch (error) {
+      console.error("Error fetching friends:", error);
+    }
   };
 
   const handleSaveProfile = async () => {
@@ -250,388 +279,529 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5 pb-24">
+    <div className="min-h-screen bg-muted/30 pb-24">
       <Navigation />
       
-      <section className="pt-24 md:pt-32 pb-8 px-4">
-        <div className="container mx-auto max-w-6xl">
-          
-          {/* ═══════════ HERO SECTION ═══════════ */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6"
+      {/* Facebook-style Cover & Profile Header */}
+      <div className="pt-16">
+        {/* Cover Photo */}
+        <div className="relative h-48 md:h-72 lg:h-80 bg-gradient-to-r from-primary via-secondary to-accent">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+          <Button 
+            variant="secondary" 
+            size="sm" 
+            className="absolute bottom-4 right-4 gap-2"
           >
-            <Card className="border-0 shadow-2xl bg-gradient-to-br from-primary/20 via-secondary/10 to-accent/20 overflow-hidden">
-              <CardContent className="p-6 md:p-8">
-                <div className="flex flex-col items-center text-center gap-4">
-                  {/* Avatar + Name */}
-                  <div className="relative">
-                    <AvatarUpload 
-                      currentAvatarUrl={profile.avatar_url}
-                      onAvatarUpdate={(url) => setProfile({ ...profile, avatar_url: url })}
-                    />
-                    {userRank <= 3 && userRank > 0 && (
-                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg animate-bounce">
-                        <Crown className="w-5 h-5 text-white" />
-                      </div>
-                    )}
-                  </div>
+            <Camera className="w-4 h-4" />
+            Edit Cover
+          </Button>
+        </div>
 
-                  {editing ? (
-                    <div className="space-y-3 w-full max-w-sm">
-                      <Input
-                        value={editForm.username}
-                        onChange={(e) => setEditForm(prev => ({ ...prev, username: e.target.value }))}
-                        placeholder="Username"
-                        className="text-center text-lg"
-                      />
-                      <Textarea
-                        value={editForm.bio}
-                        onChange={(e) => setEditForm(prev => ({ ...prev, bio: e.target.value }))}
-                        placeholder="Bio..."
-                        rows={2}
-                      />
-                      <div className="flex gap-2 justify-center">
-                        <Button onClick={handleSaveProfile} disabled={saving} size="sm">
-                          <Save className="w-4 h-4 mr-1" />
-                          Save
-                        </Button>
-                        <Button onClick={() => setEditing(false)} variant="outline" size="sm">
-                          <X className="w-4 h-4 mr-1" />
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="flex items-center gap-2">
-                        <h1 className="text-2xl md:text-3xl font-fredoka font-bold text-foreground">
-                          {profile.username}
-                        </h1>
-                        <Button onClick={() => setEditing(true)} variant="ghost" size="icon" className="h-8 w-8">
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                      {profile.bio && (
-                        <p className="text-muted-foreground text-sm max-w-md">{profile.bio}</p>
-                      )}
-                    </>
-                  )}
-
-                  {/* Balance Display */}
-                  <div className="mt-2">
-                    <p className="text-sm text-muted-foreground mb-1">Tổng số dư CAMLY</p>
-                    <motion.p
-                      key={camlyBalance}
-                      initial={{ scale: 1.1 }}
-                      animate={{ scale: 1 }}
-                      className="text-4xl md:text-5xl font-fredoka font-bold bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 bg-clip-text text-transparent"
-                    >
-                      {camlyBalance.toLocaleString()}
-                    </motion.p>
-                    {isConnected && walletAddress && (
-                      <button 
-                        onClick={handleCopyAddress}
-                        className="flex items-center gap-2 mx-auto mt-2 text-sm text-muted-foreground hover:text-foreground transition"
-                      >
-                        <span className="font-mono">{shortenAddress(walletAddress)}</span>
-                        {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Send / Receive Buttons */}
-                  <div className="flex gap-3 mt-4 w-full max-w-xs">
-                    <Button 
-                      onClick={() => navigate('/wallet')}
-                      className="flex-1 h-14 text-lg font-bold bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 rounded-2xl shadow-lg"
-                    >
-                      <ArrowUpRight className="w-5 h-5 mr-2" />
-                      Send
-                    </Button>
-                    <Button 
-                      onClick={() => navigate('/wallet')}
-                      className="flex-1 h-14 text-lg font-bold bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 rounded-2xl shadow-lg"
-                    >
-                      <ArrowDownLeft className="w-5 h-5 mr-2" />
-                      Receive
-                    </Button>
-                  </div>
-
-                  {/* Connect Wallet if not connected */}
-                  {!isConnected && (
-                    <Button
-                      onClick={() => setShowConnectModal(true)}
-                      variant="outline"
-                      className="mt-2 border-yellow-500/50 hover:bg-yellow-500/10"
-                    >
-                      <Wallet className="w-4 h-4 mr-2" />
-                      Connect Wallet (+{REWARDS.FIRST_WALLET_CONNECT.toLocaleString()} CAMLY)
-                    </Button>
-                  )}
+        {/* Profile Info Bar */}
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="relative flex flex-col md:flex-row items-center md:items-end gap-4 -mt-16 md:-mt-20 pb-4 border-b border-border">
+            {/* Avatar */}
+            <div className="relative">
+              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-background overflow-hidden bg-background shadow-xl">
+                <AvatarUpload 
+                  currentAvatarUrl={profile.avatar_url}
+                  onAvatarUpdate={(url) => setProfile({ ...profile, avatar_url: url })}
+                />
+              </div>
+              {userRank <= 3 && userRank > 0 && (
+                <div className="absolute -bottom-1 -right-1 w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg border-2 border-background">
+                  <Crown className="w-5 h-5 text-white" />
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+              )}
+            </div>
 
-          {/* ═══════════ COIN CHART ═══════════ */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="mb-6"
-          >
-            <Card className="border-2 border-primary/20 shadow-xl">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <CardTitle className="font-fredoka text-lg flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-primary" />
-                    Token Prices
-                  </CardTitle>
-                  <div className="flex gap-1 flex-wrap">
-                    {tokens.map((token) => (
-                      <Button
-                        key={token.symbol}
-                        variant={selectedToken.symbol === token.symbol ? "default" : "ghost"}
-                        size="sm"
-                        onClick={() => setSelectedToken(token)}
-                        className={`h-8 px-3 rounded-full ${
-                          selectedToken.symbol === token.symbol 
-                            ? `bg-gradient-to-r ${token.gradient}` 
-                            : ''
-                        }`}
-                      >
-                        <img src={token.image} alt={token.symbol} className="w-4 h-4 mr-1 rounded-full" />
-                        {token.symbol}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[150px] md:h-[200px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={chartData}>
-                      <XAxis dataKey="time" tick={{ fontSize: 10 }} />
-                      <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => v.toFixed(6)} width={60} />
-                      <Tooltip formatter={(v: number) => ['$' + v.toFixed(6), 'Price']} />
-                      <Line 
-                        type="monotone" 
-                        dataKey="price" 
-                        stroke="url(#colorGradient)" 
-                        strokeWidth={3}
-                        dot={false}
-                      />
-                      <defs>
-                        <linearGradient id="colorGradient" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor="#f472b6" />
-                          <stop offset="50%" stopColor="#fbbf24" />
-                          <stop offset="100%" stopColor="#f97316" />
-                        </linearGradient>
-                      </defs>
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* ═══════════ MAIN CONTENT GRID ═══════════ */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            
-            {/* Transaction History */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Card className="border-2 border-secondary/20 shadow-xl h-full">
-                <CardHeader className="pb-2">
-                  <CardTitle className="font-fredoka text-lg flex items-center gap-2">
-                    <History className="w-5 h-5 text-secondary" />
-                    Transaction History
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
-                    {transactions.length === 0 ? (
-                      <p className="text-center text-muted-foreground py-8">No transactions yet</p>
-                    ) : (
-                      transactions.map((tx) => (
-                        <div 
-                          key={tx.id}
-                          className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition"
-                        >
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                            tx.amount > 0 
-                              ? 'bg-green-500/20 text-green-500' 
-                              : 'bg-red-500/20 text-red-500'
-                          }`}>
-                            {tx.amount > 0 ? <ArrowDownLeft className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-sm truncate">{tx.description || tx.transaction_type}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {new Date(tx.created_at).toLocaleDateString('vi-VN')}
-                            </p>
-                          </div>
-                          <p className={`font-bold ${tx.amount > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                            {tx.amount > 0 ? '+' : ''}{tx.amount.toLocaleString()}
-                          </p>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                  <Button 
-                    onClick={() => navigate('/rewards-history')}
-                    variant="ghost" 
-                    className="w-full mt-3"
-                  >
-                    View All History
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Mini Honor Board */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Card className="border-2 border-accent/20 shadow-xl h-full">
-                <CardHeader className="pb-2">
-                  <CardTitle className="font-fredoka text-lg flex items-center gap-2">
-                    <Trophy className="w-5 h-5 text-yellow-500" />
-                    Honor Board
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <HonorBoard 
-                    profile={{ ...profile, wallet_address: profile.wallet_address }} 
-                    userRank={userRank}
-                    compact={true}
+            {/* Name & Info */}
+            <div className="flex-1 text-center md:text-left md:pb-4">
+              {editing ? (
+                <div className="space-y-2 max-w-sm mx-auto md:mx-0">
+                  <Input
+                    value={editForm.username}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, username: e.target.value }))}
+                    placeholder="Username"
+                    className="text-lg font-bold"
                   />
-                </CardContent>
-              </Card>
-            </motion.div>
+                  <Textarea
+                    value={editForm.bio}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, bio: e.target.value }))}
+                    placeholder="Bio..."
+                    rows={2}
+                  />
+                  <div className="flex gap-2">
+                    <Button onClick={handleSaveProfile} disabled={saving} size="sm">
+                      <Save className="w-4 h-4 mr-1" />
+                      Save
+                    </Button>
+                    <Button onClick={() => setEditing(false)} variant="outline" size="sm">
+                      <X className="w-4 h-4 mr-1" />
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+                    {profile.username}
+                  </h1>
+                  <p className="text-muted-foreground">
+                    {profile.total_friends} friends · Rank #{userRank}
+                  </p>
+                  {profile.bio && (
+                    <p className="text-sm text-muted-foreground mt-1">{profile.bio}</p>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-2 md:pb-4">
+              <Button 
+                onClick={() => setEditing(true)} 
+                className="gap-2 bg-primary hover:bg-primary/90"
+              >
+                <Edit2 className="w-4 h-4" />
+                Edit Profile
+              </Button>
+              <Button variant="outline" onClick={() => navigate('/wallet')} className="gap-2">
+                <Wallet className="w-4 h-4" />
+              </Button>
+              <Button variant="outline" onClick={() => navigate('/settings')}>
+                <Settings className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
 
-          {/* ═══════════ DAILY CHECK-IN ═══════════ */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="mb-6"
-          >
-            <Card className="border-2 border-yellow-500/30 shadow-xl bg-gradient-to-r from-yellow-500/5 to-orange-500/5">
-              <CardContent className="p-4 md:p-6">
-                <div className="flex flex-col md:flex-row items-center gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
-                      <Flame className="w-6 h-6 text-white" />
+          {/* Navigation Tabs */}
+          <div className="flex gap-1 overflow-x-auto py-2 -mx-4 px-4 md:mx-0 md:px-0">
+            {["Posts", "About", "Friends", "Games", "Wallet"].map((tab, i) => (
+              <Button 
+                key={tab}
+                variant={i === 0 ? "default" : "ghost"}
+                className={i === 0 ? "bg-primary/10 text-primary hover:bg-primary/20" : ""}
+              >
+                {tab}
+              </Button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content - 3 Column Layout */}
+      <div className="max-w-6xl mx-auto px-4 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          
+          {/* Left Sidebar */}
+          <div className="lg:col-span-3 space-y-4">
+            {/* Intro Card */}
+            <Card className="shadow-sm">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg font-bold">Intro</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {profile.bio && (
+                  <p className="text-sm text-center text-muted-foreground">{profile.bio}</p>
+                )}
+                
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Wallet className="w-4 h-4 text-muted-foreground" />
+                    <span className="font-bold text-primary">{camlyBalance.toLocaleString()} CAMLY</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Trophy className="w-4 h-4 text-muted-foreground" />
+                    <span>Rank #{userRank} on Leaderboard</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Gamepad2 className="w-4 h-4 text-muted-foreground" />
+                    <span>{profile.total_plays} games played</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-muted-foreground" />
+                    <span>{profile.total_friends} friends</span>
+                  </div>
+                  {isConnected && walletAddress && (
+                    <button 
+                      onClick={handleCopyAddress}
+                      className="flex items-center gap-2 w-full text-left hover:bg-muted p-2 rounded-lg transition"
+                    >
+                      <MapPin className="w-4 h-4 text-muted-foreground" />
+                      <span className="font-mono text-xs truncate">{shortenAddress(walletAddress)}</span>
+                      {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
+                    </button>
+                  )}
+                </div>
+
+                <Button variant="outline" className="w-full" onClick={() => setEditing(true)}>
+                  Edit Details
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Friends Mini Grid */}
+            <Card className="shadow-sm">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg font-bold">Friends</CardTitle>
+                  <Button variant="link" size="sm" onClick={() => navigate('/friends')}>
+                    See All
+                  </Button>
+                </div>
+                <p className="text-sm text-muted-foreground">{profile.total_friends} friends</p>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-2">
+                  {friends.slice(0, 9).map((friend) => (
+                    <button
+                      key={friend.id}
+                      onClick={() => navigate(`/profile/${friend.id}`)}
+                      className="text-center hover:bg-muted p-2 rounded-lg transition"
+                    >
+                      <Avatar className="w-full aspect-square mb-1 rounded-lg">
+                        <AvatarImage src={friend.avatar_url || ""} />
+                        <AvatarFallback className="rounded-lg bg-gradient-to-br from-primary to-secondary text-white text-lg">
+                          {friend.username?.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <p className="text-xs font-medium truncate">{friend.username}</p>
+                    </button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Transactions */}
+            <Card className="shadow-sm">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg font-bold flex items-center gap-2">
+                    <History className="w-4 h-4" />
+                    Recent Activity
+                  </CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {transactions.slice(0, 4).map((tx) => (
+                  <div key={tx.id} className="flex items-center gap-2 text-sm">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                      tx.amount > 0 ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'
+                    }`}>
+                      {tx.amount > 0 ? <ArrowDownLeft className="w-3 h-3" /> : <ArrowUpRight className="w-3 h-3" />}
                     </div>
-                    <div>
-                      <p className="font-fredoka font-bold text-lg">Daily Check-in</p>
-                      {dailyStreak > 0 && (
-                        <p className="text-sm text-muted-foreground">
-                          🔥 {dailyStreak}-day streak ({getStreakMultiplier(dailyStreak)}x bonus)
-                        </p>
-                      )}
-                    </div>
+                    <span className="flex-1 truncate">{tx.description || tx.transaction_type}</span>
+                    <span className={tx.amount > 0 ? 'text-green-500' : 'text-red-500'}>
+                      {tx.amount > 0 ? '+' : ''}{tx.amount.toLocaleString()}
+                    </span>
+                  </div>
+                ))}
+                <Button variant="ghost" size="sm" className="w-full" onClick={() => navigate('/rewards-history')}>
+                  View All
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Center Content - Posts/Feed */}
+          <div className="lg:col-span-5 space-y-4">
+            {/* Create Post */}
+            <Card className="shadow-sm">
+              <CardContent className="p-4">
+                <div className="flex gap-3">
+                  <Avatar className="w-10 h-10">
+                    <AvatarImage src={profile.avatar_url || ""} />
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white">
+                      {profile.username?.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <Input
+                    placeholder={`What's on your mind, ${profile.username?.split(' ')[0]}?`}
+                    className="flex-1 rounded-full bg-muted border-0"
+                    value={postContent}
+                    onChange={(e) => setPostContent(e.target.value)}
+                  />
+                </div>
+                <div className="flex justify-around mt-3 pt-3 border-t">
+                  <Button variant="ghost" className="flex-1 gap-2 text-red-500">
+                    <Video className="w-5 h-5" />
+                    Live Video
+                  </Button>
+                  <Button variant="ghost" className="flex-1 gap-2 text-green-500">
+                    <ImageIcon className="w-5 h-5" />
+                    Photo
+                  </Button>
+                  <Button variant="ghost" className="flex-1 gap-2 text-yellow-500">
+                    <Smile className="w-5 h-5" />
+                    Feeling
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Daily Check-in Card */}
+            <Card className="shadow-sm border-2 border-yellow-500/30 bg-gradient-to-r from-yellow-500/5 to-orange-500/5">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shrink-0">
+                    <Flame className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-bold">Daily Check-in</p>
+                    {dailyStreak > 0 && (
+                      <p className="text-sm text-muted-foreground">
+                        🔥 {dailyStreak}-day streak ({getStreakMultiplier(dailyStreak)}x bonus)
+                      </p>
+                    )}
                   </div>
                   <Button
                     onClick={claimDailyCheckin}
                     disabled={!canClaimDailyCheckin()}
-                    className="md:ml-auto bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 h-12 px-8 text-lg font-bold rounded-2xl"
+                    size="sm"
+                    className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600"
                   >
-                    <Calendar className="w-5 h-5 mr-2" />
-                    {canClaimDailyCheckin() ? `Claim +${Math.floor(REWARDS.DAILY_CHECKIN * getStreakMultiplier(dailyStreak + 1)).toLocaleString()} CAMLY` : 'Already Claimed'}
+                    <Calendar className="w-4 h-4 mr-1" />
+                    {canClaimDailyCheckin() ? 'Claim' : 'Claimed'}
                   </Button>
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
 
-          {/* ═══════════ QUICK ACTIONS ═══════════ */}
-          <motion.div 
-            className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <Button
-              onClick={() => navigate("/games")}
-              className="h-16 text-base font-bold bg-gradient-to-r from-primary to-secondary hover:shadow-lg rounded-2xl"
-            >
-              <Gamepad2 className="mr-2 h-5 w-5" />
-              Play 🎮
-            </Button>
-            <Button
-              onClick={() => navigate("/friends")}
-              variant="outline"
-              className="h-16 text-base font-bold border-2 rounded-2xl"
-            >
-              <Users className="mr-2 h-5 w-5" />
-              Friends
-            </Button>
-            <Button
-              onClick={() => navigate("/chat")}
-              variant="outline"
-              className="h-16 text-base font-bold border-2 rounded-2xl"
-            >
-              <MessageCircle className="mr-2 h-5 w-5" />
-              Chat
-            </Button>
-            <Button
-              onClick={() => navigate("/camly-leaderboard")}
-              variant="outline"
-              className="h-16 text-base font-bold border-2 rounded-2xl"
-            >
-              <Trophy className="mr-2 h-5 w-5" />
-              Rank
-            </Button>
-          </motion.div>
+            {/* Wallet Card */}
+            <Card className="shadow-sm overflow-hidden">
+              <div className="bg-gradient-to-r from-primary via-secondary to-accent p-6 text-white">
+                <div className="flex items-center gap-3 mb-4">
+                  <img src={camlyCoinPro} alt="CAMLY" className="w-12 h-12" />
+                  <div>
+                    <p className="text-white/80 text-sm">Your Balance</p>
+                    <p className="text-3xl font-bold">{camlyBalance.toLocaleString()}</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => navigate('/wallet')}
+                    className="flex-1 bg-white/20 hover:bg-white/30 text-white border-0"
+                  >
+                    <ArrowUpRight className="w-4 h-4 mr-2" />
+                    Send
+                  </Button>
+                  <Button 
+                    onClick={() => navigate('/wallet')}
+                    className="flex-1 bg-white/20 hover:bg-white/30 text-white border-0"
+                  >
+                    <ArrowDownLeft className="w-4 h-4 mr-2" />
+                    Receive
+                  </Button>
+                </div>
+              </div>
+              {!isConnected && (
+                <CardContent className="p-4">
+                  <Button
+                    onClick={() => setShowConnectModal(true)}
+                    variant="outline"
+                    className="w-full border-yellow-500/50 hover:bg-yellow-500/10"
+                  >
+                    <Wallet className="w-4 h-4 mr-2" />
+                    Connect Wallet (+{REWARDS.FIRST_WALLET_CONNECT.toLocaleString()} CAMLY)
+                  </Button>
+                </CardContent>
+              )}
+            </Card>
 
-          {/* ═══════════ FOOTER BUTTONS ═══════════ */}
-          <motion.div 
-            className="flex flex-wrap gap-3 justify-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <Button
-              onClick={() => {
-                const url = `${window.location.origin}/profile/${profile.id}`;
-                navigator.clipboard.writeText(url);
-                toast.success("Profile link copied!");
-              }}
-              variant="ghost"
-              className="text-muted-foreground"
-            >
-              <Share2 className="w-4 h-4 mr-2" />
-              Share Profile
-            </Button>
-            <Button
-              onClick={() => navigate("/settings")}
-              variant="ghost"
-              className="text-muted-foreground"
-            >
-              <Settings className="w-4 h-4 mr-2" />
-              Settings
-            </Button>
-            <Button
-              onClick={handleLogout}
-              variant="ghost"
-              className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
-          </motion.div>
+            {/* Quick Actions */}
+            <div className="grid grid-cols-4 gap-2">
+              <Button
+                onClick={() => navigate("/games")}
+                className="h-16 flex-col gap-1 bg-gradient-to-br from-primary to-secondary"
+              >
+                <Gamepad2 className="h-5 w-5" />
+                <span className="text-xs">Play</span>
+              </Button>
+              <Button
+                onClick={() => navigate("/friends")}
+                variant="outline"
+                className="h-16 flex-col gap-1"
+              >
+                <Users className="h-5 w-5" />
+                <span className="text-xs">Friends</span>
+              </Button>
+              <Button
+                onClick={() => navigate("/chat")}
+                variant="outline"
+                className="h-16 flex-col gap-1"
+              >
+                <MessageCircle className="h-5 w-5" />
+                <span className="text-xs">Chat</span>
+              </Button>
+              <Button
+                onClick={() => navigate("/camly-leaderboard")}
+                variant="outline"
+                className="h-16 flex-col gap-1"
+              >
+                <Trophy className="h-5 w-5" />
+                <span className="text-xs">Rank</span>
+              </Button>
+            </div>
+
+            {/* Footer Actions */}
+            <div className="flex flex-wrap gap-2 justify-center pt-4">
+              <Button
+                onClick={() => {
+                  const url = `${window.location.origin}/profile/${profile.id}`;
+                  navigator.clipboard.writeText(url);
+                  toast.success("Profile link copied!");
+                }}
+                variant="ghost"
+                size="sm"
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                Share
+              </Button>
+              <Button
+                onClick={handleLogout}
+                variant="ghost"
+                size="sm"
+                className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            </div>
+          </div>
+
+          {/* Right Sidebar - Honor Board + Messaging */}
+          <div className="lg:col-span-4 space-y-4">
+            {/* Honor Board */}
+            <Card className="shadow-sm">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg font-bold flex items-center gap-2">
+                  <Trophy className="w-5 h-5 text-yellow-500" />
+                  Honor Board
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="max-h-[400px] overflow-y-auto">
+                <HonorBoard 
+                  profile={{ ...profile, wallet_address: profile.wallet_address }} 
+                  userRank={userRank}
+                  compact={true}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Messenger-style Chat List */}
+            <Card className="shadow-sm">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg font-bold flex items-center gap-2">
+                    <MessageCircle className="w-5 h-5 text-primary" />
+                    Messages
+                  </CardTitle>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Video className="w-4 h-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Edit2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+                <Input 
+                  placeholder="Search messages" 
+                  className="mt-2 h-9 rounded-full bg-muted border-0"
+                />
+              </CardHeader>
+              <CardContent className="space-y-1 max-h-[350px] overflow-y-auto">
+                {chatPreviews.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <MessageCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No messages yet</p>
+                    <Button 
+                      variant="link" 
+                      size="sm" 
+                      onClick={() => navigate('/friends')}
+                      className="mt-2"
+                    >
+                      Find friends to chat
+                    </Button>
+                  </div>
+                ) : (
+                  chatPreviews.map((chat) => (
+                    <button
+                      key={chat.id}
+                      onClick={() => navigate('/chat')}
+                      className={`w-full flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition text-left ${
+                        chat.unread ? 'bg-primary/5' : ''
+                      }`}
+                    >
+                      <div className="relative">
+                        <Avatar className="w-12 h-12">
+                          <AvatarImage src={chat.avatar_url || ""} />
+                          <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white">
+                            {chat.username?.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        {chat.online && (
+                          <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`font-medium truncate ${chat.unread ? 'text-foreground' : 'text-muted-foreground'}`}>
+                          {chat.username}
+                        </p>
+                        <p className={`text-sm truncate ${chat.unread ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
+                          {chat.lastMessage}
+                        </p>
+                      </div>
+                      {chat.unread && (
+                        <div className="w-3 h-3 bg-primary rounded-full shrink-0" />
+                      )}
+                    </button>
+                  ))
+                )}
+              </CardContent>
+              <div className="p-3 border-t">
+                <Button 
+                  variant="ghost" 
+                  className="w-full" 
+                  onClick={() => navigate('/chat')}
+                >
+                  See All in Messenger
+                </Button>
+              </div>
+            </Card>
+
+            {/* Online Friends */}
+            <Card className="shadow-sm">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Contacts
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-1">
+                {friends.slice(0, 6).map((friend) => (
+                  <button
+                    key={friend.id}
+                    onClick={() => navigate('/chat')}
+                    className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition"
+                  >
+                    <div className="relative">
+                      <Avatar className="w-8 h-8">
+                        <AvatarImage src={friend.avatar_url || ""} />
+                        <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-xs">
+                          {friend.username?.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-background" />
+                    </div>
+                    <span className="text-sm font-medium">{friend.username}</span>
+                  </button>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </section>
+      </div>
 
       {/* Modals */}
       <WalletConnectModal
