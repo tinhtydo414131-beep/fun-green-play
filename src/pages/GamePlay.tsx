@@ -53,7 +53,7 @@ import PetParadise from "@/components/games/PetParadise";
 import MusicCreator from "@/components/games/MusicCreator";
 import FlowerField from "@/components/games/FlowerField";
 import LilBlockBuddy from "@/components/games/LilBlockBuddy";
-import { Game2048Nexus } from "@/components/games/Game2048Nexus";
+
 import { HappyKitchenJoy } from "@/components/games/HappyKitchenJoy";
 import { CookingMama } from "@/components/games/CookingMama";
 import SchoolBuilder from "@/components/games/SchoolBuilder";
@@ -122,7 +122,7 @@ import HappyPark3D from "@/components/games/HappyPark3D";
 import CommunityHub3D from "@/components/games/CommunityHub3D";
 import LilBlockBuddy3D from "@/components/games/LilBlockBuddy3D";
 import CookingMama3D from "@/components/games/CookingMama3D";
-import Game2048Nexus3D from "@/components/games/Game2048Nexus3D";
+
 import HappyKitchenJoy3D from "@/components/games/HappyKitchenJoy3D";
 import GoldHookMaster3D from "@/components/games/GoldHookMaster3D";
 
@@ -456,11 +456,6 @@ const GamePlay = () => {
         return <CookingMama3D {...gameProps} />;
       case "CookingMama2D": return <CookingMama />;
 
-      case "Game2048Nexus": 
-      case "2048-nexus":
-        return <Game2048Nexus3D {...gameProps} />;
-      case "Game2048Nexus2D":
-        return <Game2048Nexus {...gameProps} />;
       case "HappyKitchenJoy": 
       case "happy-kitchen-joy":
         return <HappyKitchenJoy3D {...gameProps} />;
