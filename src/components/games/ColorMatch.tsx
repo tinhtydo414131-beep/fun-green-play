@@ -81,7 +81,7 @@ export const ColorMatch = ({
   };
 
   return (
-    <div className="flex flex-col items-center gap-8 p-6 animate-fade-in">
+    <div className="flex flex-col items-center gap-8 p-6 animate-fade-in min-h-screen bg-white">
       <div className="text-center space-y-4">
         <h2 className="text-4xl font-fredoka font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
           🎨 Đố Màu Sắc
