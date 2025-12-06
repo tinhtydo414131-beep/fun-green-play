@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Trophy, Medal, Star, Home, Send, Copy, Check, Coins, Gift } from "lucide-react";
+import { Trophy, Medal, Star, Send, Copy, Check, Coins, Gift } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -145,7 +145,7 @@ export default function Leaderboard() {
           {/* Back to Home Button */}
           <div className="mb-4 sm:mb-8">
             <Button onClick={() => navigate("/")} variant="outline" size="default" className="font-bold group text-sm sm:text-base">
-              <Home className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 text-primary group-hover:scale-110 transition-transform" />
+              
               <span>Về Trang Chính</span>
             </Button>
           </div>
