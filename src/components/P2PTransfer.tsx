@@ -36,67 +36,66 @@ export function P2PTransfer({ account, userId, camlyBalance, onTransferComplete 
   const [recipientInfo, setRecipientInfo] = useState<{
     address: string;
     username?: string;
-    userId?: string;
+    recipientUserId?: string;
   } | null>(null);
 
   const validateRecipient = async () => {
     if (!recipientInput.trim()) {
-      toast.error("Please enter a wallet address or username");
+      toast.error("Vui lòng nhập địa chỉ ví hoặc username");
       return;
     }
 
     setValidatingRecipient(true);
     try {
-      // Check if input is a valid Ethereum address
-      const isAddress = /^0x[a-fA-F0-9]{40}$/.test(recipientInput);
+      const isAddress = /^0x[a-fA-F0-9]{40}$/.test(recipientInput.trim());
       
-      if (isAddress) {
-        // Look up profile by wallet address
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("id, username, wallet_address")
-          .eq("wallet_address", recipientInput.toLowerCase())
-          .maybeSingle();
+      // Sử dụng security definer function để tìm user
+      const { data: userResult, error } = await supabase
+        .rpc('find_user_for_transfer', { p_search_input: recipientInput.trim() });
 
-        if (profile) {
+      if (error) {
+        console.error("Error finding user:", error);
+        
+        // Nếu là địa chỉ ví hợp lệ, vẫn cho phép gửi
+        if (isAddress) {
           setRecipientInfo({
-            address: recipientInput.toLowerCase(),
-            username: profile.username,
-            userId: profile.id
+            address: recipientInput.trim().toLowerCase()
           });
-          toast.success(`✓ Found user: ${profile.username}`);
+          toast.success("✓ Địa chỉ ví hợp lệ (external wallet)");
         } else {
-          setRecipientInfo({
-            address: recipientInput.toLowerCase()
-          });
-          toast.success("✓ Valid wallet address (external user)");
+          toast.error("Không tìm thấy user. Thử dùng địa chỉ ví.");
+          setRecipientInfo(null);
         }
+        return;
+      }
+
+      const foundUser = userResult?.[0];
+
+      if (foundUser && foundUser.wallet_address) {
+        // Tìm thấy user có ví
+        setRecipientInfo({
+          address: foundUser.wallet_address.toLowerCase(),
+          username: foundUser.username,
+          recipientUserId: foundUser.user_id
+        });
+        toast.success(`✓ Đã tìm thấy: ${foundUser.username}`);
+      } else if (foundUser && !foundUser.wallet_address) {
+        // User chưa kết nối ví
+        toast.error("User này chưa kết nối ví!");
+        setRecipientInfo(null);
+      } else if (isAddress) {
+        // Không tìm thấy user nhưng là địa chỉ hợp lệ
+        setRecipientInfo({
+          address: recipientInput.trim().toLowerCase()
+        });
+        toast.success("✓ Địa chỉ ví hợp lệ (external wallet)");
       } else {
-        // Look up profile by username
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("id, username, wallet_address")
-          .ilike("username", recipientInput.trim())
-          .maybeSingle();
-
-        if (profile && profile.wallet_address) {
-          setRecipientInfo({
-            address: profile.wallet_address,
-            username: profile.username,
-            userId: profile.id
-          });
-          toast.success(`✓ Found user: ${profile.username}`);
-        } else if (profile && !profile.wallet_address) {
-          toast.error("This user hasn't connected their wallet yet");
-          setRecipientInfo(null);
-        } else {
-          toast.error("Username not found. Try using wallet address instead.");
-          setRecipientInfo(null);
-        }
+        toast.error("Không tìm thấy username. Thử dùng địa chỉ ví.");
+        setRecipientInfo(null);
       }
     } catch (error) {
       console.error("Error validating recipient:", error);
-      toast.error("Failed to validate recipient");
+      toast.error("Lỗi khi xác thực người nhận");
       setRecipientInfo(null);
     } finally {
       setValidatingRecipient(false);
@@ -105,19 +104,25 @@ export function P2PTransfer({ account, userId, camlyBalance, onTransferComplete 
 
   const handleSend = async () => {
     if (!recipientInfo) {
-      toast.error("Please validate recipient first");
+      toast.error("Vui lòng xác thực người nhận trước");
       return;
     }
 
     const sendAmount = parseFloat(amount);
     if (isNaN(sendAmount) || sendAmount <= 0) {
-      toast.error("Please enter a valid amount");
+      toast.error("Vui lòng nhập số tiền hợp lệ");
       return;
     }
 
     const currentBalance = parseFloat(camlyBalance);
     if (sendAmount > currentBalance) {
-      toast.error(`Insufficient balance! You have ${camlyBalance} CAMLY`);
+      toast.error(`Số dư không đủ! Bạn có ${camlyBalance} CAMLY`);
+      return;
+    }
+
+    // Không cho gửi cho chính mình
+    if (recipientInfo.address.toLowerCase() === account.toLowerCase()) {
+      toast.error("Không thể gửi cho chính mình!");
       return;
     }
 
@@ -136,33 +141,38 @@ export function P2PTransfer({ account, userId, camlyBalance, onTransferComplete 
         amountWei: amountWei.toString()
       });
 
-      toast.info("Please confirm transaction in MetaMask... 🦊");
+      toast.info("Vui lòng xác nhận giao dịch trong MetaMask... 🦊");
       
       const tx = await contract.transfer(recipientInfo.address, amountWei);
       console.log("✅ Transaction sent:", tx.hash);
       
-      toast.success("Transaction sent! Waiting for confirmation... ⏳");
+      toast.success("Giao dịch đã gửi! Đang chờ xác nhận... ⏳");
       
       const receipt = await tx.wait();
       console.log("✅ Transaction confirmed:", receipt.hash);
 
-      // Record transaction in database
-      const { error: insertError } = await supabase.from("wallet_transactions").insert({
-        from_user_id: userId,
-        to_user_id: recipientInfo.userId || null,
-        amount: sendAmount,
-        token_type: "CAMLY",
-        transaction_type: "transfer",
-        status: "completed",
-        transaction_hash: tx.hash,
-        notes: notes || `Transfer to ${recipientInfo.username || recipientInfo.address}`
-      });
+      // Ghi lại giao dịch vào database
+      try {
+        const { error: insertError } = await supabase.from("wallet_transactions").insert({
+          from_user_id: userId,
+          to_user_id: recipientInfo.recipientUserId || null,
+          amount: sendAmount,
+          token_type: "CAMLY",
+          transaction_type: "transfer",
+          status: "completed",
+          transaction_hash: tx.hash,
+          notes: notes || `Gửi đến ${recipientInfo.username || recipientInfo.address.slice(0, 10)}...`
+        });
 
-      if (insertError) {
-        console.error("Error recording transaction:", insertError);
+        if (insertError) {
+          console.error("Error recording transaction:", insertError);
+          // Không throw error vì giao dịch blockchain đã thành công
+        }
+      } catch (dbError) {
+        console.error("Database error:", dbError);
       }
 
-      // Success celebration
+      // Celebration
       confetti({
         particleCount: 100,
         spread: 70,
@@ -170,7 +180,7 @@ export function P2PTransfer({ account, userId, camlyBalance, onTransferComplete 
         colors: ['#22c55e', '#4ade80', '#86efac']
       });
 
-      toast.success(`🎉 Successfully sent ${amount} CAMLY!`);
+      toast.success(`🎉 Đã gửi thành công ${amount} CAMLY!`);
       
       // Reset form
       setRecipientInput("");
@@ -184,12 +194,14 @@ export function P2PTransfer({ account, userId, camlyBalance, onTransferComplete 
     } catch (error: any) {
       console.error("Transfer error:", error);
       
-      if (error.code === 4001) {
-        toast.error("❌ Transaction rejected by user");
+      if (error.code === 4001 || error.code === "ACTION_REJECTED") {
+        toast.error("❌ Giao dịch bị từ chối");
       } else if (error.message?.includes("insufficient funds")) {
-        toast.error("❌ Insufficient CAMLY balance!");
+        toast.error("❌ Số dư CAMLY không đủ!");
+      } else if (error.message?.includes("gas")) {
+        toast.error("❌ Không đủ BNB để trả phí gas!");
       } else {
-        toast.error(`❌ Transfer failed: ${error.message || "Unknown error"}`);
+        toast.error(`❌ Gửi thất bại: ${error.shortMessage || error.message || "Lỗi không xác định"}`);
       }
     } finally {
       setSending(false);
@@ -240,14 +252,14 @@ export function P2PTransfer({ account, userId, camlyBalance, onTransferComplete 
                 <>
                   <User className="w-4 h-4 text-green-600" />
                   <span className="text-sm text-green-700 dark:text-green-300">
-                    Sending to <strong>{recipientInfo.username}</strong>
+                    Gửi đến <strong>{recipientInfo.username}</strong>
                   </span>
                 </>
               ) : (
                 <>
                   <Wallet className="w-4 h-4 text-green-600" />
                   <span className="text-sm text-green-700 dark:text-green-300">
-                    External wallet validated ✓
+                    Ví ngoài đã xác thực ✓
                   </span>
                 </>
               )}
@@ -292,6 +304,7 @@ export function P2PTransfer({ account, userId, camlyBalance, onTransferComplete 
             placeholder="Add a message..."
             disabled={!recipientInfo || sending}
             rows={2}
+            maxLength={200}
           />
         </div>
 
@@ -305,7 +318,7 @@ export function P2PTransfer({ account, userId, camlyBalance, onTransferComplete 
           {sending ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Sending...
+              Đang gửi...
             </>
           ) : (
             <>

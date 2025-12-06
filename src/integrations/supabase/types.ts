@@ -2554,6 +2554,14 @@ export type Database = {
         Returns: boolean
       }
       cleanup_expired_nonces: { Args: never; Returns: undefined }
+      find_user_for_transfer: {
+        Args: { p_search_input: string }
+        Returns: {
+          user_id: string
+          username: string
+          wallet_address: string
+        }[]
+      }
       get_or_create_daily_reward: {
         Args: { p_user_id: string }
         Returns: {
