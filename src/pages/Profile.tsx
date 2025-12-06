@@ -16,7 +16,7 @@ import {
 import { toast } from "sonner";
 import { AvatarUpload } from "@/components/AvatarUpload";
 import { JoyBot } from "@/components/JoyBot";
-
+import { HonorBoard } from "@/components/profile/HonorBoard";
 import { ProfileBadges } from "@/components/profile/ProfileBadges";
 import { AchievementNFTMinter } from "@/components/profile/AchievementNFTMinter";
 import { ReferralTierProgress } from "@/components/ReferralTierProgress";
@@ -280,8 +280,12 @@ export default function Profile() {
           </motion.div>
 
           {/* Tabs */}
-          <Tabs defaultValue="nfts" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3 lg:grid-cols-3 h-auto p-1 bg-muted/50">
+          <Tabs defaultValue="overview" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-4 h-auto p-1 bg-muted/50">
+              <TabsTrigger value="overview" className="font-fredoka py-3">
+                <Trophy className="w-4 h-4 mr-2" />
+                Honor Board
+              </TabsTrigger>
               <TabsTrigger value="nfts" className="font-fredoka py-3">
                 <Sparkles className="w-4 h-4 mr-2" />
                 NFTs
@@ -295,6 +299,16 @@ export default function Profile() {
                 Referral
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="overview">
+              <HonorBoard 
+                profile={{
+                  ...profile,
+                  wallet_address: profile.wallet_address
+                }} 
+                userRank={userRank} 
+              />
+            </TabsContent>
 
             <TabsContent value="nfts">
               <AchievementNFTMinter walletAddress={profile.wallet_address} />
