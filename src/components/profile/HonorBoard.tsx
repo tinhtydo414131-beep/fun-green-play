@@ -357,9 +357,9 @@ export function HonorBoard({ profile, userRank, compact = false }: HonorBoardPro
                   'border-orange-400 shadow-orange-400/20'}
                 ${isCurrentUser ? 'ring-2 md:ring-4 ring-purple-500 ring-offset-1 md:ring-offset-2' : ''}
               `}>
-                {/* Top Gradient Section */}
+                {/* Top Gradient Section - Horizontal */}
                 <div className={`
-                  p-2 md:p-4 text-center relative overflow-hidden
+                  p-2 md:p-4 relative overflow-hidden flex items-center justify-center gap-2 md:gap-3
                   ${pos === 1 ? 'bg-gradient-to-br from-yellow-300 via-yellow-400 to-orange-400' : 
                     pos === 2 ? 'bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 dark:from-gray-600 dark:via-gray-500 dark:to-gray-400' : 
                     'bg-gradient-to-br from-orange-300 via-orange-400 to-amber-500'}
@@ -378,7 +378,7 @@ export function HonorBoard({ profile, userRank, compact = false }: HonorBoardPro
                   
                   {/* Avatar */}
                   <Avatar className={`
-                    mx-auto mt-2 border-2 md:border-4 border-white shadow-lg
+                    border-2 md:border-4 border-white shadow-lg
                     ${pos === 1 ? 'h-12 w-12 md:h-16 md:w-16' : 'h-10 w-10 md:h-14 md:w-14'}
                   `}>
                     <AvatarImage src={player.avatar_url || ""} />
