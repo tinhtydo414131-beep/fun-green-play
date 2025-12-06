@@ -1469,15 +1469,132 @@ export type Database = {
           },
         ]
       }
+      post_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          post_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          post_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          post_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_likes: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          reaction_type: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          reaction_type?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          reaction_type?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          comments_count: number | null
+          content: string
+          created_at: string
+          feeling: string | null
+          id: string
+          image_url: string | null
+          likes_count: number | null
+          privacy: string | null
+          shares_count: number | null
+          updated_at: string
+          user_id: string
+          video_url: string | null
+        }
+        Insert: {
+          comments_count?: number | null
+          content: string
+          created_at?: string
+          feeling?: string | null
+          id?: string
+          image_url?: string | null
+          likes_count?: number | null
+          privacy?: string | null
+          shares_count?: number | null
+          updated_at?: string
+          user_id: string
+          video_url?: string | null
+        }
+        Update: {
+          comments_count?: number | null
+          content?: string
+          created_at?: string
+          feeling?: string | null
+          id?: string
+          image_url?: string | null
+          likes_count?: number | null
+          privacy?: string | null
+          shares_count?: number | null
+          updated_at?: string
+          user_id?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           bio: string | null
+          bio_full: string | null
+          cover_url: string | null
           created_at: string | null
+          education: string | null
           email: string
           id: string
           leaderboard_score: number | null
+          location: string | null
           referral_code: string | null
+          relationship_status: string | null
           total_friends: number | null
           total_likes: number | null
           total_messages: number | null
@@ -1486,15 +1603,21 @@ export type Database = {
           username: string
           wallet_address: string | null
           wallet_balance: number | null
+          workplace: string | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          bio_full?: string | null
+          cover_url?: string | null
           created_at?: string | null
+          education?: string | null
           email: string
           id: string
           leaderboard_score?: number | null
+          location?: string | null
           referral_code?: string | null
+          relationship_status?: string | null
           total_friends?: number | null
           total_likes?: number | null
           total_messages?: number | null
@@ -1503,15 +1626,21 @@ export type Database = {
           username: string
           wallet_address?: string | null
           wallet_balance?: number | null
+          workplace?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          bio_full?: string | null
+          cover_url?: string | null
           created_at?: string | null
+          education?: string | null
           email?: string
           id?: string
           leaderboard_score?: number | null
+          location?: string | null
           referral_code?: string | null
+          relationship_status?: string | null
           total_friends?: number | null
           total_likes?: number | null
           total_messages?: number | null
@@ -1520,6 +1649,7 @@ export type Database = {
           username?: string
           wallet_address?: string | null
           wallet_balance?: number | null
+          workplace?: string | null
         }
         Relationships: []
       }
