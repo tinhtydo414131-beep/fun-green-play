@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { AvatarUpload } from "@/components/AvatarUpload";
 import { JoyBot } from "@/components/JoyBot";
 import { HonorBoard } from "@/components/profile/HonorBoard";
+import { FacebookFeatureMenu } from "@/components/profile/FacebookFeatureMenu";
 import { WalletConnectModal } from "@/components/WalletConnectModal";
 import { ClaimRewardsModal } from "@/components/ClaimRewardsModal";
 import { Web3RewardNotification } from "@/components/Web3RewardNotification";
@@ -667,63 +668,8 @@ export default function Profile() {
               </CardContent>
             </Card>
 
-            {/* Facebook-style Feature Buttons Grid */}
-            <Card className="shadow-sm">
-              <CardContent className="p-4">
-                <div className="grid grid-cols-4 gap-1">
-                  <FeatureButton
-                    icon={Gamepad2}
-                    label="Games"
-                    gradient="bg-gradient-to-br from-blue-500 to-indigo-600"
-                    onClick={() => navigate('/games')}
-                  />
-                  <FeatureButton
-                    icon={Users}
-                    label="Friends"
-                    gradient="bg-gradient-to-br from-green-500 to-emerald-600"
-                    badge={3}
-                    onClick={() => navigate('/friends')}
-                  />
-                  <FeatureButton
-                    icon={MessageCircle}
-                    label="Chat"
-                    gradient="bg-gradient-to-br from-purple-500 to-pink-600"
-                    badge={5}
-                    onClick={() => navigate('/chat')}
-                  />
-                  <FeatureButton
-                    icon={Trophy}
-                    label="Rank"
-                    gradient="bg-gradient-to-br from-yellow-500 to-orange-600"
-                    onClick={() => navigate('/camly-leaderboard')}
-                  />
-                  <FeatureButton
-                    icon={Music}
-                    label="Music"
-                    gradient="bg-gradient-to-br from-pink-500 to-rose-600"
-                    onClick={() => navigate('/music')}
-                  />
-                  <FeatureButton
-                    icon={Store}
-                    label="Market"
-                    gradient="bg-gradient-to-br from-teal-500 to-cyan-600"
-                    onClick={() => toast.info("Marketplace coming soon!")}
-                  />
-                  <FeatureButton
-                    icon={PlayCircle}
-                    label="Watch"
-                    gradient="bg-gradient-to-br from-red-500 to-pink-600"
-                    onClick={() => toast.info("Watch feature coming soon!")}
-                  />
-                  <FeatureButton
-                    icon={Gift}
-                    label="Rewards"
-                    gradient="bg-gradient-to-br from-amber-500 to-yellow-600"
-                    onClick={() => navigate('/rewards-history')}
-                  />
-                </div>
-              </CardContent>
-            </Card>
+            {/* Facebook-style Feature Buttons */}
+            <FacebookFeatureMenu variant="grid" showQuickActions={true} />
 
             {/* Create Post */}
             <Card className="shadow-sm">
