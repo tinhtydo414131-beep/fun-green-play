@@ -14,12 +14,11 @@ export default {
     },
     extend: {
       fontFamily: {
-        'space': ['Space Grotesk', 'system-ui', 'sans-serif'],
-        'rajdhani': ['Rajdhani', 'system-ui', 'sans-serif'],
+        'inter': ['Inter', 'system-ui', 'sans-serif'],
+        'poppins': ['Poppins', 'system-ui', 'sans-serif'],
         'orbitron': ['Orbitron', 'system-ui', 'sans-serif'],
         'fredoka': ['Fredoka', 'system-ui', 'sans-serif'],
-        'comic': ['Comic Neue', 'cursive', 'system-ui'],
-        'sans': ['Space Grotesk', 'Rajdhani', 'system-ui', 'sans-serif'],
+        'sans': ['Inter', 'Poppins', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",

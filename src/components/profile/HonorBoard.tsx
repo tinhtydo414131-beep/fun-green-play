@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { 
   Trophy, Gamepad2, Users, Music, Upload, 
   Coins, Crown, Wallet, TrendingUp, Star, Sparkles,
-  CheckCircle, Image as ImageIcon, RefreshCw, Zap, Medal
+  CheckCircle, Image as ImageIcon, RefreshCw, Zap, Medal,
+  Search, SortDesc
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -45,10 +47,11 @@ interface TopUser {
   total_plays: number;
 }
 
-// NFT Contract addresses for game collection (example - replace with actual)
 const GAME_NFT_CONTRACTS = [
-  "0x1234567890123456789012345678901234567890", // Example contract
+  "0x1234567890123456789012345678901234567890",
 ];
+
+const ITEMS_PER_PAGE = 10;
 
 export function HonorBoard({ profile, userRank }: HonorBoardProps) {
   const { user } = useAuth();
@@ -66,53 +69,48 @@ export function HonorBoard({ profile, userRank }: HonorBoardProps) {
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState(false);
   const [scanningNFTs, setScanningNFTs] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"score" | "plays">("score");
+  const [displayCount, setDisplayCount] = useState(ITEMS_PER_PAGE);
+  const [hasMore, setHasMore] = useState(true);
 
   const fetchHonorStats = useCallback(async () => {
     if (!user) return;
     
     try {
-      // Get all camly transactions for total income
       const { data: transactions } = await supabase
         .from("camly_coin_transactions")
         .select("amount, transaction_type")
         .eq("user_id", user.id);
 
-      // Calculate total income from all transactions
       const totalFromTransactions = transactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
 
-      // Get uploaded games count
       const { count: gamesCount } = await supabase
         .from("uploaded_games")
         .select("*", { count: "exact", head: true })
         .eq("user_id", user.id);
 
-      // Get approved games for bonus calculation
       const { count: approvedGames } = await supabase
         .from("uploaded_games")
         .select("*", { count: "exact", head: true })
         .eq("user_id", user.id)
         .eq("status", "approved");
 
-      // Get uploaded music count (from healing_music if admin, or user music)
       const { count: musicCount } = await supabase
         .from("healing_music_432hz")
         .select("*", { count: "exact", head: true });
 
-      // Get games played count from game_plays
       const { count: playsCount } = await supabase
         .from("game_plays")
         .select("*", { count: "exact", head: true })
         .eq("user_id", user.id);
 
-      // Check how many upload bonuses already claimed
       const claimedBonuses = transactions?.filter(t => t.transaction_type === "game_upload_bonus") || [];
       const claimedUploadBonus = claimedBonuses.reduce((sum, t) => sum + (t.amount || 0), 0);
 
-      // Calculate unclaimed rewards (approved games * 1M each - already claimed)
       const totalPossibleBonus = (approvedGames || 0) * 1000000;
       const unclaimedRewards = Math.max(0, totalPossibleBonus - claimedUploadBonus);
 
-      // Total income = wallet balance + transactions
       const totalIncome = profile.wallet_balance + totalFromTransactions;
 
       setStats({
@@ -137,15 +135,16 @@ export function HonorBoard({ profile, userRank }: HonorBoardProps) {
       const { data, error } = await supabase
         .from("profiles")
         .select("id, username, avatar_url, wallet_balance, total_plays")
-        .order("wallet_balance", { ascending: false })
-        .limit(10);
+        .order(sortBy === "score" ? "wallet_balance" : "total_plays", { ascending: false })
+        .limit(50);
 
       if (error) throw error;
       setTopUsers(data || []);
+      setHasMore((data?.length || 0) > displayCount);
     } catch (error) {
       console.error("Error fetching top users:", error);
     }
-  }, []);
+  }, [sortBy, displayCount]);
 
   const scanWalletNFTs = async () => {
     if (!profile.wallet_address) {
@@ -155,11 +154,8 @@ export function HonorBoard({ profile, userRank }: HonorBoardProps) {
 
     setScanningNFTs(true);
     try {
-      // Use ethers.js to scan for NFTs
       if (typeof window !== "undefined" && (window as any).ethereum) {
         const provider = new ethers.BrowserProvider((window as any).ethereum);
-        
-        // ERC721 interface for balanceOf
         const erc721ABI = ["function balanceOf(address owner) view returns (uint256)"];
         
         let totalNFTs = 0;
@@ -170,13 +166,12 @@ export function HonorBoard({ profile, userRank }: HonorBoardProps) {
             const balance = await contract.balanceOf(profile.wallet_address);
             totalNFTs += Number(balance);
           } catch (err) {
-            // Contract might not exist on this network
             console.log(`Contract ${contractAddress} not found`);
           }
         }
         
         setStats(prev => ({ ...prev, nftCount: totalNFTs }));
-        toast.success(`Found ${totalNFTs} NFTs in your collection! 🎨`);
+        toast.success(`Found ${totalNFTs} NFTs in your collection!`);
       } else {
         toast.error("Please install MetaMask to scan NFTs");
       }
@@ -196,17 +191,13 @@ export function HonorBoard({ profile, userRank }: HonorBoardProps) {
 
     setClaiming(true);
     try {
-      // Update wallet balance
       const { error } = await supabase
         .from("profiles")
-        .update({ 
-          wallet_balance: profile.wallet_balance + stats.unclaimedRewards 
-        })
+        .update({ wallet_balance: profile.wallet_balance + stats.unclaimedRewards })
         .eq("id", user?.id);
 
       if (error) throw error;
 
-      // Record transaction
       await supabase.from("camly_coin_transactions").insert({
         user_id: user?.id,
         amount: stats.unclaimedRewards,
@@ -214,7 +205,7 @@ export function HonorBoard({ profile, userRank }: HonorBoardProps) {
         description: `Bonus for ${stats.approvedGames} approved games (1M each)`
       });
 
-      toast.success(`Claimed ${stats.unclaimedRewards.toLocaleString()} CAMLY! 🎉`);
+      toast.success(`Claimed ${stats.unclaimedRewards.toLocaleString()} CAMLY!`);
       setStats(prev => ({ 
         ...prev, 
         unclaimedRewards: 0,
@@ -229,7 +220,10 @@ export function HonorBoard({ profile, userRank }: HonorBoardProps) {
     }
   };
 
-  // Initial fetch
+  const loadMore = () => {
+    setDisplayCount(prev => prev + ITEMS_PER_PAGE);
+  };
+
   useEffect(() => {
     if (user) {
       fetchHonorStats();
@@ -237,58 +231,22 @@ export function HonorBoard({ profile, userRank }: HonorBoardProps) {
     }
   }, [user, fetchHonorStats, fetchTopUsers]);
 
-  // Real-time updates for profiles changes
   useEffect(() => {
     const channel = supabase
       .channel('honor-board-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'profiles'
-        },
-        () => {
-          fetchTopUsers();
-          fetchHonorStats();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'camly_coin_transactions',
-          filter: `user_id=eq.${user?.id}`
-        },
-        () => {
-          fetchHonorStats();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'uploaded_games',
-          filter: `user_id=eq.${user?.id}`
-        },
-        () => {
-          fetchHonorStats();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'game_plays',
-          filter: `user_id=eq.${user?.id}`
-        },
-        () => {
-          fetchHonorStats();
-        }
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+        fetchTopUsers();
+        fetchHonorStats();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'camly_coin_transactions', filter: `user_id=eq.${user?.id}` }, () => {
+        fetchHonorStats();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'uploaded_games', filter: `user_id=eq.${user?.id}` }, () => {
+        fetchHonorStats();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'game_plays', filter: `user_id=eq.${user?.id}` }, () => {
+        fetchHonorStats();
+      })
       .subscribe();
 
     return () => {
@@ -297,12 +255,15 @@ export function HonorBoard({ profile, userRank }: HonorBoardProps) {
   }, [user, fetchHonorStats, fetchTopUsers]);
 
   const getRankBadge = (rank: number) => {
-    if (rank === 1) return { icon: "🥇", color: "from-yellow-400 to-yellow-600", label: "Champion" };
-    if (rank === 2) return { icon: "🥈", color: "from-gray-300 to-gray-500", label: "Runner-up" };
-    if (rank === 3) return { icon: "🥉", color: "from-orange-400 to-orange-600", label: "Third" };
-    if (rank <= 10) return { icon: "⭐", color: "from-blue-400 to-blue-600", label: "Top 10" };
-    return { icon: "🎮", color: "from-primary to-secondary", label: "Player" };
+    if (rank === 1) return { icon: "🥇", color: "rank-badge-1", label: "Champion" };
+    if (rank === 2) return { icon: "🥈", color: "rank-badge-2", label: "Runner-up" };
+    if (rank === 3) return { icon: "🥉", color: "rank-badge-3", label: "Third" };
+    return { icon: `${rank}`, color: "rank-badge-regular", label: "Player" };
   };
+
+  const filteredUsers = topUsers.filter(u => 
+    u.username?.toLowerCase().includes(searchQuery.toLowerCase())
+  ).slice(0, displayCount);
 
   const honorItems = [
     {
@@ -311,8 +272,7 @@ export function HonorBoard({ profile, userRank }: HonorBoardProps) {
       value: `#${userRank || "—"}`,
       color: "from-yellow-500 to-orange-500",
       bgColor: "bg-yellow-500/10",
-      description: "Based on total income",
-      badge: getRankBadge(userRank)
+      description: "Based on total income"
     },
     {
       icon: Coins,
@@ -334,8 +294,7 @@ export function HonorBoard({ profile, userRank }: HonorBoardProps) {
       value: stats.gamesUploaded.toString(),
       color: "from-green-500 to-emerald-500",
       bgColor: "bg-green-500/10",
-      description: `${stats.approvedGames} approved (1M each)`,
-      badge: stats.approvedGames > 0 ? { icon: "✅", label: `${stats.approvedGames} approved` } : undefined
+      description: `${stats.approvedGames} approved`
     },
     {
       icon: Users,
@@ -347,7 +306,7 @@ export function HonorBoard({ profile, userRank }: HonorBoardProps) {
     },
     {
       icon: Music,
-      label: "Music Uploaded",
+      label: "Music",
       value: stats.musicUploaded.toString(),
       color: "from-pink-500 to-rose-500",
       bgColor: "bg-pink-500/10",
@@ -360,127 +319,151 @@ export function HonorBoard({ profile, userRank }: HonorBoardProps) {
       color: "from-purple-500 to-violet-500",
       bgColor: "bg-purple-500/10",
       description: "Play sessions"
-    },
-    {
-      icon: ImageIcon,
-      label: "NFTs Owned",
-      value: stats.nftCount.toString(),
-      color: "from-indigo-500 to-purple-500",
-      bgColor: "bg-indigo-500/10",
-      description: "Game collection NFTs",
-      action: {
-        label: scanningNFTs ? "Scanning..." : "Scan Wallet",
-        onClick: scanWalletNFTs,
-        loading: scanningNFTs,
-        variant: "outline" as const
-      }
     }
   ];
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {[...Array(7)].map((_, i) => (
-          <Card key={i} className="animate-pulse">
-            <CardContent className="p-6">
-              <div className="h-24 bg-muted rounded-lg" />
-            </CardContent>
-          </Card>
+      <div className="space-y-6">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="animate-pulse bg-muted rounded-xl h-20" />
         ))}
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      {/* Top Users Leaderboard */}
-      <Card className="border-2 border-yellow-500/30 bg-gradient-to-br from-card via-yellow-500/5 to-orange-500/5 overflow-hidden">
-        <CardHeader className="pb-2">
-          <CardTitle className="font-fredoka flex items-center gap-2 text-xl">
-            <Trophy className="w-6 h-6 text-yellow-500" />
-            Top Players Leaderboard
-            <Badge variant="secondary" className="ml-2">
-              <Zap className="w-3 h-3 mr-1" />
-              Live
-            </Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <AnimatePresence mode="popLayout">
-              {topUsers.map((topUser, index) => {
-                const rankBadge = getRankBadge(index + 1);
-                const isCurrentUser = topUser.id === user?.id;
-                
-                return (
-                  <motion.div
-                    key={topUser.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                    layout
-                    className={`flex items-center gap-3 p-3 rounded-xl transition-all ${
-                      isCurrentUser 
-                        ? "bg-primary/20 border-2 border-primary/40 shadow-lg" 
-                        : "bg-muted/30 hover:bg-muted/50"
-                    }`}
-                  >
-                    {/* Rank */}
-                    <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${rankBadge.color} flex items-center justify-center shadow-md`}>
-                      <span className="text-lg">{rankBadge.icon}</span>
-                    </div>
-                    
-                    {/* Avatar */}
-                    <Avatar className="h-10 w-10 border-2 border-background">
-                      <AvatarImage src={topUser.avatar_url || ""} />
-                      <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white font-bold">
-                        {topUser.username?.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    
-                    {/* User Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className={`font-fredoka font-bold truncate ${isCurrentUser ? "text-primary" : ""}`}>
-                          {topUser.username}
-                        </span>
-                        {isCurrentUser && (
-                          <Badge variant="outline" className="text-xs border-primary/50 text-primary">
-                            You
-                          </Badge>
-                        )}
-                        {index < 3 && (
-                          <Crown className={`w-4 h-4 ${index === 0 ? "text-yellow-500" : index === 1 ? "text-gray-400" : "text-orange-500"}`} />
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        {topUser.total_plays} games played
-                      </p>
-                    </div>
-                    
-                    {/* Income */}
-                    <div className="text-right">
-                      <p className="font-fredoka font-bold text-lg bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
-                        {topUser.wallet_balance.toLocaleString()}
-                      </p>
-                      <p className="text-xs text-muted-foreground">CAMLY</p>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
+    <div className="space-y-10 md:space-y-16">
+      {/* Top Players Leaderboard - Card-based design */}
+      <section>
+        <div className="flex flex-col gap-4 mb-6">
+          <div className="flex items-center justify-between">
+            <h2 className="font-inter font-bold text-xl md:text-2xl flex items-center gap-3">
+              <Trophy className="w-6 h-6 md:w-7 md:h-7 text-yellow-500" />
+              Top Players
+              <Badge variant="secondary" className="ml-2 text-xs">
+                <Zap className="w-3 h-3 mr-1" />
+                Live
+              </Badge>
+            </h2>
           </div>
-        </CardContent>
-      </Card>
+          
+          {/* Search and Sort Controls */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                placeholder="Search player..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-12 rounded-xl text-base"
+              />
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => setSortBy(prev => prev === "score" ? "plays" : "score")}
+              className="h-12 rounded-xl gap-2 font-semibold"
+            >
+              <SortDesc className="w-5 h-5" />
+              Sort by {sortBy === "score" ? "Score" : "Plays"}
+            </Button>
+          </div>
+        </div>
+
+        {/* Leaderboard Cards */}
+        <div className="space-y-3">
+          <AnimatePresence mode="popLayout">
+            {filteredUsers.map((topUser, index) => {
+              const rank = index + 1;
+              const rankBadge = getRankBadge(rank);
+              const isCurrentUser = topUser.id === user?.id;
+              const isTopThree = rank <= 3;
+              
+              return (
+                <motion.div
+                  key={topUser.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3, delay: index * 0.03 }}
+                  layout
+                  className={`
+                    honor-card
+                    ${isTopThree ? `honor-card-top honor-card-${rank}` : 'honor-card-regular'}
+                    ${isCurrentUser ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}
+                  `}
+                >
+                  {/* Rank Badge */}
+                  <div className={`rank-badge ${rankBadge.color} shrink-0`}>
+                    {isTopThree ? (
+                      <span className="text-2xl">{rankBadge.icon}</span>
+                    ) : (
+                      <span className="font-bold">{rank}</span>
+                    )}
+                  </div>
+                  
+                  {/* Avatar */}
+                  <Avatar className="h-12 w-12 border-2 border-background shrink-0">
+                    <AvatarImage src={topUser.avatar_url || ""} />
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-primary-foreground font-bold text-lg">
+                      {topUser.username?.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  
+                  {/* User Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`font-inter font-bold text-base truncate ${isCurrentUser ? 'text-primary' : 'text-foreground'}`}>
+                        {topUser.username}
+                      </span>
+                      {isCurrentUser && (
+                        <Badge variant="outline" className="text-xs border-primary text-primary font-semibold">
+                          You
+                        </Badge>
+                      )}
+                      {isTopThree && (
+                        <Crown className={`w-5 h-5 ${rank === 1 ? 'text-yellow-500' : rank === 2 ? 'text-gray-400' : 'text-orange-500'}`} />
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground font-medium">
+                      {topUser.total_plays} games played
+                    </p>
+                  </div>
+                  
+                  {/* Score */}
+                  <div className="text-right shrink-0">
+                    <p className="font-inter font-extrabold text-lg md:text-xl bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+                      {topUser.wallet_balance.toLocaleString()}
+                    </p>
+                    <p className="text-xs text-muted-foreground font-medium">CAMLY</p>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </div>
+
+        {/* Load More Button */}
+        {hasMore && filteredUsers.length >= displayCount && (
+          <div className="mt-6 text-center">
+            <Button
+              variant="outline"
+              onClick={loadMore}
+              className="h-12 px-8 rounded-xl font-semibold"
+            >
+              Load More
+            </Button>
+          </div>
+        )}
+      </section>
 
       {/* Personal Stats Grid */}
-      <div>
-        <h3 className="font-fredoka text-xl mb-4 flex items-center gap-2">
-          <Medal className="w-5 h-5 text-primary" />
+      <section>
+        <h3 className="font-inter font-bold text-xl md:text-2xl mb-6 flex items-center gap-3">
+          <Medal className="w-6 h-6 text-primary" />
           Your Honor Stats
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
           {honorItems.map((item, index) => (
             <motion.div
               key={item.label}
@@ -488,37 +471,31 @@ export function HonorBoard({ profile, userRank }: HonorBoardProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: index * 0.08 }}
             >
-              <Card className={`border-2 border-transparent hover:border-primary/30 transition-all hover:shadow-lg transform hover:scale-[1.02] ${item.bgColor} h-full`}>
-                <CardContent className="p-5">
+              <Card className={`h-full border-2 border-transparent hover:border-primary/30 transition-all hover:shadow-lg hover:scale-[1.02] ${item.bgColor}`}>
+                <CardContent className="p-5 md:p-6">
                   <div className="flex items-start justify-between mb-3">
-                    <div className={`p-2.5 rounded-xl bg-gradient-to-br ${item.color} shadow-lg`}>
-                      <item.icon className="w-5 h-5 text-white" />
+                    <div className={`p-3 rounded-xl bg-gradient-to-br ${item.color} shadow-lg`}>
+                      <item.icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
                     </div>
-                    {item.badge && (
-                      <Badge variant="secondary" className="text-xs">
-                        {item.badge.icon} {item.badge.label}
-                      </Badge>
-                    )}
                   </div>
                   
-                  <p className="text-xs text-muted-foreground font-medium mb-1">{item.label}</p>
+                  <p className="text-sm text-muted-foreground font-medium mb-1">{item.label}</p>
                   <div className="flex items-baseline gap-1.5">
-                    <span className={`text-2xl font-fredoka font-bold bg-gradient-to-r ${item.color} bg-clip-text text-transparent`}>
+                    <span className={`text-2xl md:text-3xl font-inter font-extrabold bg-gradient-to-r ${item.color} bg-clip-text text-transparent`}>
                       {item.value}
                     </span>
                     {item.suffix && (
                       <span className="text-xs font-medium text-muted-foreground">{item.suffix}</span>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1.5">{item.description}</p>
+                  <p className="text-sm text-muted-foreground mt-2">{item.description}</p>
                   
                   {item.action && (
                     <Button
                       onClick={item.action.onClick}
                       disabled={item.action.loading}
                       size="sm"
-                      variant={item.action.variant || "default"}
-                      className={`w-full mt-3 ${!item.action.variant ? "bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600" : ""}`}
+                      className="w-full mt-4 h-11 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 font-semibold"
                     >
                       {item.action.loading ? (
                         <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
@@ -533,62 +510,64 @@ export function HonorBoard({ profile, userRank }: HonorBoardProps) {
             </motion.div>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* Achievement Progress */}
-      <Card className="border-2 border-primary/20 bg-gradient-to-br from-card to-primary/5">
-        <CardHeader>
-          <CardTitle className="font-fredoka flex items-center gap-2">
-            <Star className="w-5 h-5 text-yellow-500" />
-            Achievement Progress
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-muted-foreground flex items-center gap-2">
-                <Gamepad2 className="w-4 h-4" />
-                Games Master (Play 100 games)
-              </span>
-              <span className="font-bold text-primary">{Math.min(stats.gamesPlayed, 100)}/100</span>
+      <section>
+        <Card className="border-2 border-primary/20 bg-gradient-to-br from-card to-primary/5">
+          <CardHeader className="pb-4">
+            <CardTitle className="font-inter font-bold text-xl flex items-center gap-3">
+              <Star className="w-6 h-6 text-yellow-500" />
+              Achievement Progress
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <div className="flex justify-between text-sm mb-3">
+                <span className="text-muted-foreground flex items-center gap-2 font-medium">
+                  <Gamepad2 className="w-5 h-5" />
+                  Games Master (Play 100 games)
+                </span>
+                <span className="font-bold text-primary">{Math.min(stats.gamesPlayed, 100)}/100</span>
+              </div>
+              <Progress value={Math.min((stats.gamesPlayed / 100) * 100, 100)} className="h-3" />
             </div>
-            <Progress value={Math.min((stats.gamesPlayed / 100) * 100, 100)} className="h-3" />
-          </div>
-          
-          <div>
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-muted-foreground flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                Social Butterfly (10 friends)
-              </span>
-              <span className="font-bold text-primary">{Math.min(profile.total_friends, 10)}/10</span>
+            
+            <div>
+              <div className="flex justify-between text-sm mb-3">
+                <span className="text-muted-foreground flex items-center gap-2 font-medium">
+                  <Users className="w-5 h-5" />
+                  Social Butterfly (10 friends)
+                </span>
+                <span className="font-bold text-primary">{Math.min(profile.total_friends, 10)}/10</span>
+              </div>
+              <Progress value={Math.min((profile.total_friends / 10) * 100, 100)} className="h-3" />
             </div>
-            <Progress value={Math.min((profile.total_friends / 10) * 100, 100)} className="h-3" />
-          </div>
-          
-          <div>
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-muted-foreground flex items-center gap-2">
-                <Upload className="w-4 h-4" />
-                Creator (Upload 5 games)
-              </span>
-              <span className="font-bold text-primary">{Math.min(stats.gamesUploaded, 5)}/5</span>
+            
+            <div>
+              <div className="flex justify-between text-sm mb-3">
+                <span className="text-muted-foreground flex items-center gap-2 font-medium">
+                  <Upload className="w-5 h-5" />
+                  Creator (Upload 5 games)
+                </span>
+                <span className="font-bold text-primary">{Math.min(stats.gamesUploaded, 5)}/5</span>
+              </div>
+              <Progress value={Math.min((stats.gamesUploaded / 5) * 100, 100)} className="h-3" />
             </div>
-            <Progress value={Math.min((stats.gamesUploaded / 5) * 100, 100)} className="h-3" />
-          </div>
 
-          <div>
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-muted-foreground flex items-center gap-2">
-                <Coins className="w-4 h-4" />
-                Wealthy (Earn 10M CAMLY)
-              </span>
-              <span className="font-bold text-primary">{Math.min(stats.totalIncome, 10000000).toLocaleString()}/10,000,000</span>
+            <div>
+              <div className="flex justify-between text-sm mb-3">
+                <span className="text-muted-foreground flex items-center gap-2 font-medium">
+                  <Coins className="w-5 h-5" />
+                  Wealthy (Earn 10M CAMLY)
+                </span>
+                <span className="font-bold text-primary">{Math.min(stats.totalIncome, 10000000).toLocaleString()}/10,000,000</span>
+              </div>
+              <Progress value={Math.min((stats.totalIncome / 10000000) * 100, 100)} className="h-3" />
             </div>
-            <Progress value={Math.min((stats.totalIncome / 10000000) * 100, 100)} className="h-3" />
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </section>
     </div>
   );
 }
