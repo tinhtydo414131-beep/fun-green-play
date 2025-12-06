@@ -1178,7 +1178,7 @@ export default function PublicMusic() {
                             onClick={() => handleDownload(track)}
                             className="border-3 border-primary/30 hover:border-primary hover:bg-primary/10"
                           >
-                            <Download className="w-5 h-5 text-primary" />
+                            <Download className="w-5 h-5 text-black" />
                           </Button>
                           
                           {track.isUserUpload && track.userId === user?.id && (
@@ -1188,7 +1188,7 @@ export default function PublicMusic() {
                               onClick={() => handleDeleteTrack(track)}
                               className="border-3 border-destructive/30 hover:border-destructive hover:bg-destructive/10"
                             >
-                              <Trash2 className="w-5 h-5 text-destructive" />
+                              <Trash2 className="w-5 h-5 text-black" />
                             </Button>
                           )}
                         </div>
