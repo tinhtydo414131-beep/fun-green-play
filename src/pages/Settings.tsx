@@ -275,7 +275,11 @@ export default function Settings() {
                         if (error) throw error;
                         toast.success("📧 Đã gửi email xác nhận đến địa chỉ mới!");
                       } catch (error: any) {
-                        toast.error(error.message || "Không thể cập nhật email!");
+                        if (error.message?.includes("already been registered") || error.code === "email_exists") {
+                          toast.error("❌ Email này đã được tài khoản khác sử dụng!");
+                        } else {
+                          toast.error(error.message || "Không thể cập nhật email!");
+                        }
                       } finally {
                         setSaving(false);
                       }
