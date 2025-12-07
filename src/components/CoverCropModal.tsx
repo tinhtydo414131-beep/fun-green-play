@@ -77,12 +77,23 @@ export function CoverCropModal({
   const createCroppedImage = async (): Promise<Blob | null> => {
     if (!imageSrc || !croppedAreaPixels) return null;
 
-    const image = new Image();
-    image.src = imageSrc;
+    // For base64 images (newly uploaded), we can use directly
+    // For URLs (existing cover), we need to handle CORS
+    const isBase64 = imageSrc.startsWith('data:');
     
-    await new Promise((resolve) => {
-      image.onload = resolve;
+    const image = new Image();
+    if (!isBase64) {
+      image.crossOrigin = 'anonymous';
+    }
+    
+    // Create a promise that resolves when image loads
+    const loadPromise = new Promise<void>((resolve, reject) => {
+      image.onload = () => resolve();
+      image.onerror = () => reject(new Error('Failed to load image'));
     });
+    
+    image.src = imageSrc;
+    await loadPromise;
 
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
