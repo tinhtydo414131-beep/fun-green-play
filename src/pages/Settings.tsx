@@ -161,25 +161,31 @@ export default function Settings() {
     }
     setChangingPassword(true);
     try {
-      // Verify current password first
-      const {
-        error: signInError
-      } = await supabase.auth.signInWithPassword({
-        email: profile?.email || "",
+      // Verify current password by re-authenticating
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (!currentUser?.email) {
+        toast.error("Không thể xác thực tài khoản!");
+        setChangingPassword(false);
+        return;
+      }
+
+      // Try to re-authenticate with current password
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: currentUser.email,
         password: passwordData.currentPassword
       });
+
       if (signInError) {
-        toast.error("Mật khẩu hiện tại không đúng!");
+        toast.error("❌ Mật khẩu hiện tại không đúng!");
         setChangingPassword(false);
         return;
       }
 
       // Update to new password
-      const {
-        error: updateError
-      } = await supabase.auth.updateUser({
+      const { error: updateError } = await supabase.auth.updateUser({
         password: passwordData.newPassword
       });
+
       if (updateError) throw updateError;
       toast.success("✅ Đã đổi mật khẩu thành công!");
 
@@ -191,7 +197,11 @@ export default function Settings() {
       });
     } catch (error: any) {
       console.error("Error changing password:", error);
-      toast.error(error.message || "Không thể đổi mật khẩu!");
+      if (error.message?.includes("Invalid login credentials")) {
+        toast.error("❌ Mật khẩu hiện tại không đúng!");
+      } else {
+        toast.error(error.message || "Không thể đổi mật khẩu!");
+      }
     } finally {
       setChangingPassword(false);
     }
