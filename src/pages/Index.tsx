@@ -18,7 +18,7 @@ import featureRewards from "@/assets/feature-rewards.png";
 import featureFriends from "@/assets/feature-friends.png";
 import featureCompete from "@/assets/feature-compete.png";
 import featureLearning from "@/assets/feature-learning.png";
-import { JoyBot } from "@/components/JoyBot";
+
 import { useReferral } from "@/hooks/useReferral";
 import ReferralWelcomeBanner from "@/components/ReferralWelcomeBanner";
 import { useWeb3Rewards } from "@/hooks/useWeb3Rewards";
@@ -279,7 +279,7 @@ const Index = () => {
           </div>
         </div>
       </footer>
-      <JoyBot />
+      
     </motion.div>
   );
 };

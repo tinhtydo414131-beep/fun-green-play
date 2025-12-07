@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/useAuth";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { toast } from "sonner";
-import { JoyBot } from "@/components/JoyBot";
+
 import { useLegendStatus } from "@/hooks/useLegendStatus";
 import LegendParticleEffect from "@/components/LegendParticleEffect";
 
@@ -335,7 +335,7 @@ const Games = () => {
           )}
         </div>
       </section>
-      <JoyBot />
+      
     </div>
   );
 };
