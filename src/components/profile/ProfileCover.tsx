@@ -127,19 +127,24 @@ export function ProfileCover({ profile, userRank, isOwnProfile = true, onProfile
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.3 }}
           >
-            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-background overflow-hidden bg-background shadow-xl">
+            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-background shadow-xl overflow-hidden bg-gradient-to-br from-primary to-secondary">
               {isOwnProfile ? (
-                <AvatarUpload 
-                  currentAvatarUrl={profile.avatar_url}
-                  onAvatarUpdate={(url) => onProfileUpdate({ avatar_url: url })}
+                <div className="w-full h-full">
+                  <AvatarUpload 
+                    currentAvatarUrl={profile.avatar_url}
+                    onAvatarUpdate={(url) => onProfileUpdate({ avatar_url: url })}
+                  />
+                </div>
+              ) : profile.avatar_url ? (
+                <img 
+                  src={profile.avatar_url} 
+                  alt={profile.username}
+                  className="w-full h-full object-cover"
                 />
               ) : (
-                <Avatar className="w-full h-full">
-                  <AvatarImage src={profile.avatar_url || ''} />
-                  <AvatarFallback className="text-4xl bg-gradient-to-br from-primary to-secondary text-white">
-                    {profile.username?.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+                <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-white">
+                  {profile.username?.charAt(0).toUpperCase()}
+                </div>
               )}
             </div>
             {userRank <= 3 && userRank > 0 && (
