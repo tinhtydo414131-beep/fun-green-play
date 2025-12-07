@@ -38,6 +38,7 @@ interface PostCardProps {
 
 export function PostCard({ post, currentUserId, onDelete }: PostCardProps) {
   const [liked, setLiked] = useState(false);
+  const [reactionType, setReactionType] = useState<string | null>(null);
   const [likesCount, setLikesCount] = useState(post.likes_count);
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<any[]>([]);
@@ -45,7 +46,14 @@ export function PostCard({ post, currentUserId, onDelete }: PostCardProps) {
   const [loadingComments, setLoadingComments] = useState(false);
   const [showReactions, setShowReactions] = useState(false);
 
-  const reactions = ['👍', '❤️', '😆', '😮', '😢', '😡'];
+  const reactions = [
+    { emoji: '👍', type: 'like' },
+    { emoji: '❤️', type: 'love' },
+    { emoji: '😆', type: 'haha' },
+    { emoji: '😮', type: 'wow' },
+    { emoji: '😢', type: 'sad' },
+    { emoji: '😡', type: 'angry' }
+  ];
 
   useEffect(() => {
     checkIfLiked();
@@ -54,16 +62,17 @@ export function PostCard({ post, currentUserId, onDelete }: PostCardProps) {
   const checkIfLiked = async () => {
     const { data } = await supabase
       .from('post_likes')
-      .select('id')
+      .select('id, reaction_type')
       .eq('post_id', post.id)
       .eq('user_id', currentUserId)
       .maybeSingle();
     
     setLiked(!!data);
+    setReactionType(data?.reaction_type || null);
   };
 
-  const handleLike = async () => {
-    if (liked) {
+  const handleLike = async (type: string = 'like') => {
+    if (liked && reactionType === type) {
       // Unlike
       await supabase
         .from('post_likes')
@@ -72,15 +81,40 @@ export function PostCard({ post, currentUserId, onDelete }: PostCardProps) {
         .eq('user_id', currentUserId);
       
       setLiked(false);
+      setReactionType(null);
       setLikesCount(prev => Math.max(0, prev - 1));
-    } else {
-      // Like
+    } else if (liked) {
+      // Update reaction type
       await supabase
         .from('post_likes')
-        .insert({ post_id: post.id, user_id: currentUserId });
+        .update({ reaction_type: type })
+        .eq('post_id', post.id)
+        .eq('user_id', currentUserId);
+      
+      setReactionType(type);
+    } else {
+      // Like with reaction type
+      await supabase
+        .from('post_likes')
+        .insert({ post_id: post.id, user_id: currentUserId, reaction_type: type });
       
       setLiked(true);
+      setReactionType(type);
       setLikesCount(prev => prev + 1);
+    }
+  };
+
+  const getReactionEmoji = () => {
+    const reaction = reactions.find(r => r.type === reactionType);
+    return reaction?.emoji || '👍';
+  };
+
+  const getReactionColor = () => {
+    switch (reactionType) {
+      case 'love': return 'text-red-500';
+      case 'haha': case 'wow': case 'sad': return 'text-yellow-500';
+      case 'angry': return 'text-orange-500';
+      default: return 'text-blue-500';
     }
   };
 
@@ -242,13 +276,19 @@ export function PostCard({ post, currentUserId, onDelete }: PostCardProps) {
           whileTap={{ scale: 0.95 }}
           onMouseEnter={() => setShowReactions(true)}
           onMouseLeave={() => setShowReactions(false)}
-          onClick={handleLike}
+          onClick={() => handleLike('like')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all flex-1 justify-center ${
-            liked ? 'text-blue-500 bg-blue-500/10' : 'text-muted-foreground hover:bg-muted'
+            liked ? `${getReactionColor()} bg-current/10` : 'text-muted-foreground hover:bg-muted'
           }`}
         >
-          <ThumbsUp className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
-          <span className="font-medium text-sm">Like</span>
+          {liked ? (
+            <span className="text-xl">{getReactionEmoji()}</span>
+          ) : (
+            <ThumbsUp className="w-5 h-5" />
+          )}
+          <span className="font-medium text-sm">
+            {liked ? (reactionType === 'love' ? 'Love' : reactionType === 'haha' ? 'Haha' : reactionType === 'wow' ? 'Wow' : reactionType === 'sad' ? 'Sad' : reactionType === 'angry' ? 'Angry' : 'Like') : 'Like'}
+          </span>
         </motion.button>
 
         {/* Emoji Reactions Popup */}
@@ -262,20 +302,20 @@ export function PostCard({ post, currentUserId, onDelete }: PostCardProps) {
               onMouseEnter={() => setShowReactions(true)}
               onMouseLeave={() => setShowReactions(false)}
             >
-              {reactions.map((emoji, index) => (
+              {reactions.map((reaction, index) => (
                 <motion.button
-                  key={emoji}
+                  key={reaction.type}
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: index * 0.05 }}
                   whileHover={{ scale: 1.3 }}
                   onClick={() => {
-                    handleLike();
+                    handleLike(reaction.type);
                     setShowReactions(false);
                   }}
                   className="text-2xl p-1 hover:bg-muted rounded-full"
                 >
-                  {emoji}
+                  {reaction.emoji}
                 </motion.button>
               ))}
             </motion.div>
