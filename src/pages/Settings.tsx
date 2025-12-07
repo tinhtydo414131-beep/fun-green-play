@@ -19,27 +19,18 @@ import { Slider } from "@/components/ui/slider";
 import { useNotificationPreferences, NOTIFICATION_THEMES, NotificationTheme } from "@/hooks/useNotificationPreferences";
 import confetti from "canvas-confetti";
 import camlyCoinIcon from "@/assets/camly-coin-notification.png";
-
 const profileSchema = z.object({
-  username: z.string()
-    .trim()
-    .min(3, "Tên người dùng phải có ít nhất 3 ký tự")
-    .max(20, "Tên người dùng không được vượt quá 20 ký tự")
-    .regex(/^[a-zA-Z0-9_]+$/, "Tên người dùng chỉ được chứa chữ, số và dấu gạch dưới"),
-  bio: z.string()
-    .max(200, "Bio không được vượt quá 200 ký tự")
-    .optional(),
+  username: z.string().trim().min(3, "Tên người dùng phải có ít nhất 3 ký tự").max(20, "Tên người dùng không được vượt quá 20 ký tự").regex(/^[a-zA-Z0-9_]+$/, "Tên người dùng chỉ được chứa chữ, số và dấu gạch dưới"),
+  bio: z.string().max(200, "Bio không được vượt quá 200 ký tự").optional()
 });
-
 const passwordSchema = z.object({
   currentPassword: z.string().min(1, "Vui lòng nhập mật khẩu hiện tại"),
   newPassword: z.string().min(6, "Mật khẩu mới phải có ít nhất 6 ký tự"),
-  confirmPassword: z.string().min(1, "Vui lòng xác nhận mật khẩu"),
-}).refine((data) => data.newPassword === data.confirmPassword, {
+  confirmPassword: z.string().min(1, "Vui lòng xác nhận mật khẩu")
+}).refine(data => data.newPassword === data.confirmPassword, {
   message: "Mật khẩu xác nhận không khớp",
-  path: ["confirmPassword"],
+  path: ["confirmPassword"]
 });
-
 interface ProfileData {
   username: string;
   bio: string | null;
@@ -47,54 +38,54 @@ interface ProfileData {
   email: string;
   created_at: string;
 }
-
-
 export default function Settings() {
-  const { user, loading: authLoading, signOut } = useAuth();
+  const {
+    user,
+    loading: authLoading,
+    signOut
+  } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
-    bio: "",
+    bio: ""
   });
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
-    confirmPassword: "",
+    confirmPassword: ""
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [passwordErrors, setPasswordErrors] = useState<Record<string, string>>({});
   const [changingPassword, setChangingPassword] = useState(false);
-  const { preferences, updatePreferences, resetPreferences } = useNotificationPreferences();
-
+  const {
+    preferences,
+    updatePreferences,
+    resetPreferences
+  } = useNotificationPreferences();
   useEffect(() => {
     if (!authLoading && !user) {
       navigate("/auth");
     }
   }, [user, authLoading, navigate]);
-
   useEffect(() => {
     if (user) {
       fetchProfile();
     }
   }, [user]);
-
   const fetchProfile = async () => {
     try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("username, bio, avatar_url, email, created_at")
-        .eq("id", user?.id)
-        .single();
-
+      const {
+        data,
+        error
+      } = await supabase.from("profiles").select("username, bio, avatar_url, email, created_at").eq("id", user?.id).single();
       if (error) throw error;
-
       setProfile(data);
       setFormData({
         username: data.username || "",
-        bio: data.bio || "",
+        bio: data.bio || ""
       });
     } catch (error: any) {
       console.error("Error fetching profile:", error);
@@ -103,10 +94,9 @@ export default function Settings() {
       setLoading(false);
     }
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate form
     try {
       profileSchema.parse(formData);
@@ -114,7 +104,7 @@ export default function Settings() {
     } catch (error) {
       if (error instanceof z.ZodError) {
         const newErrors: Record<string, string> = {};
-        error.errors.forEach((err) => {
+        error.errors.forEach(err => {
           if (err.path[0]) {
             newErrors[err.path[0] as string] = err.message;
           }
@@ -123,22 +113,17 @@ export default function Settings() {
         return;
       }
     }
-
     setSaving(true);
-
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          username: formData.username.trim(),
-          bio: formData.bio.trim() || null,
-        })
-        .eq("id", user?.id);
-
+      const {
+        error
+      } = await supabase.from("profiles").update({
+        username: formData.username.trim(),
+        bio: formData.bio.trim() || null
+      }).eq("id", user?.id);
       if (error) throw error;
-
       toast.success("✅ Đã cập nhật thông tin!");
-      
+
       // Refresh profile
       await fetchProfile();
     } catch (error: any) {
@@ -148,7 +133,6 @@ export default function Settings() {
       setSaving(false);
     }
   };
-
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -159,7 +143,7 @@ export default function Settings() {
     } catch (error) {
       if (error instanceof z.ZodError) {
         const newErrors: Record<string, string> = {};
-        error.errors.forEach((err) => {
+        error.errors.forEach(err => {
           if (err.path[0]) {
             newErrors[err.path[0] as string] = err.message;
           }
@@ -168,16 +152,15 @@ export default function Settings() {
         return;
       }
     }
-
     setChangingPassword(true);
-
     try {
       // Verify current password first
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const {
+        error: signInError
+      } = await supabase.auth.signInWithPassword({
         email: profile?.email || "",
-        password: passwordData.currentPassword,
+        password: passwordData.currentPassword
       });
-
       if (signInError) {
         toast.error("Mật khẩu hiện tại không đúng!");
         setChangingPassword(false);
@@ -185,19 +168,19 @@ export default function Settings() {
       }
 
       // Update to new password
-      const { error: updateError } = await supabase.auth.updateUser({
-        password: passwordData.newPassword,
+      const {
+        error: updateError
+      } = await supabase.auth.updateUser({
+        password: passwordData.newPassword
       });
-
       if (updateError) throw updateError;
-
       toast.success("✅ Đã đổi mật khẩu thành công!");
-      
+
       // Clear form
       setPasswordData({
         currentPassword: "",
         newPassword: "",
-        confirmPassword: "",
+        confirmPassword: ""
       });
     } catch (error: any) {
       console.error("Error changing password:", error);
@@ -206,7 +189,6 @@ export default function Settings() {
       setChangingPassword(false);
     }
   };
-
   const handleSignOut = async () => {
     try {
       await signOut();
@@ -216,39 +198,26 @@ export default function Settings() {
       toast.error("Có lỗi khi đăng xuất!");
     }
   };
-
-
   if (authLoading || loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+    return <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-12 h-12 text-primary animate-spin" />
-      </div>
-    );
+      </div>;
   }
-
   if (!profile) {
-    return (
-      <div className="min-h-screen bg-background">
+    return <div className="min-h-screen bg-background">
         <Navigation />
         <div className="container mx-auto py-32 px-4 text-center">
           <p className="text-2xl font-fredoka text-muted-foreground">Profile not found 😢</p>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5">
+  return <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5">
       <Navigation />
       
       <section className="pt-32 pb-20 px-4">
         <div className="container mx-auto max-w-3xl">
           {/* Back Button */}
-          <Button
-            onClick={() => navigate("/dashboard")}
-            variant="outline"
-            className="mb-6 font-fredoka"
-          >
+          <Button onClick={() => navigate("/dashboard")} variant="outline" className="mb-6 font-fredoka">
             <ArrowLeft className="mr-2 w-4 h-4" />
             Quay lại Dashboard
           </Button>
@@ -267,10 +236,10 @@ export default function Settings() {
             <CardContent className="space-y-8 px-6 pb-8">
               {/* Avatar Section */}
               <div className="flex justify-center py-4">
-                <AvatarUpload 
-                  currentAvatarUrl={profile.avatar_url}
-                  onAvatarUpdate={(url) => setProfile({ ...profile, avatar_url: url })}
-                />
+                <AvatarUpload currentAvatarUrl={profile.avatar_url} onAvatarUpdate={url => setProfile({
+                ...profile,
+                avatar_url: url
+              })} />
               </div>
 
               {/* Form */}
@@ -280,12 +249,7 @@ export default function Settings() {
                   <Label className="text-base font-fredoka text-foreground">
                     Email 📧
                   </Label>
-                  <Input
-                    type="email"
-                    value={profile.email}
-                    disabled
-                    className="bg-muted/50 cursor-not-allowed"
-                  />
+                  <Input type="email" value={profile.email} disabled className="bg-muted/50 cursor-not-allowed" />
                   <p className="text-xs text-muted-foreground font-comic">
                     Email không thể thay đổi
                   </p>
@@ -296,18 +260,11 @@ export default function Settings() {
                   <Label htmlFor="username" className="text-base font-fredoka text-foreground">
                     Tên người dùng <span className="text-destructive">*</span>
                   </Label>
-                  <Input
-                    id="username"
-                    type="text"
-                    value={formData.username}
-                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                    placeholder="Nhập tên người dùng"
-                    className={`border-4 focus:ring-4 focus:ring-primary/20 ${errors.username ? 'border-destructive' : 'border-primary/40 focus:border-primary'}`}
-                    maxLength={20}
-                  />
-                  {errors.username && (
-                    <p className="text-sm text-destructive font-comic">{errors.username}</p>
-                  )}
+                  <Input id="username" type="text" value={formData.username} onChange={e => setFormData({
+                  ...formData,
+                  username: e.target.value
+                })} placeholder="Nhập tên người dùng" className={`border-4 focus:ring-4 focus:ring-primary/20 ${errors.username ? 'border-destructive' : 'border-primary/40 focus:border-primary'}`} maxLength={20} />
+                  {errors.username && <p className="text-sm text-destructive font-comic">{errors.username}</p>}
                   <p className="text-xs text-muted-foreground font-comic">
                     3-20 ký tự, chỉ chữ, số và dấu gạch dưới
                   </p>
@@ -318,39 +275,25 @@ export default function Settings() {
                   <Label htmlFor="bio" className="text-base font-fredoka text-foreground">
                     Giới thiệu bản thân 💬
                   </Label>
-                  <Textarea
-                    id="bio"
-                    value={formData.bio}
-                    onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                    placeholder="Viết vài dòng về bản thân..."
-                    className={`border-4 min-h-24 focus:ring-4 focus:ring-primary/20 ${errors.bio ? 'border-destructive' : 'border-primary/40 focus:border-primary'}`}
-                    maxLength={200}
-                  />
-                  {errors.bio && (
-                    <p className="text-sm text-destructive font-comic">{errors.bio}</p>
-                  )}
+                  <Textarea id="bio" value={formData.bio} onChange={e => setFormData({
+                  ...formData,
+                  bio: e.target.value
+                })} placeholder="Viết vài dòng về bản thân..." className={`border-4 min-h-24 focus:ring-4 focus:ring-primary/20 ${errors.bio ? 'border-destructive' : 'border-primary/40 focus:border-primary'}`} maxLength={200} />
+                  {errors.bio && <p className="text-sm text-destructive font-comic">{errors.bio}</p>}
                   <p className="text-xs text-muted-foreground font-comic text-right">
                     {formData.bio.length}/200 ký tự
                   </p>
                 </div>
 
                 {/* Save Button */}
-                <Button
-                  type="submit"
-                  disabled={saving}
-                  className="w-full h-14 text-lg font-fredoka font-bold bg-gradient-to-r from-primary to-secondary hover:shadow-xl transition-all"
-                >
-                  {saving ? (
-                    <>
+                <Button type="submit" disabled={saving} className="w-full h-14 text-lg font-fredoka font-bold bg-gradient-to-r from-primary to-secondary hover:shadow-xl transition-all">
+                  {saving ? <>
                       <Loader2 className="mr-2 w-5 h-5 animate-spin" />
                       Đang lưu...
-                    </>
-                  ) : (
-                    <>
+                    </> : <>
                       <Save className="mr-2 w-5 h-5" />
                       Lưu thay đổi ✓
-                    </>
-                  )}
+                    </>}
                 </Button>
               </form>
 
@@ -382,17 +325,11 @@ export default function Settings() {
                   <Label htmlFor="currentPassword" className="text-base font-fredoka text-foreground">
                     Mật khẩu hiện tại <span className="text-destructive">*</span>
                   </Label>
-                  <Input
-                    id="currentPassword"
-                    type="password"
-                    value={passwordData.currentPassword}
-                    onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                    placeholder="Nhập mật khẩu hiện tại"
-                    className={`border-4 focus:ring-4 focus:ring-primary/20 ${passwordErrors.currentPassword ? 'border-destructive' : 'border-primary/40 focus:border-primary'}`}
-                  />
-                  {passwordErrors.currentPassword && (
-                    <p className="text-sm text-destructive font-comic">{passwordErrors.currentPassword}</p>
-                  )}
+                  <Input id="currentPassword" type="password" value={passwordData.currentPassword} onChange={e => setPasswordData({
+                  ...passwordData,
+                  currentPassword: e.target.value
+                })} placeholder="Nhập mật khẩu hiện tại" className={`border-4 focus:ring-4 focus:ring-primary/20 ${passwordErrors.currentPassword ? 'border-destructive' : 'border-primary/40 focus:border-primary'}`} />
+                  {passwordErrors.currentPassword && <p className="text-sm text-destructive font-comic">{passwordErrors.currentPassword}</p>}
                 </div>
 
                 {/* New Password */}
@@ -400,17 +337,11 @@ export default function Settings() {
                   <Label htmlFor="newPassword" className="text-base font-fredoka text-foreground">
                     Mật khẩu mới <span className="text-destructive">*</span>
                   </Label>
-                  <Input
-                    id="newPassword"
-                    type="password"
-                    value={passwordData.newPassword}
-                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                    placeholder="Nhập mật khẩu mới"
-                    className={`border-4 focus:ring-4 focus:ring-primary/20 ${passwordErrors.newPassword ? 'border-destructive' : 'border-primary/40 focus:border-primary'}`}
-                  />
-                  {passwordErrors.newPassword && (
-                    <p className="text-sm text-destructive font-comic">{passwordErrors.newPassword}</p>
-                  )}
+                  <Input id="newPassword" type="password" value={passwordData.newPassword} onChange={e => setPasswordData({
+                  ...passwordData,
+                  newPassword: e.target.value
+                })} placeholder="Nhập mật khẩu mới" className={`border-4 focus:ring-4 focus:ring-primary/20 ${passwordErrors.newPassword ? 'border-destructive' : 'border-primary/40 focus:border-primary'}`} />
+                  {passwordErrors.newPassword && <p className="text-sm text-destructive font-comic">{passwordErrors.newPassword}</p>}
                 </div>
 
                 {/* Confirm New Password */}
@@ -418,36 +349,22 @@ export default function Settings() {
                   <Label htmlFor="confirmPassword" className="text-base font-fredoka text-foreground">
                     Xác nhận mật khẩu mới <span className="text-destructive">*</span>
                   </Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    value={passwordData.confirmPassword}
-                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                    placeholder="Nhập lại mật khẩu mới"
-                    className={`border-4 focus:ring-4 focus:ring-primary/20 ${passwordErrors.confirmPassword ? 'border-destructive' : 'border-primary/40 focus:border-primary'}`}
-                  />
-                  {passwordErrors.confirmPassword && (
-                    <p className="text-sm text-destructive font-comic">{passwordErrors.confirmPassword}</p>
-                  )}
+                  <Input id="confirmPassword" type="password" value={passwordData.confirmPassword} onChange={e => setPasswordData({
+                  ...passwordData,
+                  confirmPassword: e.target.value
+                })} placeholder="Nhập lại mật khẩu mới" className={`border-4 focus:ring-4 focus:ring-primary/20 ${passwordErrors.confirmPassword ? 'border-destructive' : 'border-primary/40 focus:border-primary'}`} />
+                  {passwordErrors.confirmPassword && <p className="text-sm text-destructive font-comic">{passwordErrors.confirmPassword}</p>}
                 </div>
 
                 {/* Change Password Button */}
-                <Button
-                  type="submit"
-                  disabled={changingPassword}
-                  className="w-full h-14 text-lg font-fredoka font-bold bg-gradient-to-r from-accent to-secondary hover:shadow-xl transition-all"
-                >
-                  {changingPassword ? (
-                    <>
+                <Button type="submit" disabled={changingPassword} className="w-full h-14 text-lg font-fredoka font-bold bg-gradient-to-r from-accent to-secondary hover:shadow-xl transition-all">
+                  {changingPassword ? <>
                       <Loader2 className="mr-2 w-5 h-5 animate-spin" />
                       Đang đổi...
-                    </>
-                  ) : (
-                    <>
+                    </> : <>
                       <Lock className="mr-2 w-5 h-5" />
                       Đổi mật khẩu
-                    </>
-                  )}
+                    </>}
                 </Button>
               </form>
             </CardContent>
@@ -457,8 +374,7 @@ export default function Settings() {
           {/* Notification Preferences Card */}
           <Card className="border-4 border-primary/30 shadow-2xl mt-6">
             <CardHeader className="text-center space-y-2 pb-6">
-              <CardTitle className="text-3xl font-fredoka text-primary flex items-center justify-center gap-2">
-                <Bell className="w-8 h-8" />
+              <CardTitle className="text-3xl font-fredoka text-primary flex items-center justify-center gap-2">Thông báo xu <Bell className="w-8 h-8" />
                 Thông báo xu 🪙
               </CardTitle>
               <CardDescription className="text-base font-comic">
@@ -477,10 +393,9 @@ export default function Settings() {
                     Hiển thị thông báo khi nhận xu
                   </p>
                 </div>
-                <Switch
-                  checked={preferences.enabled}
-                  onCheckedChange={(checked) => updatePreferences({ enabled: checked })}
-                />
+                <Switch checked={preferences.enabled} onCheckedChange={checked => updatePreferences({
+                enabled: checked
+              })} />
               </div>
 
               <Separator />
@@ -497,16 +412,13 @@ export default function Settings() {
                       Phát nhạc khi nhận xu
                     </p>
                   </div>
-                  <Switch
-                    checked={preferences.soundEnabled}
-                    onCheckedChange={(checked) => updatePreferences({ soundEnabled: checked })}
-                    disabled={!preferences.enabled}
-                  />
+                  <Switch checked={preferences.soundEnabled} onCheckedChange={checked => updatePreferences({
+                  soundEnabled: checked
+                })} disabled={!preferences.enabled} />
                 </div>
 
                 {/* Volume Slider */}
-                {preferences.soundEnabled && preferences.enabled && (
-                  <div className="space-y-2 pl-7">
+                {preferences.soundEnabled && preferences.enabled && <div className="space-y-2 pl-7">
                     <div className="flex items-center justify-between">
                       <Label className="text-sm font-fredoka text-foreground">
                         Âm lượng
@@ -515,15 +427,10 @@ export default function Settings() {
                         {preferences.volume}%
                       </span>
                     </div>
-                    <Slider
-                      value={[preferences.volume]}
-                      onValueChange={([value]) => updatePreferences({ volume: value })}
-                      max={100}
-                      step={5}
-                      className="w-full"
-                    />
-                  </div>
-                )}
+                    <Slider value={[preferences.volume]} onValueChange={([value]) => updatePreferences({
+                  volume: value
+                })} max={100} step={5} className="w-full" />
+                  </div>}
               </div>
 
               <Separator />
@@ -540,11 +447,9 @@ export default function Settings() {
                       Hiệu ứng pháo hoa màu sắc
                     </p>
                   </div>
-                  <Switch
-                    checked={preferences.confettiEnabled}
-                    onCheckedChange={(checked) => updatePreferences({ confettiEnabled: checked })}
-                    disabled={!preferences.enabled}
-                  />
+                  <Switch checked={preferences.confettiEnabled} onCheckedChange={checked => updatePreferences({
+                  confettiEnabled: checked
+                })} disabled={!preferences.enabled} />
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -556,11 +461,9 @@ export default function Settings() {
                       Animation xuất hiện và biến mất
                     </p>
                   </div>
-                  <Switch
-                    checked={preferences.animationsEnabled}
-                    onCheckedChange={(checked) => updatePreferences({ animationsEnabled: checked })}
-                    disabled={!preferences.enabled}
-                  />
+                  <Switch checked={preferences.animationsEnabled} onCheckedChange={checked => updatePreferences({
+                  animationsEnabled: checked
+                })} disabled={!preferences.enabled} />
                 </div>
               </div>
 
@@ -577,22 +480,27 @@ export default function Settings() {
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { value: 'top-right', label: 'Trên phải', icon: '↗️' },
-                    { value: 'top-left', label: 'Trên trái', icon: '↖️' },
-                    { value: 'bottom-right', label: 'Dưới phải', icon: '↘️' },
-                    { value: 'bottom-left', label: 'Dưới trái', icon: '↙️' },
-                  ].map((pos) => (
-                    <Button
-                      key={pos.value}
-                      variant={preferences.position === pos.value ? "default" : "outline"}
-                      onClick={() => updatePreferences({ position: pos.value as 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' })}
-                      disabled={!preferences.enabled}
-                      className="h-12 text-sm font-comic"
-                    >
+                  {[{
+                  value: 'top-right',
+                  label: 'Trên phải',
+                  icon: '↗️'
+                }, {
+                  value: 'top-left',
+                  label: 'Trên trái',
+                  icon: '↖️'
+                }, {
+                  value: 'bottom-right',
+                  label: 'Dưới phải',
+                  icon: '↘️'
+                }, {
+                  value: 'bottom-left',
+                  label: 'Dưới trái',
+                  icon: '↙️'
+                }].map(pos => <Button key={pos.value} variant={preferences.position === pos.value ? "default" : "outline"} onClick={() => updatePreferences({
+                  position: pos.value as 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left'
+                })} disabled={!preferences.enabled} className="h-12 text-sm font-comic">
                       {pos.icon} {pos.label}
-                    </Button>
-                  ))}
+                    </Button>)}
                 </div>
               </div>
 
@@ -615,15 +523,9 @@ export default function Settings() {
                       {preferences.duration} giây
                     </span>
                   </div>
-                  <Slider
-                    value={[preferences.duration]}
-                    onValueChange={([value]) => updatePreferences({ duration: value })}
-                    min={2}
-                    max={15}
-                    step={1}
-                    disabled={!preferences.enabled}
-                    className="w-full"
-                  />
+                  <Slider value={[preferences.duration]} onValueChange={([value]) => updatePreferences({
+                  duration: value
+                })} min={2} max={15} step={1} disabled={!preferences.enabled} className="w-full" />
                   <div className="flex justify-between text-xs text-muted-foreground">
                     <span>2s</span>
                     <span>15s</span>
@@ -645,22 +547,18 @@ export default function Settings() {
                   </p>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {(Object.entries(NOTIFICATION_THEMES) as [NotificationTheme, { name: string; gradient: string; icon: string }][]).map(([key, theme]) => (
-                    <Button
-                      key={key}
-                      variant={preferences.theme === key ? "default" : "outline"}
-                      onClick={() => updatePreferences({ theme: key })}
-                      disabled={!preferences.enabled}
-                      className={`h-14 text-sm font-comic relative overflow-hidden ${
-                        preferences.theme === key ? '' : ''
-                      }`}
-                    >
+                  {(Object.entries(NOTIFICATION_THEMES) as [NotificationTheme, {
+                  name: string;
+                  gradient: string;
+                  icon: string;
+                }][]).map(([key, theme]) => <Button key={key} variant={preferences.theme === key ? "default" : "outline"} onClick={() => updatePreferences({
+                  theme: key
+                })} disabled={!preferences.enabled} className={`h-14 text-sm font-comic relative overflow-hidden ${preferences.theme === key ? '' : ''}`}>
                       <div className={`absolute inset-0 bg-gradient-to-r ${theme.gradient} opacity-${preferences.theme === key ? '100' : '30'} transition-opacity`} />
                       <span className="relative z-10 flex items-center gap-1">
                         {theme.icon} {theme.name}
                       </span>
-                    </Button>
-                  ))}
+                    </Button>)}
                 </div>
               </div>
 
@@ -677,28 +575,24 @@ export default function Settings() {
                     Xem thử thông báo với cài đặt hiện tại
                   </p>
                 </div>
-                <Button
-                  onClick={() => {
-                    // Trigger preview notification
-                    const audio = new Audio("/audio/coin-reward.mp3");
-                    audio.volume = preferences.volume / 100;
-                    
-                    if (preferences.soundEnabled) {
-                      audio.play().catch(console.error);
-                    }
-                    
-                    if (preferences.confettiEnabled) {
-                      confetti({
-                        particleCount: 100,
-                        spread: 70,
-                        origin: { y: 0.6 },
-                        colors: ["#FFD700", "#FFA500", "#FF6347"],
-                      });
-                    }
-                    
-                    toast.custom(
-                      (t) => (
-                        <div className={`bg-gradient-to-r ${NOTIFICATION_THEMES[preferences.theme].gradient} rounded-2xl shadow-2xl p-4 min-w-[280px] border-4 border-white`}>
+                <Button onClick={() => {
+                // Trigger preview notification
+                const audio = new Audio("/audio/coin-reward.mp3");
+                audio.volume = preferences.volume / 100;
+                if (preferences.soundEnabled) {
+                  audio.play().catch(console.error);
+                }
+                if (preferences.confettiEnabled) {
+                  confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: {
+                      y: 0.6
+                    },
+                    colors: ["#FFD700", "#FFA500", "#FF6347"]
+                  });
+                }
+                toast.custom(t => <div className={`bg-gradient-to-r ${NOTIFICATION_THEMES[preferences.theme].gradient} rounded-2xl shadow-2xl p-4 min-w-[280px] border-4 border-white`}>
                           <div className="flex items-center gap-3">
                             <img src={camlyCoinIcon} alt="Camly Coin" className="w-12 h-12 drop-shadow-lg animate-bounce" />
                             <div>
@@ -711,19 +605,11 @@ export default function Settings() {
                               </p>
                             </div>
                           </div>
-                        </div>
-                      ),
-                      {
-                        duration: preferences.duration * 1000,
-                        position: preferences.position.includes('top') 
-                          ? (preferences.position.includes('left') ? 'top-left' : 'top-right')
-                          : (preferences.position.includes('left') ? 'bottom-left' : 'bottom-right'),
-                      }
-                    );
-                  }}
-                  disabled={!preferences.enabled}
-                  className="w-full h-12 text-base font-fredoka bg-gradient-to-r from-primary to-accent hover:opacity-90"
-                >
+                        </div>, {
+                  duration: preferences.duration * 1000,
+                  position: preferences.position.includes('top') ? preferences.position.includes('left') ? 'top-left' : 'top-right' : preferences.position.includes('left') ? 'bottom-left' : 'bottom-right'
+                });
+              }} disabled={!preferences.enabled} className="w-full h-12 text-base font-fredoka bg-gradient-to-r from-primary to-accent hover:opacity-90">
                   <Eye className="mr-2 w-5 h-5" />
                   Xem trước thông báo
                 </Button>
@@ -732,14 +618,10 @@ export default function Settings() {
               <Separator />
 
               {/* Reset Button */}
-              <Button
-                onClick={() => {
-                  resetPreferences();
-                  toast.success("Đã đặt lại cài đặt mặc định!");
-                }}
-                variant="outline"
-                className="w-full h-12 text-base font-fredoka border-2"
-              >
+              <Button onClick={() => {
+              resetPreferences();
+              toast.success("Đã đặt lại cài đặt mặc định!");
+            }} variant="outline" className="w-full h-12 text-base font-fredoka border-2">
                 <X className="mr-2 w-5 h-5" />
                 Đặt lại mặc định
               </Button>
@@ -787,11 +669,7 @@ export default function Settings() {
               {/* Actions */}
               <div className="space-y-3">
                 {/* Sign Out Button */}
-                <Button
-                  onClick={handleSignOut}
-                  variant="outline"
-                  className="w-full h-12 text-base font-fredoka border-2 border-orange-500/50 text-orange-600 hover:bg-orange-500/10 hover:text-orange-600 hover:border-orange-500"
-                >
+                <Button onClick={handleSignOut} variant="outline" className="w-full h-12 text-base font-fredoka border-2 border-orange-500/50 text-orange-600 hover:bg-orange-500/10 hover:text-orange-600 hover:border-orange-500">
                   <LogOut className="mr-2 w-5 h-5" />
                   Đăng xuất
                 </Button>
@@ -799,10 +677,7 @@ export default function Settings() {
                 {/* Delete Account Button */}
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full h-12 text-base font-fredoka border-2 border-destructive/50 text-destructive hover:bg-destructive/10 hover:text-destructive hover:border-destructive"
-                    >
+                    <Button variant="outline" className="w-full h-12 text-base font-fredoka border-2 border-destructive/50 text-destructive hover:bg-destructive/10 hover:text-destructive hover:border-destructive">
                       <Trash2 className="mr-2 w-5 h-5" />
                       Xóa tài khoản
                     </Button>
@@ -822,12 +697,9 @@ export default function Settings() {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel className="font-fredoka">Hủy</AlertDialogCancel>
-                      <AlertDialogAction
-                        className="font-fredoka bg-destructive hover:bg-destructive/90"
-                        onClick={async () => {
-                          toast.info("Chức năng xóa tài khoản đang được phát triển. Vui lòng liên hệ admin.");
-                        }}
-                      >
+                      <AlertDialogAction className="font-fredoka bg-destructive hover:bg-destructive/90" onClick={async () => {
+                      toast.info("Chức năng xóa tài khoản đang được phát triển. Vui lòng liên hệ admin.");
+                    }}>
                         Xác nhận xóa
                       </AlertDialogAction>
                     </AlertDialogFooter>
@@ -845,6 +717,5 @@ export default function Settings() {
           </Card>
         </div>
       </section>
-    </div>
-  );
+    </div>;
 }
