@@ -1,4 +1,4 @@
-import { Gamepad2, User, LogOut, Trophy, Users, MessageCircle, Wallet, Music, Settings, Coins, Gift, Bell, Menu, X } from "lucide-react";
+import { Gamepad2, User, LogOut, Trophy, Users, MessageCircle, Wallet, Music, Settings, Coins, Gift, Bell, Menu, X, Search } from "lucide-react";
 import { NavLink } from "./NavLink";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -23,6 +23,8 @@ import {
   SheetTrigger,
   SheetClose,
 } from "@/components/ui/sheet";
+import { GlobalSearchModal } from "./GlobalSearchModal";
+import { MessengerButton } from "./MessengerButton";
 
 export const Navigation = () => {
   const { user, signOut } = useAuth();
@@ -32,6 +34,7 @@ export const Navigation = () => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const {
     pendingRequest,
     pendingCount,
@@ -39,6 +42,18 @@ export const Navigation = () => {
     rejectRequest,
     dismissNotification,
   } = useFriendRequestNotifications();
+
+  // Keyboard shortcut for search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "/" && !["INPUT", "TEXTAREA"].includes((e.target as HTMLElement).tagName)) {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -83,6 +98,9 @@ export const Navigation = () => {
 
   return (
     <>
+      {/* Global Search Modal */}
+      <GlobalSearchModal open={searchOpen} onOpenChange={setSearchOpen} />
+
       {/* Friend Request Notification */}
       <FriendRequestNotification
         request={pendingRequest}
@@ -125,15 +143,32 @@ export const Navigation = () => {
               ))}
 
               {user && (
-                <button
-                  onClick={() => navigate("/rewards-history")}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 hover:border-yellow-500/50 hover:scale-105 transition-all shadow-sm"
-                >
-                  <Coins className="w-5 h-5 text-yellow-500" />
-                  <span className="font-inter font-bold text-base bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
-                    {isLoadingRewards ? "..." : camlyBalance.toLocaleString()}
-                  </span>
-                </button>
+                <>
+                  {/* Search Button */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setSearchOpen(true)}
+                    className="hover:bg-primary/10"
+                    title="Tìm kiếm (nhấn /)"
+                  >
+                    <Search className="w-5 h-5" />
+                  </Button>
+
+                  {/* Messenger Button */}
+                  <MessengerButton />
+
+                  {/* Camly Balance */}
+                  <button
+                    onClick={() => navigate("/rewards-history")}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 hover:border-yellow-500/50 hover:scale-105 transition-all shadow-sm"
+                  >
+                    <Coins className="w-5 h-5 text-yellow-500" />
+                    <span className="font-inter font-bold text-base bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+                      {isLoadingRewards ? "..." : camlyBalance.toLocaleString()}
+                    </span>
+                  </button>
+                </>
               )}
 
               {user ? (
@@ -218,17 +253,31 @@ export const Navigation = () => {
             </span>
           </NavLink>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {user && (
-              <button
-                onClick={() => navigate("/rewards-history")}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30"
-              >
-                <Coins className="w-4 h-4 text-yellow-500" />
-                <span className="font-inter font-bold text-sm bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
-                  {isLoadingRewards ? "..." : camlyBalance.toLocaleString()}
-                </span>
-              </button>
+              <>
+                {/* Mobile Search Button */}
+                <button
+                  onClick={() => setSearchOpen(true)}
+                  className="p-2 rounded-xl hover:bg-muted/50 transition-colors"
+                >
+                  <Search className="w-5 h-5 text-foreground" />
+                </button>
+
+                {/* Mobile Messenger Button */}
+                <MessengerButton />
+
+                {/* Camly Balance */}
+                <button
+                  onClick={() => navigate("/rewards-history")}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30"
+                >
+                  <Coins className="w-4 h-4 text-yellow-500" />
+                  <span className="font-inter font-bold text-sm bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+                    {isLoadingRewards ? "..." : camlyBalance.toLocaleString()}
+                  </span>
+                </button>
+              </>
             )}
             
             {/* Mobile Menu Button */}

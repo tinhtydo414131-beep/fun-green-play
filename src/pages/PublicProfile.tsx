@@ -7,6 +7,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { Gamepad2, Users, MessageCircle, Trophy, ArrowLeft, Loader2, Share2 } from "lucide-react";
 import { toast } from "sonner";
+import { FriendActionButton } from "@/components/FriendActionButton";
+import { useAuth } from "@/hooks/useAuth";
 
 interface PublicProfileData {
   id: string;
@@ -46,11 +48,19 @@ interface RecentGame {
 export default function PublicProfile() {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [profile, setProfile] = useState<PublicProfileData | null>(null);
   const [favoriteGames, setFavoriteGames] = useState<FavoriteGame[]>([]);
   const [recentGames, setRecentGames] = useState<RecentGame[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+
+  // Redirect to own profile if viewing self
+  useEffect(() => {
+    if (user && userId === user.id) {
+      navigate("/profile");
+    }
+  }, [user, userId, navigate]);
 
   useEffect(() => {
     if (userId) {
@@ -196,14 +206,24 @@ export default function PublicProfile() {
               <ArrowLeft className="mr-2 w-4 h-4" />
               Quay lại
             </Button>
-            <Button
-              onClick={handleShareProfile}
-              variant="default"
-              className="font-fredoka"
-            >
-              <Share2 className="mr-2 w-4 h-4" />
-              Chia sẻ Profile
-            </Button>
+            <div className="flex items-center gap-2">
+              {/* Friend Action Button */}
+              {userId && profile && (
+                <FriendActionButton 
+                  targetUserId={userId} 
+                  targetUsername={profile.username}
+                  showMessage={true}
+                />
+              )}
+              <Button
+                onClick={handleShareProfile}
+                variant="outline"
+                className="font-fredoka"
+              >
+                <Share2 className="mr-2 w-4 h-4" />
+                Chia sẻ
+              </Button>
+            </div>
           </div>
 
           {/* Profile Header */}
