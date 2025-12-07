@@ -1,13 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
-import { Wallet, Send, Copy, CheckCircle } from "lucide-react";
+import { Wallet, Send, Copy, CheckCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { ethers } from "ethers";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { CamlyCoinReward } from "./CamlyCoinReward";
+import { withRetry, formatErrorMessage } from "@/utils/supabaseRetry";
 
 declare global {
   interface Window {
@@ -22,9 +23,14 @@ export const WalletConnect = () => {
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
   const [sending, setSending] = useState(false);
+  const [connecting, setConnecting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showReward, setShowReward] = useState(false);
   const [rewardAmount, setRewardAmount] = useState(0);
+  
+  // Prevent double submit on mobile
+  const isSubmittingRef = useRef(false);
+  const lastSubmitTimeRef = useRef(0);
 
   useEffect(() => {
     checkConnection();
@@ -46,23 +52,42 @@ export const WalletConnect = () => {
   };
 
   const connectWallet = async () => {
+    // Prevent double tap on mobile
+    const now = Date.now();
+    if (isSubmittingRef.current || now - lastSubmitTimeRef.current < 1000) {
+      return;
+    }
+    
     if (!window.ethereum) {
       toast.error("Please install MetaMask to connect your wallet! 🦊");
       return;
     }
+
+    isSubmittingRef.current = true;
+    lastSubmitTimeRef.current = now;
+    setConnecting(true);
 
     try {
       const accounts = await window.ethereum.request({
         method: 'eth_requestAccounts',
       });
 
-      setAccount(accounts[0]);
-      getBalance(accounts[0]);
-      updateProfileWallet(accounts[0]);
-      toast.success("Wallet connected! 🎉");
+      if (accounts && accounts.length > 0) {
+        setAccount(accounts[0]);
+        await getBalance(accounts[0]);
+        await updateProfileWallet(accounts[0]);
+        toast.success("Wallet connected! 🎉");
+      }
     } catch (error: any) {
       console.error("Error connecting wallet:", error);
-      toast.error("Couldn't connect wallet 😢");
+      if (error.code === 4001) {
+        toast.error("Connection rejected by user");
+      } else {
+        toast.error("Couldn't connect wallet. Please try again!");
+      }
+    } finally {
+      setConnecting(false);
+      isSubmittingRef.current = false;
     }
   };
 
@@ -82,11 +107,15 @@ export const WalletConnect = () => {
 
     try {
       // Check if this is first time connecting wallet
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("wallet_address, wallet_balance")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
+
+      if (profileError) {
+        console.error("Error fetching profile:", profileError);
+      }
 
       // Check if user already received wallet connection bonus
       const { data: existingBonus } = await supabase
@@ -94,35 +123,54 @@ export const WalletConnect = () => {
         .select("id")
         .eq("user_id", user.id)
         .eq("transaction_type", "wallet_connection")
-        .single();
+        .maybeSingle();
 
       const isFirstConnection = !profile?.wallet_address && !existingBonus;
 
-      // Update wallet address and add bonus if first time
-      const updates: any = { wallet_address: address };
+      // Prepare update data
+      let walletBalance = profile?.wallet_balance || 0;
       
       if (isFirstConnection) {
-        updates.wallet_balance = (profile?.wallet_balance || 0) + 50000;
+        walletBalance = walletBalance + 50000;
         setRewardAmount(50000);
         setShowReward(true);
         
         // Log transaction
-        await supabase.from("camly_coin_transactions").insert({
+        const { error: txError } = await supabase.from("camly_coin_transactions").insert({
           user_id: user.id,
           amount: 50000,
           transaction_type: "wallet_connection",
           description: "First wallet connection bonus"
         });
+        
+        if (txError) {
+          console.error("Error saving bonus:", txError);
+        }
       }
 
-      const { error } = await supabase
-        .from("profiles")
-        .update(updates)
-        .eq("id", user.id);
+      // Use UPDATE with retry for mobile reliability
+      const updateFn = async () => {
+        return await supabase
+          .from("profiles")
+          .update({ 
+            wallet_address: address,
+            wallet_balance: walletBalance
+          })
+          .eq("id", user.id);
+      };
 
-      if (error) throw error;
-    } catch (error) {
+      const { error } = await withRetry(updateFn, { 
+        operationName: "Saving wallet", 
+        maxRetries: 3 
+      });
+
+      if (error) {
+        console.error("Error updating wallet:", error);
+        toast.error(formatErrorMessage(error));
+      }
+    } catch (error: any) {
       console.error("Error updating wallet:", error);
+      toast.error(formatErrorMessage(error));
     }
   };
 
@@ -216,10 +264,18 @@ export const WalletConnect = () => {
             </p>
             <Button
               onClick={connectWallet}
+              disabled={connecting}
               size="lg"
-              className="font-fredoka font-bold text-xl px-12 py-8 bg-gradient-to-r from-accent to-secondary hover:shadow-xl transform hover:scale-110 transition-all"
+              className="font-fredoka font-bold text-xl px-12 py-8 bg-gradient-to-r from-accent to-secondary hover:shadow-xl transform hover:scale-110 transition-all min-h-[56px] touch-manipulation"
             >
-              Connect MetaMask 🦊
+              {connecting ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Connecting...
+                </>
+              ) : (
+                "Connect MetaMask 🦊"
+              )}
             </Button>
           </div>
         ) : (
