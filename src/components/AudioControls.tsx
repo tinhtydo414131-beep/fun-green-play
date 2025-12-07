@@ -24,9 +24,9 @@ export const AudioControls = ({
         title={isMusicEnabled ? "Tắt nhạc nền" : "Bật nhạc nền"}
       >
         {isMusicEnabled ? (
-          <Music className="h-5 w-5 text-primary" />
+          <Music className="h-5 w-5 text-white" />
         ) : (
-          <Music className="h-5 w-5 text-muted-foreground opacity-50" />
+          <Music className="h-5 w-5 text-white opacity-50" />
         )}
       </Button>
       
@@ -38,9 +38,9 @@ export const AudioControls = ({
         title={isSoundEnabled ? "Tắt hiệu ứng âm thanh" : "Bật hiệu ứng âm thanh"}
       >
         {isSoundEnabled ? (
-          <Volume2 className="h-5 w-5 text-primary" />
+          <Volume2 className="h-5 w-5 text-white" />
         ) : (
-          <VolumeX className="h-5 w-5 text-muted-foreground" />
+          <VolumeX className="h-5 w-5 text-white opacity-50" />
         )}
       </Button>
     </div>
