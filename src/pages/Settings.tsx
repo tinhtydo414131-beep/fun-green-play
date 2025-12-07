@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Save, Loader2, Lock, LogOut, Trash2, Key, Mail, User as UserIcon, Bell, Volume2, Sparkles, Clock, Palette, Eye, X } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Lock, LogOut, Trash2, Key, Mail, User as UserIcon, Bell, Volume2, Sparkles, Clock, Palette, Eye, EyeOff, X } from "lucide-react";
 import { toast } from "sonner";
 import { AvatarUpload } from "@/components/AvatarUpload";
 import { z } from "zod";
@@ -61,6 +61,11 @@ export default function Settings() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [passwordErrors, setPasswordErrors] = useState<Record<string, string>>({});
   const [changingPassword, setChangingPassword] = useState(false);
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false
+  });
   const {
     preferences,
     updatePreferences,
@@ -371,10 +376,19 @@ export default function Settings() {
                   <Label htmlFor="currentPassword" className="text-base font-fredoka text-foreground">
                     Mật khẩu hiện tại <span className="text-destructive">*</span>
                   </Label>
-                  <Input id="currentPassword" type="password" value={passwordData.currentPassword} onChange={e => setPasswordData({
-                  ...passwordData,
-                  currentPassword: e.target.value
-                })} placeholder="Nhập mật khẩu hiện tại" className={`border-4 focus:ring-4 focus:ring-primary/20 ${passwordErrors.currentPassword ? 'border-destructive' : 'border-primary/40 focus:border-primary'}`} />
+                  <div className="relative">
+                    <Input id="currentPassword" type={showPasswords.current ? "text" : "password"} value={passwordData.currentPassword} onChange={e => setPasswordData({
+                    ...passwordData,
+                    currentPassword: e.target.value
+                  })} placeholder="Nhập mật khẩu hiện tại" className={`border-4 focus:ring-4 focus:ring-primary/20 pr-10 ${passwordErrors.currentPassword ? 'border-destructive' : 'border-primary/40 focus:border-primary'}`} />
+                    <button 
+                      type="button"
+                      onClick={() => setShowPasswords({...showPasswords, current: !showPasswords.current})}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPasswords.current ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
                   {passwordErrors.currentPassword && <p className="text-sm text-destructive font-comic">{passwordErrors.currentPassword}</p>}
                 </div>
 
@@ -383,10 +397,19 @@ export default function Settings() {
                   <Label htmlFor="newPassword" className="text-base font-fredoka text-foreground">
                     Mật khẩu mới <span className="text-destructive">*</span>
                   </Label>
-                  <Input id="newPassword" type="password" value={passwordData.newPassword} onChange={e => setPasswordData({
-                  ...passwordData,
-                  newPassword: e.target.value
-                })} placeholder="Nhập mật khẩu mới" className={`border-4 focus:ring-4 focus:ring-primary/20 ${passwordErrors.newPassword ? 'border-destructive' : 'border-primary/40 focus:border-primary'}`} />
+                  <div className="relative">
+                    <Input id="newPassword" type={showPasswords.new ? "text" : "password"} value={passwordData.newPassword} onChange={e => setPasswordData({
+                    ...passwordData,
+                    newPassword: e.target.value
+                  })} placeholder="Nhập mật khẩu mới" className={`border-4 focus:ring-4 focus:ring-primary/20 pr-10 ${passwordErrors.newPassword ? 'border-destructive' : 'border-primary/40 focus:border-primary'}`} />
+                    <button 
+                      type="button"
+                      onClick={() => setShowPasswords({...showPasswords, new: !showPasswords.new})}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPasswords.new ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
                   {passwordErrors.newPassword && <p className="text-sm text-destructive font-comic">{passwordErrors.newPassword}</p>}
                 </div>
 
@@ -395,10 +418,19 @@ export default function Settings() {
                   <Label htmlFor="confirmPassword" className="text-base font-fredoka text-foreground">
                     Xác nhận mật khẩu mới <span className="text-destructive">*</span>
                   </Label>
-                  <Input id="confirmPassword" type="password" value={passwordData.confirmPassword} onChange={e => setPasswordData({
-                  ...passwordData,
-                  confirmPassword: e.target.value
-                })} placeholder="Nhập lại mật khẩu mới" className={`border-4 focus:ring-4 focus:ring-primary/20 ${passwordErrors.confirmPassword ? 'border-destructive' : 'border-primary/40 focus:border-primary'}`} />
+                  <div className="relative">
+                    <Input id="confirmPassword" type={showPasswords.confirm ? "text" : "password"} value={passwordData.confirmPassword} onChange={e => setPasswordData({
+                    ...passwordData,
+                    confirmPassword: e.target.value
+                  })} placeholder="Nhập lại mật khẩu mới" className={`border-4 focus:ring-4 focus:ring-primary/20 pr-10 ${passwordErrors.confirmPassword ? 'border-destructive' : 'border-primary/40 focus:border-primary'}`} />
+                    <button 
+                      type="button"
+                      onClick={() => setShowPasswords({...showPasswords, confirm: !showPasswords.confirm})}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPasswords.confirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
                   {passwordErrors.confirmPassword && <p className="text-sm text-destructive font-comic">{passwordErrors.confirmPassword}</p>}
                 </div>
 
