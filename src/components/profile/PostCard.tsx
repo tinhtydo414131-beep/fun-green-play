@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -58,6 +58,65 @@ export function PostCard({ post, currentUserId, onDelete }: PostCardProps) {
   useEffect(() => {
     checkIfLiked();
   }, [post.id, currentUserId]);
+
+  // Real-time subscription for likes and comments updates
+  useEffect(() => {
+    const channel = supabase
+      .channel(`post-updates-${post.id}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'post_likes',
+        filter: `post_id=eq.${post.id}`
+      }, () => {
+        // Refresh like count from database
+        refreshLikeCount();
+      })
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'post_comments',
+        filter: `post_id=eq.${post.id}`
+      }, () => {
+        // Refresh comments if visible
+        if (showComments) {
+          loadComments();
+        }
+      })
+      .subscribe((status) => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          // Auto-reconnect on mobile
+          setTimeout(() => {
+            supabase.removeChannel(channel);
+          }, 2000);
+        }
+      });
+
+    // Handle visibility change for mobile
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        checkIfLiked();
+        refreshLikeCount();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+      supabase.removeChannel(channel);
+    };
+  }, [post.id, showComments]);
+
+  const refreshLikeCount = async () => {
+    const { count } = await supabase
+      .from('post_likes')
+      .select('*', { count: 'exact', head: true })
+      .eq('post_id', post.id);
+    
+    if (count !== null) {
+      setLikesCount(count);
+    }
+  };
 
   const checkIfLiked = async () => {
     const { data } = await supabase

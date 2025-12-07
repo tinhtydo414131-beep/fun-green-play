@@ -30,6 +30,7 @@ import { ReplyPreview, QuotedMessage } from "@/components/ReplyPreview";
 import { PinnedMessagesBar } from "@/components/PinnedMessages";
 import { VoiceRecordButton } from "@/components/VoiceRecordButton";
 import { VoiceMessage } from "@/components/VoiceMessage";
+import { playNotificationTing, showBrowserNotification } from "@/hooks/useMessageSound";
 
 interface Friend {
   id: string;
@@ -452,6 +453,12 @@ export default function Messages() {
   };
 
   const subscribeToMessages = (roomId: string) => {
+    // Clean up existing channel first
+    const existingChannel = supabase.getChannels().find(ch => ch.topic === `realtime:room-${roomId}`);
+    if (existingChannel) {
+      supabase.removeChannel(existingChannel);
+    }
+
     const channel = supabase
       .channel(`room-${roomId}`)
       .on(
@@ -483,11 +490,20 @@ export default function Messages() {
 
           setMessages(prev => [...prev, newMsg]);
 
-          // Mark as read if not from current user
+          // Play notification sound + push notification if not from current user
           if (payload.new.sender_id !== user?.id) {
-            const audio = new Audio("/audio/coin-reward.mp3");
-            audio.volume = 0.3;
-            audio.play().catch(() => {});
+            // Play "ting" sound
+            playNotificationTing(0.4);
+            
+            // Show browser notification
+            showBrowserNotification(
+              `💬 ${sender?.username || "Someone"}`,
+              payload.new.message,
+              {
+                tag: `message-${roomId}`,
+                onClick: () => window.focus()
+              }
+            );
             
             notifyNewMessage(
               sender?.username || "Someone",
@@ -531,9 +547,31 @@ export default function Messages() {
           setMessages(prev => prev.filter(msg => msg.id !== payload.old.id));
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log(`[Chat Realtime] Status for room ${roomId}:`, status);
+        
+        // Handle reconnection on mobile when app comes back to foreground
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          console.log('[Chat Realtime] Channel error/timeout, will reconnect...');
+          setTimeout(() => {
+            subscribeToMessages(roomId);
+          }, 2000);
+        }
+      });
+
+    // Handle visibility change for mobile background/foreground
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('[Chat Realtime] App returned to foreground, reconnecting...');
+        // Refetch messages to catch any missed while in background
+        fetchMessages(roomId);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       supabase.removeChannel(channel);
     };
   };

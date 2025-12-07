@@ -237,11 +237,20 @@ export function CoverCropModal({
                     onInteractionStart={() => setIsDragging(true)}
                     onInteractionEnd={() => setIsDragging(false)}
                     showGrid
+                    minZoom={1}
+                    maxZoom={3}
+                    zoomSpeed={0.1}
+                    restrictPosition={true}
                     classes={{
-                      containerClassName: 'rounded-none',
+                      containerClassName: 'rounded-none touch-manipulation',
                       cropAreaClassName: 'border-2 border-primary/50'
                     }}
                     style={{
+                      containerStyle: {
+                        touchAction: 'none',
+                        WebkitUserSelect: 'none',
+                        userSelect: 'none'
+                      },
                       cropAreaStyle: {
                         boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.7)'
                       }
@@ -294,14 +303,15 @@ export function CoverCropModal({
           <div className="px-4 py-4 border-t border-border bg-card/50 space-y-4">
             {/* Zoom Control */}
             {imageSrc && (
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 touch-manipulation">
                 <Button
                   variant="outline"
                   size="icon"
                   onClick={() => setZoom(Math.max(1, zoom - 0.1))}
                   disabled={zoom <= 1}
+                  className="min-h-[48px] min-w-[48px]"
                 >
-                  <ZoomOut className="w-4 h-4" />
+                  <ZoomOut className="w-5 h-5" />
                 </Button>
                 
                 <div className="flex-1">
@@ -311,7 +321,7 @@ export function CoverCropModal({
                     max={3}
                     step={0.01}
                     onValueChange={([value]) => setZoom(value)}
-                    className="w-full"
+                    className="w-full touch-manipulation"
                   />
                 </div>
                 
@@ -320,8 +330,9 @@ export function CoverCropModal({
                   size="icon"
                   onClick={() => setZoom(Math.min(3, zoom + 0.1))}
                   disabled={zoom >= 3}
+                  className="min-h-[48px] min-w-[48px]"
                 >
-                  <ZoomIn className="w-4 h-4" />
+                  <ZoomIn className="w-5 h-5" />
                 </Button>
                 
                 <span className="text-sm text-muted-foreground w-14 text-center">
