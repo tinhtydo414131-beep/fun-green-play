@@ -50,7 +50,8 @@ export default function Settings() {
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
-    bio: ""
+    bio: "",
+    email: ""
   });
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -85,7 +86,8 @@ export default function Settings() {
       setProfile(data);
       setFormData({
         username: data.username || "",
-        bio: data.bio || ""
+        bio: data.bio || "",
+        email: data.email || ""
       });
     } catch (error: any) {
       console.error("Error fetching profile:", error);
@@ -242,18 +244,58 @@ export default function Settings() {
               })} />
               </div>
 
+              {/* Email Section */}
+              <div className="space-y-2">
+                <Label className="text-base font-fredoka text-foreground">
+                  Email 📧
+                </Label>
+                <div className="flex gap-2">
+                  <Input 
+                    type="email" 
+                    value={formData.email || profile.email} 
+                    onChange={e => setFormData({
+                      ...formData,
+                      email: e.target.value
+                    })}
+                    placeholder="Nhập email mới"
+                    className={`flex-1 border-4 focus:ring-4 focus:ring-primary/20 ${errors.email ? 'border-destructive' : 'border-primary/40 focus:border-primary'}`}
+                  />
+                  <Button 
+                    type="button"
+                    onClick={async () => {
+                      if (!formData.email || formData.email === profile.email) {
+                        toast.error("Vui lòng nhập email mới!");
+                        return;
+                      }
+                      setSaving(true);
+                      try {
+                        const { error } = await supabase.auth.updateUser({
+                          email: formData.email
+                        });
+                        if (error) throw error;
+                        toast.success("📧 Đã gửi email xác nhận đến địa chỉ mới!");
+                      } catch (error: any) {
+                        toast.error(error.message || "Không thể cập nhật email!");
+                      } finally {
+                        setSaving(false);
+                      }
+                    }}
+                    disabled={saving || !formData.email || formData.email === profile.email}
+                    variant="outline"
+                    className="font-fredoka"
+                  >
+                    <Mail className="w-4 h-4 mr-1" />
+                    Đổi
+                  </Button>
+                </div>
+                {errors.email && <p className="text-sm text-destructive font-comic">{errors.email}</p>}
+                <p className="text-xs text-muted-foreground font-comic">
+                  Bạn sẽ nhận email xác nhận khi thay đổi
+                </p>
+              </div>
+
               {/* Form */}
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Email (Read-only) */}
-                <div className="space-y-2">
-                  <Label className="text-base font-fredoka text-foreground">
-                    Email 📧
-                  </Label>
-                  <Input type="email" value={profile.email} disabled className="bg-muted/50 cursor-not-allowed" />
-                  <p className="text-xs text-muted-foreground font-comic">
-                    Email không thể thay đổi
-                  </p>
-                </div>
 
                 {/* Username */}
                 <div className="space-y-2">
