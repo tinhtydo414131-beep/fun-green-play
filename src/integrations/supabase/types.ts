@@ -207,6 +207,27 @@ export type Database = {
         }
         Relationships: []
       }
+      charity_wallet_stats: {
+        Row: {
+          id: string
+          last_updated: string
+          total_donated: number
+          total_transactions: number
+        }
+        Insert: {
+          id?: string
+          last_updated?: string
+          total_donated?: number
+          total_transactions?: number
+        }
+        Update: {
+          id?: string
+          last_updated?: string
+          total_donated?: number
+          total_transactions?: number
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           attachment_name: string | null
@@ -2326,6 +2347,27 @@ export type Database = {
           },
         ]
       }
+      user_role_selections: {
+        Row: {
+          id: string
+          selected_at: string
+          selected_role: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          selected_at?: string
+          selected_role: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          selected_at?: string
+          selected_role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -2721,7 +2763,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "moderator" | "user" | "kid" | "parent" | "dev"
       game_category:
         | "action"
         | "puzzle"
@@ -2866,7 +2908,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "user", "kid", "parent", "dev"],
       game_category: [
         "action",
         "puzzle",
