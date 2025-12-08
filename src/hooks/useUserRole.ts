@@ -53,14 +53,25 @@ export function useUserRole() {
     if (!user || !selectedRole) return false;
 
     try {
-      const { error } = await supabase
+      // First try to insert
+      const { error: insertError } = await supabase
         .from('user_role_selections')
-        .upsert({
+        .insert({
           user_id: user.id,
           selected_role: selectedRole,
         });
 
-      if (error) throw error;
+      // If insert fails due to duplicate, try update
+      if (insertError && insertError.code === '23505') {
+        const { error: updateError } = await supabase
+          .from('user_role_selections')
+          .update({ selected_role: selectedRole })
+          .eq('user_id', user.id);
+
+        if (updateError) throw updateError;
+      } else if (insertError) {
+        throw insertError;
+      }
 
       setRole(selectedRole);
       setNeedsRoleSelection(false);
