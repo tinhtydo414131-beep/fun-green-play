@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/sheet";
 import { GlobalSearchModal } from "./GlobalSearchModal";
 import { MessengerButton } from "./MessengerButton";
+import { Web3Header } from "./Web3Header";
+import { CharityCounter } from "./CharityCounter";
 
 export const Navigation = () => {
   const { user, signOut } = useAuth();
@@ -141,6 +143,9 @@ export const Navigation = () => {
                   {link.label}
                 </NavLink>
               ))}
+
+              {/* Web3 Wallet Connect */}
+              <Web3Header />
 
               {user && (
                 <>

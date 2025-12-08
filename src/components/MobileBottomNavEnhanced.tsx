@@ -10,28 +10,35 @@ export const MobileBottomNavEnhanced = () => {
   const { user } = useAuth();
   const { isDev } = useUserRole();
 
+  // Hide bottom nav on game play pages for immersive experience
+  const hideOnPaths = ['/game/'];
+  const shouldHide = hideOnPaths.some(path => location.pathname.startsWith(path));
+
+  if (shouldHide) return null;
+
   const baseNavItems = [
     { icon: Home, label: "Home", labelVi: "Trang chủ", path: "/", emoji: "🏠" },
     { icon: Gamepad2, label: "Games", labelVi: "Game", path: "/games", emoji: "🎮" },
     { icon: Trophy, label: "Rank", labelVi: "BXH", path: "/leaderboard", emoji: "🏆" },
   ];
 
-  // Add upload tab for developers only
+  // Add upload tab for developers, wallet for others
   const navItems = isDev 
     ? [
         ...baseNavItems.slice(0, 2),
         { icon: Upload, label: "Upload", labelVi: "Tải lên", path: "/upload-game", emoji: "📤" },
         ...baseNavItems.slice(2),
-        { icon: User, label: "Profile", labelVi: "Cá nhân", path: user ? "/dashboard" : "/auth", emoji: "👤" },
+        { icon: User, label: "Profile", labelVi: "Cá nhân", path: user ? "/profile" : "/auth", emoji: "👤" },
       ]
     : [
         ...baseNavItems,
-        { icon: MessageCircle, label: "Chat", labelVi: "Chat", path: user ? "/messages" : "/auth", emoji: "💬" },
-        { icon: User, label: "Profile", labelVi: "Cá nhân", path: user ? "/dashboard" : "/auth", emoji: "👤" },
+        { icon: Wallet, label: "Wallet", labelVi: "Ví", path: user ? "/wallet" : "/auth", emoji: "💰" },
+        { icon: User, label: "Profile", labelVi: "Cá nhân", path: user ? "/profile" : "/auth", emoji: "👤" },
       ];
 
   const isActive = (path: string) => {
     if (path === "/") return location.pathname === "/";
+    if (path === "/profile") return location.pathname === "/profile" || location.pathname === "/dashboard";
     return location.pathname.startsWith(path);
   };
 
@@ -47,7 +54,7 @@ export const MobileBottomNavEnhanced = () => {
     >
       <div className={cn(
         "grid h-[72px] max-w-lg mx-auto",
-        navItems.length === 5 ? "grid-cols-5" : "grid-cols-4"
+        "grid-cols-5"
       )}>
         {navItems.map((item) => {
           const Icon = item.icon;

@@ -4,10 +4,15 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { BackgroundMusicPlayer } from "@/components/BackgroundMusicPlayer";
-import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { MobileBottomNavEnhanced } from "@/components/MobileBottomNavEnhanced";
 import { Web3Provider } from "@/providers/Web3Provider";
 import { CoinNotification } from "@/components/CoinNotification";
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
+import { RoleSelectionModal } from "@/components/RoleSelectionModal";
+import { CharityCounter } from "@/components/CharityCounter";
 import { AnimatePresence } from "framer-motion";
+import { useAuth } from "@/hooks/useAuth";
+import { useUserRole } from "@/hooks/useUserRole";
 import Index from "./pages/Index";
 import Games from "./pages/Games";
 import GamePlay from "./pages/GamePlay";
@@ -85,18 +90,44 @@ const AnimatedRoutes = () => {
   );
 };
 
+const AppContent = () => {
+  const { user } = useAuth();
+  const { needsRoleSelection, loading: roleLoading } = useUserRole();
+
+  return (
+    <>
+      <Toaster />
+      <Sonner />
+      <CoinNotification />
+      <BackgroundMusicPlayer />
+      <PWAInstallPrompt />
+      
+      {/* Role Selection Modal for new users */}
+      {user && !roleLoading && (
+        <RoleSelectionModal 
+          isOpen={needsRoleSelection} 
+          onClose={() => {}} 
+        />
+      )}
+      
+      <BrowserRouter>
+        <MobileBottomNavEnhanced />
+        <AnimatedRoutes />
+        
+        {/* Charity Counter - Fixed bottom right on desktop */}
+        <div className="hidden md:block fixed bottom-4 right-4 z-40">
+          <CharityCounter />
+        </div>
+      </BrowserRouter>
+    </>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <Web3Provider>
       <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <CoinNotification />
-        <BackgroundMusicPlayer />
-        <BrowserRouter>
-          <MobileBottomNav />
-          <AnimatedRoutes />
-        </BrowserRouter>
+        <AppContent />
       </TooltipProvider>
     </Web3Provider>
   </QueryClientProvider>

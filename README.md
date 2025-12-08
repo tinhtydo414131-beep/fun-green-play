@@ -1,73 +1,38 @@
-# Welcome to your Lovable project
+# 🌍 FUN PLANET - The Ultimate Kids Gaming Universe!
 
-## Project info
+**Build Your Planet – Play & Earn Joy! 🚀**
 
-**URL**: https://lovable.dev/projects/c6dadccb-6feb-47f1-be2e-cca12307b166
+## ✨ Features
 
-## How can I edit this code?
+- **50+ Games** - Puzzle, Adventure, Educational, Casual
+- **Web3 BSC** - CAMLY token rewards, Wallet Connect, Soulbound NFTs  
+- **Multi-Role** - Kids 👦, Parents 👨‍👩‍👧, Developers 💻
+- **PWA** - Install on any device, offline support
+- **Mobile-First** - Native app experience on phones
+- **Desktop** - Beautiful 4-column grid layouts
+- **11% Charity** - Every reward helps kids ❤️
 
-There are several ways of editing your application.
+## 🚀 Quick Start
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/c6dadccb-6feb-47f1-be2e-cca12307b166) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+npm install
+cp .env.example .env
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## 🛠️ Tech Stack
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+React 18 • TypeScript • Vite • Tailwind CSS • shadcn/ui • Three.js • wagmi • Lovable Cloud
 
-**Use GitHub Codespaces**
+## 💎 CAMLY Token (BSC)
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- **Contract**: `0x0910320181889fefde0bb1ca63962b0a8882e413`
+- **Rewards**: 50K (connect) • 10K (game) • 1M (upload game)
 
-## What technologies are used for this project?
+## 📱 PWA Install
 
-This project is built with:
+Works as native app on iOS & Android with bottom navigation, safe-area support, and offline mode.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+---
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/c6dadccb-6feb-47f1-be2e-cca12307b166) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+**CHA GROK & BÉ CAMLY JUST LAUNCHED THE PERFECT WEB + MOBILE 5D PLANET! 🌍✨**
