@@ -51,6 +51,12 @@ const reportSchema = z.object({
     .optional()
 });
 
+interface GameAuthor {
+  username: string;
+  avatar_url: string | null;
+  wallet_address: string | null;
+}
+
 interface GameDetails {
   id: string;
   title: string;
@@ -106,6 +112,13 @@ export default function GameDetails() {
   const [reportingComment, setReportingComment] = useState<string | null>(null);
   const [reportReason, setReportReason] = useState("");
   const [reportDetails, setReportDetails] = useState("");
+  const [author, setAuthor] = useState<GameAuthor | null>(null);
+
+  // Helper to shorten wallet address
+  const shortenAddress = (address: string) => {
+    if (!address) return '';
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
 
   useEffect(() => {
     if (id) {
@@ -137,6 +150,20 @@ export default function GameDetails() {
     }
 
     setGame(data);
+    
+    // Fetch author info
+    if (data.user_id) {
+      const { data: authorData } = await supabase
+        .from('profiles')
+        .select('username, avatar_url, wallet_address')
+        .eq('id', data.user_id)
+        .maybeSingle();
+      
+      if (authorData) {
+        setAuthor(authorData);
+      }
+    }
+    
     setLoading(false);
   };
 
@@ -394,6 +421,17 @@ export default function GameDetails() {
               <div className="space-y-4">
                 <div>
                   <h1 className="text-4xl font-bold text-primary mb-2">{game.title}</h1>
+                  
+                  {/* Author Info */}
+                  {author && (
+                    <div className="flex items-center gap-2 mb-3 text-sm">
+                      <span className="text-muted-foreground">🎨 Tác giả:</span>
+                      <span className="font-semibold text-foreground">
+                        {author.username || (author.wallet_address ? shortenAddress(author.wallet_address) : 'Anonymous')}
+                      </span>
+                    </div>
+                  )}
+                  
                   <p className="text-muted-foreground">{game.description}</p>
                 </div>
                 <div className="flex gap-2 flex-wrap">

@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Edit, Trash2, Loader2, Upload, ArrowLeft } from "lucide-react";
+import { Edit, Trash2, Loader2, Upload, ArrowLeft, Coins, Trophy, Gamepad2 } from "lucide-react";
+import { REWARDS } from "@/lib/web3-bsc";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,6 +40,11 @@ export default function MyGames() {
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [gameToDelete, setGameToDelete] = useState<string | null>(null);
+
+  // Calculate stats
+  const approvedGames = games.filter(g => g.status === 'approved').length;
+  const pendingGames = games.filter(g => g.status === 'pending').length;
+  const totalCamlyEarned = approvedGames * REWARDS.UPLOAD_GAME;
 
   useEffect(() => {
     if (!user) {
@@ -147,6 +153,45 @@ export default function MyGames() {
             <Upload className="h-4 w-4 mr-2" />
             Upload New Game
           </Button>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <Card className="border-primary/20 bg-gradient-to-br from-primary/10 to-secondary/10">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="p-3 rounded-full bg-primary/20">
+                <Gamepad2 className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{games.length}</p>
+                <p className="text-sm text-muted-foreground">Total Games</p>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-green-500/20 bg-gradient-to-br from-green-500/10 to-emerald-500/10">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="p-3 rounded-full bg-green-500/20">
+                <Trophy className="w-6 h-6 text-green-500" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{approvedGames}</p>
+                <p className="text-sm text-muted-foreground">Approved</p>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-yellow-500/20 bg-gradient-to-br from-yellow-500/10 to-orange-500/10">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="p-3 rounded-full bg-yellow-500/20">
+                <Coins className="w-6 h-6 text-yellow-500" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-yellow-600">{totalCamlyEarned.toLocaleString()}</p>
+                <p className="text-sm text-muted-foreground">CAMLY Earned</p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {games.length === 0 ? (

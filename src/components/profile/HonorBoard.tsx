@@ -96,7 +96,8 @@ export function HonorBoard({ profile, userRank, compact = false }: HonorBoardPro
       const claimedBonuses = transactions?.filter(t => t.transaction_type === "game_upload_bonus") || [];
       const claimedUploadBonus = claimedBonuses.reduce((sum, t) => sum + (t.amount || 0), 0);
 
-      const totalPossibleBonus = (approvedGames || 0) * 1000000;
+      // Updated: 500,000 CAMLY per approved game
+      const totalPossibleBonus = (approvedGames || 0) * 500000;
       const unclaimedRewards = Math.max(0, totalPossibleBonus - claimedUploadBonus);
 
       const totalIncome = profile.wallet_balance + totalFromTransactions;

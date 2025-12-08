@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { GameCard } from "@/components/GameCard";
+import { UploadedGameCard } from "@/components/UploadedGameCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Home, ArrowUpDown } from "lucide-react";
+import { Search, Home, ArrowUpDown, Users } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
@@ -13,6 +14,19 @@ import { toast } from "sonner";
 
 import { useLegendStatus } from "@/hooks/useLegendStatus";
 import LegendParticleEffect from "@/components/LegendParticleEffect";
+
+interface UploadedGame {
+  id: string;
+  title: string;
+  description: string | null;
+  category: string;
+  thumbnail_path: string | null;
+  play_count: number;
+  download_count: number;
+  rating: number | null;
+  user_id: string;
+  status: string;
+}
 
 interface Game {
   id: string;
