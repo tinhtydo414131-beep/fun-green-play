@@ -36,8 +36,8 @@ const roles = [
     id: 'dev' as UserRoleType,
     title: 'I\'m a Developer 💻',
     titleVi: 'Tôi là lập trình viên',
-    description: 'Create games and earn 1,000,000 CAMLY per game!',
-    descriptionVi: 'Tạo game và kiếm 1,000,000 CAMLY mỗi game!',
+    description: 'Create games and earn 500,000 CAMLY per game!',
+    descriptionVi: 'Tạo game và kiếm 500.000 CAMLY mỗi game!',
     icon: Code,
     color: 'from-green-500 to-emerald-500',
     emoji: '🚀',
@@ -60,12 +60,14 @@ export function RoleSelectionModal({ isOpen, onClose }: RoleSelectionModalProps)
     setIsSubmitting(false);
 
     if (success) {
-      toast.success(`Welcome to FUN Planet! 🎉`, {
-        description: `You're now registered as a ${selectedRole}!`,
+      toast.success('Role đã được lưu thành công! 🎉', {
+        description: 'Chào mừng đến FUN Planet 5D!',
       });
       onClose();
+      // Refresh the page to apply the new role
+      setTimeout(() => window.location.reload(), 500);
     } else {
-      toast.error('Failed to save role. Please try again.');
+      toast.error('Không thể lưu role. Vui lòng thử lại.');
     }
   };
 
