@@ -1175,7 +1175,7 @@ export default function FunWallet() {
 
           {/* Navigation Buttons */}
           <div className="flex items-center justify-center gap-3">
-            {/* Back Button */}
+            {/* Back Button - Diamond Effect */}
             <motion.button
               onClick={() => {
                 if (window.history.length > 1) {
@@ -1184,30 +1184,61 @@ export default function FunWallet() {
                   navigate("/");
                 }
               }}
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.08 }}
               whileTap={{ scale: 0.95 }}
-              className="w-14 h-14 rounded-full font-bold flex items-center justify-center transition-all duration-300 shadow-2xl border-0"
+              className="relative w-14 h-14 rounded-full font-bold flex items-center justify-center transition-all duration-300 border-0 overflow-hidden group"
               style={{
-                background: 'linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%)',
-                boxShadow: '0 8px 32px rgba(59, 130, 246, 0.4), 0 4px 16px rgba(139, 92, 246, 0.3)',
+                background: 'linear-gradient(135deg, #06b6d4 0%, #8B5CF6 50%, #ec4899 100%)',
+                boxShadow: '0 0 30px rgba(6, 182, 212, 0.5), 0 0 60px rgba(139, 92, 246, 0.3), 0 8px 32px rgba(236, 72, 153, 0.4)',
               }}
             >
-              <ArrowLeft className="w-6 h-6 text-white" />
+              {/* Diamond facet overlay */}
+              <div className="absolute inset-0 opacity-60">
+                <div className="absolute top-0 left-0 w-1/2 h-1/2 bg-gradient-to-br from-white/40 via-cyan-200/20 to-transparent" style={{ clipPath: 'polygon(0 0, 100% 0, 50% 100%, 0 50%)' }} />
+                <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-bl from-white/30 via-purple-200/20 to-transparent" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 50%, 50% 100%)' }} />
+                <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-to-tr from-pink-300/30 via-transparent to-transparent" style={{ clipPath: 'polygon(0 100%, 50% 0, 0 50%)' }} />
+                <div className="absolute bottom-0 right-0 w-1/2 h-1/2 bg-gradient-to-tl from-violet-300/30 via-transparent to-transparent" style={{ clipPath: 'polygon(100% 100%, 50% 0, 100% 50%)' }} />
+              </div>
+              {/* Sparkle effects */}
+              <div className="absolute top-2 left-2 w-1.5 h-1.5 bg-white rounded-full blur-[1px] animate-pulse opacity-80" />
+              <div className="absolute bottom-3 right-2 w-1 h-1 bg-cyan-200 rounded-full blur-[1px] animate-pulse opacity-70" style={{ animationDelay: '0.5s' }} />
+              {/* Rainbow border glow */}
+              <div className="absolute inset-0 rounded-full border-2 border-white/30 group-hover:border-white/50 transition-all duration-300" />
+              <ArrowLeft className="w-6 h-6 text-white relative z-10 drop-shadow-lg" />
             </motion.button>
 
-            {/* Home Button */}
+            {/* Home Button - Diamond Effect */}
             <motion.button
               onClick={() => navigate("/")}
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.95 }}
-              className="flex-1 max-w-md h-14 rounded-[28px] font-bold flex items-center justify-center gap-3 transition-all duration-300 shadow-2xl border-0 text-white text-lg"
+              className="relative flex-1 max-w-md h-14 rounded-[28px] font-bold flex items-center justify-center gap-3 transition-all duration-300 border-0 text-white text-lg overflow-hidden group"
               style={{
-                background: 'linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%)',
-                boxShadow: '0 8px 32px rgba(59, 130, 246, 0.4), 0 4px 16px rgba(139, 92, 246, 0.3)',
+                background: 'linear-gradient(135deg, #06b6d4 0%, #8B5CF6 50%, #ec4899 100%)',
+                boxShadow: '0 0 30px rgba(6, 182, 212, 0.5), 0 0 60px rgba(139, 92, 246, 0.3), 0 8px 32px rgba(236, 72, 153, 0.4)',
               }}
             >
-              <Home className="w-7 h-7 text-white" />
-              <span>Về Trang Chủ</span>
+              {/* Diamond facet overlay */}
+              <div className="absolute inset-0 opacity-50">
+                <div className="absolute top-0 left-0 w-1/3 h-full bg-gradient-to-r from-white/30 via-cyan-200/10 to-transparent" />
+                <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-white/20 via-pink-200/10 to-transparent" />
+                <div className="absolute top-0 left-1/4 w-1/2 h-1/2 bg-gradient-to-b from-white/25 via-purple-200/15 to-transparent" style={{ clipPath: 'polygon(50% 0, 100% 100%, 0 100%)' }} />
+              </div>
+              {/* Prismatic light lines */}
+              <div className="absolute inset-0 opacity-40 overflow-hidden">
+                <div className="absolute top-0 left-1/4 w-0.5 h-full bg-gradient-to-b from-transparent via-cyan-300 to-transparent" style={{ transform: 'rotate(15deg)', transformOrigin: 'top' }} />
+                <div className="absolute top-0 right-1/4 w-0.5 h-full bg-gradient-to-b from-transparent via-purple-300 to-transparent" style={{ transform: 'rotate(-15deg)', transformOrigin: 'top' }} />
+                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-pink-300 to-transparent" />
+              </div>
+              {/* Sparkle effects */}
+              <div className="absolute top-3 left-6 w-2 h-2 bg-white rounded-full blur-[2px] animate-pulse opacity-80" />
+              <div className="absolute top-4 right-8 w-1.5 h-1.5 bg-cyan-200 rounded-full blur-[1px] animate-pulse opacity-70" style={{ animationDelay: '0.3s' }} />
+              <div className="absolute bottom-3 left-1/3 w-1 h-1 bg-purple-200 rounded-full blur-[1px] animate-pulse opacity-60" style={{ animationDelay: '0.7s' }} />
+              <div className="absolute bottom-4 right-1/4 w-1.5 h-1.5 bg-pink-200 rounded-full blur-[1px] animate-pulse opacity-75" style={{ animationDelay: '1s' }} />
+              {/* Rainbow border glow */}
+              <div className="absolute inset-0 rounded-[28px] border-2 border-white/30 group-hover:border-white/50 transition-all duration-300" />
+              <Home className="w-7 h-7 text-white relative z-10 drop-shadow-lg" />
+              <span className="relative z-10 drop-shadow-lg">Về Trang Chủ</span>
             </motion.button>
           </div>
 
