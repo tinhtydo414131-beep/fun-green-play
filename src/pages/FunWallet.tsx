@@ -1238,7 +1238,7 @@ export default function FunWallet() {
               {/* Rainbow border glow */}
               <div className="absolute inset-0 rounded-[28px] border-2 border-white/30 group-hover:border-white/50 transition-all duration-300" />
               <Home className="w-7 h-7 text-white relative z-10 drop-shadow-lg" />
-              <span className="relative z-10 drop-shadow-lg">Về Trang Chủ</span>
+              <span className="relative z-10 drop-shadow-lg text-white font-semibold">Về Trang Chủ</span>
             </motion.button>
           </div>
 
