@@ -414,12 +414,37 @@ export default function GameDetails() {
         return;
       }
 
-      // Create blob URLs for all files
+      // Create blob URLs for all files and store for cleanup
+      const blobUrls: string[] = [];
       const fileUrls: Record<string, string> = {};
+      
       for (const [path, file] of Object.entries(zip.files)) {
         if (!file.dir) {
           const content = await file.async('blob');
-          const url = URL.createObjectURL(content);
+          // Determine mime type based on extension
+          const ext = path.split('.').pop()?.toLowerCase() || '';
+          const mimeTypes: Record<string, string> = {
+            'js': 'application/javascript',
+            'css': 'text/css',
+            'html': 'text/html',
+            'json': 'application/json',
+            'png': 'image/png',
+            'jpg': 'image/jpeg',
+            'jpeg': 'image/jpeg',
+            'gif': 'image/gif',
+            'svg': 'image/svg+xml',
+            'woff': 'font/woff',
+            'woff2': 'font/woff2',
+            'ttf': 'font/ttf',
+            'mp3': 'audio/mpeg',
+            'wav': 'audio/wav',
+            'ogg': 'audio/ogg',
+          };
+          const mimeType = mimeTypes[ext] || 'application/octet-stream';
+          const typedBlob = new Blob([content], { type: mimeType });
+          const url = URL.createObjectURL(typedBlob);
+          blobUrls.push(url);
+          
           // Get relative path from basePath
           const relativePath = path.startsWith(basePath) ? path.slice(basePath.length) : path;
           fileUrls[relativePath] = url;
@@ -429,20 +454,25 @@ export default function GameDetails() {
       // Replace relative paths in HTML with blob URLs
       let modifiedHtml = indexContent;
       for (const [path, url] of Object.entries(fileUrls)) {
-        if (path !== 'index.html') {
+        if (path !== 'index.html' && path.length > 0) {
+          // Escape special regex characters in path
+          const escapedPath = path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
           // Replace various path formats
           modifiedHtml = modifiedHtml
-            .replace(new RegExp(`src=["']\.?/?${path}["']`, 'g'), `src="${url}"`)
-            .replace(new RegExp(`href=["']\.?/?${path}["']`, 'g'), `href="${url}"`)
-            .replace(new RegExp(`url\\(["']?\.?/?${path}["']?\\)`, 'g'), `url("${url}")`);
+            .replace(new RegExp(`(src|href)=["'](\\.?\\/?)${escapedPath}["']`, 'gi'), `$1="${url}"`)
+            .replace(new RegExp(`url\\(["']?(\\.?\\/?)${escapedPath}["']?\\)`, 'gi'), `url("${url}")`);
         }
       }
 
-      // Create blob URL for modified HTML
-      const htmlBlob = new Blob([modifiedHtml], { type: 'text/html' });
-      const htmlUrl = URL.createObjectURL(htmlBlob);
+      // Store blob URLs for cleanup
+      setGameUrl(JSON.stringify(blobUrls));
       
-      setGameUrl(htmlUrl);
+      // Set modified HTML directly as srcdoc
+      const iframe = document.getElementById('game-iframe') as HTMLIFrameElement;
+      if (iframe) {
+        iframe.srcdoc = modifiedHtml;
+      }
+      
       setIsPlaying(true);
       
       // Update play count
@@ -461,8 +491,20 @@ export default function GameDetails() {
   };
 
   const handleCloseGame = () => {
+    // Cleanup all blob URLs
     if (gameUrl) {
-      URL.revokeObjectURL(gameUrl);
+      try {
+        const urls = JSON.parse(gameUrl);
+        urls.forEach((url: string) => URL.revokeObjectURL(url));
+      } catch {
+        // Old format, single URL
+        URL.revokeObjectURL(gameUrl);
+      }
+    }
+    // Clear iframe content
+    const iframe = document.getElementById('game-iframe') as HTMLIFrameElement;
+    if (iframe) {
+      iframe.srcdoc = '';
     }
     setGameUrl(null);
     setIsPlaying(false);
@@ -500,9 +542,9 @@ export default function GameDetails() {
           </div>
           <div className="flex-1 p-4">
             <iframe
-              src={gameUrl}
+              id="game-iframe"
               className="w-full h-full rounded-lg bg-white"
-              sandbox="allow-scripts allow-same-origin allow-forms"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups"
               title={game?.title}
             />
           </div>
