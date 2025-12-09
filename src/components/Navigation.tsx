@@ -1,5 +1,6 @@
 import { User, LogOut, Trophy, Users, MessageCircle, Wallet, Music, Settings, Coins, Gift, Bell, Menu, X, Search } from "lucide-react";
-import funPlanetLogo from "@/assets/fun-planet-logo-new.png";
+
+const funPlanetLogo = "/logo-header.png";
 import { NavLink } from "./NavLink";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -123,8 +124,8 @@ export const Navigation = () => {
             >
               <img 
                 src={funPlanetLogo} 
-                alt="FUN Planet" 
-                className="h-12 md:h-14 w-auto object-contain transition-all duration-500 group-hover:rotate-[360deg] group-hover:drop-shadow-[0_0_15px_rgba(168,85,247,0.6)]"
+                alt="FUN Planet – Bé CamLy Dương" 
+                className="h-9 md:h-11 lg:h-12 ml-2 md:ml-5 object-contain select-none transition-all duration-300 hover:brightness-110 hover:scale-105"
               />
             </NavLink>
 
@@ -252,8 +253,8 @@ export const Navigation = () => {
           >
             <img 
               src={funPlanetLogo} 
-              alt="FUN Planet" 
-              className="h-10 w-auto object-contain transition-all duration-500 group-hover:rotate-[360deg] group-hover:drop-shadow-[0_0_12px_rgba(168,85,247,0.5)]"
+              alt="FUN Planet – Bé CamLy Dương" 
+              className="h-9 ml-2 object-contain select-none transition-all duration-300 hover:brightness-110 hover:scale-105"
             />
           </NavLink>
           
