@@ -473,6 +473,21 @@ export default function UploadGame() {
                   {/* Drag & Drop Game File */}
                   <div className="space-y-2">
                     <Label>Game File (.zip) *</Label>
+                    
+                    {/* Important Notice */}
+                    <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-sm">
+                      <p className="font-medium text-amber-600 dark:text-amber-400 flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4" />
+                        Yêu cầu quan trọng / Important Requirements
+                      </p>
+                      <ul className="mt-2 space-y-1 text-muted-foreground list-disc list-inside">
+                        <li>ZIP phải chứa file <code className="bg-muted px-1 rounded">index.html</code> có thể chạy trực tiếp</li>
+                        <li>Chỉ upload game HTML/CSS/JS đã hoàn chỉnh (static game)</li>
+                        <li>Nếu game là dự án React/Vite: chạy <code className="bg-muted px-1 rounded">npm run build</code> rồi upload thư mục <code className="bg-muted px-1 rounded">dist/</code></li>
+                        <li>Không upload source code (có package.json, src/ folder)</li>
+                      </ul>
+                    </div>
+                    
                     <div
                       onDragOver={handleGameDragOver}
                       onDragLeave={handleGameDragLeave}
@@ -503,8 +518,8 @@ export default function UploadGame() {
                         ) : (
                           <>
                             <Cloud className="w-12 h-12 mx-auto text-muted-foreground" />
-                            <p className="font-medium">Drag & drop your ZIP file here</p>
-                            <p className="text-sm text-muted-foreground">or click to browse</p>
+                            <p className="font-medium">Kéo thả file ZIP vào đây</p>
+                            <p className="text-sm text-muted-foreground">hoặc click để chọn file</p>
                           </>
                         )}
                       </div>
