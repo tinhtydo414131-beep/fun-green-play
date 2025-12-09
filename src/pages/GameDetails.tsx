@@ -116,7 +116,6 @@ export default function GameDetails() {
   const [author, setAuthor] = useState<GameAuthor | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [gameHtml, setGameHtml] = useState<string>('');
-  const [blobUrls, setBlobUrls] = useState<string[]>([]);
   const [loadingGame, setLoadingGame] = useState(false);
 
   // Helper to shorten wallet address
@@ -415,13 +414,12 @@ export default function GameDetails() {
         return;
       }
 
-      // Create blob URLs for all files and store for cleanup
-      const createdBlobUrls: string[] = [];
-      const fileUrls: Record<string, string> = {};
+      // Create base64 data URLs for all files (works in srcdoc iframe)
+      const fileDataUrls: Record<string, string> = {};
       
       for (const [path, file] of Object.entries(zip.files)) {
         if (!file.dir) {
-          const content = await file.async('blob');
+          const content = await file.async('base64');
           // Determine mime type based on extension
           const ext = path.split('.').pop()?.toLowerCase() || '';
           const mimeTypes: Record<string, string> = {
@@ -440,33 +438,32 @@ export default function GameDetails() {
             'mp3': 'audio/mpeg',
             'wav': 'audio/wav',
             'ogg': 'audio/ogg',
+            'webp': 'image/webp',
+            'ico': 'image/x-icon',
           };
           const mimeType = mimeTypes[ext] || 'application/octet-stream';
-          const typedBlob = new Blob([content], { type: mimeType });
-          const url = URL.createObjectURL(typedBlob);
-          createdBlobUrls.push(url);
+          const dataUrl = `data:${mimeType};base64,${content}`;
           
           // Get relative path from basePath
           const relativePath = path.startsWith(basePath) ? path.slice(basePath.length) : path;
-          fileUrls[relativePath] = url;
+          if (relativePath && relativePath !== 'index.html') {
+            fileDataUrls[relativePath] = dataUrl;
+          }
         }
       }
 
-      // Replace relative paths in HTML with blob URLs
+      // Replace relative paths in HTML with data URLs
       let modifiedHtml = indexContent;
-      for (const [path, url] of Object.entries(fileUrls)) {
-        if (path !== 'index.html' && path.length > 0) {
-          // Escape special regex characters in path
-          const escapedPath = path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          // Replace various path formats
-          modifiedHtml = modifiedHtml
-            .replace(new RegExp(`(src|href)=["'](\\.?\\/?)${escapedPath}["']`, 'gi'), `$1="${url}"`)
-            .replace(new RegExp(`url\\(["']?(\\.?\\/?)${escapedPath}["']?\\)`, 'gi'), `url("${url}")`);
-        }
+      for (const [path, dataUrl] of Object.entries(fileDataUrls)) {
+        // Escape special regex characters in path
+        const escapedPath = path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        // Replace various path formats (with and without ./ prefix)
+        modifiedHtml = modifiedHtml
+          .replace(new RegExp(`(src|href)=["'](\\.?\\/?)${escapedPath}["']`, 'gi'), `$1="${dataUrl}"`)
+          .replace(new RegExp(`url\\(["']?(\\.?\\/?)${escapedPath}["']?\\)`, 'gi'), `url("${dataUrl}")`);
       }
 
-      // Store blob URLs for cleanup and set game HTML
-      setBlobUrls(createdBlobUrls);
+      // Set game HTML (no blob URLs needed with data URLs)
       setGameHtml(modifiedHtml);
       setIsPlaying(true);
       
@@ -486,9 +483,6 @@ export default function GameDetails() {
   };
 
   const handleCloseGame = () => {
-    // Cleanup all blob URLs
-    blobUrls.forEach(url => URL.revokeObjectURL(url));
-    setBlobUrls([]);
     setGameHtml('');
     setIsPlaying(false);
   };
