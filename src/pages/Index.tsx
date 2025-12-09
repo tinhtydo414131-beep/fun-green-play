@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Hero } from "@/components/Hero";
@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Gamepad2, Trophy, Users, Sparkles, Shield, Gift } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import camlyCoin from "@/assets/camly-coin.png";
 import categoryAdventure from "@/assets/category-adventure.png";
 import categoryPuzzle from "@/assets/category-puzzle.png";
@@ -24,6 +24,9 @@ import ReferralWelcomeBanner from "@/components/ReferralWelcomeBanner";
 import { useWeb3Rewards } from "@/hooks/useWeb3Rewards";
 import { useLegendStatus } from "@/hooks/useLegendStatus";
 import LegendParticleEffect from "@/components/LegendParticleEffect";
+import { OnboardingTour } from "@/components/OnboardingTour";
+import { OnboardingRoleSelector } from "@/components/OnboardingRoleSelector";
+import { useOnboarding } from "@/hooks/useOnboarding";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -31,13 +34,33 @@ const Index = () => {
   const { pendingReferrer, showWelcomeBanner, dismissWelcomeBanner } = useReferral();
   const { connectWallet } = useWeb3Rewards();
   const { isLegend } = useLegendStatus();
+  const { 
+    showOnboarding, 
+    onboardingRole, 
+    startOnboarding, 
+    completeOnboarding, 
+    skipOnboarding,
+    hasCompletedOnboarding 
+  } = useOnboarding();
+  
+  const [showRoleSelector, setShowRoleSelector] = useState(false);
 
   useEffect(() => {
-    // Auto-redirect logged-in users to dashboard
-    if (!loading && user) {
-      // Don't auto-redirect, let them explore homepage
+    // Show onboarding for new users
+    if (!loading && user && !hasCompletedOnboarding()) {
+      setShowRoleSelector(true);
     }
   }, [user, loading]);
+
+  const handleSelectRole = (role: "kid" | "parent" | "developer") => {
+    setShowRoleSelector(false);
+    startOnboarding(role);
+  };
+
+  const handleSkipOnboarding = () => {
+    setShowRoleSelector(false);
+    skipOnboarding();
+  };
 
   const handleConnectWalletFromBanner = async () => {
     dismissWelcomeBanner();
@@ -121,6 +144,23 @@ const Index = () => {
       variants={pageVariants}
       transition={pageTransition}
     >
+      {/* Onboarding Tour */}
+      <AnimatePresence>
+        {showRoleSelector && (
+          <OnboardingRoleSelector 
+            onSelectRole={handleSelectRole} 
+            onSkip={handleSkipOnboarding} 
+          />
+        )}
+        {showOnboarding && onboardingRole && (
+          <OnboardingTour 
+            role={onboardingRole} 
+            onComplete={completeOnboarding} 
+            onSkip={skipOnboarding} 
+          />
+        )}
+      </AnimatePresence>
+
       {/* Legend Particle Effect */}
       <LegendParticleEffect isLegend={isLegend} />
       
