@@ -13,6 +13,8 @@ import { AirdropConfirmModal } from "@/components/AirdropConfirmModal";
 import { OnChainTransactionHistory } from "@/components/OnChainTransactionHistory";
 import { useTransactionNotifications } from "@/hooks/useTransactionNotifications";
 import { P2PTransfer } from "@/components/P2PTransfer";
+import { CharityCounterWallet } from "@/components/CharityCounterWallet";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 import { toast } from "sonner";
 import { ethers } from "ethers";

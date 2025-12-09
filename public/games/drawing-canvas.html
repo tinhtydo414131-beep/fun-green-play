@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drawing Canvas - FUN Planet</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      font-family: 'Segoe UI', sans-serif; 
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    h1 { color: white; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+    .canvas-container {
+      background: white;
+      border-radius: 20px;
+      padding: 15px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    canvas { 
+      border-radius: 10px;
+      cursor: crosshair;
+      touch-action: none;
+    }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .colors {
+      display: flex;
+      gap: 8px;
+    }
+    .color-btn {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      border: 3px solid white;
+      cursor: pointer;
+      transition: transform 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .color-btn:hover, .color-btn.active { transform: scale(1.2); }
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 20px;
+      background: white;
+      color: #f5576c;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    button:hover { transform: scale(1.05); }
+    .size-slider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: white;
+    }
+    input[type="range"] {
+      width: 100px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎨 Drawing Canvas</h1>
+  <div class="canvas-container">
+    <canvas id="canvas" width="400" height="400"></canvas>
+  </div>
+  <div class="toolbar">
+    <div class="colors">
+      <div class="color-btn active" style="background:#000" onclick="setColor('#000')"></div>
+      <div class="color-btn" style="background:#f5576c" onclick="setColor('#f5576c')"></div>
+      <div class="color-btn" style="background:#f093fb" onclick="setColor('#f093fb')"></div>
+      <div class="color-btn" style="background:#4facfe" onclick="setColor('#4facfe')"></div>
+      <div class="color-btn" style="background:#43e97b" onclick="setColor('#43e97b')"></div>
+      <div class="color-btn" style="background:#fa709a" onclick="setColor('#fa709a')"></div>
+      <div class="color-btn" style="background:#fee140" onclick="setColor('#fee140')"></div>
+      <div class="color-btn" style="background:#fff" onclick="setColor('#fff')"></div>
+    </div>
+    <div class="size-slider">
+      <span>Size:</span>
+      <input type="range" min="1" max="30" value="5" id="brushSize">
+    </div>
+    <button onclick="clearCanvas()">🗑️ Clear</button>
+    <button onclick="saveCanvas()">💾 Save</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let currentColor = '#000';
+    let lastX = 0, lastY = 0;
+
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      if (e.touches) {
+        return {
+          x: (e.touches[0].clientX - rect.left) * scaleX,
+          y: (e.touches[0].clientY - rect.top) * scaleY
+        };
+      }
+      return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY
+      };
+    }
+
+    function startDraw(e) {
+      isDrawing = true;
+      const pos = getPos(e);
+      lastX = pos.x;
+      lastY = pos.y;
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+      e.preventDefault();
+      const pos = getPos(e);
+      ctx.strokeStyle = currentColor;
+      ctx.lineWidth = document.getElementById('brushSize').value;
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+      lastX = pos.x;
+      lastY = pos.y;
+    }
+
+    function stopDraw() {
+      isDrawing = false;
+    }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDraw);
+    canvas.addEventListener('mouseleave', stopDraw);
+    canvas.addEventListener('touchstart', startDraw);
+    canvas.addEventListener('touchmove', draw);
+    canvas.addEventListener('touchend', stopDraw);
+
+    function setColor(color) {
+      currentColor = color;
+      document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    function clearCanvas() {
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function saveCanvas() {
+      const link = document.createElement('a');
+      link.download = 'my-artwork.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+  </script>
+</body>
+</html>

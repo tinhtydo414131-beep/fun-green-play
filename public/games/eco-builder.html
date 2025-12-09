@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eco Builder 3D - FUN Planet</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Segoe UI', sans-serif; 
+      overflow: hidden;
+      background: #1a1a2e;
+    }
+    #info {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      text-align: center;
+      z-index: 100;
+      background: rgba(0,0,0,0.5);
+      padding: 15px 30px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+    }
+    h1 { font-size: 1.5rem; margin-bottom: 5px; }
+    .score { font-size: 1.2rem; color: #4ade80; }
+    .toolbar {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 100;
+    }
+    button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 25px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    button:hover { transform: scale(1.1); }
+    .tree-btn { background: #4ade80; color: white; }
+    .flower-btn { background: #f472b6; color: white; }
+    .water-btn { background: #60a5fa; color: white; }
+    .house-btn { background: #fbbf24; color: #333; }
+  </style>
+</head>
+<body>
+  <div id="info">
+    <h1>🌍 Eco Builder 3D</h1>
+    <div class="score">Eco Points: <span id="score">0</span></div>
+  </div>
+  <div class="toolbar">
+    <button class="tree-btn" onclick="setTool('tree')">🌲 Tree</button>
+    <button class="flower-btn" onclick="setTool('flower')">🌸 Flower</button>
+    <button class="water-btn" onclick="setTool('water')">💧 Pond</button>
+    <button class="house-btn" onclick="setTool('house')">🏠 House</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    let scene, camera, renderer, ground;
+    let currentTool = 'tree';
+    let score = 0;
+    const objects = [];
+
+    function init() {
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x87ceeb);
+      scene.fog = new THREE.Fog(0x87ceeb, 50, 100);
+
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 15, 20);
+      camera.lookAt(0, 0, 0);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.shadowMap.enabled = true;
+      document.body.appendChild(renderer.domElement);
+
+      // Lighting
+      const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+      scene.add(ambient);
+
+      const sun = new THREE.DirectionalLight(0xffffff, 0.8);
+      sun.position.set(10, 20, 10);
+      sun.castShadow = true;
+      scene.add(sun);
+
+      // Ground
+      const groundGeo = new THREE.PlaneGeometry(50, 50);
+      const groundMat = new THREE.MeshStandardMaterial({ color: 0x7cba5f });
+      ground = new THREE.Mesh(groundGeo, groundMat);
+      ground.rotation.x = -Math.PI / 2;
+      ground.receiveShadow = true;
+      scene.add(ground);
+
+      // Events
+      renderer.domElement.addEventListener('click', onCanvasClick);
+      window.addEventListener('resize', onResize);
+
+      animate();
+    }
+
+    function setTool(tool) {
+      currentTool = tool;
+    }
+
+    function onCanvasClick(event) {
+      const mouse = new THREE.Vector2(
+        (event.clientX / window.innerWidth) * 2 - 1,
+        -(event.clientY / window.innerHeight) * 2 + 1
+      );
+
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObject(ground);
+
+      if (intersects.length > 0) {
+        const point = intersects[0].point;
+        placeObject(point.x, point.z);
+      }
+    }
+
+    function placeObject(x, z) {
+      let obj;
+      let points = 0;
+
+      switch (currentTool) {
+        case 'tree':
+          obj = createTree();
+          points = 10;
+          break;
+        case 'flower':
+          obj = createFlower();
+          points = 5;
+          break;
+        case 'water':
+          obj = createPond();
+          points = 15;
+          break;
+        case 'house':
+          obj = createHouse();
+          points = 20;
+          break;
+      }
+
+      obj.position.set(x, 0, z);
+      scene.add(obj);
+      objects.push(obj);
+
+      score += points;
+      document.getElementById('score').textContent = score;
+    }
+
+    function createTree() {
+      const group = new THREE.Group();
+      
+      const trunkGeo = new THREE.CylinderGeometry(0.3, 0.4, 2);
+      const trunkMat = new THREE.MeshStandardMaterial({ color: 0x8b4513 });
+      const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+      trunk.position.y = 1;
+      trunk.castShadow = true;
+      group.add(trunk);
+
+      const leavesGeo = new THREE.ConeGeometry(1.5, 3, 8);
+      const leavesMat = new THREE.MeshStandardMaterial({ color: 0x228b22 });
+      const leaves = new THREE.Mesh(leavesGeo, leavesMat);
+      leaves.position.y = 3.5;
+      leaves.castShadow = true;
+      group.add(leaves);
+
+      return group;
+    }
+
+    function createFlower() {
+      const group = new THREE.Group();
+      
+      const stemGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.5);
+      const stemMat = new THREE.MeshStandardMaterial({ color: 0x228b22 });
+      const stem = new THREE.Mesh(stemGeo, stemMat);
+      stem.position.y = 0.25;
+      group.add(stem);
+
+      const flowerGeo = new THREE.SphereGeometry(0.2, 8, 8);
+      const colors = [0xff69b4, 0xff6347, 0xffd700, 0x9370db];
+      const flowerMat = new THREE.MeshStandardMaterial({ 
+        color: colors[Math.floor(Math.random() * colors.length)] 
+      });
+      const flower = new THREE.Mesh(flowerGeo, flowerMat);
+      flower.position.y = 0.6;
+      group.add(flower);
+
+      return group;
+    }
+
+    function createPond() {
+      const pondGeo = new THREE.CircleGeometry(1.5, 32);
+      const pondMat = new THREE.MeshStandardMaterial({ 
+        color: 0x4169e1,
+        transparent: true,
+        opacity: 0.8
+      });
+      const pond = new THREE.Mesh(pondGeo, pondMat);
+      pond.rotation.x = -Math.PI / 2;
+      pond.position.y = 0.01;
+      return pond;
+    }
+
+    function createHouse() {
+      const group = new THREE.Group();
+
+      const baseGeo = new THREE.BoxGeometry(2, 1.5, 2);
+      const baseMat = new THREE.MeshStandardMaterial({ color: 0xdeb887 });
+      const base = new THREE.Mesh(baseGeo, baseMat);
+      base.position.y = 0.75;
+      base.castShadow = true;
+      group.add(base);
+
+      const roofGeo = new THREE.ConeGeometry(1.8, 1, 4);
+      const roofMat = new THREE.MeshStandardMaterial({ color: 0x8b0000 });
+      const roof = new THREE.Mesh(roofGeo, roofMat);
+      roof.position.y = 2;
+      roof.rotation.y = Math.PI / 4;
+      roof.castShadow = true;
+      group.add(roof);
+
+      return group;
+    }
+
+    function onResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    }
+
+    init();
+  </script>
+</body>
+</html>
