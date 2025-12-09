@@ -115,7 +115,8 @@ export default function GameDetails() {
   const [reportDetails, setReportDetails] = useState("");
   const [author, setAuthor] = useState<GameAuthor | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [gameUrl, setGameUrl] = useState<string | null>(null);
+  const [gameHtml, setGameHtml] = useState<string>('');
+  const [blobUrls, setBlobUrls] = useState<string[]>([]);
   const [loadingGame, setLoadingGame] = useState(false);
 
   // Helper to shorten wallet address
@@ -415,7 +416,7 @@ export default function GameDetails() {
       }
 
       // Create blob URLs for all files and store for cleanup
-      const blobUrls: string[] = [];
+      const createdBlobUrls: string[] = [];
       const fileUrls: Record<string, string> = {};
       
       for (const [path, file] of Object.entries(zip.files)) {
@@ -443,7 +444,7 @@ export default function GameDetails() {
           const mimeType = mimeTypes[ext] || 'application/octet-stream';
           const typedBlob = new Blob([content], { type: mimeType });
           const url = URL.createObjectURL(typedBlob);
-          blobUrls.push(url);
+          createdBlobUrls.push(url);
           
           // Get relative path from basePath
           const relativePath = path.startsWith(basePath) ? path.slice(basePath.length) : path;
@@ -464,15 +465,9 @@ export default function GameDetails() {
         }
       }
 
-      // Store blob URLs for cleanup
-      setGameUrl(JSON.stringify(blobUrls));
-      
-      // Set modified HTML directly as srcdoc
-      const iframe = document.getElementById('game-iframe') as HTMLIFrameElement;
-      if (iframe) {
-        iframe.srcdoc = modifiedHtml;
-      }
-      
+      // Store blob URLs for cleanup and set game HTML
+      setBlobUrls(createdBlobUrls);
+      setGameHtml(modifiedHtml);
       setIsPlaying(true);
       
       // Update play count
@@ -492,21 +487,9 @@ export default function GameDetails() {
 
   const handleCloseGame = () => {
     // Cleanup all blob URLs
-    if (gameUrl) {
-      try {
-        const urls = JSON.parse(gameUrl);
-        urls.forEach((url: string) => URL.revokeObjectURL(url));
-      } catch {
-        // Old format, single URL
-        URL.revokeObjectURL(gameUrl);
-      }
-    }
-    // Clear iframe content
-    const iframe = document.getElementById('game-iframe') as HTMLIFrameElement;
-    if (iframe) {
-      iframe.srcdoc = '';
-    }
-    setGameUrl(null);
+    blobUrls.forEach(url => URL.revokeObjectURL(url));
+    setBlobUrls([]);
+    setGameHtml('');
     setIsPlaying(false);
   };
 
@@ -527,7 +510,7 @@ export default function GameDetails() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-background p-4">
       {/* Game Player Overlay */}
-      {isPlaying && gameUrl && (
+      {isPlaying && gameHtml && (
         <div className="fixed inset-0 z-50 bg-black/90 flex flex-col">
           <div className="flex items-center justify-between p-4 bg-background/10 backdrop-blur">
             <h2 className="text-xl font-bold text-white">{game?.title}</h2>
@@ -542,7 +525,7 @@ export default function GameDetails() {
           </div>
           <div className="flex-1 p-4">
             <iframe
-              id="game-iframe"
+              srcDoc={gameHtml}
               className="w-full h-full rounded-lg bg-white"
               sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups"
               title={game?.title}
