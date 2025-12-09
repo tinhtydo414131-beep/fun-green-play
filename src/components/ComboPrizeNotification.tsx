@@ -47,16 +47,37 @@ export const ComboPrizeNotification = () => {
 
   const claimPrize = async (prizeId: string, amount: number) => {
     try {
-      const { error } = await supabase
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // 1. Cộng tiền vào ví
+      const { error: walletError } = await supabase.rpc('update_wallet_balance', {
+        p_user_id: user.id,
+        p_amount: amount,
+        p_operation: 'add'
+      });
+      
+      if (walletError) throw walletError;
+
+      // 2. Ghi log giao dịch
+      await supabase.from("camly_coin_transactions").insert({
+        user_id: user.id,
+        amount: amount,
+        transaction_type: "combo_prize",
+        description: `Nhận thưởng combo prize`
+      });
+
+      // 3. Đánh dấu đã claim
+      const { error: claimError } = await supabase
         .from("combo_period_winners")
         .update({ claimed: true })
         .eq("id", prizeId);
 
-      if (error) throw error;
+      if (claimError) throw claimError;
 
       toast({
         title: "🎉 Đã nhận thưởng!",
-        description: `Bạn đã nhận ${amount} tokens!`,
+        description: `+${amount.toLocaleString()} CAMLY đã được cộng vào ví!`,
       });
 
       // Remove from list
