@@ -60,6 +60,33 @@ export type Database = {
           },
         ]
       }
+      blocked_games: {
+        Row: {
+          child_id: string
+          created_at: string | null
+          game_id: string
+          id: string
+          parent_id: string
+          reason: string | null
+        }
+        Insert: {
+          child_id: string
+          created_at?: string | null
+          game_id: string
+          id?: string
+          parent_id: string
+          reason?: string | null
+        }
+        Update: {
+          child_id?: string
+          created_at?: string | null
+          game_id?: string
+          id?: string
+          parent_id?: string
+          reason?: string | null
+        }
+        Relationships: []
+      }
       blocked_users: {
         Row: {
           blocked_user_id: string
@@ -438,6 +465,78 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      child_play_sessions: {
+        Row: {
+          child_id: string
+          created_at: string | null
+          duration_minutes: number
+          ended_at: string | null
+          game_id: string | null
+          id: string
+          session_date: string
+          started_at: string | null
+        }
+        Insert: {
+          child_id: string
+          created_at?: string | null
+          duration_minutes?: number
+          ended_at?: string | null
+          game_id?: string | null
+          id?: string
+          session_date?: string
+          started_at?: string | null
+        }
+        Update: {
+          child_id?: string
+          created_at?: string | null
+          duration_minutes?: number
+          ended_at?: string | null
+          game_id?: string | null
+          id?: string
+          session_date?: string
+          started_at?: string | null
+        }
+        Relationships: []
+      }
+      child_time_limits: {
+        Row: {
+          bedtime_end: string | null
+          bedtime_start: string | null
+          child_id: string
+          created_at: string | null
+          daily_limit_minutes: number
+          id: string
+          is_active: boolean | null
+          parent_id: string
+          updated_at: string | null
+          weekend_limit_minutes: number
+        }
+        Insert: {
+          bedtime_end?: string | null
+          bedtime_start?: string | null
+          child_id: string
+          created_at?: string | null
+          daily_limit_minutes?: number
+          id?: string
+          is_active?: boolean | null
+          parent_id: string
+          updated_at?: string | null
+          weekend_limit_minutes?: number
+        }
+        Update: {
+          bedtime_end?: string | null
+          bedtime_start?: string | null
+          child_id?: string
+          created_at?: string | null
+          daily_limit_minutes?: number
+          id?: string
+          is_active?: boolean | null
+          parent_id?: string
+          updated_at?: string | null
+          weekend_limit_minutes?: number
+        }
+        Relationships: []
       }
       combo_active_periods: {
         Row: {
@@ -1517,6 +1616,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      parent_child_links: {
+        Row: {
+          approved_at: string | null
+          child_id: string
+          created_at: string | null
+          id: string
+          parent_id: string
+          status: string
+        }
+        Insert: {
+          approved_at?: string | null
+          child_id: string
+          created_at?: string | null
+          id?: string
+          parent_id: string
+          status?: string
+        }
+        Update: {
+          approved_at?: string | null
+          child_id?: string
+          created_at?: string | null
+          id?: string
+          parent_id?: string
+          status?: string
+        }
+        Relationships: []
       }
       playlist_items: {
         Row: {

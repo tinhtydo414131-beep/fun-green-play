@@ -1,4 +1,4 @@
-import { User, LogOut, Trophy, Users, MessageCircle, Wallet, Music, Settings, Coins, Gift, Bell, Menu, X, Search, History, ArrowUpRight, ArrowDownLeft, Gamepad2, Calendar, ChevronDown, Loader2, BookOpen } from "lucide-react";
+import { User, LogOut, Trophy, Users, MessageCircle, Wallet, Music, Settings, Coins, Gift, Bell, Menu, X, Search, History, ArrowUpRight, ArrowDownLeft, Gamepad2, Calendar, ChevronDown, Loader2, BookOpen, Shield } from "lucide-react";
 
 const funPlanetLogo = "/logo-header.png";
 import { NavLink } from "./NavLink";
@@ -385,6 +385,10 @@ export const Navigation = () => {
                     <DropdownMenuItem onClick={() => navigate("/dashboard")} className="py-3 text-pink-600">
                       <Gift className="mr-3 h-5 w-5" />
                       <span className="font-medium">Invite Friends</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/parent-dashboard")} className="py-3">
+                      <Shield className="mr-3 h-5 w-5" />
+                      <span className="font-medium">Parent Controls</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate("/settings")} className="py-3">
                       <Settings className="mr-3 h-5 w-5" />
