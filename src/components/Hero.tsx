@@ -21,17 +21,7 @@ export const Hero = () => {
   };
 
   return (
-    <section className="relative pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 overflow-hidden">
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover"
-      >
-        <source src="/videos/hero-background.mp4" type="video/mp4" />
-      </video>
-      <div className="absolute inset-0 bg-white/30" />
+    <section className="relative pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 overflow-hidden bg-gradient-to-br from-purple-100 via-pink-50 to-cyan-100">
       <div className="container mx-auto max-w-6xl relative z-10">
         <div className="text-center space-y-6 sm:space-y-8 animate-fade-in">
           <div className="flex justify-end mb-4">
@@ -56,11 +46,30 @@ export const Hero = () => {
               className="w-12 h-12 sm:w-20 sm:h-20 md:w-28 md:h-28 lg:w-32 lg:h-32 animate-spin drop-shadow-[0_0_20px_rgba(139,70,255,0.8)]" 
               style={{ animationDuration: '10s' }}
             />
-            <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-orbitron font-black tracking-wider drop-shadow-[0_0_40px_rgba(139,70,255,1)]">
-              <span className="bg-gradient-to-r from-yellow-300 via-pink-400 to-cyan-300 bg-clip-text text-transparent animate-gradient-shift bg-[length:200%_200%]">
-                FUN PLANET
-              </span>
-            </h1>
+            <div className="relative">
+              {/* Video background container */}
+              <div className="relative overflow-hidden rounded-2xl">
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="absolute inset-0 w-full h-full object-cover"
+                >
+                  <source src="/videos/text-mask-video.mp4" type="video/mp4" />
+                </video>
+                <h1 
+                  className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-orbitron font-black tracking-wider relative z-10 py-4 px-2"
+                  style={{
+                    background: 'white',
+                    mixBlendMode: 'screen',
+                    color: 'black',
+                  }}
+                >
+                  FUN PLANET
+                </h1>
+              </div>
+            </div>
             <img 
               src={camlyCoin} 
               alt="Camly Coin" 
