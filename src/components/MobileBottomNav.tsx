@@ -51,7 +51,7 @@ export const MobileBottomNav = () => {
                 )}
               </div>
               <span className={cn(
-                "text-xs font-inter font-medium transition-all duration-200",
+                "text-xs font-jakarta font-medium transition-all duration-200",
                 active ? "text-primary font-bold" : "text-muted-foreground"
               )}>
                 {item.label}

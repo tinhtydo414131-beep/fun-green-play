@@ -235,7 +235,7 @@ export const Navigation = () => {
                 <NavLink 
                   key={link.path}
                   to={link.path} 
-                  className={`px-5 py-2.5 rounded-xl font-inter font-semibold text-base transition-all ${
+                  className={`px-5 py-2.5 rounded-xl font-jakarta font-semibold text-base transition-all ${
                     isActive(link.path) 
                       ? 'bg-primary/10 text-primary border-b-2 border-primary' 
                       : 'text-foreground hover:text-primary hover:bg-primary/5'
@@ -271,7 +271,7 @@ export const Navigation = () => {
                         className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 hover:border-yellow-500/50 hover:scale-105 transition-all shadow-sm"
                       >
                         <Coins className="w-5 h-5 text-yellow-500" />
-                        <span className="font-inter font-bold text-base bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+                        <span className="font-jakarta font-bold text-base bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
                           {isLoadingRewards ? "..." : camlyBalance.toLocaleString()}
                         </span>
                         <ChevronDown className="w-4 h-4 text-yellow-500" />
@@ -342,12 +342,12 @@ export const Navigation = () => {
                     <button className="flex items-center gap-3 ml-2 p-1.5 rounded-xl hover:bg-muted/50 active:scale-95 transition-all">
                       <Avatar className="w-10 h-10 border-2 border-primary/30">
                         <AvatarImage src={avatarUrl || undefined} />
-                        <AvatarFallback className="bg-primary/20 text-primary font-inter font-bold">
+                        <AvatarFallback className="bg-primary/20 text-primary font-jakarta font-bold">
                           {user?.email?.[0]?.toUpperCase() || "U"}
                         </AvatarFallback>
                       </Avatar>
                       {username && (
-                        <span className="font-inter font-semibold text-foreground">
+                        <span className="font-jakarta font-semibold text-foreground">
                           {username}
                         </span>
                       )}
@@ -393,7 +393,7 @@ export const Navigation = () => {
               ) : (
                 <Button
                   onClick={() => navigate("/auth")}
-                  className="font-inter font-bold text-base px-6 py-2.5 h-11 rounded-xl bg-gradient-to-r from-primary to-secondary shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+                  className="font-jakarta font-bold text-base px-6 py-2.5 h-11 rounded-xl bg-gradient-to-r from-primary to-secondary shadow-lg hover:shadow-xl hover:scale-105 transition-all"
                 >
                   Login
                 </Button>
@@ -438,7 +438,7 @@ export const Navigation = () => {
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30"
                     >
                       <Coins className="w-4 h-4 text-yellow-500" />
-                      <span className="font-inter font-bold text-sm bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+                      <span className="font-jakarta font-bold text-sm bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
                         {isLoadingRewards ? "..." : camlyBalance.toLocaleString()}
                       </span>
                       <ChevronDown className="w-3 h-3 text-yellow-500" />
@@ -515,12 +515,12 @@ export const Navigation = () => {
                       <div className="flex items-center gap-3">
                         <Avatar className="w-12 h-12 border-2 border-primary/30">
                           <AvatarImage src={avatarUrl || undefined} />
-                          <AvatarFallback className="bg-primary/20 text-primary font-inter font-bold text-lg">
+                          <AvatarFallback className="bg-primary/20 text-primary font-jakarta font-bold text-lg">
                             {user?.email?.[0]?.toUpperCase() || "U"}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-inter font-bold text-foreground">{username || "User"}</p>
+                          <p className="font-jakarta font-bold text-foreground">{username || "User"}</p>
                           <p className="text-sm text-muted-foreground">{user.email}</p>
                         </div>
                       </div>
@@ -530,7 +530,7 @@ export const Navigation = () => {
                           navigate("/auth");
                           setMobileMenuOpen(false);
                         }}
-                        className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-secondary font-inter font-bold text-base"
+                        className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-secondary font-jakarta font-bold text-base"
                       >
                         Login / Sign Up
                       </Button>
