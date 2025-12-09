@@ -317,6 +317,41 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Quick Access Features */}
+      <section className="py-16 px-4 bg-gradient-to-r from-secondary/10 via-primary/10 to-accent/10">
+        <div className="container mx-auto max-w-7xl">
+          <h2 className="text-3xl md:text-4xl font-fredoka font-bold text-primary text-center mb-12">
+            Quick Access 🚀
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {[
+              { path: "/games", icon: "🎮", label: "Play Games" },
+              { path: "/upload-game", icon: "📤", label: "Upload Game" },
+              { path: "/global-airdrop", icon: "🎁", label: "Airdrop 1B" },
+              { path: "/planet-explorer", icon: "🌍", label: "3D Builder" },
+              { path: "/nft-gallery", icon: "💎", label: "NFT Gallery" },
+              { path: "/chat", icon: "💬", label: "Community" },
+              { path: "/parent-dashboard", icon: "👨‍👩‍👧", label: "Parent Controls" },
+              { path: "/about", icon: "ℹ️", label: "About Us" },
+              { path: "/wallet", icon: "💰", label: "My Wallet" },
+              { path: "/leaderboard", icon: "🏆", label: "Leaderboard" },
+              { path: "/find-friends", icon: "👥", label: "Find Friends" },
+              { path: user ? "/admin-dashboard" : "/auth", icon: "⚙️", label: "Admin" },
+            ].map((item) => (
+              <Button
+                key={item.path}
+                variant="outline"
+                onClick={() => navigate(item.path)}
+                className="flex flex-col items-center gap-2 h-24 border-2 border-primary/30 hover:border-primary hover:bg-primary/10 transition-all hover:scale-105"
+              >
+                <span className="text-3xl">{item.icon}</span>
+                <span className="font-comic text-sm font-bold">{item.label}</span>
+              </Button>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 px-4">
         <div className="container mx-auto max-w-4xl">
@@ -351,22 +386,35 @@ const Index = () => {
       {/* Footer */}
       <footer className="bg-gradient-to-r from-primary/10 to-secondary/10 border-t-4 border-primary/60 py-12 px-4">
         <div className="container mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center md:text-left">
             <div>
               <h3 className="text-2xl font-fredoka font-bold text-primary mb-4">FUN Planet 🌍</h3>
               <p className="font-comic text-muted-foreground">Build Your Planet – Play & Earn Joy!</p>
             </div>
             <div>
-              <h4 className="text-xl font-fredoka font-bold text-foreground mb-4">Quick Links</h4>
+              <h4 className="text-xl font-fredoka font-bold text-foreground mb-4">Games</h4>
               <div className="space-y-2 font-comic">
-                <p className="text-muted-foreground hover:text-primary cursor-pointer transition-colors">About Us</p>
-                <p className="text-muted-foreground hover:text-primary cursor-pointer transition-colors">Privacy Policy</p>
-                <p className="text-muted-foreground hover:text-primary cursor-pointer transition-colors">Terms of Service</p>
+                <p onClick={() => navigate("/games")} className="text-muted-foreground hover:text-primary cursor-pointer transition-colors">Browse All Games</p>
+                <p onClick={() => navigate("/upload-game")} className="text-muted-foreground hover:text-primary cursor-pointer transition-colors">Upload Your Game</p>
+                <p onClick={() => navigate("/leaderboard")} className="text-muted-foreground hover:text-primary cursor-pointer transition-colors">Leaderboard</p>
               </div>
             </div>
             <div>
-              <h4 className="text-xl font-fredoka font-bold text-foreground mb-4">Follow Us! 📱</h4>
-              <p className="font-comic text-muted-foreground">Stay updated with new games and features!</p>
+              <h4 className="text-xl font-fredoka font-bold text-foreground mb-4">Features</h4>
+              <div className="space-y-2 font-comic">
+                <p onClick={() => navigate("/global-airdrop")} className="text-muted-foreground hover:text-primary cursor-pointer transition-colors">Claim Airdrop</p>
+                <p onClick={() => navigate("/nft-gallery")} className="text-muted-foreground hover:text-primary cursor-pointer transition-colors">NFT Gallery</p>
+                <p onClick={() => navigate("/planet-explorer")} className="text-muted-foreground hover:text-primary cursor-pointer transition-colors">3D Planet Builder</p>
+                <p onClick={() => navigate("/parent-dashboard")} className="text-muted-foreground hover:text-primary cursor-pointer transition-colors">Parent Controls</p>
+              </div>
+            </div>
+            <div>
+              <h4 className="text-xl font-fredoka font-bold text-foreground mb-4">About</h4>
+              <div className="space-y-2 font-comic">
+                <p onClick={() => navigate("/about")} className="text-muted-foreground hover:text-primary cursor-pointer transition-colors">About Us</p>
+                <p className="text-muted-foreground hover:text-primary cursor-pointer transition-colors">Privacy Policy</p>
+                <p className="text-muted-foreground hover:text-primary cursor-pointer transition-colors">Terms of Service</p>
+              </div>
             </div>
           </div>
           <div className="mt-8 pt-8 border-t-2 border-primary/20 text-center">
