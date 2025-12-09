@@ -41,7 +41,7 @@ export const NexusLevelMap: React.FC<NexusLevelMapProps> = ({
                     onClick={() => isUnlocked && onSelectLevel(level)}
                     disabled={!isUnlocked}
                     className={cn(
-                      "relative aspect-square rounded-xl font-inter transition-all duration-200 flex flex-col items-center justify-center gap-0.5",
+                      "relative aspect-square rounded-xl font-jakarta transition-all duration-200 flex flex-col items-center justify-center gap-0.5",
                       "border-2 shadow-md hover:shadow-lg",
                       isUnlocked ? "cursor-pointer hover:scale-105 active:scale-95" : "cursor-not-allowed",
                       isCompleted 
