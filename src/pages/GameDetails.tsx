@@ -7,7 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { ArrowLeft, Star, Send, Loader2, Trash2, Edit2, Download, Reply, Flag } from "lucide-react";
+import { ArrowLeft, Star, Send, Loader2, Trash2, Edit2, Download, Reply, Flag, Play, X } from "lucide-react";
+import JSZip from "jszip";
 import { z } from "zod";
 import {
   AlertDialog,
@@ -113,6 +114,9 @@ export default function GameDetails() {
   const [reportReason, setReportReason] = useState("");
   const [reportDetails, setReportDetails] = useState("");
   const [author, setAuthor] = useState<GameAuthor | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [gameUrl, setGameUrl] = useState<string | null>(null);
+  const [loadingGame, setLoadingGame] = useState(false);
 
   // Helper to shorten wallet address
   const shortenAddress = (address: string) => {
@@ -375,6 +379,97 @@ export default function GameDetails() {
     if (data?.signedUrl) window.open(data.signedUrl, '_blank');
   };
 
+  const handlePlayGame = async () => {
+    if (!game) return;
+    
+    setLoadingGame(true);
+    try {
+      // Get signed URL for the ZIP file
+      const { data: urlData } = await supabase.storage
+        .from('uploaded-games')
+        .createSignedUrl(game.game_file_path, 3600);
+      
+      if (!urlData?.signedUrl) {
+        throw new Error("Could not get game file");
+      }
+
+      // Fetch and extract the ZIP
+      const response = await fetch(urlData.signedUrl);
+      const zipBlob = await response.blob();
+      const zip = await JSZip.loadAsync(zipBlob);
+      
+      // Find index.html in the ZIP
+      let indexContent: string | null = null;
+      let basePath = '';
+      
+      // Look for index.html at root or in subdirectories
+      for (const [path, file] of Object.entries(zip.files)) {
+        if (path.endsWith('index.html') && !file.dir) {
+          indexContent = await file.async('string');
+          basePath = path.replace('index.html', '');
+          break;
+        }
+      }
+      
+      if (!indexContent) {
+        toast.error("Game files not found in ZIP. Make sure index.html exists.");
+        return;
+      }
+
+      // Create blob URLs for all files
+      const fileUrls: Record<string, string> = {};
+      for (const [path, file] of Object.entries(zip.files)) {
+        if (!file.dir) {
+          const content = await file.async('blob');
+          const url = URL.createObjectURL(content);
+          // Get relative path from basePath
+          const relativePath = path.startsWith(basePath) ? path.slice(basePath.length) : path;
+          fileUrls[relativePath] = url;
+        }
+      }
+
+      // Replace relative paths in HTML with blob URLs
+      let modifiedHtml = indexContent;
+      for (const [path, url] of Object.entries(fileUrls)) {
+        if (path !== 'index.html') {
+          // Replace various path formats
+          modifiedHtml = modifiedHtml
+            .replace(new RegExp(`src=["']\.?/?${path}["']`, 'g'), `src="${url}"`)
+            .replace(new RegExp(`href=["']\.?/?${path}["']`, 'g'), `href="${url}"`)
+            .replace(new RegExp(`url\\(["']?\.?/?${path}["']?\\)`, 'g'), `url("${url}")`);
+        }
+      }
+
+      // Create blob URL for modified HTML
+      const htmlBlob = new Blob([modifiedHtml], { type: 'text/html' });
+      const htmlUrl = URL.createObjectURL(htmlBlob);
+      
+      setGameUrl(htmlUrl);
+      setIsPlaying(true);
+      
+      // Update play count
+      await supabase
+        .from('uploaded_games')
+        .update({ play_count: (game.play_count || 0) + 1 })
+        .eq('id', game.id);
+        
+      toast.success("Game loaded! 🎮");
+    } catch (error) {
+      console.error('Error loading game:', error);
+      toast.error("Failed to load game. Try downloading instead.");
+    } finally {
+      setLoadingGame(false);
+    }
+  };
+
+  const handleCloseGame = () => {
+    if (gameUrl) {
+      URL.revokeObjectURL(gameUrl);
+    }
+    setGameUrl(null);
+    setIsPlaying(false);
+  };
+
   const averageRating = ratings.length > 0
     ? (ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length).toFixed(1)
     : "0";
@@ -391,6 +486,31 @@ export default function GameDetails() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-background p-4">
+      {/* Game Player Overlay */}
+      {isPlaying && gameUrl && (
+        <div className="fixed inset-0 z-50 bg-black/90 flex flex-col">
+          <div className="flex items-center justify-between p-4 bg-background/10 backdrop-blur">
+            <h2 className="text-xl font-bold text-white">{game?.title}</h2>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleCloseGame}
+            >
+              <X className="h-4 w-4 mr-2" />
+              Close Game
+            </Button>
+          </div>
+          <div className="flex-1 p-4">
+            <iframe
+              src={gameUrl}
+              className="w-full h-full rounded-lg bg-white"
+              sandbox="allow-scripts allow-same-origin allow-forms"
+              title={game?.title}
+            />
+          </div>
+        </div>
+      )}
+
       <div className="container max-w-6xl mx-auto py-8">
         <Button
           variant="ghost"
@@ -444,13 +564,33 @@ export default function GameDetails() {
                   <span>👥 {game.play_count} plays</span>
                   <span>⬇️ {game.download_count} downloads</span>
                 </div>
-                <Button
-                  onClick={getDownloadUrl}
-                  className="w-full bg-gradient-to-r from-primary to-secondary"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Download Game
-                </Button>
+                <div className="flex flex-col gap-2">
+                  <Button
+                    onClick={handlePlayGame}
+                    disabled={loadingGame}
+                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                  >
+                    {loadingGame ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Loading Game...
+                      </>
+                    ) : (
+                      <>
+                        <Play className="h-4 w-4 mr-2" />
+                        Play Game
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    onClick={getDownloadUrl}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Download Game
+                  </Button>
+                </div>
               </div>
             </div>
           </CardContent>
