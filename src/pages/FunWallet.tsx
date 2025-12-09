@@ -1172,42 +1172,6 @@ export default function FunWallet() {
           animate={{ y: 0, opacity: 1 }}
           className="mb-6 space-y-4"
         >
-          {/* User Profile Bar */}
-          {user && (
-            <div className="flex items-center justify-between bg-white/10 backdrop-blur-xl rounded-2xl p-3 border border-white/20">
-              <div className="flex items-center gap-3">
-                {user.user_metadata?.avatar_url ? (
-                  <img 
-                    src={user.user_metadata.avatar_url} 
-                    alt="Profile" 
-                    className="w-10 h-10 rounded-full border-2 border-white/30"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
-                    {user.email?.[0].toUpperCase()}
-                  </div>
-                )}
-                <div>
-                  <p className="text-foreground font-black text-sm">
-                    Hi {user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0]} 👋
-                  </p>
-                  <p className="text-foreground/90 text-xs font-bold">{user.email}</p>
-                </div>
-              </div>
-              <Button
-                onClick={async () => {
-                  await supabase.auth.signOut();
-                  toast.success("Đã đăng xuất!");
-                  navigate("/auth");
-                }}
-                variant="ghost"
-                size="sm"
-                className="text-foreground hover:text-foreground hover:bg-muted"
-              >
-                <LogOut className="w-4 h-4" />
-              </Button>
-            </div>
-          )}
 
           {/* Navigation Buttons */}
           <div className="flex items-center justify-center gap-3">
