@@ -225,7 +225,10 @@ export const Navigation = () => {
               <img 
                 src={funPlanetLogo} 
                 alt="FUN Planet – Bé CamLy Dương" 
-                className="h-9 md:h-11 lg:h-12 ml-2 md:ml-5 object-contain select-none transition-all duration-300 hover:brightness-110 hover:scale-105"
+                className="h-9 md:h-11 lg:h-12 ml-2 md:ml-5 object-contain select-none transition-all duration-300 hover:brightness-110 hover:scale-105 hover:drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/logo-header-fallback.jpg';
+                }}
               />
             </NavLink>
 
@@ -413,7 +416,10 @@ export const Navigation = () => {
             <img 
               src={funPlanetLogo} 
               alt="FUN Planet – Bé CamLy Dương" 
-              className="h-9 ml-2 object-contain select-none transition-all duration-300 hover:brightness-110 hover:scale-105"
+              className="h-9 ml-2 object-contain select-none transition-all duration-300 hover:brightness-110 hover:scale-105 hover:drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/logo-header-fallback.jpg';
+              }}
             />
           </NavLink>
           
