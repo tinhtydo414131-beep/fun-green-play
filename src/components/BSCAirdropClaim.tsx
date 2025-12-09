@@ -141,12 +141,6 @@ export function BSCAirdropClaim({ variant = "button" }: BSCAirdropClaimProps) {
           description: `BSC Mainnet CAMLY Airdrop - 1B Campaign - Wallet: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
         });
 
-      // Update profile with birth year for age verification record
-      await supabase
-        .from('profiles')
-        .update({ age: new Date().getFullYear() - parseInt(birthYear) })
-        .eq('id', user.id);
-
       // Success!
       setClaimed(true);
       setStep('success');
