@@ -212,6 +212,7 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
+    lng: 'vi', // Default to Vietnamese
     fallbackLng: 'en',
     interpolation: {
       escapeValue: false,
