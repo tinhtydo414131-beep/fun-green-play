@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.ai-game-suggestions]
 verify_jwt = false
+
+[functions.scan-game-content]
+verify_jwt = false
