@@ -14,11 +14,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        'inter': ['Inter', 'system-ui', 'sans-serif'],
-        'poppins': ['Poppins', 'system-ui', 'sans-serif'],
+        'jakarta': ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
         'orbitron': ['Orbitron', 'system-ui', 'sans-serif'],
         'fredoka': ['Fredoka', 'system-ui', 'sans-serif'],
-        'sans': ['Inter', 'Poppins', 'system-ui', 'sans-serif'],
+        'sans': ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",

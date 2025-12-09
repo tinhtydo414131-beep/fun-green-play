@@ -9,7 +9,18 @@ const corsHeaders = {
 // CAMLY Contract on BSC
 const CAMLY_CONTRACT = '0x0910320181889fefde0bb1ca63962b0a8882e413';
 const CAMLY_DECIMALS = 3;
-const BSC_RPC = 'https://bsc-dataseed1.binance.org';
+
+// Use multiple RPC endpoints with fallback (avoid rate limits)
+const BSC_RPC_ENDPOINTS = [
+  'https://bsc-dataseed.bnbchain.org',
+  'https://bsc-dataseed1.bnbchain.org', 
+  'https://bsc-dataseed2.bnbchain.org',
+  'https://bsc-dataseed3.bnbchain.org',
+  'https://bsc-dataseed4.bnbchain.org',
+];
+
+// Get a random RPC endpoint to distribute load
+const getRandomRPC = () => BSC_RPC_ENDPOINTS[Math.floor(Math.random() * BSC_RPC_ENDPOINTS.length)];
 
 // ERC20 Transfer event signature
 const TRANSFER_EVENT_SIGNATURE = 'Transfer(address,address,uint256)';
@@ -29,7 +40,7 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Initialize ethers provider
-    const provider = new ethers.JsonRpcProvider(BSC_RPC);
+    const provider = new ethers.JsonRpcProvider(getRandomRPC());
     const contract = new ethers.Contract(
       CAMLY_CONTRACT,
       [
