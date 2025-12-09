@@ -3,14 +3,20 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { 
   ArrowLeft, Heart, Globe, Shield, Users, Sparkles, 
-  Gift, Rocket, Target, Check, ExternalLink, Coins
+  Gift, Rocket, Target, Check, ExternalLink, Coins,
+  Brain, Palette, Gamepad2, Trophy, Lightbulb, Star, CheckCircle2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
+import { 
+  PieChart, Pie, Cell, ResponsiveContainer, Legend,
+  RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
+  BarChart, Bar, XAxis, YAxis, Tooltip
+} from "recharts";
 
 const About = () => {
   const { t, i18n } = useTranslation();
@@ -48,13 +54,41 @@ const About = () => {
 
   const isVN = i18n.language === 'vi';
 
-  // Revenue split data for pie chart
+  // Revenue split data for pie chart - Updated to match blueprint
   const revenueSplitData = [
-    { name: isVN ? 'Phát triển & Vận hành' : 'Development & Operations', value: 50, color: '#FF6B35' },
-    { name: isVN ? 'Cộng đồng & Phần thưởng' : 'Community & Rewards', value: 28, color: '#4ECDC4' },
-    { name: isVN ? 'Từ thiện (Trẻ em)' : 'Charity (Children)', value: 11, color: '#FF69B4' },
-    { name: isVN ? 'Marketing' : 'Marketing', value: 6, color: '#9B59B6' },
-    { name: isVN ? 'Dự phòng' : 'Reserve', value: 5, color: '#3498DB' },
+    { name: isVN ? 'Developers' : 'Developers', value: 70, color: '#8B5CF6' },
+    { name: isVN ? 'Cộng đồng' : 'Community', value: 19, color: '#F97316' },
+    { name: isVN ? 'Từ thiện' : 'Charity', value: 11, color: '#10B981' },
+  ];
+
+  // Core Values Radar Data
+  const coreValuesData = [
+    { subject: isVN ? 'An toàn' : 'Safety', A: 100, fullMark: 100 },
+    { subject: isVN ? 'Sáng tạo' : 'Creative', A: 95, fullMark: 100 },
+    { subject: isVN ? 'Giáo dục' : 'Education', A: 90, fullMark: 100 },
+    { subject: isVN ? 'Vui vẻ' : 'Fun', A: 98, fullMark: 100 },
+    { subject: isVN ? 'Cộng đồng' : 'Community', A: 92, fullMark: 100 },
+    { subject: 'Web3', A: 97, fullMark: 100 },
+  ];
+
+  // Feature completion data
+  const featureCompletion = [
+    { name: isVN ? 'Upload Games' : 'Upload Games', completion: 95 },
+    { name: isVN ? 'Kết nối' : 'Community', completion: 92 },
+    { name: isVN ? 'Kho Game' : 'Game Library', completion: 88 },
+    { name: isVN ? 'Tầm nhìn' : 'Vision', completion: 96 },
+    { name: isVN ? 'Sứ mệnh' : 'Mission', completion: 92 },
+    { name: 'Web3', completion: 97 },
+  ];
+
+  // Vision items
+  const visionItems = [
+    { icon: Gamepad2, title: isVN ? 'Chơi vui' : 'Fun Play', desc: isVN ? 'Mỗi game đều mang lại niềm vui' : 'Every game brings joy' },
+    { icon: Shield, title: isVN ? 'An toàn' : 'Safety', desc: isVN ? '100% nội dung được kiểm duyệt' : '100% content moderated' },
+    { icon: Brain, title: isVN ? 'Trí tuệ' : 'Smart', desc: isVN ? 'Phát triển tư duy qua game' : 'Develop thinking through games' },
+    { icon: Heart, title: isVN ? 'Hạnh phúc' : 'Happy', desc: isVN ? 'Lan tỏa năng lượng tích cực' : 'Spread positive energy' },
+    { icon: Palette, title: isVN ? 'Sáng tạo' : 'Creative', desc: isVN ? 'Khơi nguồn sáng tạo vô tận' : 'Unleash endless creativity' },
+    { icon: Rocket, title: isVN ? 'Mơ lớn' : 'Dream Big', desc: isVN ? 'Từ Trái Đất đến các vì sao' : 'From Earth to the stars' },
   ];
 
   const blueprintChecklist = [
@@ -114,7 +148,35 @@ const About = () => {
             {isVN ? 'Về FUN Planet' : 'About FUN Planet'}
           </h1>
         </div>
-      </div>
+        </div>
+
+        {/* Vision Cards - NEW */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          <h3 className="text-2xl font-bold text-center mb-6 flex items-center justify-center gap-2">
+            <Star className="w-6 h-6 text-yellow-500" />
+            {isVN ? 'Tầm Nhìn 6 Chiều' : '6-Dimensional Vision'}
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            {visionItems.map((item, index) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 * index }}
+              >
+                <Card className="p-3 text-center h-full hover:shadow-lg hover:scale-105 transition-all cursor-default bg-gradient-to-br from-primary/5 to-primary/10">
+                  <item.icon className="w-8 h-8 mx-auto mb-2 text-primary" />
+                  <h4 className="font-semibold text-sm">{item.title}</h4>
+                  <p className="text-xs text-muted-foreground mt-1">{item.desc}</p>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
 
       <div className="container mx-auto px-4 py-8 space-y-8">
         {/* Hero Section */}
@@ -123,16 +185,17 @@ const About = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center space-y-4"
         >
-          <div className="w-24 h-24 mx-auto bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center">
-            <Rocket className="w-12 h-12 text-primary" />
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold">
-            {isVN ? 'Xây Dựng Hành Tinh Của Bạn' : 'Build Your Planet'}
+          <Badge className="mb-4 px-4 py-2 bg-primary/20">
+            <Sparkles className="w-4 h-4 mr-2 inline" />
+            {isVN ? 'Siêu Phẩm Web3 Dành Cho Trẻ Em' : 'Web3 Masterpiece For Kids'}
+          </Badge>
+          <h2 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-primary via-pink-500 to-orange-500 bg-clip-text text-transparent">
+            FUN Planet
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             {isVN 
-              ? 'FUN Planet là nền tảng Web3 gaming lành mạnh, nơi trẻ em vừa chơi vừa học, kiếm phần thưởng và đóng góp cho cộng đồng.' 
-              : 'FUN Planet is a wholesome Web3 gaming platform where children play, learn, earn rewards, and contribute to the community.'}
+              ? 'Nền tảng game Web3 đầu tiên được xây dựng 100% cho trẻ em, bởi tình yêu thương của cha mẹ' 
+              : 'The first Web3 gaming platform built 100% for children, by parents\' love'}
           </p>
         </motion.div>
 
@@ -275,6 +338,66 @@ const About = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* New Charts Row - Core Values Radar + Feature Completion Bar */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Core Values Radar */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Star className="w-5 h-5 text-yellow-500" />
+                {isVN ? 'Giá Trị Cốt Lõi' : 'Core Values'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={280}>
+                <RadarChart data={coreValuesData}>
+                  <PolarGrid stroke="hsl(var(--muted-foreground) / 0.3)" />
+                  <PolarAngleAxis dataKey="subject" tick={{ fill: 'hsl(var(--foreground))', fontSize: 11 }} />
+                  <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} />
+                  <Radar
+                    name="FUN Planet"
+                    dataKey="A"
+                    stroke="hsl(var(--primary))"
+                    fill="hsl(var(--primary))"
+                    fillOpacity={0.4}
+                  />
+                </RadarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Feature Completion Bar Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-yellow-500" />
+                {isVN ? 'Tiến Độ Phát Triển' : 'Development Progress'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={featureCompletion} layout="vertical">
+                  <XAxis type="number" domain={[0, 100]} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} />
+                  <YAxis type="category" dataKey="name" width={80} tick={{ fill: 'hsl(var(--foreground))', fontSize: 11 }} />
+                  <Tooltip 
+                    formatter={(value) => [`${value}%`, isVN ? 'Hoàn thành' : 'Complete']}
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px'
+                    }}
+                  />
+                  <Bar 
+                    dataKey="completion" 
+                    fill="hsl(var(--primary))" 
+                    radius={[0, 8, 8, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Blueprint Checklist */}
         <Card>
