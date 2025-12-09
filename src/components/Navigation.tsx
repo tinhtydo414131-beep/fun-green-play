@@ -1,5 +1,5 @@
 import { User, LogOut, Trophy, Users, MessageCircle, Wallet, Music, Settings, Coins, Gift, Bell, Menu, X, Search } from "lucide-react";
-import funPlanetLogo from "@/assets/fun-planet-logo.png";
+import funPlanetLogo from "@/assets/fun-planet-logo-new.png";
 import { NavLink } from "./NavLink";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -119,12 +119,12 @@ export const Navigation = () => {
             {/* Logo */}
             <NavLink 
               to="/" 
-              className="flex items-center group hover:scale-105 transition-transform"
+              className="flex items-center group"
             >
               <img 
                 src={funPlanetLogo} 
                 alt="FUN Planet" 
-                className="h-14 w-auto object-contain"
+                className="h-12 md:h-14 w-auto object-contain transition-all duration-500 group-hover:rotate-[360deg] group-hover:drop-shadow-[0_0_15px_rgba(168,85,247,0.6)]"
               />
             </NavLink>
 
@@ -248,12 +248,12 @@ export const Navigation = () => {
         <div className="flex items-center justify-between h-16 px-4">
           <NavLink 
             to="/" 
-            className="flex items-center active:scale-95 transition-transform"
+            className="flex items-center group active:scale-95 transition-transform"
           >
             <img 
               src={funPlanetLogo} 
               alt="FUN Planet" 
-              className="h-10 w-auto object-contain"
+              className="h-10 w-auto object-contain transition-all duration-500 group-hover:rotate-[360deg] group-hover:drop-shadow-[0_0_12px_rgba(168,85,247,0.5)]"
             />
           </NavLink>
           
