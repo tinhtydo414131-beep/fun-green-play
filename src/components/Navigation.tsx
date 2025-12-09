@@ -1,4 +1,4 @@
-import { User, LogOut, Trophy, Users, MessageCircle, Wallet, Music, Settings, Coins, Gift, Bell, Menu, X, Search } from "lucide-react";
+import { User, LogOut, Trophy, Users, MessageCircle, Wallet, Music, Settings, Coins, Gift, Bell, Menu, X, Search, History, ArrowUpRight, ArrowDownLeft, Gamepad2, Calendar, ChevronDown, Loader2 } from "lucide-react";
 
 const funPlanetLogo = "/logo-header.png";
 import { NavLink } from "./NavLink";
@@ -29,6 +29,75 @@ import { GlobalSearchModal } from "./GlobalSearchModal";
 import { MessengerButton } from "./MessengerButton";
 import { Web3Header } from "./Web3Header";
 import { CharityCounter } from "./CharityCounter";
+import { format } from 'date-fns';
+import { vi } from 'date-fns/locale';
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
+interface RewardTransaction {
+  id: string;
+  amount: number;
+  reward_type: string;
+  description: string | null;
+  created_at: string;
+}
+
+const getRewardIcon = (type: string) => {
+  switch (type) {
+    case 'first_wallet_connect':
+      return <Wallet className="w-4 h-4" />;
+    case 'first_game_play':
+      return <Gamepad2 className="w-4 h-4" />;
+    case 'daily_checkin':
+      return <Calendar className="w-4 h-4" />;
+    case 'points_conversion':
+      return <Coins className="w-4 h-4" />;
+    case 'claim_to_wallet':
+      return <ArrowUpRight className="w-4 h-4" />;
+    case 'referral_bonus':
+      return <Users className="w-4 h-4" />;
+    default:
+      return <Gift className="w-4 h-4" />;
+  }
+};
+
+const getRewardColor = (type: string) => {
+  switch (type) {
+    case 'first_wallet_connect':
+      return 'bg-orange-500/20 text-orange-500';
+    case 'first_game_play':
+      return 'bg-purple-500/20 text-purple-500';
+    case 'daily_checkin':
+      return 'bg-blue-500/20 text-blue-500';
+    case 'points_conversion':
+      return 'bg-green-500/20 text-green-500';
+    case 'claim_to_wallet':
+      return 'bg-red-500/20 text-red-500';
+    case 'referral_bonus':
+      return 'bg-pink-500/20 text-pink-500';
+    default:
+      return 'bg-yellow-500/20 text-yellow-500';
+  }
+};
+
+const getRewardLabel = (type: string) => {
+  switch (type) {
+    case 'first_wallet_connect':
+      return 'First Connect';
+    case 'first_game_play':
+      return 'First Game';
+    case 'daily_checkin':
+      return 'Daily Check-in';
+    case 'points_conversion':
+      return 'Points Converted';
+    case 'claim_to_wallet':
+      return 'Claimed';
+    case 'referral_bonus':
+      return 'Mời bạn bè';
+    default:
+      return 'Reward';
+  }
+};
 
 export const Navigation = () => {
   const { user, signOut } = useAuth();
@@ -39,6 +108,9 @@ export const Navigation = () => {
   const [username, setUsername] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [rewardsOpen, setRewardsOpen] = useState(false);
+  const [rewardTransactions, setRewardTransactions] = useState<RewardTransaction[]>([]);
+  const [loadingRewards, setLoadingRewards] = useState(false);
   const {
     pendingRequest,
     pendingCount,
@@ -46,6 +118,34 @@ export const Navigation = () => {
     rejectRequest,
     dismissNotification,
   } = useFriendRequestNotifications();
+
+  // Fetch reward transactions when popover opens
+  const fetchRewardTransactions = async () => {
+    if (!user) return;
+    setLoadingRewards(true);
+    try {
+      const { data, error } = await supabase
+        .from('web3_reward_transactions')
+        .select('id, amount, reward_type, description, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (!error && data) {
+        setRewardTransactions(data);
+      }
+    } catch (error) {
+      console.error('Error fetching reward transactions:', error);
+    } finally {
+      setLoadingRewards(false);
+    }
+  };
+
+  useEffect(() => {
+    if (rewardsOpen && user) {
+      fetchRewardTransactions();
+    }
+  }, [rewardsOpen, user]);
 
   // Keyboard shortcut for search
   useEffect(() => {
@@ -164,16 +264,75 @@ export const Navigation = () => {
                   {/* Messenger Button */}
                   <MessengerButton />
 
-                  {/* Camly Balance */}
-                  <button
-                    onClick={() => navigate("/rewards-history")}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 hover:border-yellow-500/50 hover:scale-105 transition-all shadow-sm"
-                  >
-                    <Coins className="w-5 h-5 text-yellow-500" />
-                    <span className="font-inter font-bold text-base bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
-                      {isLoadingRewards ? "..." : camlyBalance.toLocaleString()}
-                    </span>
-                  </button>
+                  {/* Camly Balance with Rewards History Dropdown */}
+                  <Popover open={rewardsOpen} onOpenChange={setRewardsOpen}>
+                    <PopoverTrigger asChild>
+                      <button
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 hover:border-yellow-500/50 hover:scale-105 transition-all shadow-sm"
+                      >
+                        <Coins className="w-5 h-5 text-yellow-500" />
+                        <span className="font-inter font-bold text-base bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+                          {isLoadingRewards ? "..." : camlyBalance.toLocaleString()}
+                        </span>
+                        <ChevronDown className="w-4 h-4 text-yellow-500" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent align="end" className="w-80 p-0 border border-yellow-500/20 bg-background/95 backdrop-blur-lg">
+                      <div className="p-4 border-b border-border">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <History className="w-5 h-5 text-yellow-500" />
+                            <span className="font-bold text-foreground">Rewards History</span>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => {
+                              setRewardsOpen(false);
+                              navigate("/rewards-history");
+                            }}
+                            className="text-xs text-muted-foreground hover:text-primary"
+                          >
+                            Xem tất cả
+                          </Button>
+                        </div>
+                      </div>
+                      <ScrollArea className="h-[300px]">
+                        {loadingRewards ? (
+                          <div className="flex items-center justify-center py-8">
+                            <Loader2 className="w-6 h-6 animate-spin text-yellow-500" />
+                          </div>
+                        ) : rewardTransactions.length === 0 ? (
+                          <div className="text-center py-8 px-4">
+                            <Coins className="w-12 h-12 text-muted-foreground/30 mx-auto mb-2" />
+                            <p className="text-sm text-muted-foreground">Chưa có giao dịch nào</p>
+                          </div>
+                        ) : (
+                          <div className="p-2 space-y-2">
+                            {rewardTransactions.map((tx) => (
+                              <div
+                                key={tx.id}
+                                className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+                              >
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getRewardColor(tx.reward_type)}`}>
+                                  {getRewardIcon(tx.reward_type)}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium truncate">{getRewardLabel(tx.reward_type)}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {format(new Date(tx.created_at), 'dd/MM/yyyy HH:mm', { locale: vi })}
+                                  </p>
+                                </div>
+                                <p className={`text-sm font-bold ${tx.amount >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                  {tx.amount >= 0 ? '+' : ''}{tx.amount.toLocaleString()}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </ScrollArea>
+                    </PopoverContent>
+                  </Popover>
                 </>
               )}
 
@@ -272,16 +431,72 @@ export const Navigation = () => {
                 {/* Mobile Messenger Button */}
                 <MessengerButton />
 
-                {/* Camly Balance */}
-                <button
-                  onClick={() => navigate("/rewards-history")}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30"
-                >
-                  <Coins className="w-4 h-4 text-yellow-500" />
-                  <span className="font-inter font-bold text-sm bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
-                    {isLoadingRewards ? "..." : camlyBalance.toLocaleString()}
-                  </span>
-                </button>
+                {/* Camly Balance with Rewards History Dropdown */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30"
+                    >
+                      <Coins className="w-4 h-4 text-yellow-500" />
+                      <span className="font-inter font-bold text-sm bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+                        {isLoadingRewards ? "..." : camlyBalance.toLocaleString()}
+                      </span>
+                      <ChevronDown className="w-3 h-3 text-yellow-500" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" className="w-72 p-0 border border-yellow-500/20 bg-background/95 backdrop-blur-lg">
+                    <div className="p-3 border-b border-border">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <History className="w-4 h-4 text-yellow-500" />
+                          <span className="font-bold text-sm text-foreground">Rewards History</span>
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => navigate("/rewards-history")}
+                          className="text-xs text-muted-foreground hover:text-primary h-7 px-2"
+                        >
+                          Xem tất cả
+                        </Button>
+                      </div>
+                    </div>
+                    <ScrollArea className="h-[250px]">
+                      {loadingRewards ? (
+                        <div className="flex items-center justify-center py-8">
+                          <Loader2 className="w-5 h-5 animate-spin text-yellow-500" />
+                        </div>
+                      ) : rewardTransactions.length === 0 ? (
+                        <div className="text-center py-6 px-4">
+                          <Coins className="w-10 h-10 text-muted-foreground/30 mx-auto mb-2" />
+                          <p className="text-xs text-muted-foreground">Chưa có giao dịch nào</p>
+                        </div>
+                      ) : (
+                        <div className="p-2 space-y-1.5">
+                          {rewardTransactions.map((tx) => (
+                            <div
+                              key={tx.id}
+                              className="flex items-center gap-2 p-2.5 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                            >
+                              <div className={`w-7 h-7 rounded-full flex items-center justify-center ${getRewardColor(tx.reward_type)}`}>
+                                {getRewardIcon(tx.reward_type)}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-medium truncate">{getRewardLabel(tx.reward_type)}</p>
+                                <p className="text-[10px] text-muted-foreground">
+                                  {format(new Date(tx.created_at), 'dd/MM HH:mm', { locale: vi })}
+                                </p>
+                              </div>
+                              <p className={`text-xs font-bold ${tx.amount >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                {tx.amount >= 0 ? '+' : ''}{tx.amount.toLocaleString()}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </ScrollArea>
+                  </PopoverContent>
+                </Popover>
               </>
             )}
             
