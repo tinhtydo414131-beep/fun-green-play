@@ -5,7 +5,7 @@ import { usePrivateMessages, Conversation } from '@/hooks/usePrivateMessages';
 import { ConversationList } from '@/components/private-chat/ConversationList';
 import { PrivateChatView } from '@/components/private-chat/PrivateChatView';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { MessageCircle, Users } from 'lucide-react';
+import { MessageCircle, Users, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { Helmet } from 'react-helmet';
@@ -157,7 +157,17 @@ const PrivateMessages: React.FC = () => {
         <div className="w-[360px] border-r border-border flex flex-col">
           <div className="p-4 border-b border-border bg-gradient-to-r from-pink-500/10 to-purple-500/10">
             <div className="flex items-center justify-between">
-              <h1 className="text-xl font-bold">Tin nhắn</h1>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => navigate(-1)}
+                  className="hover:bg-pink-500/10"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+                <h1 className="text-xl font-bold">Tin nhắn</h1>
+              </div>
               {totalUnread > 0 && (
                 <span className="bg-pink-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                   {totalUnread} mới
