@@ -1,4 +1,5 @@
-import { Gamepad2, User, LogOut, Trophy, Users, MessageCircle, Wallet, Music, Settings, Coins, Gift, Bell, Menu, X, Search } from "lucide-react";
+import { User, LogOut, Trophy, Users, MessageCircle, Wallet, Music, Settings, Coins, Gift, Bell, Menu, X, Search } from "lucide-react";
+import funPlanetLogo from "@/assets/fun-planet-logo.png";
 import { NavLink } from "./NavLink";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -118,14 +119,13 @@ export const Navigation = () => {
             {/* Logo */}
             <NavLink 
               to="/" 
-              className="flex items-center gap-3 group hover:scale-105 transition-transform"
+              className="flex items-center group hover:scale-105 transition-transform"
             >
-              <div className="p-2.5 bg-gradient-to-br from-primary to-secondary rounded-xl shadow-lg group-hover:shadow-xl transition-all">
-                <Gamepad2 className="w-7 h-7 text-white" />
-              </div>
-              <span className="text-2xl font-orbitron font-extrabold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent tracking-wide">
-                FUN Planet
-              </span>
+              <img 
+                src={funPlanetLogo} 
+                alt="FUN Planet" 
+                className="h-14 w-auto object-contain"
+              />
             </NavLink>
 
             {/* Desktop Links */}
@@ -248,14 +248,13 @@ export const Navigation = () => {
         <div className="flex items-center justify-between h-16 px-4">
           <NavLink 
             to="/" 
-            className="flex items-center gap-2 active:scale-95 transition-transform"
+            className="flex items-center active:scale-95 transition-transform"
           >
-            <div className="p-2 bg-gradient-to-br from-primary to-secondary rounded-xl shadow-md">
-              <Gamepad2 className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-xl font-orbitron font-extrabold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent tracking-wide">
-              FUN Planet
-            </span>
+            <img 
+              src={funPlanetLogo} 
+              alt="FUN Planet" 
+              className="h-10 w-auto object-contain"
+            />
           </NavLink>
           
           <div className="flex items-center gap-2">
