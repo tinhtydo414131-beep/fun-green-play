@@ -11,6 +11,7 @@ import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { RoleSelectionModal } from "@/components/RoleSelectionModal";
 import { CharityCounter } from "@/components/CharityCounter";
 import { FloatingChatWindows, useChatWindows } from "@/components/private-chat/FloatingChatWindows";
+import { CallProvider } from "@/components/private-chat/CallProvider";
 import { AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -147,7 +148,9 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <Web3Provider>
       <TooltipProvider>
-        <AppContent />
+        <CallProvider>
+          <AppContent />
+        </CallProvider>
       </TooltipProvider>
     </Web3Provider>
   </QueryClientProvider>

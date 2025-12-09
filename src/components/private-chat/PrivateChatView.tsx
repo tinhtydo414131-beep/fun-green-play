@@ -18,6 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useCall } from './CallProvider';
 
 interface PrivateChatViewProps {
   currentUserId: string;
@@ -41,6 +42,7 @@ export const PrivateChatView: React.FC<PrivateChatViewProps> = ({
   onMinimize
 }) => {
   const { messages, loading, sending, sendMessage } = usePrivateChat(currentUserId, otherUser.id);
+  const { startCall } = useCall();
   const [newMessage, setNewMessage] = useState('');
   const [showEmoji, setShowEmoji] = useState(false);
   const [showStickers, setShowStickers] = useState(false);
@@ -49,6 +51,14 @@ export const PrivateChatView: React.FC<PrivateChatViewProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  const handleAudioCall = () => {
+    startCall(otherUser, 'audio');
+  };
+
+  const handleVideoCall = () => {
+    startCall(otherUser, 'video');
+  };
 
   // Auto scroll to bottom
   useEffect(() => {
@@ -168,10 +178,20 @@ export const PrivateChatView: React.FC<PrivateChatViewProps> = ({
         </div>
         
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="text-pink-500">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-pink-500 hover:bg-pink-500/10"
+            onClick={handleAudioCall}
+          >
             <Phone className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="text-purple-500">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-purple-500 hover:bg-purple-500/10"
+            onClick={handleVideoCall}
+          >
             <Video className="h-5 w-5" />
           </Button>
           {onMinimize && (
