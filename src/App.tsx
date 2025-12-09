@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
+import GlobalAirdrop from "./pages/GlobalAirdrop";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -88,6 +89,7 @@ const AnimatedRoutes = () => {
         <Route path="/nft-gallery" element={<NFTGallery />} />
         <Route path="/education" element={<Education />} />
         <Route path="/parent-dashboard" element={<ParentDashboard />} />
+        <Route path="/global-airdrop" element={<GlobalAirdrop />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
