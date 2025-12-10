@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { GameCard } from "@/components/GameCard";
 import { UploadedGameCard } from "@/components/UploadedGameCard";
@@ -381,10 +381,8 @@ const Games = () => {
                     className="fade-in-on-scroll game-card"
                     style={{ animationDelay: `${Math.min(index * 0.03, 0.3)}s` }}
                   >
-                    <a 
-                      href={game.project_url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
+                    <Link 
+                      to={`/lovable-game/${game.id}`}
                       className="block group"
                     >
                       <div className="bg-gradient-to-br from-card to-card/80 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform group-hover:scale-[1.02] border-2 border-primary/20 group-hover:border-primary/50">
@@ -413,7 +411,7 @@ const Games = () => {
                           </div>
                         </div>
                       </div>
-                    </a>
+                    </Link>
                   </div>
                 ))}
                 {/* Uploaded Games */}
