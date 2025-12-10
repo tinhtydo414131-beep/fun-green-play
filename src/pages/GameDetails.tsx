@@ -411,8 +411,21 @@ export default function GameDetails() {
       const hasNodeModules = allFiles.some(f => f.includes('node_modules'));
       
       if (hasPackageJson && hasSrcFolder && !hasNodeModules) {
-        // This is an unbuild project - can't run directly
         toast.error("This game is a source project and needs to be built first. Please upload a built HTML game instead.");
+        setLoadingGame(false);
+        return;
+      }
+
+      // Detect complex Vite builds with many chunks (these won't work in iframe)
+      const jsChunkCount = allFiles.filter(f => f.includes('/assets/') && f.endsWith('.js')).length;
+      const isComplexViteBuild = jsChunkCount > 20;
+      
+      if (isComplexViteBuild) {
+        console.log('Complex Vite build detected with', jsChunkCount, 'JS chunks');
+        toast.error(
+          "This game has too many JS modules to run in browser. Please host it externally (Vercel, Netlify) and share the URL, or upload a simpler HTML game.",
+          { duration: 8000 }
+        );
         setLoadingGame(false);
         return;
       }
