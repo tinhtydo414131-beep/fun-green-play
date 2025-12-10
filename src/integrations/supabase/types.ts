@@ -2391,6 +2391,9 @@ export type Database = {
           approved_by: string | null
           category: Database["public"]["Enums"]["game_category"]
           created_at: string
+          delete_reason: string | null
+          delete_reason_detail: string | null
+          deleted_at: string | null
           description: string | null
           download_count: number
           external_url: string | null
@@ -2412,6 +2415,9 @@ export type Database = {
           approved_by?: string | null
           category: Database["public"]["Enums"]["game_category"]
           created_at?: string
+          delete_reason?: string | null
+          delete_reason_detail?: string | null
+          deleted_at?: string | null
           description?: string | null
           download_count?: number
           external_url?: string | null
@@ -2433,6 +2439,9 @@ export type Database = {
           approved_by?: string | null
           category?: Database["public"]["Enums"]["game_category"]
           created_at?: string
+          delete_reason?: string | null
+          delete_reason_detail?: string | null
+          deleted_at?: string | null
           description?: string | null
           download_count?: number
           external_url?: string | null
@@ -3111,6 +3120,7 @@ export type Database = {
         Returns: boolean
       }
       cleanup_expired_nonces: { Args: never; Returns: undefined }
+      cleanup_old_deleted_games: { Args: never; Returns: undefined }
       find_user_for_transfer: {
         Args: { p_search_input: string }
         Returns: {

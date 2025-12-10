@@ -6,18 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Edit, Trash2, Loader2, Upload, ArrowLeft, Coins, Trophy, Gamepad2 } from "lucide-react";
+import { Edit, Loader2, Upload, ArrowLeft, Coins, Trophy, Gamepad2, Gem, Trash2 } from "lucide-react";
 import { REWARDS } from "@/lib/web3-bsc";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import GameDeleteModal from "@/components/GameDeleteModal";
+import GameTrashView from "@/components/GameTrashView";
+import { useGameTrash } from "@/hooks/useGameTrash";
 
 interface UploadedGame {
   id: string;
@@ -31,6 +25,7 @@ interface UploadedGame {
   created_at: string;
   play_count: number;
   download_count: number;
+  deleted_at: string | null;
 }
 
 export default function MyGames() {
@@ -38,12 +33,16 @@ export default function MyGames() {
   const navigate = useNavigate();
   const [games, setGames] = useState<UploadedGame[]>([]);
   const [loading, setLoading] = useState(true);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [gameToDelete, setGameToDelete] = useState<string | null>(null);
+  const [gameToDelete, setGameToDelete] = useState<UploadedGame | null>(null);
+  const [activeTab, setActiveTab] = useState("active");
+  
+  const { moveToTrash, isDeleting } = useGameTrash();
 
+  // Filter only active (non-deleted) games
+  const activeGames = games.filter(g => !g.deleted_at);
+  
   // Calculate stats
-  const approvedGames = games.filter(g => g.status === 'approved').length;
-  const pendingGames = games.filter(g => g.status === 'pending').length;
+  const approvedGames = activeGames.filter(g => g.status === 'approved').length;
   const totalCamlyEarned = approvedGames * REWARDS.UPLOAD_GAME;
 
   useEffect(() => {
@@ -62,6 +61,7 @@ export default function MyGames() {
       .from('uploaded_games')
       .select('*')
       .eq('user_id', user.id)
+      .is('deleted_at', null)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -73,43 +73,13 @@ export default function MyGames() {
     setLoading(false);
   };
 
-  const handleDelete = async (gameId: string) => {
-    setDeletingId(gameId);
-    try {
-      const game = games.find(g => g.id === gameId);
-      if (!game) return;
-
-      // Delete files from storage
-      const { error: gameFileError } = await supabase.storage
-        .from('uploaded-games')
-        .remove([game.game_file_path]);
-
-      if (gameFileError) console.error('Game file deletion error:', gameFileError);
-
-      if (game.thumbnail_path) {
-        const { error: thumbnailError } = await supabase.storage
-          .from('uploaded-games')
-          .remove([game.thumbnail_path]);
-
-        if (thumbnailError) console.error('Thumbnail deletion error:', thumbnailError);
-      }
-
-      // Delete database record
-      const { error: dbError } = await supabase
-        .from('uploaded_games')
-        .delete()
-        .eq('id', gameId);
-
-      if (dbError) throw dbError;
-
-      toast.success("Game deleted successfully");
-      loadGames();
-    } catch (error: any) {
-      console.error('Delete error:', error);
-      toast.error(error.message || "Failed to delete game");
-    } finally {
-      setDeletingId(null);
+  const handleDeleteConfirm = async (reason: string, detail: string) => {
+    if (!gameToDelete || !user) return;
+    
+    const success = await moveToTrash(gameToDelete.id, reason, detail, user.id);
+    if (success) {
       setGameToDelete(null);
+      loadGames();
     }
   };
 
@@ -139,12 +109,13 @@ export default function MyGames() {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Dashboard
         </Button>
+        
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              My Games
+              Quản lý Kho Báu
             </h1>
-            <p className="text-muted-foreground mt-2">Manage your uploaded games</p>
+            <p className="text-muted-foreground mt-2">Quản lý và dọn dẹp game của bạn</p>
           </div>
           <Button
             onClick={() => navigate('/upload-game')}
@@ -163,7 +134,7 @@ export default function MyGames() {
                 <Gamepad2 className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{games.length}</p>
+                <p className="text-2xl font-bold">{activeGames.length}</p>
                 <p className="text-sm text-muted-foreground">Total Games</p>
               </div>
             </CardContent>
@@ -194,120 +165,125 @@ export default function MyGames() {
           </Card>
         </div>
 
-        {games.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <p className="text-muted-foreground mb-4">You haven't uploaded any games yet.</p>
-              <Button
-                onClick={() => navigate('/upload-game')}
-                className="bg-gradient-to-r from-primary to-secondary"
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Upload Your First Game
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {games.map((game) => (
-              <Card key={game.id} className="border-primary/20 overflow-hidden">
-                <div className="aspect-video relative overflow-hidden bg-muted">
-                  {game.thumbnail_path ? (
-                    <img
-                      src={getThumbnailUrl(game.thumbnail_path)}
-                      alt={game.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                      No thumbnail
-                    </div>
-                  )}
-                </div>
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-xl line-clamp-1">{game.title}</CardTitle>
-                    <Badge variant={game.status === 'approved' ? 'default' : 'secondary'}>
-                      {game.status}
-                    </Badge>
-                  </div>
-                  <CardDescription className="line-clamp-2">
-                    {game.description || 'No description'}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex gap-2 flex-wrap">
-                    <Badge variant="outline">{game.category}</Badge>
-                    {game.tags?.map((tag, i) => (
-                      <Badge key={i} variant="outline">{tag}</Badge>
-                    ))}
-                  </div>
-                  
-                  <div className="text-sm text-muted-foreground space-y-1">
-                    <p>Plays: {game.play_count}</p>
-                    <p>Downloads: {game.download_count}</p>
-                    <p>Uploaded: {new Date(game.created_at).toLocaleDateString()}</p>
-                  </div>
+        {/* Tabs for Active Games and Trash */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-2 mb-6">
+            <TabsTrigger value="active" className="flex items-center gap-2">
+              <Gamepad2 className="w-4 h-4" />
+              Game của tôi
+            </TabsTrigger>
+            <TabsTrigger value="trash" className="flex items-center gap-2">
+              <Gem className="w-4 h-4" />
+              Thùng rác
+            </TabsTrigger>
+          </TabsList>
 
-                  <div className="space-y-2">
-                    <Button
-                      variant="default"
-                      size="sm"
-                      onClick={() => navigate(`/game-details/${game.id}`)}
-                      className="w-full bg-gradient-to-r from-primary to-secondary"
-                    >
-                      View Details & Reviews
-                    </Button>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => navigate(`/edit-game/${game.id}`)}
-                        className="flex-1"
-                      >
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => setGameToDelete(game.id)}
-                        disabled={deletingId === game.id}
-                      >
-                        {deletingId === game.id ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
+          <TabsContent value="active">
+            {activeGames.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <p className="text-muted-foreground mb-4">You haven't uploaded any games yet.</p>
+                  <Button
+                    onClick={() => navigate('/upload-game')}
+                    className="bg-gradient-to-r from-primary to-secondary"
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload Your First Game
+                  </Button>
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        )}
+            ) : (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {activeGames.map((game) => (
+                  <Card key={game.id} className="border-primary/20 overflow-hidden group">
+                    <div className="aspect-video relative overflow-hidden bg-muted">
+                      {game.thumbnail_path ? (
+                        <img
+                          src={getThumbnailUrl(game.thumbnail_path)}
+                          alt={game.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                          No thumbnail
+                        </div>
+                      )}
+                    </div>
+                    <CardHeader>
+                      <div className="flex items-start justify-between gap-2">
+                        <CardTitle className="text-xl line-clamp-1">{game.title}</CardTitle>
+                        <Badge variant={game.status === 'approved' ? 'default' : 'secondary'}>
+                          {game.status}
+                        </Badge>
+                      </div>
+                      <CardDescription className="line-clamp-2">
+                        {game.description || 'No description'}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex gap-2 flex-wrap">
+                        <Badge variant="outline">{game.category}</Badge>
+                        {game.tags?.map((tag, i) => (
+                          <Badge key={i} variant="outline">{tag}</Badge>
+                        ))}
+                      </div>
+                      
+                      <div className="text-sm text-muted-foreground space-y-1">
+                        <p>Plays: {game.play_count}</p>
+                        <p>Downloads: {game.download_count}</p>
+                        <p>Uploaded: {new Date(game.created_at).toLocaleDateString()}</p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() => navigate(`/game-details/${game.id}`)}
+                          className="w-full bg-gradient-to-r from-primary to-secondary"
+                        >
+                          View Details & Reviews
+                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => navigate(`/edit-game/${game.id}`)}
+                            className="flex-1"
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setGameToDelete(game)}
+                            className="border-amber-400/50 hover:bg-amber-400/10 hover:border-amber-400"
+                          >
+                            <Gem className="h-4 w-4 text-amber-400" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="trash">
+            <GameTrashView />
+          </TabsContent>
+        </Tabs>
       </div>
 
-      <AlertDialog open={!!gameToDelete} onOpenChange={() => setGameToDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete your game and all associated files. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => gameToDelete && handleDelete(gameToDelete)}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Delete Modal */}
+      <GameDeleteModal
+        open={!!gameToDelete}
+        onOpenChange={(open) => !open && setGameToDelete(null)}
+        onConfirm={handleDeleteConfirm}
+        isDeleting={isDeleting}
+        gameTitle={gameToDelete?.title || ""}
+      />
     </div>
   );
 }
