@@ -453,6 +453,27 @@ export default function UploadGame() {
         }
       } else {
         // Insert into lovable_games table
+        let imageUrl = formData.imageUrl || null;
+        
+        // Upload thumbnail file if provided
+        if (thumbnail) {
+          setUploadProgress(30);
+          const thumbnailFileName = `lovable/${user.id}/${Date.now()}_${thumbnail.name}`;
+          const { error: thumbnailUploadError } = await supabase.storage
+            .from('uploaded-games')
+            .upload(thumbnailFileName, thumbnail);
+
+          if (thumbnailUploadError) throw thumbnailUploadError;
+          
+          // Get public URL
+          const { data: publicUrlData } = supabase.storage
+            .from('uploaded-games')
+            .getPublicUrl(thumbnailFileName);
+          
+          imageUrl = publicUrlData.publicUrl;
+          setUploadProgress(60);
+        }
+        
         const { error: insertError } = await supabase
           .from('lovable_games')
           .insert({
@@ -461,11 +482,12 @@ export default function UploadGame() {
             title: formData.title,
             description: formData.description,
             project_url: formData.lovableUrl,
-            image_url: formData.imageUrl || null,
+            image_url: imageUrl,
             approved: false,
           });
 
         if (insertError) throw insertError;
+        setUploadProgress(100);
       }
 
       toast.success(
