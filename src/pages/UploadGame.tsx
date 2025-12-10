@@ -612,46 +612,55 @@ export default function UploadGame() {
                   </div>
 
                   {/* Thumbnail URL or Upload */}
-                  <div className="space-y-2">
-                    <Label>Game Thumbnail</Label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="thumbnailUrl" className="text-sm text-muted-foreground">URL hình ảnh</Label>
-                        <Input
-                          id="thumbnailUrl"
-                          type="url"
-                          placeholder="https://example.com/thumbnail.png"
-                          value={formData.thumbnailUrl}
-                          onChange={(e) => setFormData({ ...formData, thumbnailUrl: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-sm text-muted-foreground">Hoặc upload file</Label>
-                        <div
-                          onDragOver={handleThumbDragOver}
-                          onDragLeave={handleThumbDragLeave}
-                          onDrop={handleThumbDrop}
-                          className={`relative border-2 border-dashed rounded-lg p-4 text-center transition-all cursor-pointer ${
-                            isDraggingThumb 
-                              ? 'border-primary bg-primary/10' 
-                              : thumbnail 
-                                ? 'border-green-500 bg-green-500/10' 
-                                : 'border-muted-foreground/30 hover:border-primary/50'
-                          }`}
-                        >
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleThumbnailChange}
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                          />
-                          {thumbnail ? (
-                            <p className="text-sm text-green-600 truncate">{thumbnail.name}</p>
-                          ) : (
-                            <p className="text-sm text-muted-foreground">Kéo thả hoặc click</p>
-                          )}
+                  <div className="space-y-3">
+                    <Label>Thumbnail Image URL (optional)</Label>
+                    <Input
+                      id="thumbnailUrl"
+                      type="url"
+                      placeholder="https://example.com/thumbnail.png"
+                      value={formData.thumbnailUrl}
+                      onChange={(e) => {
+                        setFormData({ ...formData, thumbnailUrl: e.target.value });
+                        if (e.target.value) setThumbnail(null); // Clear file if URL is entered
+                      }}
+                      className="border-primary/50 focus:border-primary"
+                    />
+                    
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 h-px bg-border" />
+                      <span className="text-xs text-muted-foreground">OR</span>
+                      <div className="flex-1 h-px bg-border" />
+                    </div>
+
+                    <div
+                      onDragOver={handleThumbDragOver}
+                      onDragLeave={handleThumbDragLeave}
+                      onDrop={handleThumbDrop}
+                      className={`relative border-2 border-dashed rounded-lg p-4 text-center transition-all cursor-pointer ${
+                        isDraggingThumb 
+                          ? 'border-primary bg-primary/10' 
+                          : thumbnail 
+                            ? 'border-green-500 bg-green-500/10' 
+                            : 'border-muted-foreground/30 hover:border-primary/50'
+                      }`}
+                    >
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          handleThumbnailChange(e);
+                          if (e.target.files?.[0]) setFormData({ ...formData, thumbnailUrl: '' }); // Clear URL if file is uploaded
+                        }}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                      {thumbnail ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                          <p className="text-sm text-green-600 truncate">{thumbnail.name}</p>
                         </div>
-                      </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">Upload image file (drag & drop or click)</p>
+                      )}
                     </div>
                   </div>
 
