@@ -4,7 +4,6 @@ import { Navigation } from "@/components/Navigation";
 import { GameCard } from "@/components/GameCard";
 import { UploadedGameCard } from "@/components/UploadedGameCard";
 import { Button } from "@/components/ui/button";
-import { DiamondButton } from "@/components/ui/diamond-button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { Search, Home, ArrowUpDown, Users, Upload } from "lucide-react";
@@ -283,14 +282,14 @@ const Games = () => {
               <span className="hidden xs:inline sm:inline">Về Trang Chính</span>
             </Button>
             
-            <DiamondButton
+            <Button
               onClick={() => navigate('/upload-game')}
               size="lg"
-              className="min-w-[48px]"
+              className="font-bold group min-w-[48px] rounded-[20px] sm:rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all"
             >
-              <Upload className="w-4 h-4 sm:w-5 sm:h-5 mr-0 sm:mr-2" />
+              <Upload className="w-4 h-4 sm:w-5 sm:h-5 mr-0 sm:mr-2 group-hover:scale-110 transition-transform" />
               <span className="hidden xs:inline sm:inline">Tải Game Lên</span>
-            </DiamondButton>
+            </Button>
           </div>
 
           <div className="text-center mb-8 sm:mb-12 space-y-3 sm:space-y-4 animate-slide-up">
