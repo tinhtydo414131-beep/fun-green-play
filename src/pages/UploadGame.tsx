@@ -330,7 +330,7 @@ export default function UploadGame() {
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="zip" className="gap-2">
                     <FileArchive className="h-4 w-4" />
-                    Upload ZIP
+                    Upload ZIP/RAR
                   </TabsTrigger>
                   <TabsTrigger value="lovable" className="gap-2">
                     <Link className="h-4 w-4" />
