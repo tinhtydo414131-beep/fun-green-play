@@ -3,11 +3,10 @@ import { useSearchParams } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { GameCard } from "@/components/GameCard";
 import { UploadedGameCard } from "@/components/UploadedGameCard";
-import { LovableGameCard } from "@/components/LovableGameCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Home, ArrowUpDown, Users, Upload, X } from "lucide-react";
+import { Search, Home, ArrowUpDown, Users, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
@@ -31,16 +30,6 @@ interface UploadedGame {
   status: string;
 }
 
-interface LovableGame {
-  id: string;
-  title: string;
-  description: string | null;
-  project_url: string;
-  image_url: string | null;
-  user_id: string | null;
-  created_at: string;
-}
-
 interface Game {
   id: string;
   title: string;
@@ -60,7 +49,6 @@ const Games = () => {
   const [searchParams] = useSearchParams();
   const [games, setGames] = useState<Game[]>([]);
   const [uploadedGames, setUploadedGames] = useState<UploadedGame[]>([]);
-  const [lovableGames, setLovableGames] = useState<LovableGame[]>([]);
   const [filteredGames, setFilteredGames] = useState<Game[]>([]);
   const [favoriteGameIds, setFavoriteGameIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -68,7 +56,6 @@ const Games = () => {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [sortBy, setSortBy] = useState<string>('popular');
   const { isLegend } = useLegendStatus();
-  const [playingGame, setPlayingGame] = useState<LovableGame | null>(null);
   
   useScrollAnimation();
   
@@ -85,7 +72,6 @@ const Games = () => {
   useEffect(() => {
     fetchGames();
     fetchUploadedGames();
-    fetchLovableGames();
   }, []);
 
   useEffect(() => {
@@ -128,21 +114,6 @@ const Games = () => {
       setUploadedGames(data || []);
     } catch (error: any) {
       console.error("Error fetching uploaded games:", error);
-    }
-  };
-
-  const fetchLovableGames = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("lovable_games")
-        .select("*")
-        .eq("approved", true)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setLovableGames(data || []);
-    } catch (error: any) {
-      console.error("Error fetching lovable games:", error);
     }
   };
 
@@ -367,29 +338,6 @@ const Games = () => {
             </div>
           )}
 
-          {/* Lovable Games Section - NEW! At the top */}
-          {lovableGames.length > 0 && selectedCategory === 'all' && !searchQuery.trim() && (
-            <div className="mb-12">
-              <div className="text-center mb-6">
-                <h2 className="text-2xl sm:text-3xl font-fredoka font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent mb-2">
-                  ✨ Lovable Games ✨
-                </h2>
-                <p className="text-muted-foreground font-comic">Games built with Lovable - play instantly!</p>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-                {lovableGames.map((game, index) => (
-                  <div 
-                    key={game.id} 
-                    className="fade-in-on-scroll game-card"
-                    style={{ animationDelay: `${Math.min(index * 0.03, 0.3)}s` }}
-                  >
-                    <LovableGameCard game={game} onPlay={setPlayingGame} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Community Uploaded Games Section */}
           {uploadedGames.length > 0 && selectedCategory === 'all' && !searchQuery.trim() && (
             <div className="mb-12">
@@ -460,28 +408,6 @@ const Games = () => {
           )}
         </div>
       </section>
-
-      {/* Game Playing Modal */}
-      {playingGame && (
-        <div className="fixed inset-0 z-50 bg-black">
-          <div className="absolute top-4 right-4 z-50 flex gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setPlayingGame(null)}
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-            >
-              <X className="w-5 h-5" />
-            </Button>
-          </div>
-          <iframe
-            src={playingGame.project_url}
-            className="w-full h-full border-0"
-            allow="fullscreen; autoplay; clipboard-write"
-            title={playingGame.title}
-          />
-        </div>
-      )}
       
     </div>
   );

@@ -268,7 +268,7 @@ export default function UploadGame() {
           toast.success(`🎉 You earned ${rewardAmount.toLocaleString()} Camly coins for uploading!`);
         }
       } else {
-        // Insert into lovable_games table - auto approve Lovable projects
+        // Insert into lovable_games table
         const { error: insertError } = await supabase
           .from('lovable_games')
           .insert({
@@ -278,37 +278,10 @@ export default function UploadGame() {
             description: formData.description,
             project_url: formData.lovableUrl,
             image_url: formData.imageUrl || null,
-            approved: true, // Auto-approve Lovable games
+            approved: false,
           });
 
         if (insertError) throw insertError;
-
-        // Award 500,000 Camly coins for Lovable game upload too
-        const rewardAmount = 500000;
-        
-        await supabase
-          .from('camly_coin_transactions')
-          .insert({
-            user_id: user.id,
-            amount: rewardAmount,
-            transaction_type: 'reward',
-            description: `Game upload reward: ${formData.title}`,
-          });
-
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('wallet_balance')
-          .eq('id', user.id)
-          .single();
-
-        await supabase
-          .from('profiles')
-          .update({ 
-            wallet_balance: (profile?.wallet_balance || 0) + rewardAmount 
-          })
-          .eq('id', user.id);
-
-        toast.success(`🎉 You earned ${rewardAmount.toLocaleString()} Camly coins for uploading!`);
       }
 
       toast.success(
