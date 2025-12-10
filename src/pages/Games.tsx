@@ -30,6 +30,15 @@ interface UploadedGame {
   status: string;
 }
 
+interface LovableGame {
+  id: string;
+  title: string;
+  description: string | null;
+  project_url: string;
+  image_url: string | null;
+  user_id: string | null;
+}
+
 interface Game {
   id: string;
   title: string;
@@ -49,6 +58,7 @@ const Games = () => {
   const [searchParams] = useSearchParams();
   const [games, setGames] = useState<Game[]>([]);
   const [uploadedGames, setUploadedGames] = useState<UploadedGame[]>([]);
+  const [lovableGames, setLovableGames] = useState<LovableGame[]>([]);
   const [filteredGames, setFilteredGames] = useState<Game[]>([]);
   const [favoriteGameIds, setFavoriteGameIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -72,6 +82,7 @@ const Games = () => {
   useEffect(() => {
     fetchGames();
     fetchUploadedGames();
+    fetchLovableGames();
   }, []);
 
   useEffect(() => {
@@ -114,6 +125,21 @@ const Games = () => {
       setUploadedGames(data || []);
     } catch (error: any) {
       console.error("Error fetching uploaded games:", error);
+    }
+  };
+
+  const fetchLovableGames = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("lovable_games")
+        .select("*")
+        .eq("approved", true)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setLovableGames(data || []);
+    } catch (error: any) {
+      console.error("Error fetching lovable games:", error);
     }
   };
 
@@ -339,7 +365,7 @@ const Games = () => {
           )}
 
           {/* Community Uploaded Games Section */}
-          {uploadedGames.length > 0 && selectedCategory === 'all' && !searchQuery.trim() && (
+          {(uploadedGames.length > 0 || lovableGames.length > 0) && selectedCategory === 'all' && !searchQuery.trim() && (
             <div className="mb-12">
               <div className="text-center mb-6">
                 <h2 className="text-2xl sm:text-3xl font-fredoka font-bold text-primary mb-2">
@@ -348,11 +374,54 @@ const Games = () => {
                 <p className="text-muted-foreground font-comic">Games uploaded by our amazing community!</p>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+                {/* Lovable Games */}
+                {lovableGames.map((game, index) => (
+                  <div 
+                    key={`lovable-${game.id}`} 
+                    className="fade-in-on-scroll game-card"
+                    style={{ animationDelay: `${Math.min(index * 0.03, 0.3)}s` }}
+                  >
+                    <a 
+                      href={game.project_url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="block group"
+                    >
+                      <div className="bg-gradient-to-br from-card to-card/80 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform group-hover:scale-[1.02] border-2 border-primary/20 group-hover:border-primary/50">
+                        <div className="aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center overflow-hidden">
+                          {game.image_url ? (
+                            <img 
+                              src={game.image_url} 
+                              alt={game.title}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
+                          ) : (
+                            <span className="text-5xl">🎮</span>
+                          )}
+                        </div>
+                        <div className="p-3 sm:p-4">
+                          <h3 className="font-fredoka font-bold text-sm sm:text-base text-foreground truncate group-hover:text-primary transition-colors">
+                            {game.title}
+                          </h3>
+                          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mt-1">
+                            {game.description || 'A fun game from Lovable!'}
+                          </p>
+                          <div className="mt-2 flex items-center gap-1">
+                            <span className="text-xs bg-gradient-to-r from-pink-500 to-purple-500 text-white px-2 py-0.5 rounded-full">
+                              ❤️ Lovable
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+                ))}
+                {/* Uploaded Games */}
                 {uploadedGames.map((game, index) => (
                   <div 
                     key={game.id} 
                     className="fade-in-on-scroll game-card"
-                    style={{ animationDelay: `${Math.min(index * 0.03, 0.3)}s` }}
+                    style={{ animationDelay: `${Math.min((lovableGames.length + index) * 0.03, 0.3)}s` }}
                   >
                     <UploadedGameCard game={game} />
                   </div>
