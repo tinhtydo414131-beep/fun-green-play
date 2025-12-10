@@ -37,6 +37,10 @@ interface LovableGame {
   project_url: string;
   image_url: string | null;
   user_id: string | null;
+  profiles?: {
+    username: string;
+    avatar_url: string | null;
+  } | null;
 }
 
 interface Game {
@@ -137,7 +141,23 @@ const Games = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setLovableGames(data || []);
+      
+      // Fetch creator profiles for games with user_id
+      const gamesWithProfiles = await Promise.all(
+        (data || []).map(async (game) => {
+          if (game.user_id) {
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("username, avatar_url")
+              .eq("id", game.user_id)
+              .single();
+            return { ...game, profiles: profile };
+          }
+          return { ...game, profiles: null };
+        })
+      );
+      
+      setLovableGames(gamesWithProfiles);
     } catch (error: any) {
       console.error("Error fetching lovable games:", error);
     }
@@ -404,10 +424,15 @@ const Games = () => {
                           <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mt-1">
                             {game.description || 'A fun game from Lovable!'}
                           </p>
-                          <div className="mt-2 flex items-center gap-1">
+                          <div className="mt-2 flex items-center justify-between gap-1">
                             <span className="text-xs bg-gradient-to-r from-pink-500 to-purple-500 text-white px-2 py-0.5 rounded-full">
                               ❤️ Lovable
                             </span>
+                            {game.profiles?.username && (
+                              <span className="text-xs text-muted-foreground truncate max-w-[80px]">
+                                by {game.profiles.username}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>

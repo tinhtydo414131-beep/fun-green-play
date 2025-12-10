@@ -12,6 +12,7 @@ interface LovableGame {
   project_url: string;
   image_url: string | null;
   user_id: string | null;
+  creator_name?: string | null;
 }
 
 export default function LovableGamePlay() {
@@ -37,7 +38,19 @@ export default function LovableGamePlay() {
         .single();
 
       if (error) throw error;
-      setGame(data);
+      
+      // Fetch creator profile if user_id exists
+      let creatorName = null;
+      if (data?.user_id) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("username")
+          .eq("id", data.user_id)
+          .single();
+        creatorName = profile?.username;
+      }
+      
+      setGame({ ...data, creator_name: creatorName });
     } catch (error: any) {
       console.error("Error fetching game:", error);
       toast.error("Game not found!");
@@ -109,9 +122,16 @@ export default function LovableGamePlay() {
               <h1 className="font-fredoka font-bold text-lg sm:text-xl text-foreground truncate max-w-[200px] sm:max-w-none">
                 {game.title}
               </h1>
-              <span className="text-xs bg-gradient-to-r from-pink-500 to-purple-500 text-white px-2 py-0.5 rounded-full">
-                ❤️ Lovable Game
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs bg-gradient-to-r from-pink-500 to-purple-500 text-white px-2 py-0.5 rounded-full">
+                  ❤️ Lovable Game
+                </span>
+                {game.creator_name && (
+                  <span className="text-xs text-muted-foreground">
+                    by {game.creator_name}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
           
