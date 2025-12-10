@@ -461,81 +461,115 @@ export default function GameDetails() {
 
       console.log('index.html content length:', indexContent.length);
 
-      // Create base64 data URLs for all files (works in srcdoc iframe)
-      const fileDataUrls: Record<string, string> = {};
+      // Create blob URLs for all files (enables proper ES module loading)
+      const blobUrls: Record<string, string> = {};
+      const mimeTypes: Record<string, string> = {
+        'js': 'application/javascript',
+        'mjs': 'application/javascript',
+        'css': 'text/css',
+        'html': 'text/html',
+        'json': 'application/json',
+        'png': 'image/png',
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'gif': 'image/gif',
+        'svg': 'image/svg+xml',
+        'woff': 'font/woff',
+        'woff2': 'font/woff2',
+        'ttf': 'font/ttf',
+        'eot': 'application/vnd.ms-fontobject',
+        'mp3': 'audio/mpeg',
+        'wav': 'audio/wav',
+        'ogg': 'audio/ogg',
+        'webp': 'image/webp',
+        'ico': 'image/x-icon',
+        'xml': 'application/xml',
+        'txt': 'text/plain',
+        'glb': 'model/gltf-binary',
+        'gltf': 'model/gltf+json',
+      };
+
+      // First pass: extract all files and create blobs
+      const fileContents: Record<string, { content: ArrayBuffer; ext: string }> = {};
       
       for (const [path, file] of Object.entries(zip.files)) {
         if (!file.dir && path.startsWith(basePath)) {
-          const content = await file.async('base64');
-          // Determine mime type based on extension
-          const ext = path.split('.').pop()?.toLowerCase() || '';
-          const mimeTypes: Record<string, string> = {
-            'js': 'application/javascript',
-            'mjs': 'application/javascript',
-            'css': 'text/css',
-            'html': 'text/html',
-            'json': 'application/json',
-            'png': 'image/png',
-            'jpg': 'image/jpeg',
-            'jpeg': 'image/jpeg',
-            'gif': 'image/gif',
-            'svg': 'image/svg+xml',
-            'woff': 'font/woff',
-            'woff2': 'font/woff2',
-            'ttf': 'font/ttf',
-            'eot': 'application/vnd.ms-fontobject',
-            'mp3': 'audio/mpeg',
-            'wav': 'audio/wav',
-            'ogg': 'audio/ogg',
-            'webp': 'image/webp',
-            'ico': 'image/x-icon',
-            'xml': 'application/xml',
-            'txt': 'text/plain',
-            'glb': 'model/gltf-binary',
-            'gltf': 'model/gltf+json',
-          };
-          const mimeType = mimeTypes[ext] || 'application/octet-stream';
-          const dataUrl = `data:${mimeType};base64,${content}`;
-          
-          // Get relative path from basePath
+          const content = await file.async('arraybuffer');
           const relativePath = path.slice(basePath.length);
           if (relativePath && relativePath !== 'index.html') {
-            fileDataUrls[relativePath] = dataUrl;
-            fileDataUrls['./' + relativePath] = dataUrl;
-            fileDataUrls['/' + relativePath] = dataUrl;
+            const ext = relativePath.split('.').pop()?.toLowerCase() || '';
+            fileContents[relativePath] = { content, ext };
           }
         }
       }
 
-      console.log('Created data URLs for files:', Object.keys(fileDataUrls).length);
+      // Create blob URLs for non-JS files first
+      for (const [relativePath, { content, ext }] of Object.entries(fileContents)) {
+        if (ext !== 'js' && ext !== 'mjs') {
+          const mimeType = mimeTypes[ext] || 'application/octet-stream';
+          const blob = new Blob([content], { type: mimeType });
+          const blobUrl = URL.createObjectURL(blob);
+          blobUrls[relativePath] = blobUrl;
+          blobUrls['./' + relativePath] = blobUrl;
+          blobUrls['/' + relativePath] = blobUrl;
+        }
+      }
 
-      // Replace relative paths in HTML with data URLs
+      // Process JS files and replace import paths with blob URLs
+      for (const [relativePath, { content, ext }] of Object.entries(fileContents)) {
+        if (ext === 'js' || ext === 'mjs') {
+          let jsContent = new TextDecoder().decode(content);
+          
+          // Replace asset references in JS files with blob URLs
+          for (const [assetPath, blobUrl] of Object.entries(blobUrls)) {
+            // Match various import patterns
+            const patterns = [
+              new RegExp(`"${assetPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`, 'g'),
+              new RegExp(`'${assetPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}'`, 'g'),
+            ];
+            for (const pattern of patterns) {
+              jsContent = jsContent.replace(pattern, `"${blobUrl}"`);
+            }
+          }
+          
+          const blob = new Blob([jsContent], { type: 'application/javascript' });
+          const blobUrl = URL.createObjectURL(blob);
+          blobUrls[relativePath] = blobUrl;
+          blobUrls['./' + relativePath] = blobUrl;
+          blobUrls['/' + relativePath] = blobUrl;
+        }
+      }
+
+      console.log('Created blob URLs for files:', Object.keys(blobUrls).length);
+
+      // Replace paths in HTML with blob URLs
       let modifiedHtml = indexContent;
       
       // Sort paths by length (longest first) to avoid partial replacements
-      const sortedPaths = Object.entries(fileDataUrls).sort((a, b) => b[0].length - a[0].length);
+      const sortedPaths = Object.entries(blobUrls).sort((a, b) => b[0].length - a[0].length);
       
-      for (const [path, dataUrl] of sortedPaths) {
-        // Escape special regex characters in path
+      for (const [path, blobUrl] of sortedPaths) {
         const escapedPath = path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         
-        // Replace in src and href attributes (handles both single and double quotes)
+        // Replace in src and href attributes
         modifiedHtml = modifiedHtml.replace(
           new RegExp(`(src|href)=(["'])${escapedPath}\\2`, 'gi'),
-          `$1=$2${dataUrl}$2`
+          `$1=$2${blobUrl}$2`
         );
         
         // Replace url() in CSS
         modifiedHtml = modifiedHtml.replace(
           new RegExp(`url\\((["']?)${escapedPath}\\1\\)`, 'gi'),
-          `url($1${dataUrl}$1)`
+          `url($1${blobUrl}$1)`
         );
       }
 
       console.log('Modified HTML ready, length:', modifiedHtml.length);
 
-      // Set game HTML
-      setGameHtml(modifiedHtml);
+      // Set game HTML using iframe src instead of srcdoc (better for blob URLs)
+      const htmlBlob = new Blob([modifiedHtml], { type: 'text/html' });
+      const htmlBlobUrl = URL.createObjectURL(htmlBlob);
+      setGameHtml(htmlBlobUrl);
       setIsPlaying(true);
       
       // Update play count
@@ -554,6 +588,10 @@ export default function GameDetails() {
   };
 
   const handleCloseGame = () => {
+    // Revoke blob URL to free memory
+    if (gameHtml && gameHtml.startsWith('blob:')) {
+      URL.revokeObjectURL(gameHtml);
+    }
     setGameHtml('');
     setIsPlaying(false);
   };
@@ -590,7 +628,7 @@ export default function GameDetails() {
           </div>
           <div className="flex-1 p-4">
             <iframe
-              srcDoc={gameHtml}
+              src={gameHtml}
               className="w-full h-full rounded-lg bg-white"
               sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups"
               title={game?.title}
