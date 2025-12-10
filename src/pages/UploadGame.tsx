@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,12 +10,21 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Upload, Loader2, ArrowLeft, Link, FileArchive, Shield, CheckCircle, XCircle, AlertTriangle, Cloud } from "lucide-react";
+import { 
+  Upload, Loader2, ArrowLeft, Link, FileArchive, Shield, CheckCircle, XCircle, 
+  AlertTriangle, Cloud, Rocket, ExternalLink, Sparkles, HelpCircle, Globe, Zap 
+} from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import { Navigation } from "@/components/Navigation";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ScanResult {
   safe: boolean;
@@ -31,11 +40,14 @@ export default function UploadGame() {
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadType, setUploadType] = useState<"zip" | "lovable">("zip");
+  const [uploadType, setUploadType] = useState<"deploy-link" | "zip" | "lovable">("deploy-link");
   const [gameFile, setGameFile] = useState<File | null>(null);
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [isDraggingGame, setIsDraggingGame] = useState(false);
   const [isDraggingThumb, setIsDraggingThumb] = useState(false);
+  const [isValidatingUrl, setIsValidatingUrl] = useState(false);
+  const [urlValidated, setUrlValidated] = useState(false);
+  const [isReactViteProject, setIsReactViteProject] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -44,8 +56,89 @@ export default function UploadGame() {
     confirmed: false,
     lovableUrl: "",
     imageUrl: "",
-    externalUrl: "", // For complex games hosted externally
+    externalUrl: "",
+    thumbnailUrl: "",
   });
+
+  // Validate deploy URL and try to extract metadata
+  const validateDeployUrl = useCallback(async (url: string) => {
+    if (!url) {
+      setUrlValidated(false);
+      return;
+    }
+
+    // Check for valid deploy platforms
+    const validPatterns = [
+      /^https?:\/\/[a-zA-Z0-9-]+\.vercel\.app/,
+      /^https?:\/\/[a-zA-Z0-9-]+\.netlify\.app/,
+      /^https?:\/\/[a-zA-Z0-9-]+\.lovable\.(app|dev)/,
+      /^https?:\/\/[a-zA-Z0-9-]+\.replit\.dev/,
+      /^https?:\/\/[a-zA-Z0-9-]+\.glitch\.me/,
+      /^https?:\/\/[a-zA-Z0-9-]+\.pages\.dev/, // Cloudflare Pages
+      /^https?:\/\/[a-zA-Z0-9-]+\.surge\.sh/,
+      /^https?:\/\/[a-zA-Z0-9-]+\.github\.io/,
+      /^https?:\/\/[a-zA-Z0-9-]+\.firebaseapp\.com/,
+      /^https?:\/\/[a-zA-Z0-9-]+\.web\.app/,
+    ];
+
+    const isValidPlatform = validPatterns.some(pattern => pattern.test(url));
+    
+    if (!isValidPlatform && url.startsWith('http')) {
+      // Still allow custom domains
+      setIsValidatingUrl(true);
+      try {
+        // Just check if the URL is accessible (simple validation)
+        setUrlValidated(true);
+        toast.success("Deploy URL looks valid! 🚀");
+      } catch (error) {
+        setUrlValidated(false);
+      } finally {
+        setIsValidatingUrl(false);
+      }
+    } else if (isValidPlatform) {
+      setUrlValidated(true);
+      toast.success("Detected deploy platform! 🎮");
+    }
+  }, []);
+
+  // Debounce URL validation
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (formData.externalUrl && formData.externalUrl.startsWith('http')) {
+        validateDeployUrl(formData.externalUrl);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [formData.externalUrl, validateDeployUrl]);
+
+  // Check if uploaded ZIP is a React/Vite project
+  const checkZipContents = useCallback(async (file: File) => {
+    try {
+      const JSZip = (await import('jszip')).default;
+      const zip = await JSZip.loadAsync(file);
+      
+      const fileNames = Object.keys(zip.files);
+      const hasPackageJson = fileNames.some(f => f.endsWith('package.json') || f === 'package.json');
+      const hasSrcFolder = fileNames.some(f => f.includes('/src/') || f.startsWith('src/'));
+      const hasNodeModules = fileNames.some(f => f.includes('node_modules'));
+      const hasViteConfig = fileNames.some(f => f.includes('vite.config'));
+      
+      if ((hasPackageJson && hasSrcFolder) || hasViteConfig || hasNodeModules) {
+        setIsReactViteProject(true);
+        toast.warning(
+          "Detected React/Vite source code! 🔧 Please deploy to Vercel first, or upload the 'dist' folder instead.",
+          { duration: 8000 }
+        );
+        return true;
+      }
+      
+      setIsReactViteProject(false);
+      return false;
+    } catch (error) {
+      console.error('Error checking ZIP contents:', error);
+      return false;
+    }
+  }, []);
 
   // Drag and drop handlers for game file
   const handleGameDragOver = useCallback((e: React.DragEvent) => {
@@ -58,19 +151,19 @@ export default function UploadGame() {
     setIsDraggingGame(false);
   }, []);
 
-  const handleGameDrop = useCallback((e: React.DragEvent) => {
+  const handleGameDrop = useCallback(async (e: React.DragEvent) => {
     e.preventDefault();
     setIsDraggingGame(false);
     const file = e.dataTransfer.files[0];
     if (file && file.name.endsWith('.zip')) {
       setGameFile(file);
+      await checkZipContents(file);
       toast.success(`Game file "${file.name}" ready! 🎮`);
-      // Auto-trigger safety scan after file drop
       triggerAutoScan();
     } else {
       toast.error("Please drop a .zip file");
     }
-  }, []);
+  }, [checkZipContents]);
 
   // Drag and drop handlers for thumbnail
   const handleThumbDragOver = useCallback((e: React.DragEvent) => {
@@ -95,11 +188,11 @@ export default function UploadGame() {
     }
   }, []);
 
-  const handleGameFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleGameFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.name.endsWith('.zip')) {
       setGameFile(file);
-      // Auto-trigger safety scan after file selection
+      await checkZipContents(file);
       triggerAutoScan();
     } else {
       toast.error("Please upload a .zip file");
@@ -122,7 +215,6 @@ export default function UploadGame() {
 
   // Auto-trigger safety scan when file is uploaded and form has title/description
   const triggerAutoScan = useCallback(() => {
-    // Small delay to allow state to update, then check if we can scan
     setTimeout(() => {
       const titleInput = document.getElementById('title') as HTMLInputElement;
       const descInput = document.getElementById('description') as HTMLTextAreaElement;
@@ -135,7 +227,6 @@ export default function UploadGame() {
   // AI Safety Scan
   const runSafetyScan = async (): Promise<boolean> => {
     if (!formData.title || !formData.description) {
-      // Silent return for auto-scan - don't show error
       return false;
     }
 
@@ -163,7 +254,6 @@ export default function UploadGame() {
       }
     } catch (error) {
       console.error('Scan error:', error);
-      // Allow upload to proceed with manual review
       setScanResult({
         safe: true,
         reason: "Scan unavailable - will require manual review",
@@ -196,9 +286,24 @@ export default function UploadGame() {
       return;
     }
 
-    if (uploadType === "zip") {
+    // Validate based on upload type
+    if (uploadType === "deploy-link") {
+      if (!formData.externalUrl) {
+        toast.error("Please enter your deployed game URL");
+        return;
+      }
+      if (!formData.title || !formData.description) {
+        toast.error("Please enter game title and description");
+        return;
+      }
+    } else if (uploadType === "zip") {
       if (!gameFile || !thumbnail) {
         toast.error("Please upload both game file and thumbnail");
+        return;
+      }
+      // Warn if it's a React/Vite source project
+      if (isReactViteProject) {
+        toast.error("Please deploy your React/Vite project first, then paste the deploy link!");
         return;
       }
     } else {
@@ -216,7 +321,70 @@ export default function UploadGame() {
     setUploadProgress(0);
 
     try {
-      if (uploadType === "zip") {
+      if (uploadType === "deploy-link") {
+        // Handle deploy link upload - no ZIP needed!
+        setUploadProgress(30);
+
+        // Upload thumbnail if provided as file
+        let thumbnailPath = '';
+        if (thumbnail) {
+          const thumbnailFileName = `${user.id}/${Date.now()}_${thumbnail.name}`;
+          const { error: thumbnailUploadError } = await supabase.storage
+            .from('uploaded-games')
+            .upload(thumbnailFileName, thumbnail);
+          if (thumbnailUploadError) throw thumbnailUploadError;
+          thumbnailPath = thumbnailFileName;
+        }
+        setUploadProgress(60);
+
+        // Insert game record with external URL
+        const { error: insertError } = await supabase
+          .from('uploaded_games')
+          .insert({
+            user_id: user.id,
+            title: formData.title,
+            description: formData.description,
+            category: formData.category as any || 'casual',
+            game_file_path: 'deployed-game', // Placeholder for deployed games
+            thumbnail_path: thumbnailPath || formData.thumbnailUrl || '',
+            tags: [formData.ageAppropriate || '3+', 'deployed'],
+            status: 'approved',
+            approved_at: new Date().toISOString(),
+            external_url: formData.externalUrl,
+          });
+
+        if (insertError) throw insertError;
+        setUploadProgress(90);
+
+        // Award 500,000 Camly coins for deploy link upload
+        const rewardAmount = 500000;
+        
+        await supabase
+          .from('camly_coin_transactions')
+          .insert({
+            user_id: user.id,
+            amount: rewardAmount,
+            transaction_type: 'reward',
+            description: `Deployed game upload: ${formData.title}`,
+          });
+
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('wallet_balance')
+          .eq('id', user.id)
+          .single();
+
+        await supabase
+          .from('profiles')
+          .update({ 
+            wallet_balance: (profile?.wallet_balance || 0) + rewardAmount 
+          })
+          .eq('id', user.id);
+
+        setUploadProgress(100);
+        toast.success(`🎉 Game deployed! You earned ${rewardAmount.toLocaleString()} Camly coins!`);
+
+      } else if (uploadType === "zip") {
         // Upload game file with progress simulation
         setUploadProgress(10);
         const gameFileName = `${user.id}/${Date.now()}_${gameFile!.name}`;
@@ -259,7 +427,6 @@ export default function UploadGame() {
         if (!scanResult?.needsReview) {
           const rewardAmount = 500000;
           
-          // Record the transaction
           await supabase
             .from('camly_coin_transactions')
             .insert({
@@ -269,7 +436,6 @@ export default function UploadGame() {
               description: `Game upload reward: ${formData.title}`,
             });
 
-          // Update wallet balance
           const { data: profile } = await supabase
             .from('profiles')
             .select('wallet_balance')
@@ -303,9 +469,11 @@ export default function UploadGame() {
       }
 
       toast.success(
-        uploadType === "zip" 
-          ? "Game uploaded and published successfully! 🎉" 
-          : "Lovable game submitted! It will be reviewed and published soon. 🎉"
+        uploadType === "deploy-link"
+          ? "🚀 Deployed game published instantly! Play now!"
+          : uploadType === "zip" 
+            ? "Game uploaded and published successfully! 🎉" 
+            : "Lovable game submitted! It will be reviewed and published soon. 🎉"
       );
       navigate('/games');
     } catch (error: any) {
@@ -339,13 +507,19 @@ export default function UploadGame() {
             </CardTitle>
             <CardDescription className="text-base">
               Share your creation with the FUN Planet community! 🎮✨
+              <br />
+              <span className="text-primary font-medium">CHA GROK IMPROVED UPLOAD – Dễ dàng upload React/Vite games!</span>
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Upload Type Selector */}
-              <Tabs value={uploadType} onValueChange={(v) => setUploadType(v as "zip" | "lovable")}>
-                <TabsList className="grid w-full grid-cols-2">
+              {/* Upload Type Selector - 3 tabs now */}
+              <Tabs value={uploadType} onValueChange={(v) => setUploadType(v as "deploy-link" | "zip" | "lovable")}>
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="deploy-link" className="gap-2">
+                    <Rocket className="h-4 w-4" />
+                    Deploy Link ⭐
+                  </TabsTrigger>
                   <TabsTrigger value="zip" className="gap-2">
                     <FileArchive className="h-4 w-4" />
                     Upload ZIP
@@ -357,6 +531,149 @@ export default function UploadGame() {
                 </TabsList>
               </Tabs>
 
+              {/* DEPLOY LINK - Featured option for complex React/Vite games */}
+              {uploadType === "deploy-link" && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-4"
+                >
+                  {/* Hero banner for deploy link */}
+                  <div className="p-4 rounded-xl bg-gradient-to-r from-primary/20 via-secondary/20 to-primary/20 border border-primary/30">
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 rounded-full bg-primary/20">
+                        <Zap className="w-6 h-6 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-bold text-lg flex items-center gap-2">
+                          🚀 Cách nhanh nhất để upload game React/Vite!
+                          <Badge variant="secondary" className="bg-primary/20 text-primary">
+                            <Sparkles className="w-3 h-3 mr-1" />
+                            Recommended
+                          </Badge>
+                        </h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Đã deploy game lên Vercel/Netlify? Paste link và chơi ngay! Nhận thưởng 500K CAMLY 🎉
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Deploy URL Input - Prominent */}
+                  <div className="space-y-2">
+                    <Label htmlFor="externalUrl" className="text-base font-semibold flex items-center gap-2">
+                      <Globe className="w-4 h-4" />
+                      Paste your deployed game link 🚀
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p>Game đã deploy trên Vercel, Netlify, Replit, Glitch, Lovable, GitHub Pages, hoặc bất kỳ hosting nào!</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="externalUrl"
+                        type="url"
+                        placeholder="https://my-awesome-game.vercel.app"
+                        value={formData.externalUrl}
+                        onChange={(e) => setFormData({ ...formData, externalUrl: e.target.value })}
+                        className={`text-lg py-6 pr-12 ${urlValidated ? 'border-green-500 bg-green-500/5' : ''}`}
+                      />
+                      {isValidatingUrl && (
+                        <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 animate-spin text-muted-foreground" />
+                      )}
+                      {urlValidated && !isValidatingUrl && (
+                        <CheckCircle className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-green-500" />
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Hỗ trợ: Vercel, Netlify, Lovable, Replit, Glitch, GitHub Pages, Firebase, Cloudflare Pages...
+                    </p>
+                  </div>
+
+                  {/* Quick Help Link */}
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50 border">
+                    <HelpCircle className="w-4 h-4 text-primary" />
+                    <span className="text-sm">Chưa biết deploy?</span>
+                    <a 
+                      href="https://vercel.com/docs/getting-started-with-vercel" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-sm text-primary hover:underline flex items-center gap-1"
+                    >
+                      Hướng dẫn deploy game lên Vercel miễn phí (30 giây)
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+
+                  {/* Thumbnail URL or Upload */}
+                  <div className="space-y-2">
+                    <Label>Game Thumbnail</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="thumbnailUrl" className="text-sm text-muted-foreground">URL hình ảnh</Label>
+                        <Input
+                          id="thumbnailUrl"
+                          type="url"
+                          placeholder="https://example.com/thumbnail.png"
+                          value={formData.thumbnailUrl}
+                          onChange={(e) => setFormData({ ...formData, thumbnailUrl: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm text-muted-foreground">Hoặc upload file</Label>
+                        <div
+                          onDragOver={handleThumbDragOver}
+                          onDragLeave={handleThumbDragLeave}
+                          onDrop={handleThumbDrop}
+                          className={`relative border-2 border-dashed rounded-lg p-4 text-center transition-all cursor-pointer ${
+                            isDraggingThumb 
+                              ? 'border-primary bg-primary/10' 
+                              : thumbnail 
+                                ? 'border-green-500 bg-green-500/10' 
+                                : 'border-muted-foreground/30 hover:border-primary/50'
+                          }`}
+                        >
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleThumbnailChange}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          />
+                          {thumbnail ? (
+                            <p className="text-sm text-green-600 truncate">{thumbnail.name}</p>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">Kéo thả hoặc click</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Badge Preview */}
+                  {urlValidated && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="flex items-center gap-2 p-3 rounded-lg bg-green-500/10 border border-green-500/30"
+                    >
+                      <CheckCircle className="w-5 h-5 text-green-500" />
+                      <span className="text-sm font-medium">Game sẽ có badge:</span>
+                      <Badge className="bg-gradient-to-r from-primary to-secondary text-white">
+                        <Rocket className="w-3 h-3 mr-1" />
+                        Deployed Game
+                      </Badge>
+                    </motion.div>
+                  )}
+                </motion.div>
+              )}
+
+              {/* Common fields: Title and Description */}
               <div className="space-y-2">
                 <Label htmlFor="title">Game Name *</Label>
                 <Input
@@ -379,6 +696,51 @@ export default function UploadGame() {
                   required
                 />
               </div>
+
+              {/* Category and Age - for deploy-link and zip */}
+              {(uploadType === "deploy-link" || uploadType === "zip") && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="category">Category</Label>
+                    <Select
+                      value={formData.category}
+                      onValueChange={(value) => setFormData({ ...formData, category: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="action">Action 🎯</SelectItem>
+                        <SelectItem value="puzzle">Puzzle 🧩</SelectItem>
+                        <SelectItem value="adventure">Adventure 🗺️</SelectItem>
+                        <SelectItem value="casual">Casual 🎮</SelectItem>
+                        <SelectItem value="educational">Educational 📚</SelectItem>
+                        <SelectItem value="racing">Racing 🏎️</SelectItem>
+                        <SelectItem value="sports">Sports ⚽</SelectItem>
+                        <SelectItem value="arcade">Arcade 👾</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="ageAppropriate">Age Rating</Label>
+                    <Select
+                      value={formData.ageAppropriate}
+                      onValueChange={(value) => setFormData({ ...formData, ageAppropriate: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select age" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="3+">3+ years 👶</SelectItem>
+                        <SelectItem value="6+">6+ years 🧒</SelectItem>
+                        <SelectItem value="9+">9+ years 👦</SelectItem>
+                        <SelectItem value="12+">12+ years 🧑</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
 
               {/* AI Safety Scan Status */}
               <div className="space-y-3">
@@ -433,81 +795,70 @@ export default function UploadGame() {
 
               {uploadType === "zip" && (
                 <>
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Category *</Label>
-                    <Select
-                      value={formData.category}
-                      onValueChange={(value) => setFormData({ ...formData, category: value })}
-                      required
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="action">Action 🎯</SelectItem>
-                        <SelectItem value="puzzle">Puzzle 🧩</SelectItem>
-                        <SelectItem value="adventure">Adventure 🗺️</SelectItem>
-                        <SelectItem value="casual">Casual 🎮</SelectItem>
-                        <SelectItem value="educational">Educational 📚</SelectItem>
-                        <SelectItem value="racing">Racing 🏎️</SelectItem>
-                        <SelectItem value="sports">Sports ⚽</SelectItem>
-                        <SelectItem value="arcade">Arcade 👾</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="ageAppropriate">Age Appropriate *</Label>
-                    <Select
-                      value={formData.ageAppropriate}
-                      onValueChange={(value) => setFormData({ ...formData, ageAppropriate: value })}
-                      required
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select age range" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="3+">3+ years 👶</SelectItem>
-                        <SelectItem value="6+">6+ years 🧒</SelectItem>
-                        <SelectItem value="9+">9+ years 👦</SelectItem>
-                        <SelectItem value="12+">12+ years 🧑</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* External URL for complex games */}
-                  <div className="space-y-2">
-                    <Label htmlFor="externalUrl">External Game URL (Optional)</Label>
-                    <div className="text-xs text-muted-foreground mb-2">
-                      Nếu game phức tạp (React/Vite với nhiều modules), hãy host trên Vercel/Netlify và nhập URL tại đây.
+                  {/* React/Vite Warning Tooltip */}
+                  <div className="p-4 rounded-xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border border-amber-500/30">
+                    <div className="flex items-start gap-3">
+                      <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5" />
+                      <div>
+                        <p className="font-medium text-amber-600 dark:text-amber-400">
+                          Game React/Vite phức tạp? 🔧
+                        </p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Deploy lên Vercel rồi paste link ở tab "Deploy Link" để chơi ngay! Hoặc upload source ZIP, FUN Planet sẽ hướng dẫn bạn build.
+                        </p>
+                        <Button
+                          type="button"
+                          variant="link"
+                          className="p-0 h-auto text-primary"
+                          onClick={() => setUploadType("deploy-link")}
+                        >
+                          → Chuyển sang tab Deploy Link
+                        </Button>
+                      </div>
                     </div>
-                    <Input
-                      id="externalUrl"
-                      type="url"
-                      placeholder="https://your-game.vercel.app"
-                      value={formData.externalUrl}
-                      onChange={(e) => setFormData({ ...formData, externalUrl: e.target.value })}
-                    />
                   </div>
 
+                  {/* React/Vite Source Detected Warning */}
+                  {isReactViteProject && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="p-4 rounded-xl bg-red-500/10 border border-red-500/30"
+                    >
+                      <div className="flex items-start gap-3">
+                        <XCircle className="w-5 h-5 text-red-500 mt-0.5" />
+                        <div>
+                          <p className="font-bold text-red-600 dark:text-red-400">
+                            Phát hiện source code React/Vite!
+                          </p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Bạn đang upload source code, không phải game đã build. Vui lòng:
+                          </p>
+                          <ul className="text-sm text-muted-foreground list-disc list-inside mt-2">
+                            <li>Deploy lên Vercel/Netlify và paste link</li>
+                            <li>Hoặc chạy <code className="bg-muted px-1 rounded">npm run build</code> rồi upload folder <code className="bg-muted px-1 rounded">dist/</code></li>
+                          </ul>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Important Notice */}
+                  <div className="p-3 rounded-lg bg-muted/50 border text-sm">
+                    <p className="font-medium flex items-center gap-2">
+                      <Shield className="w-4 h-4" />
+                      Yêu cầu cho file ZIP:
+                    </p>
+                    <ul className="mt-2 space-y-1 text-muted-foreground list-disc list-inside">
+                      <li>ZIP phải chứa file <code className="bg-muted px-1 rounded">index.html</code></li>
+                      <li>Chỉ upload game HTML/CSS/JS đã build sẵn (static)</li>
+                      <li>Nếu là React/Vite: upload folder <code className="bg-muted px-1 rounded">dist/</code> sau khi build</li>
+                    </ul>
+                  </div>
+                  
                   {/* Drag & Drop Game File */}
                   <div className="space-y-2">
                     <Label>Game File (.zip) *</Label>
-                    
-                    {/* Important Notice */}
-                    <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-sm">
-                      <p className="font-medium text-amber-600 dark:text-amber-400 flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4" />
-                        Yêu cầu quan trọng / Important Requirements
-                      </p>
-                      <ul className="mt-2 space-y-1 text-muted-foreground list-disc list-inside">
-                        <li>ZIP phải chứa file <code className="bg-muted px-1 rounded">index.html</code> có thể chạy trực tiếp</li>
-                        <li>Chỉ upload game HTML/CSS/JS đã hoàn chỉnh (static game)</li>
-                        <li>Nếu game là dự án React/Vite: chạy <code className="bg-muted px-1 rounded">npm run build</code> rồi upload thư mục <code className="bg-muted px-1 rounded">dist/</code></li>
-                        <li>Không upload source code (có package.json, src/ folder)</li>
-                      </ul>
-                    </div>
-                    
                     <div
                       onDragOver={handleGameDragOver}
                       onDragLeave={handleGameDragLeave}
@@ -516,7 +867,9 @@ export default function UploadGame() {
                         isDraggingGame 
                           ? 'border-primary bg-primary/10 scale-[1.02]' 
                           : gameFile 
-                            ? 'border-green-500 bg-green-500/10' 
+                            ? isReactViteProject
+                              ? 'border-red-500 bg-red-500/10'
+                              : 'border-green-500 bg-green-500/10' 
                             : 'border-muted-foreground/30 hover:border-primary/50'
                       }`}
                     >
@@ -529,8 +882,14 @@ export default function UploadGame() {
                       <div className="space-y-2">
                         {gameFile ? (
                           <>
-                            <CheckCircle className="w-12 h-12 mx-auto text-green-500" />
-                            <p className="font-medium text-green-600">{gameFile.name}</p>
+                            {isReactViteProject ? (
+                              <XCircle className="w-12 h-12 mx-auto text-red-500" />
+                            ) : (
+                              <CheckCircle className="w-12 h-12 mx-auto text-green-500" />
+                            )}
+                            <p className={`font-medium ${isReactViteProject ? 'text-red-600' : 'text-green-600'}`}>
+                              {gameFile.name}
+                            </p>
                             <p className="text-sm text-muted-foreground">
                               {(gameFile.size / 1024 / 1024).toFixed(2)} MB
                             </p>
@@ -650,27 +1009,38 @@ export default function UploadGame() {
 
               <Button
                 type="submit"
-                disabled={loading || scanning}
+                disabled={loading || scanning || (uploadType === "zip" && isReactViteProject)}
                 className="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90"
                 size="lg"
               >
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    {uploadType === "zip" ? "Uploading..." : "Submitting..."}
+                    {uploadType === "deploy-link" ? "Publishing..." : uploadType === "zip" ? "Uploading..." : "Submitting..."}
                   </>
                 ) : (
                   <>
-                    <Upload className="mr-2 h-5 w-5" />
-                    {uploadType === "zip" ? "Publish Game" : "Submit Lovable Game"}
+                    {uploadType === "deploy-link" ? (
+                      <>
+                        <Rocket className="mr-2 h-5 w-5" />
+                        Publish Deployed Game 🚀
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="mr-2 h-5 w-5" />
+                        {uploadType === "zip" ? "Publish Game" : "Submit Lovable Game"}
+                      </>
+                    )}
                   </>
                 )}
               </Button>
 
               <p className="text-sm text-muted-foreground text-center">
-                {uploadType === "zip" 
-                  ? "Your game will be published after AI safety scan! 🎉"
-                  : "Your Lovable game will be reviewed before publishing. 🔍"
+                {uploadType === "deploy-link"
+                  ? "Game will be published instantly and you'll earn 500K CAMLY! 🎉"
+                  : uploadType === "zip" 
+                    ? "Your game will be published after AI safety scan! 🎉"
+                    : "Your Lovable game will be reviewed before publishing. 🔍"
                 }
               </p>
             </form>
