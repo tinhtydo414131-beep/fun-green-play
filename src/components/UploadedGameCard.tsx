@@ -2,9 +2,12 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Play, Star, Download, User } from "lucide-react";
+import { Play, Star, Download, User, Gem } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import GameDeleteModal from "@/components/GameDeleteModal";
+import { useGameTrash } from "@/hooks/useGameTrash";
 
 interface UploadedGame {
   id: string;
@@ -27,10 +30,16 @@ interface GameAuthor {
 
 interface UploadedGameCardProps {
   game: UploadedGame;
+  onDeleted?: () => void;
 }
 
-export const UploadedGameCard = ({ game }: UploadedGameCardProps) => {
+export const UploadedGameCard = ({ game, onDeleted }: UploadedGameCardProps) => {
+  const { user } = useAuth();
   const [author, setAuthor] = useState<GameAuthor | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const { moveToTrash, isDeleting } = useGameTrash();
+
+  const isOwner = user?.id === game.user_id;
 
   useEffect(() => {
     fetchAuthor();
@@ -69,84 +78,120 @@ export const UploadedGameCard = ({ game }: UploadedGameCardProps) => {
     return 'Anonymous';
   };
 
+  const handleDeleteConfirm = async (reason: string, detail: string) => {
+    if (!user) return;
+    
+    const success = await moveToTrash(game.id, reason, detail, user.id);
+    if (success) {
+      setShowDeleteModal(false);
+      onDeleted?.();
+    }
+  };
+
   return (
-    <Card className="group overflow-hidden border-2 border-primary/20 hover:border-primary/50 transition-all duration-300 hover:shadow-xl rounded-2xl">
-      <div className="aspect-video relative overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20">
-        {game.thumbnail_path ? (
-          <img
-            src={getThumbnailUrl(game.thumbnail_path)}
-            alt={game.title}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            loading="lazy"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-6xl">
-            🎮
-          </div>
-        )}
-        
-        {/* Status Badge */}
-        <div className="absolute top-3 right-3">
-          <Badge 
-            variant={game.status === 'approved' ? 'default' : 'secondary'}
-            className={game.status === 'approved' ? 'bg-green-500' : ''}
+    <>
+      <Card className="group overflow-hidden border-2 border-primary/20 hover:border-primary/50 transition-all duration-300 hover:shadow-xl rounded-2xl relative">
+        {/* Delete Button for Owner */}
+        {isOwner && (
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowDeleteModal(true);
+            }}
+            className="absolute top-3 left-3 z-10 p-2 rounded-full bg-amber-500/90 hover:bg-amber-600 text-white shadow-lg transition-all hover:scale-110"
+            title="Đưa vào thùng rác"
           >
-            {game.status === 'approved' ? '✅ Live' : '⏳ Pending'}
-          </Badge>
-        </div>
-
-        {/* Stats */}
-        <div className="absolute bottom-3 left-3 flex gap-2">
-          <div className="bg-background/80 backdrop-blur-sm px-2 py-1 rounded-full text-xs flex items-center gap-1">
-            <Play className="w-3 h-3" />
-            {game.play_count}
-          </div>
-          <div className="bg-background/80 backdrop-blur-sm px-2 py-1 rounded-full text-xs flex items-center gap-1">
-            <Download className="w-3 h-3" />
-            {game.download_count}
-          </div>
-        </div>
-      </div>
-
-      <CardContent className="p-4 space-y-3">
-        <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">
-          {game.title}
-        </h3>
-        
-        {/* Author Info - Key Feature */}
-        <div className="flex items-center gap-2 text-sm">
-          <User className="w-4 h-4 text-primary" />
-          <span className="text-muted-foreground">Tạo bởi:</span>
-          <span className="font-semibold text-primary truncate">
-            {getAuthorDisplay()}
-          </span>
-        </div>
-
-        {game.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            {game.description}
-          </p>
+            <Gem className="w-4 h-4" />
+          </button>
         )}
 
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-xs">
-            {game.category}
-          </Badge>
-          {game.rating && game.rating > 0 && (
-            <div className="flex items-center gap-1 text-sm">
-              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-              <span>{game.rating.toFixed(1)}</span>
+        <div className="aspect-video relative overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20">
+          {game.thumbnail_path ? (
+            <img
+              src={getThumbnailUrl(game.thumbnail_path)}
+              alt={game.title}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              loading="lazy"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-6xl">
+              🎮
             </div>
           )}
+          
+          {/* Status Badge */}
+          <div className="absolute top-3 right-3">
+            <Badge 
+              variant={game.status === 'approved' ? 'default' : 'secondary'}
+              className={game.status === 'approved' ? 'bg-green-500' : ''}
+            >
+              {game.status === 'approved' ? '✅ Live' : '⏳ Pending'}
+            </Badge>
+          </div>
+
+          {/* Stats */}
+          <div className="absolute bottom-3 left-3 flex gap-2">
+            <div className="bg-background/80 backdrop-blur-sm px-2 py-1 rounded-full text-xs flex items-center gap-1">
+              <Play className="w-3 h-3" />
+              {game.play_count}
+            </div>
+            <div className="bg-background/80 backdrop-blur-sm px-2 py-1 rounded-full text-xs flex items-center gap-1">
+              <Download className="w-3 h-3" />
+              {game.download_count}
+            </div>
+          </div>
         </div>
 
-        <Link to={`/game-details/${game.id}`} className="block">
-          <Button className="w-full bg-gradient-to-r from-primary to-secondary">
-            <Play className="w-4 h-4 mr-2" />
-            Play Now
-          </Button>
-        </Link>
-      </CardContent>
-    </Card>
+        <CardContent className="p-4 space-y-3">
+          <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+            {game.title}
+          </h3>
+          
+          {/* Author Info - Key Feature */}
+          <div className="flex items-center gap-2 text-sm">
+            <User className="w-4 h-4 text-primary" />
+            <span className="text-muted-foreground">Tạo bởi:</span>
+            <span className="font-semibold text-primary truncate">
+              {getAuthorDisplay()}
+            </span>
+          </div>
+
+          {game.description && (
+            <p className="text-sm text-muted-foreground line-clamp-2">
+              {game.description}
+            </p>
+          )}
+
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-xs">
+              {game.category}
+            </Badge>
+            {game.rating && game.rating > 0 && (
+              <div className="flex items-center gap-1 text-sm">
+                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                <span>{game.rating.toFixed(1)}</span>
+              </div>
+            )}
+          </div>
+
+          <Link to={`/game-details/${game.id}`} className="block">
+            <Button className="w-full bg-gradient-to-r from-primary to-secondary">
+              <Play className="w-4 h-4 mr-2" />
+              Play Now
+            </Button>
+          </Link>
+        </CardContent>
+      </Card>
+
+      {/* Delete Modal */}
+      <GameDeleteModal
+        open={showDeleteModal}
+        onOpenChange={setShowDeleteModal}
+        onConfirm={handleDeleteConfirm}
+        isDeleting={isDeleting}
+        gameTitle={game.title}
+      />
+    </>
   );
 };

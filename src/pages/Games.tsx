@@ -444,14 +444,14 @@ const Games = () => {
                     </Link>
                   </div>
                 ))}
-                {/* Uploaded Games */}
+{/* Uploaded Games */}
                 {uploadedGames.map((game, index) => (
                   <div 
                     key={game.id} 
                     className="fade-in-on-scroll game-card"
                     style={{ animationDelay: `${Math.min((lovableGames.length + index) * 0.03, 0.3)}s` }}
                   >
-                    <UploadedGameCard game={game} />
+                    <UploadedGameCard game={game} onDeleted={fetchUploadedGames} />
                   </div>
                 ))}
               </div>
