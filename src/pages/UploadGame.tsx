@@ -64,6 +64,8 @@ export default function UploadGame() {
     if (file && file.name.endsWith('.zip')) {
       setGameFile(file);
       toast.success(`Game file "${file.name}" ready! 🎮`);
+      // Auto-trigger safety scan after file drop
+      triggerAutoScan();
     } else {
       toast.error("Please drop a .zip file");
     }
@@ -96,6 +98,8 @@ export default function UploadGame() {
     const file = e.target.files?.[0];
     if (file && file.name.endsWith('.zip')) {
       setGameFile(file);
+      // Auto-trigger safety scan after file selection
+      triggerAutoScan();
     } else {
       toast.error("Please upload a .zip file");
     }
@@ -115,10 +119,22 @@ export default function UploadGame() {
     return lovablePattern.test(url);
   };
 
+  // Auto-trigger safety scan when file is uploaded and form has title/description
+  const triggerAutoScan = useCallback(() => {
+    // Small delay to allow state to update, then check if we can scan
+    setTimeout(() => {
+      const titleInput = document.getElementById('title') as HTMLInputElement;
+      const descInput = document.getElementById('description') as HTMLTextAreaElement;
+      if (titleInput?.value && descInput?.value) {
+        runSafetyScan();
+      }
+    }, 100);
+  }, []);
+
   // AI Safety Scan
   const runSafetyScan = async (): Promise<boolean> => {
     if (!formData.title || !formData.description) {
-      toast.error("Please enter title and description first");
+      // Silent return for auto-scan - don't show error
       return false;
     }
 
@@ -362,27 +378,14 @@ export default function UploadGame() {
                 />
               </div>
 
-              {/* AI Safety Scan Button */}
+              {/* AI Safety Scan Status */}
               <div className="space-y-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={runSafetyScan}
-                  disabled={scanning || !formData.title || !formData.description}
-                  className="w-full gap-2"
-                >
-                  {scanning ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Scanning content...
-                    </>
-                  ) : (
-                    <>
-                      <Shield className="h-4 w-4" />
-                      Run AI Safety Scan
-                    </>
-                  )}
-                </Button>
+                {scanning && (
+                  <div className="w-full p-3 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                    <span className="text-sm font-medium">AI scanning content...</span>
+                  </div>
+                )}
 
                 {/* Scan Result */}
                 <AnimatePresence>
