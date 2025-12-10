@@ -13,7 +13,8 @@ export function ProfileTabs({ activeTab, onTabChange, children }: ProfileTabsPro
     { id: 'about', label: 'About' },
     { id: 'friends', label: 'Friends' },
     { id: 'photos', label: 'Photos' },
-    { id: 'games', label: 'Games' },
+    { id: 'my-games', label: 'My Games' },
+    { id: 'games', label: 'Leaderboard' },
   ];
 
   return (

@@ -18,6 +18,7 @@ import { AboutSection } from "@/components/profile/AboutSection";
 import { FriendsSection } from "@/components/profile/FriendsSection";
 import { PhotosSection } from "@/components/profile/PhotosSection";
 import { HonorBoard } from "@/components/profile/HonorBoard";
+import { MyGamesSection } from "@/components/profile/MyGamesSection";
 import { WalletConnectModal } from "@/components/WalletConnectModal";
 import { ClaimRewardsModal } from "@/components/ClaimRewardsModal";
 import { Web3RewardNotification } from "@/components/Web3RewardNotification";
@@ -275,6 +276,8 @@ export default function Profile() {
         return <FriendsSection userId={profile.id} totalFriends={profile.total_friends} />;
       case "photos":
         return <PhotosSection userId={profile.id} />;
+      case "my-games":
+        return <MyGamesSection userId={profile.id} />;
       case "games":
         return (
           <div className="space-y-4">
