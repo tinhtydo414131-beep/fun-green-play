@@ -271,6 +271,39 @@ export default {
             filter: "hue-rotate(360deg) saturate(1.5) brightness(1.2)",
           },
         },
+        // Diamond button animations
+        "diamond-shine": {
+          "0%": {
+            backgroundPosition: "-200% center",
+          },
+          "100%": {
+            backgroundPosition: "200% center",
+          },
+        },
+        "diamond-pulse": {
+          "0%, 100%": {
+            boxShadow: "0 0 20px rgba(255, 107, 157, 0.6), 0 0 40px rgba(196, 77, 255, 0.4), 0 0 60px rgba(0, 212, 255, 0.3), inset 0 0 20px rgba(255, 255, 255, 0.1)",
+            transform: "scale(1)",
+          },
+          "50%": {
+            boxShadow: "0 0 30px rgba(255, 107, 157, 0.8), 0 0 60px rgba(196, 77, 255, 0.6), 0 0 90px rgba(0, 212, 255, 0.5), inset 0 0 30px rgba(255, 255, 255, 0.2)",
+            transform: "scale(1.02)",
+          },
+        },
+        "sparkle-float": {
+          "0%": {
+            transform: "translateY(0) scale(0) rotate(0deg)",
+            opacity: "0",
+          },
+          "50%": {
+            transform: "translateY(-20px) scale(1) rotate(180deg)",
+            opacity: "1",
+          },
+          "100%": {
+            transform: "translateY(-40px) scale(0) rotate(360deg)",
+            opacity: "0",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -291,6 +324,9 @@ export default {
         "slow-pulse": "slow-pulse 3s ease-in-out infinite",
         "crystal-shimmer": "crystal-shimmer 5s ease-in-out infinite",
         "rainbow-spectrum": "rainbow-spectrum 4s linear infinite",
+        "diamond-shine": "diamond-shine 3s linear infinite",
+        "diamond-pulse": "diamond-pulse 2s ease-in-out infinite",
+        "sparkle-float": "sparkle-float 2s ease-out infinite",
       },
     },
   },

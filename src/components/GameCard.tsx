@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { DiamondButton } from "@/components/ui/diamond-button";
 import { Badge } from "@/components/ui/badge";
 import { Play, Heart, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -338,11 +339,17 @@ export const GameCard = ({ game }: GameCardProps) => {
 
         <div className="flex items-center gap-1 sm:gap-2 pt-1 sm:pt-2">
           <Link to={`/game/${game.id}`} className="flex-1">
-            <Button className="w-full h-10 sm:h-14 group/btn font-fredoka font-bold text-xs sm:text-base flex items-center justify-center px-2 sm:px-4">
+            <DiamondButton 
+              className="w-full h-10 sm:h-14 text-xs sm:text-base"
+              size="default"
+              enableConfetti={false}
+              enableSound={true}
+              enableHaptic={true}
+            >
               <span className="hidden xs:inline">Play Now!</span>
               <span className="xs:hidden">Play</span>
               <Play className="ml-1 sm:ml-2 w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover/btn:scale-125 inline-block" />
-            </Button>
+            </DiamondButton>
           </Link>
 
           <Button

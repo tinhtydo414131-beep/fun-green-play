@@ -1,6 +1,7 @@
 import { Button } from "./ui/button";
+import { DiamondButton } from "./ui/diamond-button";
 import { Input } from "./ui/input";
-import { Search, Sparkles } from "lucide-react";
+import { Search, Sparkles, Upload } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import camlyCoin from "@/assets/camly-coin.png";
@@ -97,23 +98,32 @@ export const Hero = () => {
           </form>
 
           <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 pt-4 px-4">
-            <Button
+            <DiamondButton
               onClick={() => { playClick(); navigate("/games"); }}
               onMouseEnter={() => playPop()}
               size="lg"
-              className="font-space font-bold text-base sm:text-xl px-8 sm:px-10 py-6 sm:py-8 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 shadow-lg shadow-purple-500/50 hover:shadow-pink-500/50 transform hover:scale-105 transition-all border border-white/20 backdrop-blur-sm touch-manipulation w-full sm:w-auto"
+              className="w-full sm:w-auto"
             >
               Browse All Games 🎯
-            </Button>
-            <Button
+            </DiamondButton>
+            <DiamondButton
+              onClick={() => { playClick(); navigate("/upload-game"); }}
+              onMouseEnter={() => playPop()}
+              size="lg"
+              className="w-full sm:w-auto"
+            >
+              <Upload className="w-5 h-5" />
+              Upload Game 🚀
+            </DiamondButton>
+            <DiamondButton
               onClick={() => { playClick(); navigate("/leaderboard"); }}
               onMouseEnter={() => playPop()}
               size="lg"
               variant="outline"
-              className="font-space font-bold text-base sm:text-xl px-8 sm:px-10 py-6 sm:py-8 bg-white/10 backdrop-blur-md border-2 border-white/20 hover:bg-white/20 text-white hover:text-cyan-400 hover:border-cyan-400 shadow-lg transform hover:scale-105 transition-all touch-manipulation w-full sm:w-auto"
+              className="w-full sm:w-auto"
             >
               View Leaderboard 🏆
-            </Button>
+            </DiamondButton>
           </div>
 
           <div className="flex justify-center gap-6 sm:gap-12 pt-8 text-center">
