@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import camlyCoin from "@/assets/camly-coin.png";
 import { useGameAudio } from "@/hooks/useGameAudio";
 import { AudioControls } from "./AudioControls";
+import { HeroUploadBanner } from "./HeroUploadBanner";
 
 export const Hero = () => {
   const [search, setSearch] = useState("");
@@ -130,6 +131,9 @@ export const Hero = () => {
               <p className="text-xs sm:text-sm font-rajdhani text-white font-bold">Fun Forever! 🚀</p>
             </div>
           </div>
+
+          {/* Creator Upload Banner */}
+          <HeroUploadBanner />
         </div>
       </div>
     </section>
