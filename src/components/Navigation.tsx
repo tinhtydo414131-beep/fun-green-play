@@ -224,8 +224,8 @@ export const Navigation = () => {
             >
               <img 
                 src={funPlanetLogo} 
-                alt="FUN Planet – Bé CamLy Dương" 
-                className="h-9 md:h-11 lg:h-12 ml-2 md:ml-5 object-contain select-none transition-all duration-300 hover:brightness-110 hover:scale-105 hover:drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]"
+                alt="FUN Planet – Cute Gaming Planet" 
+                className="h-12 md:h-14 lg:h-16 w-auto ml-2 md:ml-5 object-contain select-none transition-all duration-300 rounded-2xl drop-shadow-lg hover:scale-110 hover:rotate-3 hover:drop-shadow-[0_0_20px_rgba(168,85,247,0.6)]"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/logo-header-fallback.jpg';
                 }}
@@ -427,8 +427,8 @@ export const Navigation = () => {
           >
             <img 
               src={funPlanetLogo} 
-              alt="FUN Planet – Bé CamLy Dương" 
-              className="h-9 ml-2 object-contain select-none transition-all duration-300 hover:brightness-110 hover:scale-105 hover:drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]"
+              alt="FUN Planet – Cute Gaming Planet" 
+              className="h-10 w-auto ml-2 object-contain select-none transition-all duration-300 rounded-xl drop-shadow-md hover:scale-110 hover:rotate-3 hover:drop-shadow-[0_0_15px_rgba(168,85,247,0.6)]"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/logo-header-fallback.jpg';
               }}
