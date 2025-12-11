@@ -67,6 +67,15 @@ export function useFriendRequestNotifications() {
           setPendingRequest(newRequest);
           setPendingCount((prev) => prev + 1);
           
+          // Show toast notification
+          toast.info(`${sender?.username || "Someone"} sent you a friend request! 🎉`, {
+            duration: 5000,
+            action: {
+              label: "View",
+              onClick: () => window.location.href = "/friends",
+            },
+          });
+          
           // Send push notification
           notifyFriendRequest(sender?.username || "Someone");
         }
