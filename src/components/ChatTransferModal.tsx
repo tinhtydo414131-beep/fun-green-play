@@ -132,7 +132,7 @@ export function ChatTransferModal({
       });
 
       // Play success sound
-      const audio = new Audio("/audio/coin-reward.mp3");
+      const audio = new Audio("https://media.funplanet.life/audio/coin-reward.mp3");
       audio.volume = 0.4;
       audio.play().catch(() => {});
 

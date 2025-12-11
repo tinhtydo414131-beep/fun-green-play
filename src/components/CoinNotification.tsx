@@ -23,7 +23,7 @@ export function CoinNotification() {
 
   useEffect(() => {
     // Initialize audio
-    audioRef.current = new Audio("/audio/coin-reward.mp3");
+    audioRef.current = new Audio("https://media.funplanet.life/audio/coin-reward.mp3");
     audioRef.current.volume = 0.5;
     
     // Test audio loading

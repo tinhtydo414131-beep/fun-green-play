@@ -60,7 +60,7 @@ export const Web3RewardNotification = ({
 
   return (
     <>
-      <audio ref={audioRef} src="/audio/rich1-6.mp3" preload="auto" />
+      <audio ref={audioRef} src="https://media.funplanet.life/audio/rich1-6.mp3" preload="auto" />
       
       <AnimatePresence>
         {isOpen && (

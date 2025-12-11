@@ -20,7 +20,7 @@ export function useMessageSound({
   // Preload audio on mount
   useEffect(() => {
     if (enabled) {
-      const audio = new Audio('/audio/coin-reward.mp3');
+      const audio = new Audio('https://media.funplanet.life/audio/coin-reward.mp3');
       audio.volume = volume;
       audio.preload = 'auto';
       
@@ -59,7 +59,7 @@ export function useMessageSound({
       });
     } else {
       // Fallback: create new audio instance
-      const audio = new Audio('/audio/coin-reward.mp3');
+      const audio = new Audio('https://media.funplanet.life/audio/coin-reward.mp3');
       audio.volume = volume;
       audio.play().catch(() => {});
     }
@@ -90,7 +90,7 @@ export function useMessageSound({
  * Play a "ting" notification sound
  */
 export function playNotificationTing(volume: number = 0.3) {
-  const audio = new Audio('/audio/coin-reward.mp3');
+  const audio = new Audio('https://media.funplanet.life/audio/coin-reward.mp3');
   audio.volume = volume;
   audio.play().catch(() => {});
 }

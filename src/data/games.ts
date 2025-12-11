@@ -207,7 +207,7 @@ export const games: Game[] = [
     description: 'Xây dựng trường học với lớp học và thư viện',
     category: 'adventure',
     difficulty: 'medium',
-    image: '/images/games/city-creator.jpg',
+    image: 'https://media.funplanet.life/images/games/city-creator.jpg',
     playable: true,
   },
   {
@@ -299,7 +299,7 @@ export const games: Game[] = [
     description: "Cook delicious meals and serve adorable animal friends!",
     category: "casual",
     difficulty: "medium",
-    image: "/images/games/happy-kitchen-joy.jpg",
+    image: "https://media.funplanet.life/images/games/happy-kitchen-joy.jpg",
     playable: true,
   },
   {
@@ -308,7 +308,7 @@ export const games: Game[] = [
     description: "Master recipes with timing and precision mini-games!",
     category: "casual",
     difficulty: "medium",
-    image: "/images/games/happy-kitchen-joy.jpg",
+    image: "https://media.funplanet.life/images/games/happy-kitchen-joy.jpg",
     playable: true,
   },
   {
