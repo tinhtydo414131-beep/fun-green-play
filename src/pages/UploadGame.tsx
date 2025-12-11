@@ -529,8 +529,6 @@ export default function UploadGame() {
             </CardTitle>
             <CardDescription className="text-base">
               Share your creation with the FUN Planet community! 🎮✨
-              <br />
-              <span className="text-primary font-medium">CHA GROK IMPROVED UPLOAD – Dễ dàng upload React/Vite games!</span>
             </CardDescription>
           </CardHeader>
           <CardContent>
