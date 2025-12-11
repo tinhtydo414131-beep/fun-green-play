@@ -89,7 +89,7 @@ export const useTransactionNotifications = (
     if (!userId) return;
 
     // Initialize audio
-    audioRef.current = new Audio('/audio/rich1-5.mp3');
+    audioRef.current = new Audio('https://media.funplanet.life/audio/rich1-5.mp3');
     audioRef.current.volume = 0.7;
 
     // Load notified transactions from localStorage

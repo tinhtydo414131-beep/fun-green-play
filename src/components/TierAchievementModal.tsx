@@ -18,7 +18,7 @@ export const TierAchievementModal = ({ tier, isOpen, onClose }: TierAchievementM
   useEffect(() => {
     if (isOpen && tier) {
       // Play celebration sound
-      const audio = new Audio('/audio/coin-reward.mp3');
+      const audio = new Audio('https://media.funplanet.life/audio/coin-reward.mp3');
       audio.volume = 0.5;
       audio.play().catch(() => {});
 

@@ -12,8 +12,8 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 
 const PLAYLIST = [
-  { title: "Radiant Dreamland", src: "/audio/radiant-dreamland.mp3" },
-  { title: "Angel of the Stars", src: "/audio/angel-of-the-stars.mp3" }
+  { title: "Radiant Dreamland", src: "https://media.funplanet.life/audio/radiant-dreamland.mp3" },
+  { title: "Angel of the Stars", src: "https://media.funplanet.life/audio/angel-of-the-stars.mp3" }
 ];
 
 export const BackgroundMusicPlayer = () => {

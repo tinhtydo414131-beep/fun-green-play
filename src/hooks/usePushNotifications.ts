@@ -40,7 +40,7 @@ export function usePushNotifications() {
         } as NotificationOptions);
 
         // Play notification sound
-        const audio = new Audio("/audio/coin-reward.mp3");
+        const audio = new Audio("https://media.funplanet.life/audio/coin-reward.mp3");
         audio.volume = 0.3;
         audio.play().catch(() => {});
 

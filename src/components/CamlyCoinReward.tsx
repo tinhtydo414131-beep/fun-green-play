@@ -10,7 +10,7 @@ interface CamlyCoinRewardProps {
 
 export const CamlyCoinReward = ({ amount, message, onComplete }: CamlyCoinRewardProps) => {
   useEffect(() => {
-    const audio = new Audio("/audio/rich1.mp3");
+    const audio = new Audio("https://media.funplanet.life/audio/rich1.mp3");
     audio.volume = 0.3;
     audio.play().catch(e => console.log("Audio play failed:", e));
 

@@ -95,7 +95,7 @@ export function MyGamesSection({ userId }: MyGamesSectionProps) {
   };
 
   const getThumbnailUrl = (path: string | null) => {
-    if (!path) return "/images/games/platformer.jpg";
+    if (!path) return "https://media.funplanet.life/images/games/platformer.jpg";
     return supabase.storage.from("game-thumbnails").getPublicUrl(path).data.publicUrl;
   };
 

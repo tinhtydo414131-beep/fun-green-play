@@ -686,7 +686,7 @@ export default function Settings() {
                 </div>
                 <Button onClick={() => {
                 // Trigger preview notification
-                const audio = new Audio("/audio/coin-reward.mp3");
+                const audio = new Audio("https://media.funplanet.life/audio/coin-reward.mp3");
                 audio.volume = preferences.volume / 100;
                 if (preferences.soundEnabled) {
                   audio.play().catch(console.error);

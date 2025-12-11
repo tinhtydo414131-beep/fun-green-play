@@ -46,7 +46,7 @@ const PUBLIC_TRACKS: MusicTrack[] = [
     id: "1",
     title: "Radiant Dreamland",
     artist: "FUN Planet",
-    src: "/audio/radiant-dreamland.mp3",
+    src: "https://media.funplanet.life/audio/radiant-dreamland.mp3",
     duration: "3:45",
     genre: "electronic"
   },
@@ -54,7 +54,7 @@ const PUBLIC_TRACKS: MusicTrack[] = [
     id: "2", 
     title: "Angel of the Stars",
     artist: "FUN Planet",
-    src: "/audio/angel-of-the-stars.mp3",
+    src: "https://media.funplanet.life/audio/angel-of-the-stars.mp3",
     duration: "4:12",
     genre: "ambient"
   }

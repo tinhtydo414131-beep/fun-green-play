@@ -36,7 +36,7 @@ export function FriendRequestNotification({
   useEffect(() => {
     if (request) {
       // Play notification sound
-      const audio = new Audio("/audio/coin-reward.mp3");
+      const audio = new Audio("https://media.funplanet.life/audio/coin-reward.mp3");
       audio.volume = 0.5;
       audio.play().catch(() => {});
 
