@@ -3,12 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Music, Volume2, VolumeX, Play, Pause, SkipForward, SkipBack, Shuffle, Repeat, Repeat1 } from "lucide-react";
+import { Music, Volume2, VolumeX, Play, Pause, SkipForward, SkipBack, Shuffle, Repeat, Repeat1, GripVertical } from "lucide-react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useDraggable } from "@/hooks/useDraggable";
 import { useAuth } from "@/hooks/useAuth";
 
 const PLAYLIST = [
@@ -147,17 +148,36 @@ export const BackgroundMusicPlayer = () => {
 
   if (!user) return null;
 
+  const { position, isDragging, handleMouseDown, style } = useDraggable({
+    storageKey: "music_player_position",
+    defaultPosition: { x: 0, y: 0 },
+  });
+
   return (
-    <div className="fixed bottom-6 right-6 z-50">
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            size="lg"
-            className="h-16 w-16 rounded-full bg-gradient-to-br from-primary via-secondary to-accent shadow-2xl hover:shadow-[0_20px_50px_rgba(59,130,246,0.6)] transition-all duration-300 hover:scale-110 border-4 border-white/20"
-          >
-            <Music className="w-8 h-8 text-white animate-pulse" />
-          </Button>
-        </PopoverTrigger>
+    <div 
+      className="fixed bottom-6 right-6 z-50 select-none"
+      style={style}
+    >
+      <div className="relative group">
+        {/* Drag handle */}
+        <div
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleMouseDown}
+          className={`absolute -top-2 -left-2 w-6 h-6 rounded-full bg-primary/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 ${isDragging ? 'opacity-100' : ''}`}
+          title="Drag to move"
+        >
+          <GripVertical className="w-3 h-3 text-white" />
+        </div>
+        
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              size="lg"
+              className={`h-16 w-16 rounded-full bg-gradient-to-br from-primary via-secondary to-accent shadow-2xl hover:shadow-[0_20px_50px_rgba(59,130,246,0.6)] transition-all duration-300 hover:scale-110 border-4 border-white/20 ${isDragging ? 'cursor-grabbing scale-105' : ''}`}
+            >
+              <Music className="w-8 h-8 text-white animate-pulse" />
+            </Button>
+          </PopoverTrigger>
         
         <PopoverContent 
           side="top" 
@@ -307,6 +327,7 @@ export const BackgroundMusicPlayer = () => {
         preload="auto"
         onEnded={handleTrackEnd}
       />
+      </div>
     </div>
   );
 };

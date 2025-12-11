@@ -1,15 +1,34 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Gamepad2, Plus, X } from "lucide-react";
+import { Gamepad2, Plus, GripVertical } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useDraggable } from "@/hooks/useDraggable";
 
 export const UploadGameFAB = () => {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
+  
+  const { position, isDragging, handleMouseDown, style } = useDraggable({
+    storageKey: "upload_fab_position",
+    defaultPosition: { x: 0, y: 0 },
+  });
 
   return (
-    <div className="fixed bottom-20 md:bottom-6 right-4 z-50">
+    <div 
+      className="fixed bottom-20 md:bottom-6 right-4 z-50 select-none"
+      style={style}
+    >
+      <div className="relative group">
+        {/* Drag handle */}
+        <div
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleMouseDown}
+          className={`absolute -top-2 -left-2 w-6 h-6 rounded-full bg-orange-600/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 ${isDragging ? 'opacity-100' : ''}`}
+          title="Drag to move"
+        >
+          <GripVertical className="w-3 h-3 text-white" />
+        </div>
       <Tooltip>
         <TooltipTrigger asChild>
           <motion.button
@@ -104,6 +123,7 @@ export const UploadGameFAB = () => {
           <p className="text-xs mt-1">Get 500K CAMLY! 💰</p>
         </TooltipContent>
       </Tooltip>
+      </div>
     </div>
   );
 };
