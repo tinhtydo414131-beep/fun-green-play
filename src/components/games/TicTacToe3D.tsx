@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Text, Environment, useProgress, Html, RoundedBox } from '@react-three/drei';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, RotateCcw, ZoomIn, ZoomOut } from 'lucide-react';
+import { ArrowLeft, RotateCcw } from 'lucide-react';
 
 interface TicTacToe3DProps {
   level?: number;
@@ -11,10 +11,10 @@ interface TicTacToe3DProps {
   onBack?: () => void;
 }
 
-const BOARD_SIZE = 30;
-const WIN_LENGTH = 5;
-const CELL_SIZE = 1.2;
-const CELL_GAP = 0.1;
+const BOARD_SIZE = 3;
+const WIN_LENGTH = 3;
+const CELL_SIZE = 2.0;
+const CELL_GAP = 0.2;
 
 type Player = 'X' | 'O' | null;
 type Difficulty = 'easy' | 'medium' | 'hard' | 'expert';
@@ -218,14 +218,15 @@ export default function TicTacToe3D({ level = 1, onLevelComplete, onBack }: TicT
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [gameMode, setGameMode] = useState<GameMode>('vsAI');
   const [gameStarted, setGameStarted] = useState(false);
-  const [viewOffset, setViewOffset] = useState({ x: 10, y: 10 });
-  const [zoom, setZoom] = useState(30);
+  const [viewOffset] = useState({ x: 0, y: 0 });
+  const [zoom] = useState(12);
   
-  const viewSize = Math.floor(zoom / (CELL_SIZE + CELL_GAP));
+  const viewSize = BOARD_SIZE;
   const cameraZ = zoom;
+  const boardCenter = (BOARD_SIZE - 1) * (CELL_SIZE + CELL_GAP) / 2;
   const cameraPos: [number, number, number] = [
-    (viewOffset.x + viewSize / 2) * (CELL_SIZE + CELL_GAP),
-    -(viewOffset.y + viewSize / 2) * (CELL_SIZE + CELL_GAP),
+    boardCenter,
+    -boardCenter,
     cameraZ
   ];
   
@@ -412,13 +413,6 @@ export default function TicTacToe3D({ level = 1, onLevelComplete, onBack }: TicT
     newBoard[index] = currentPlayer;
     setBoard(newBoard);
     
-    // Center view on last move
-    const row = Math.floor(index / BOARD_SIZE);
-    const col = index % BOARD_SIZE;
-    setViewOffset({
-      x: Math.max(0, Math.min(BOARD_SIZE - viewSize, col - viewSize / 2)),
-      y: Math.max(0, Math.min(BOARD_SIZE - viewSize, row - viewSize / 2))
-    });
     
     const result = checkWinner(newBoard, index);
     if (result) {
@@ -472,7 +466,6 @@ export default function TicTacToe3D({ level = 1, onLevelComplete, onBack }: TicT
     setCurrentPlayer('X');
     setWinner(null);
     setWinningCells(new Set());
-    setViewOffset({ x: 10, y: 10 });
   };
   
   const startGame = (mode: GameMode, diff?: Difficulty) => {
@@ -482,22 +475,6 @@ export default function TicTacToe3D({ level = 1, onLevelComplete, onBack }: TicT
     resetGame();
   };
   
-  const handlePan = (direction: 'up' | 'down' | 'left' | 'right') => {
-    const step = 3;
-    setViewOffset(prev => {
-      switch (direction) {
-        case 'up': return { ...prev, y: Math.max(0, prev.y - step) };
-        case 'down': return { ...prev, y: Math.min(BOARD_SIZE - viewSize, prev.y + step) };
-        case 'left': return { ...prev, x: Math.max(0, prev.x - step) };
-        case 'right': return { ...prev, x: Math.min(BOARD_SIZE - viewSize, prev.x + step) };
-        default: return prev;
-      }
-    });
-  };
-  
-  const handleZoom = (delta: number) => {
-    setZoom(prev => Math.max(15, Math.min(60, prev + delta)));
-  };
   
   if (!gameStarted) {
     return (
@@ -597,41 +574,12 @@ export default function TicTacToe3D({ level = 1, onLevelComplete, onBack }: TicT
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleZoom(-10)}
-            className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-          >
-            <ZoomOut className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleZoom(10)}
-            className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-          >
-            <ZoomIn className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
             onClick={resetGame}
             className="bg-white/10 border-white/20 text-white hover:bg-white/20"
           >
             <RotateCcw className="w-4 h-4" />
           </Button>
         </div>
-      </div>
-      
-      {/* Pan controls */}
-      <div className="absolute bottom-24 right-4 z-10 grid grid-cols-3 gap-1">
-        <div />
-        <Button size="sm" variant="outline" onClick={() => handlePan('up')} className="bg-white/10 border-white/20 text-white">↑</Button>
-        <div />
-        <Button size="sm" variant="outline" onClick={() => handlePan('left')} className="bg-white/10 border-white/20 text-white">←</Button>
-        <div />
-        <Button size="sm" variant="outline" onClick={() => handlePan('right')} className="bg-white/10 border-white/20 text-white">→</Button>
-        <div />
-        <Button size="sm" variant="outline" onClick={() => handlePan('down')} className="bg-white/10 border-white/20 text-white">↓</Button>
-        <div />
       </div>
       
       {/* Score display */}
