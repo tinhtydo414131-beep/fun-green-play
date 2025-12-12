@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Pickaxe, Target, Sparkles } from 'lucide-react';
 import { useHarvestHavenStore } from '@/stores/harvestHavenStore';
 import { BUILDINGS, CROPS } from '@/data/harvestHavenData';
 import { GameHUD } from './GameHUD';
@@ -12,6 +12,9 @@ import { InventoryPanel } from './InventoryPanel';
 import { CropSelector } from './CropSelector';
 import { TutorialModal } from './TutorialModal';
 import { SettingsModal } from './SettingsModal';
+import { MiniGameModal } from './MiniGameModal';
+import { AutoHarvestPanel } from './AutoHarvestPanel';
+import { DailyQuestsPanel } from './DailyQuestsPanel';
 import { toast } from 'sonner';
 
 interface HarvestHavenProps {
@@ -26,6 +29,9 @@ export const HarvestHaven: React.FC<HarvestHavenProps> = ({ onBack }) => {
   const [showSettings, setShowSettings] = useState(false);
   const [showCropSelector, setShowCropSelector] = useState(false);
   const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
+  const [showMiniGame, setShowMiniGame] = useState<'mining' | 'balloon' | null>(null);
+  const [showAutoHarvest, setShowAutoHarvest] = useState(false);
+  const [showDailyQuests, setShowDailyQuests] = useState(false);
   
   const {
     showTutorial,
@@ -244,7 +250,55 @@ export const HarvestHaven: React.FC<HarvestHavenProps> = ({ onBack }) => {
         {showSettings && (
           <SettingsModal onClose={() => setShowSettings(false)} />
         )}
+        
+        {showMiniGame && (
+          <MiniGameModal type={showMiniGame} onClose={() => setShowMiniGame(null)} />
+        )}
+        
+        {showAutoHarvest && (
+          <AutoHarvestPanel onClose={() => setShowAutoHarvest(false)} />
+        )}
+        
+        {showDailyQuests && (
+          <DailyQuestsPanel onClose={() => setShowDailyQuests(false)} />
+        )}
       </AnimatePresence>
+      
+      {/* Quick Access Buttons */}
+      <div className="absolute top-24 right-4 z-20 flex flex-col gap-2">
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setShowMiniGame('mining')}
+          className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full shadow-lg flex items-center justify-center text-white"
+        >
+          <Pickaxe className="w-5 h-5" />
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setShowMiniGame('balloon')}
+          className="w-12 h-12 bg-gradient-to-br from-pink-500 to-red-500 rounded-full shadow-lg flex items-center justify-center text-2xl"
+        >
+          🎈
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setShowAutoHarvest(true)}
+          className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full shadow-lg flex items-center justify-center text-2xl"
+        >
+          🌾
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setShowDailyQuests(true)}
+          className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full shadow-lg flex items-center justify-center text-2xl"
+        >
+          📋
+        </motion.button>
+      </div>
       
       {/* Level Up Celebration */}
       <LevelUpCelebration />
