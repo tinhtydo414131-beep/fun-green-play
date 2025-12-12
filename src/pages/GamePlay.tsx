@@ -54,6 +54,7 @@ import MusicCreator from "@/components/games/MusicCreator";
 import FlowerField from "@/components/games/FlowerField";
 import LilBlockBuddy from "@/components/games/LilBlockBuddy";
 import { Game2048Nexus } from "@/components/games/Game2048Nexus";
+import Game2048 from "@/components/games/Game2048";
 import { HappyKitchenJoy } from "@/components/games/HappyKitchenJoy";
 import { CookingMama } from "@/components/games/CookingMama";
 import SchoolBuilder from "@/components/games/SchoolBuilder";
@@ -456,6 +457,9 @@ const GamePlay = () => {
         return <CookingMama3D {...gameProps} />;
       case "CookingMama2D": return <CookingMama />;
 
+      case "Game2048":
+      case "2048":
+        return <Game2048 onBack={handleBackToLevelSelect} />;
       case "Game2048Nexus": 
       case "2048-nexus":
         return <Game2048Nexus3D {...gameProps} />;
