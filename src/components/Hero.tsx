@@ -28,11 +28,11 @@ export const Hero = () => {
         loop
         muted
         playsInline
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full object-cover contrast-110 brightness-105 saturate-110"
       >
         <source src="/videos/hero-background-new.mp4" type="video/mp4" />
       </video>
-      <div className="absolute inset-0 bg-white/30" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30" />
       <div className="container mx-auto max-w-6xl relative z-10">
         <div className="text-center space-y-6 sm:space-y-8 animate-fade-in">
           <div className="flex justify-end mb-4">
