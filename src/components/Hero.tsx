@@ -30,7 +30,7 @@ export const Hero = () => {
         playsInline
         className="absolute inset-0 w-full h-full object-cover"
       >
-        <source src="https://media.funplanet.life/videos/hero-background.mp4" type="video/mp4" />
+        <source src="/videos/hero-background-new.mp4" type="video/mp4" />
       </video>
       <div className="absolute inset-0 bg-white/30" />
       <div className="container mx-auto max-w-6xl relative z-10">
