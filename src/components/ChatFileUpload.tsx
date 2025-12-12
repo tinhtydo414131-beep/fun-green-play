@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Paperclip, X, File, Image, FileText, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { uploadToR2 } from "@/utils/r2Upload";
 
 interface ChatFileUploadProps {
   userId: string;
@@ -58,21 +59,35 @@ export function ChatFileUpload({ userId, roomId, onFileUploaded, disabled }: Cha
 
     setUploading(true);
     try {
-      const fileExt = pendingFile.file.name.split(".").pop();
-      const fileName = `${userId}/${roomId}/${Date.now()}.${fileExt}`;
+      // Try R2 upload first (new uploads go to R2)
+      const r2Result = await uploadToR2(pendingFile.file, 'chat-attachments');
+      
+      let fileUrl: string;
+      
+      if (r2Result.success && r2Result.url) {
+        fileUrl = r2Result.url;
+        console.log('✅ Chat attachment uploaded to R2:', fileUrl);
+      } else {
+        // Fallback to Supabase Storage if R2 fails
+        console.log('⚠️ R2 upload failed, falling back to Supabase Storage');
+        const fileExt = pendingFile.file.name.split(".").pop();
+        const fileName = `${userId}/${roomId}/${Date.now()}.${fileExt}`;
 
-      const { data, error } = await supabase.storage
-        .from("chat-attachments")
-        .upload(fileName, pendingFile.file);
+        const { data, error } = await supabase.storage
+          .from("chat-attachments")
+          .upload(fileName, pendingFile.file);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      const { data: publicUrl } = supabase.storage
-        .from("chat-attachments")
-        .getPublicUrl(data.path);
+        const { data: publicUrl } = supabase.storage
+          .from("chat-attachments")
+          .getPublicUrl(data.path);
+        
+        fileUrl = publicUrl.publicUrl;
+      }
 
       onFileUploaded({
-        url: publicUrl.publicUrl,
+        url: fileUrl,
         type: getFileType(pendingFile.file),
         name: pendingFile.file.name,
       });
