@@ -96,4 +96,13 @@ export const games: Game[] = [
     image: platformerImg,
     playable: true,
   },
+  {
+    id: 'harvest-haven',
+    title: 'Harvest Haven',
+    description: 'Build your farm empire from village to metropolis!',
+    category: 'casual',
+    difficulty: 'easy',
+    image: '/images/games/farm-builder.jpg',
+    playable: true,
+  },
 ];
