@@ -54,6 +54,7 @@ interface Game {
   total_likes: number;
   total_plays: number;
   how_to_play: string | null;
+  updated_at: string | null;
 }
 
 const Games = () => {
@@ -209,9 +210,25 @@ const Games = () => {
       );
     }
 
-    // Sort games - Always put 2048 Nexus at the top
+    // Sort games - Recently updated games come first, then 2048 Nexus
+    const recentlyUpdatedGames = ['TicTacToe', 'Caro']; // Games with new features
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    
     const sorted = [...filtered].sort((a, b) => {
-      // 2048 Nexus always comes first
+      // Check if game was recently updated (within last 7 days) or has new features
+      const aIsNew = recentlyUpdatedGames.some(name => 
+        a.component_name?.includes(name) || a.title.toLowerCase().includes('caro')
+      ) || (a.updated_at && new Date(a.updated_at) > oneWeekAgo);
+      const bIsNew = recentlyUpdatedGames.some(name => 
+        b.component_name?.includes(name) || b.title.toLowerCase().includes('caro')
+      ) || (b.updated_at && new Date(b.updated_at) > oneWeekAgo);
+      
+      // Recently updated games come first
+      if (aIsNew && !bIsNew) return -1;
+      if (!aIsNew && bIsNew) return 1;
+      
+      // Then 2048 Nexus
       const aIs2048 = a.title.toLowerCase().includes('2048');
       const bIs2048 = b.title.toLowerCase().includes('2048');
       if (aIs2048 && !bIs2048) return -1;
