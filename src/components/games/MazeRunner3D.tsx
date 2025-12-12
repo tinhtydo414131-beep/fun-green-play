@@ -9,15 +9,19 @@ import {
   Float,
   Sparkles,
   Stars,
-  useKeyboardControls
+  Text,
+  Sky
 } from "@react-three/drei";
 import * as THREE from "three";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import { Game3DHUD, Game3DTutorial, Game3DGameOver } from "./3d/Game3DUI";
+import { motion, AnimatePresence } from "framer-motion";
 import { haptics } from "@/utils/haptics";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowUp, ArrowDown, ArrowRight as ArrowRightIcon } from "lucide-react";
+import { 
+  ArrowLeft, ArrowUp, ArrowDown, ArrowRight as ArrowRightIcon, 
+  Lightbulb, Map, Clock, HelpCircle, X, Trophy, Target, Footprints,
+  Eye, Gamepad2
+} from "lucide-react";
 
 interface MazeRunner3DProps {
   level?: number;
@@ -29,231 +33,494 @@ function Loader() {
   const { progress } = useProgress();
   return (
     <Html center>
-      <div className="flex flex-col items-center gap-2">
-        <div className="w-32 h-2 bg-white/20 rounded-full overflow-hidden">
+      <div className="flex flex-col items-center gap-4 p-6 bg-black/80 rounded-xl backdrop-blur-sm">
+        <div className="text-6xl animate-bounce">🧭</div>
+        <div className="w-48 h-3 bg-white/20 rounded-full overflow-hidden">
           <div 
-            className="h-full bg-gradient-to-r from-purple-400 to-indigo-400 transition-all"
+            className="h-full bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-400 transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
-        <p className="text-white text-sm">Loading 3D... {progress.toFixed(0)}%</p>
+        <p className="text-white text-lg font-medium">Đang tạo mê cung... {progress.toFixed(0)}%</p>
+        <p className="text-white/60 text-sm">Khám phá thế giới bí ẩn</p>
       </div>
     </Html>
   );
 }
 
-// Generate maze
-function generateMaze(size: number): boolean[][] {
-  const maze: boolean[][] = Array(size).fill(null).map(() => Array(size).fill(false));
+// Advanced maze generation using recursive backtracking - creates perfect maze with multiple solution paths
+function generateAdvancedMaze(width: number, height: number): { maze: boolean[][], paths: number[][] } {
+  // Initialize all cells as walls
+  const maze: boolean[][] = Array(height).fill(null).map(() => Array(width).fill(true));
+  const visited: boolean[][] = Array(height).fill(null).map(() => Array(width).fill(false));
   
-  for (let i = 0; i < size; i++) {
-    maze[0][i] = true;
-    maze[size - 1][i] = true;
-    maze[i][0] = true;
-    maze[i][size - 1] = true;
+  const directions = [
+    [0, -2], [0, 2], [-2, 0], [2, 0] // Up, Down, Left, Right (step 2)
+  ];
+  
+  function shuffle<T>(array: T[]): T[] {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
   }
   
-  for (let y = 2; y < size - 2; y += 2) {
-    for (let x = 2; x < size - 2; x += 2) {
-      maze[y][x] = true;
-      const dir = Math.floor(Math.random() * 4);
-      if (dir === 0 && y > 1) maze[y - 1][x] = true;
-      if (dir === 1 && y < size - 2) maze[y + 1][x] = true;
-      if (dir === 2 && x > 1) maze[y][x - 1] = true;
-      if (dir === 3 && x < size - 2) maze[y][x + 1] = true;
+  function carve(x: number, y: number) {
+    visited[y][x] = true;
+    maze[y][x] = false;
+    
+    const shuffledDirs = shuffle(directions);
+    
+    for (const [dx, dy] of shuffledDirs) {
+      const nx = x + dx;
+      const ny = y + dy;
+      
+      if (nx > 0 && nx < width - 1 && ny > 0 && ny < height - 1 && !visited[ny][nx]) {
+        // Carve the wall between current and next cell
+        maze[y + dy / 2][x + dx / 2] = false;
+        carve(nx, ny);
+      }
     }
   }
   
+  // Start from top-left corner
+  carve(1, 1);
+  
+  // Ensure start and goal are clear
   maze[1][1] = false;
-  maze[size - 2][size - 2] = false;
+  maze[height - 2][width - 2] = false;
   
-  return maze;
-}
-
-// Wall component
-function Wall({ position }: { position: [number, number, number] }) {
-  return (
-    <mesh position={position} castShadow receiveShadow>
-      <boxGeometry args={[1, 2.5, 1]} />
-      <meshStandardMaterial 
-        color="#2d3a4f"
-        roughness={0.8}
-        metalness={0.2}
-      />
-    </mesh>
-  );
-}
-
-// Player character
-function Player({ 
-  position, 
-  targetPosition,
-  onMove 
-}: { 
-  position: [number, number, number];
-  targetPosition: [number, number, number];
-  onMove: (dir: string) => void;
-}) {
-  const ref = useRef<THREE.Group>(null);
-  const currentPos = useRef(new THREE.Vector3(...position));
-
-  useFrame(() => {
-    if (ref.current) {
-      currentPos.current.lerp(new THREE.Vector3(...targetPosition), 0.15);
-      ref.current.position.copy(currentPos.current);
-      ref.current.position.y = 0.5 + Math.sin(Date.now() * 0.005) * 0.1;
+  // Create multiple paths by randomly removing some walls (makes maze more interesting)
+  const extraPaths: number[][] = [];
+  for (let i = 0; i < Math.floor(width * height / 40); i++) {
+    const x = Math.floor(Math.random() * (width - 4)) + 2;
+    const y = Math.floor(Math.random() * (height - 4)) + 2;
+    if (maze[y][x]) {
+      // Check if removing this wall creates a valid path
+      const neighbors = [
+        [y - 1, x], [y + 1, x], [y, x - 1], [y, x + 1]
+      ].filter(([ny, nx]) => ny > 0 && ny < height - 1 && nx > 0 && nx < width - 1 && !maze[ny][nx]);
+      
+      if (neighbors.length >= 2) {
+        maze[y][x] = false;
+        extraPaths.push([x, y]);
+      }
     }
-  });
+  }
+  
+  return { maze, paths: extraPaths };
+}
 
+// BFS pathfinding to find escape route
+function findPath(maze: boolean[][], start: [number, number], end: [number, number]): [number, number][] {
+  const queue: { pos: [number, number]; path: [number, number][] }[] = [{ pos: start, path: [start] }];
+  const visited = new Set<string>();
+  visited.add(`${start[0]},${start[1]}`);
+  
+  while (queue.length > 0) {
+    const { pos, path } = queue.shift()!;
+    
+    if (pos[0] === end[0] && pos[1] === end[1]) {
+      return path;
+    }
+    
+    const directions: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    for (const [dx, dy] of directions) {
+      const nx = pos[0] + dx;
+      const ny = pos[1] + dy;
+      const key = `${nx},${ny}`;
+      
+      if (nx >= 0 && nx < maze[0].length && ny >= 0 && ny < maze.length && 
+          !maze[ny][nx] && !visited.has(key)) {
+        visited.add(key);
+        queue.push({ pos: [nx, ny], path: [...path, [nx, ny]] });
+      }
+    }
+  }
+  
+  return [];
+}
+
+// Textured wall with ivy/moss details
+function MazeWall({ position, height = 3.5 }: { position: [number, number, number]; height?: number }) {
+  const ref = useRef<THREE.Mesh>(null);
+  
   return (
-    <group ref={ref} position={position}>
-      <mesh castShadow>
-        <capsuleGeometry args={[0.25, 0.4, 4, 8]} />
+    <group position={position}>
+      {/* Main wall */}
+      <mesh castShadow receiveShadow>
+        <boxGeometry args={[1, height, 1]} />
         <meshStandardMaterial 
-          color="#4ECDC4"
-          metalness={0.3}
-          roughness={0.6}
-          emissive="#4ECDC4"
-          emissiveIntensity={0.2}
+          color="#1a472a"
+          roughness={0.9}
+          metalness={0.1}
         />
       </mesh>
-      <mesh position={[0, 0.5, 0]} castShadow>
-        <sphereGeometry args={[0.2, 16, 16]} />
-        <meshStandardMaterial color="#FFE4C4" />
+      {/* Wall top hedge effect */}
+      <mesh position={[0, height / 2 + 0.15, 0]} castShadow>
+        <boxGeometry args={[1.1, 0.3, 1.1]} />
+        <meshStandardMaterial 
+          color="#2d5a3d"
+          roughness={1}
+          metalness={0}
+        />
       </mesh>
-      {/* Eyes */}
-      <mesh position={[-0.07, 0.55, 0.15]}>
-        <sphereGeometry args={[0.04, 8, 8]} />
-        <meshBasicMaterial color="#333" />
-      </mesh>
-      <mesh position={[0.07, 0.55, 0.15]}>
-        <sphereGeometry args={[0.04, 8, 8]} />
-        <meshBasicMaterial color="#333" />
-      </mesh>
-      <pointLight color="#4ECDC4" intensity={0.5} distance={3} />
+      {/* Random decorations */}
+      {Math.random() > 0.7 && (
+        <mesh position={[0.3, 0, 0.5]} castShadow>
+          <sphereGeometry args={[0.08, 8, 8]} />
+          <meshStandardMaterial color="#90EE90" emissive="#90EE90" emissiveIntensity={0.3} />
+        </mesh>
+      )}
     </group>
   );
 }
 
-// Collectible coin
-function Coin({ position, onCollect }: { position: [number, number, number]; onCollect: () => void }) {
+// Detailed human character lost in maze
+function HumanCharacter({ 
+  position, 
+  targetPosition,
+  isLost = false,
+  emotion = "worried"
+}: { 
+  position: [number, number, number];
+  targetPosition: [number, number, number];
+  isLost?: boolean;
+  emotion?: "worried" | "happy" | "scared";
+}) {
+  const ref = useRef<THREE.Group>(null);
+  const currentPos = useRef(new THREE.Vector3(...position));
+  const legAngle = useRef(0);
+  const armAngle = useRef(0);
+
+  useFrame((state) => {
+    if (ref.current) {
+      const target = new THREE.Vector3(...targetPosition);
+      const isMoving = currentPos.current.distanceTo(target) > 0.05;
+      
+      currentPos.current.lerp(target, 0.12);
+      ref.current.position.copy(currentPos.current);
+      
+      // Breathing/bobbing animation
+      ref.current.position.y = 0 + Math.sin(state.clock.elapsedTime * 2) * 0.05;
+      
+      // Walking animation
+      if (isMoving) {
+        legAngle.current = Math.sin(state.clock.elapsedTime * 12) * 0.4;
+        armAngle.current = Math.sin(state.clock.elapsedTime * 12) * 0.3;
+      } else {
+        legAngle.current *= 0.9;
+        armAngle.current *= 0.9;
+      }
+      
+      // Face direction of movement
+      const dir = target.clone().sub(currentPos.current);
+      if (dir.length() > 0.01) {
+        ref.current.rotation.y = Math.atan2(dir.x, dir.z);
+      }
+    }
+  });
+
+  const skinColor = "#FFD5B8";
+  const hairColor = "#4A3728";
+  const shirtColor = isLost ? "#FF6B6B" : "#4ECDC4";
+  const pantsColor = "#3B5998";
+
+  return (
+    <group ref={ref} position={position}>
+      {/* Body */}
+      <mesh castShadow position={[0, 0.7, 0]}>
+        <capsuleGeometry args={[0.15, 0.35, 8, 16]} />
+        <meshStandardMaterial color={shirtColor} roughness={0.8} />
+      </mesh>
+      
+      {/* Head */}
+      <mesh castShadow position={[0, 1.15, 0]}>
+        <sphereGeometry args={[0.15, 16, 16]} />
+        <meshStandardMaterial color={skinColor} roughness={0.6} />
+      </mesh>
+      
+      {/* Hair */}
+      <mesh position={[0, 1.25, 0]}>
+        <sphereGeometry args={[0.14, 16, 8]} />
+        <meshStandardMaterial color={hairColor} roughness={0.9} />
+      </mesh>
+      
+      {/* Eyes */}
+      <mesh position={[-0.05, 1.17, 0.12]}>
+        <sphereGeometry args={[0.025, 8, 8]} />
+        <meshBasicMaterial color="white" />
+      </mesh>
+      <mesh position={[0.05, 1.17, 0.12]}>
+        <sphereGeometry args={[0.025, 8, 8]} />
+        <meshBasicMaterial color="white" />
+      </mesh>
+      {/* Pupils */}
+      <mesh position={[-0.05, 1.17, 0.14]}>
+        <sphereGeometry args={[0.012, 8, 8]} />
+        <meshBasicMaterial color="#2D2D2D" />
+      </mesh>
+      <mesh position={[0.05, 1.17, 0.14]}>
+        <sphereGeometry args={[0.012, 8, 8]} />
+        <meshBasicMaterial color="#2D2D2D" />
+      </mesh>
+      
+      {/* Eyebrows - worried expression */}
+      {emotion === "worried" && (
+        <>
+          <mesh position={[-0.05, 1.21, 0.13]} rotation={[0, 0, 0.3]}>
+            <boxGeometry args={[0.04, 0.008, 0.01]} />
+            <meshBasicMaterial color={hairColor} />
+          </mesh>
+          <mesh position={[0.05, 1.21, 0.13]} rotation={[0, 0, -0.3]}>
+            <boxGeometry args={[0.04, 0.008, 0.01]} />
+            <meshBasicMaterial color={hairColor} />
+          </mesh>
+        </>
+      )}
+      
+      {/* Mouth */}
+      <mesh position={[0, 1.08, 0.13]}>
+        <torusGeometry args={[0.02, 0.005, 8, 8, Math.PI]} />
+        <meshBasicMaterial color="#CC7777" />
+      </mesh>
+      
+      {/* Left Arm */}
+      <group position={[-0.2, 0.8, 0]} rotation={[armAngle.current, 0, 0]}>
+        <mesh castShadow>
+          <capsuleGeometry args={[0.04, 0.25, 4, 8]} />
+          <meshStandardMaterial color={shirtColor} />
+        </mesh>
+        <mesh position={[0, -0.18, 0]}>
+          <sphereGeometry args={[0.05, 8, 8]} />
+          <meshStandardMaterial color={skinColor} />
+        </mesh>
+      </group>
+      
+      {/* Right Arm */}
+      <group position={[0.2, 0.8, 0]} rotation={[-armAngle.current, 0, 0]}>
+        <mesh castShadow>
+          <capsuleGeometry args={[0.04, 0.25, 4, 8]} />
+          <meshStandardMaterial color={shirtColor} />
+        </mesh>
+        <mesh position={[0, -0.18, 0]}>
+          <sphereGeometry args={[0.05, 8, 8]} />
+          <meshStandardMaterial color={skinColor} />
+        </mesh>
+      </group>
+      
+      {/* Left Leg */}
+      <group position={[-0.08, 0.35, 0]} rotation={[legAngle.current, 0, 0]}>
+        <mesh castShadow>
+          <capsuleGeometry args={[0.05, 0.25, 4, 8]} />
+          <meshStandardMaterial color={pantsColor} />
+        </mesh>
+        <mesh position={[0, -0.2, 0.03]}>
+          <boxGeometry args={[0.08, 0.05, 0.12]} />
+          <meshStandardMaterial color="#333" />
+        </mesh>
+      </group>
+      
+      {/* Right Leg */}
+      <group position={[0.08, 0.35, 0]} rotation={[-legAngle.current, 0, 0]}>
+        <mesh castShadow>
+          <capsuleGeometry args={[0.05, 0.25, 4, 8]} />
+          <meshStandardMaterial color={pantsColor} />
+        </mesh>
+        <mesh position={[0, -0.2, 0.03]}>
+          <boxGeometry args={[0.08, 0.05, 0.12]} />
+          <meshStandardMaterial color="#333" />
+        </mesh>
+      </group>
+      
+      {/* Glow effect for player */}
+      <pointLight color={shirtColor} intensity={0.6} distance={4} />
+      
+      {/* Lost indicator */}
+      {isLost && (
+        <Float speed={3} rotationIntensity={0} floatIntensity={0.5}>
+          <Text
+            position={[0, 1.6, 0]}
+            fontSize={0.25}
+            color="#FFFF00"
+            anchorX="center"
+            anchorY="middle"
+          >
+            ❓
+          </Text>
+        </Float>
+      )}
+    </group>
+  );
+}
+
+// Collectible gems with different values
+function Gem({ 
+  position, 
+  type = "emerald",
+  value = 100,
+  onCollect 
+}: { 
+  position: [number, number, number]; 
+  type?: "emerald" | "ruby" | "sapphire" | "diamond";
+  value?: number;
+  onCollect: () => void;
+}) {
   const [collected, setCollected] = useState(false);
   const ref = useRef<THREE.Mesh>(null);
 
+  const colors = {
+    emerald: { main: "#50C878", glow: "#00FF7F" },
+    ruby: { main: "#E0115F", glow: "#FF1744" },
+    sapphire: { main: "#0F52BA", glow: "#2196F3" },
+    diamond: { main: "#B9F2FF", glow: "#FFFFFF" }
+  };
+
   useFrame((state) => {
     if (ref.current && !collected) {
-      ref.current.rotation.y = state.clock.elapsedTime * 3;
+      ref.current.rotation.y = state.clock.elapsedTime * 2;
+      ref.current.rotation.x = Math.sin(state.clock.elapsedTime * 1.5) * 0.2;
     }
   });
 
   if (collected) return null;
 
   return (
-    <Float speed={4} rotationIntensity={0.5} floatIntensity={0.3}>
-      <mesh
-        ref={ref}
-        position={position}
-        onClick={() => {
-          setCollected(true);
-          onCollect();
-        }}
-        castShadow
-      >
-        <cylinderGeometry args={[0.2, 0.2, 0.05, 16]} />
-        <meshStandardMaterial 
-          color="#ffd700"
-          metalness={0.9}
-          roughness={0.1}
-          emissive="#ffd700"
-          emissiveIntensity={0.3}
-        />
-      </mesh>
-      <Sparkles position={position} count={5} scale={0.8} size={2} color="#ffd700" />
+    <Float speed={3} rotationIntensity={0.3} floatIntensity={0.5}>
+      <group position={[position[0], position[1] + 0.4, position[2]]}>
+        <mesh
+          ref={ref}
+          onClick={() => {
+            setCollected(true);
+            onCollect();
+          }}
+          castShadow
+        >
+          <octahedronGeometry args={[0.2, 0]} />
+          <meshStandardMaterial 
+            color={colors[type].main}
+            metalness={0.9}
+            roughness={0.1}
+            emissive={colors[type].glow}
+            emissiveIntensity={0.4}
+            transparent
+            opacity={0.9}
+          />
+        </mesh>
+        <pointLight color={colors[type].glow} intensity={0.8} distance={4} />
+        <Sparkles count={8} scale={1} size={3} color={colors[type].glow} />
+      </group>
     </Float>
   );
 }
 
-// Goal portal
-function Goal({ position }: { position: [number, number, number] }) {
+// Exit portal with multiple paths indicator
+function ExitPortal({ position, pathNumber = 1 }: { position: [number, number, number]; pathNumber?: number }) {
   const ref = useRef<THREE.Mesh>(null);
+  const ringRef = useRef<THREE.Mesh>(null);
   
   useFrame((state) => {
     if (ref.current) {
-      ref.current.rotation.y = state.clock.elapsedTime;
+      ref.current.rotation.z = state.clock.elapsedTime * 0.5;
+    }
+    if (ringRef.current) {
+      ringRef.current.rotation.y = state.clock.elapsedTime;
     }
   });
 
   return (
     <group position={position}>
+      {/* Outer ring */}
+      <mesh ref={ringRef}>
+        <torusGeometry args={[0.7, 0.08, 16, 32]} />
+        <meshStandardMaterial 
+          color="#FFD700"
+          emissive="#FFD700"
+          emissiveIntensity={0.6}
+          metalness={0.9}
+        />
+      </mesh>
+      
+      {/* Inner portal effect */}
       <mesh ref={ref}>
-        <torusGeometry args={[0.5, 0.08, 16, 32]} />
+        <torusGeometry args={[0.5, 0.1, 16, 32]} />
         <meshStandardMaterial 
           color="#22c55e"
           emissive="#22c55e"
-          emissiveIntensity={0.5}
+          emissiveIntensity={0.8}
           metalness={0.8}
         />
       </mesh>
+      
+      {/* Portal center glow */}
       <mesh>
-        <circleGeometry args={[0.4, 32]} />
+        <circleGeometry args={[0.45, 32]} />
         <meshBasicMaterial 
-          color="#22c55e"
+          color="#00FF88"
           transparent
-          opacity={0.3}
+          opacity={0.4}
           side={THREE.DoubleSide}
         />
       </mesh>
-      <pointLight color="#22c55e" intensity={1} distance={5} />
-      <Sparkles count={20} scale={2} size={3} color="#22c55e" />
+      
+      {/* Path number indicator */}
+      <Text
+        position={[0, 1.2, 0]}
+        fontSize={0.2}
+        color="#FFFFFF"
+        anchorX="center"
+        anchorY="middle"
+        font="/fonts/bold.woff"
+      >
+        {`Lối thoát ${pathNumber}`}
+      </Text>
+      
+      <pointLight color="#22c55e" intensity={2} distance={8} />
+      <Sparkles count={30} scale={2.5} size={4} color="#22c55e" speed={0.5} />
     </group>
   );
 }
 
-// Ghost enemy
-function Ghost({ position, speed = 0.02 }: { position: [number, number, number]; speed?: number }) {
-  const ref = useRef<THREE.Group>(null);
-  const [offset] = useState(() => Math.random() * Math.PI * 2);
+// Torch lighting
+function Torch({ position }: { position: [number, number, number] }) {
+  const lightRef = useRef<THREE.PointLight>(null);
   
   useFrame((state) => {
-    if (ref.current) {
-      ref.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 2 + offset) * 0.3;
-      ref.current.rotation.y = Math.sin(state.clock.elapsedTime + offset) * 0.3;
+    if (lightRef.current) {
+      lightRef.current.intensity = 1.5 + Math.sin(state.clock.elapsedTime * 10) * 0.3;
     }
   });
 
   return (
-    <group ref={ref} position={position}>
-      <mesh castShadow>
-        <capsuleGeometry args={[0.3, 0.4, 4, 8]} />
-        <meshStandardMaterial 
-          color="#8b5cf6"
-          transparent
-          opacity={0.7}
-          emissive="#8b5cf6"
-          emissiveIntensity={0.3}
-        />
+    <group position={position}>
+      <mesh position={[0, 0.3, 0]}>
+        <cylinderGeometry args={[0.03, 0.04, 0.4, 8]} />
+        <meshStandardMaterial color="#4A3728" roughness={1} />
       </mesh>
-      <mesh position={[-0.1, 0.2, 0.25]}>
-        <sphereGeometry args={[0.08, 8, 8]} />
-        <meshBasicMaterial color="white" />
-      </mesh>
-      <mesh position={[0.1, 0.2, 0.25]}>
-        <sphereGeometry args={[0.08, 8, 8]} />
-        <meshBasicMaterial color="white" />
-      </mesh>
-      <pointLight color="#8b5cf6" intensity={0.5} distance={3} />
+      <pointLight 
+        ref={lightRef}
+        position={[0, 0.6, 0]} 
+        color="#FF6B35" 
+        intensity={1.5} 
+        distance={6}
+        castShadow
+      />
+      <Sparkles position={[0, 0.7, 0]} count={5} scale={0.5} size={2} color="#FF6B35" />
     </group>
   );
 }
 
-// Camera follow
-function CameraFollow({ target }: { target: [number, number, number] }) {
+// Camera follow with smooth transition
+function CameraFollow({ target, mazeSize }: { target: [number, number, number]; mazeSize: number }) {
   const { camera } = useThree();
+  const height = Math.min(12, 8 + mazeSize * 0.15);
   
   useFrame(() => {
     camera.position.lerp(
-      new THREE.Vector3(target[0], target[1] + 8, target[2] + 6),
-      0.05
+      new THREE.Vector3(target[0], target[1] + height, target[2] + height * 0.6),
+      0.04
     );
     camera.lookAt(target[0], target[1], target[2]);
   });
@@ -261,25 +528,119 @@ function CameraFollow({ target }: { target: [number, number, number] }) {
   return null;
 }
 
+// Ground with grass texture effect
+function Ground({ size }: { size: number }) {
+  return (
+    <group>
+      {/* Main ground */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
+        <planeGeometry args={[size + 4, size + 4]} />
+        <meshStandardMaterial color="#3d5c3d" roughness={0.95} />
+      </mesh>
+      {/* Path texture overlay */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
+        <planeGeometry args={[size, size]} />
+        <meshStandardMaterial color="#5a7a5a" roughness={0.85} />
+      </mesh>
+    </group>
+  );
+}
+
+// Mini-map component
+function MiniMap({ 
+  maze, 
+  playerPos, 
+  goalPos,
+  visitedCells,
+  hintPath 
+}: { 
+  maze: boolean[][]; 
+  playerPos: [number, number];
+  goalPos: [number, number];
+  visitedCells: Set<string>;
+  hintPath: [number, number][];
+}) {
+  const cellSize = 6;
+  const width = maze[0].length * cellSize;
+  const height = maze.length * cellSize;
+
+  return (
+    <div 
+      className="absolute top-16 right-4 bg-black/70 rounded-lg p-2 border border-emerald-500/30"
+      style={{ width: width + 16, height: height + 16 }}
+    >
+      <div className="text-emerald-400 text-xs mb-1 flex items-center gap-1">
+        <Map className="w-3 h-3" /> Bản đồ
+      </div>
+      <svg width={width} height={height} className="rounded">
+        {maze.map((row, y) =>
+          row.map((isWall, x) => (
+            <rect
+              key={`${x}-${y}`}
+              x={x * cellSize}
+              y={y * cellSize}
+              width={cellSize}
+              height={cellSize}
+              fill={
+                isWall ? "#1a472a" : 
+                visitedCells.has(`${x},${y}`) ? "#4a7c59" : "#2d4a3e"
+              }
+            />
+          ))
+        )}
+        {/* Hint path */}
+        {hintPath.map(([x, y], i) => (
+          <rect
+            key={`hint-${i}`}
+            x={x * cellSize + 1}
+            y={y * cellSize + 1}
+            width={cellSize - 2}
+            height={cellSize - 2}
+            fill="#FFD700"
+            opacity={0.5}
+          />
+        ))}
+        {/* Goal */}
+        <circle
+          cx={goalPos[0] * cellSize + cellSize / 2}
+          cy={goalPos[1] * cellSize + cellSize / 2}
+          r={cellSize / 2}
+          fill="#22c55e"
+          className="animate-pulse"
+        />
+        {/* Player */}
+        <circle
+          cx={playerPos[0] * cellSize + cellSize / 2}
+          cy={playerPos[1] * cellSize + cellSize / 2}
+          r={cellSize / 2 - 1}
+          fill="#4ECDC4"
+          stroke="#fff"
+          strokeWidth={1}
+        />
+      </svg>
+    </div>
+  );
+}
+
 // Game scene
 function MazeScene({
   maze,
   playerPos,
-  coins,
-  ghosts,
-  goalPos,
-  onCoinCollect,
-  onMove,
-  cellSize
+  gems,
+  exitPos,
+  torches,
+  onGemCollect,
+  cellSize,
+  visitedCells
 }: {
   maze: boolean[][];
   playerPos: [number, number, number];
-  coins: [number, number, number][];
-  ghosts: [number, number, number][];
-  goalPos: [number, number, number];
-  onCoinCollect: (index: number) => void;
-  onMove: (dir: string) => void;
+  gems: { pos: [number, number, number]; type: "emerald" | "ruby" | "sapphire" | "diamond"; value: number }[];
+  exitPos: [number, number, number];
+  torches: [number, number, number][];
+  onGemCollect: (index: number, value: number) => void;
   cellSize: number;
+  visitedCells: Set<string>;
 }) {
   const walls = useMemo(() => {
     const positions: [number, number, number][] = [];
@@ -288,7 +649,7 @@ function MazeScene({
         if (maze[y][x]) {
           positions.push([
             (x - maze[y].length / 2) * cellSize,
-            1.25,
+            1.75,
             (y - maze.length / 2) * cellSize
           ]);
         }
@@ -297,131 +658,418 @@ function MazeScene({
     return positions;
   }, [maze, cellSize]);
 
+  const groundSize = Math.max(maze.length, maze[0].length) * cellSize;
+
   return (
     <>
-      <CameraFollow target={playerPos} />
+      <CameraFollow target={playerPos} mazeSize={maze.length} />
       
-      <Environment preset="night" background={false} />
-      <ambientLight intensity={0.3} />
-      <directionalLight 
-        position={[10, 15, 10]} 
-        intensity={0.5} 
-        castShadow 
-        shadow-mapSize={[1024, 1024]}
+      {/* Sky */}
+      <Sky 
+        distance={450000} 
+        sunPosition={[100, 20, 100]} 
+        inclination={0.5}
+        azimuth={0.25}
       />
-      <pointLight position={[0, 10, 0]} intensity={0.3} color="#4a90d9" />
+      
+      <Environment preset="forest" background={false} />
+      <ambientLight intensity={0.4} color="#87CEEB" />
+      <directionalLight 
+        position={[20, 30, 20]} 
+        intensity={0.8} 
+        castShadow 
+        shadow-mapSize={[2048, 2048]}
+        shadow-camera-far={100}
+        shadow-camera-left={-30}
+        shadow-camera-right={30}
+        shadow-camera-top={30}
+        shadow-camera-bottom={-30}
+        color="#FFF5E6"
+      />
+      <hemisphereLight intensity={0.3} color="#87CEEB" groundColor="#3d5c3d" />
 
-      {/* Floor */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
-        <planeGeometry args={[maze[0].length * cellSize + 4, maze.length * cellSize + 4]} />
-        <meshStandardMaterial color="#1a1f2e" roughness={0.9} />
-      </mesh>
+      {/* Ground */}
+      <Ground size={groundSize} />
 
       {/* Walls */}
       {walls.map((pos, i) => (
-        <Wall key={i} position={pos} />
+        <MazeWall key={i} position={pos} />
       ))}
 
       {/* Player */}
-      <Player position={playerPos} targetPosition={playerPos} onMove={onMove} />
+      <HumanCharacter 
+        position={playerPos} 
+        targetPosition={playerPos} 
+        isLost={true}
+        emotion="worried"
+      />
 
-      {/* Coins */}
-      {coins.map((pos, i) => (
-        <Coin key={i} position={pos} onCollect={() => onCoinCollect(i)} />
+      {/* Gems */}
+      {gems.map((gem, i) => (
+        <Gem 
+          key={i} 
+          position={gem.pos} 
+          type={gem.type}
+          value={gem.value}
+          onCollect={() => onGemCollect(i, gem.value)} 
+        />
       ))}
 
-      {/* Ghosts */}
-      {ghosts.map((pos, i) => (
-        <Ghost key={i} position={pos} />
+      {/* Torches for atmosphere */}
+      {torches.map((pos, i) => (
+        <Torch key={`torch-${i}`} position={pos} />
       ))}
 
-      {/* Goal */}
-      <Goal position={goalPos} />
+      {/* Exit Portal */}
+      <ExitPortal position={exitPos} pathNumber={1} />
 
-      {/* Stars background */}
-      <Stars radius={100} depth={50} count={1000} factor={4} fade />
-
-      {/* Fog */}
-      <fog attach="fog" args={["#0a0e1a", 5, 30]} />
+      {/* Fog for mystery */}
+      <fog attach="fog" args={["#87CEEB", 15, 60]} />
 
       <ContactShadows
         position={[0, 0.01, 0]}
-        opacity={0.4}
-        scale={maze[0].length * cellSize + 4}
+        opacity={0.5}
+        scale={groundSize + 4}
         blur={2}
-        far={4}
+        far={6}
       />
     </>
   );
 }
 
+// Tutorial Modal
+function TutorialModal({ isOpen, onClose, onStart }: { isOpen: boolean; onClose: () => void; onStart: () => void }) {
+  if (!isOpen) return null;
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
+      >
+        <motion.div
+          initial={{ scale: 0.8, y: 50 }}
+          animate={{ scale: 1, y: 0 }}
+          exit={{ scale: 0.8, y: 50 }}
+          className="bg-gradient-to-br from-emerald-900 via-slate-900 to-cyan-900 rounded-2xl p-6 max-w-lg w-full border border-emerald-500/30 shadow-2xl"
+        >
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex items-center gap-3">
+              <div className="text-5xl">🧭</div>
+              <div>
+                <h2 className="text-2xl font-bold text-white">Mê Cung Kỳ Bí 3D</h2>
+                <p className="text-emerald-400 text-sm">Hành trình tìm lối thoát</p>
+              </div>
+            </div>
+            <button onClick={onClose} className="text-white/60 hover:text-white">
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+
+          <div className="space-y-4 text-white/90">
+            <div className="bg-black/30 rounded-xl p-4">
+              <h3 className="font-semibold text-emerald-400 mb-2 flex items-center gap-2">
+                <Target className="w-5 h-5" /> Mục tiêu
+              </h3>
+              <p className="text-sm">
+                Bạn là người lạc trong mê cung bí ẩn. Tìm đường đến cổng thoát màu xanh trước khi hết 5 phút!
+              </p>
+            </div>
+
+            <div className="bg-black/30 rounded-xl p-4">
+              <h3 className="font-semibold text-cyan-400 mb-2 flex items-center gap-2">
+                <Gamepad2 className="w-5 h-5" /> Điều khiển
+              </h3>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>⬆️ W / Mũi tên lên - Đi lên</div>
+                <div>⬇️ S / Mũi tên xuống - Đi xuống</div>
+                <div>⬅️ A / Mũi tên trái - Sang trái</div>
+                <div>➡️ D / Mũi tên phải - Sang phải</div>
+              </div>
+            </div>
+
+            <div className="bg-black/30 rounded-xl p-4">
+              <h3 className="font-semibold text-yellow-400 mb-2 flex items-center gap-2">
+                <Trophy className="w-5 h-5" /> Thu thập
+              </h3>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>💎 Kim cương - 500 điểm</div>
+                <div>🔴 Ruby - 300 điểm</div>
+                <div>🔵 Sapphire - 200 điểm</div>
+                <div>💚 Ngọc lục bảo - 100 điểm</div>
+              </div>
+            </div>
+
+            <div className="bg-black/30 rounded-xl p-4">
+              <h3 className="font-semibold text-purple-400 mb-2 flex items-center gap-2">
+                <Lightbulb className="w-5 h-5" /> Mẹo chơi
+              </h3>
+              <ul className="text-sm space-y-1">
+                <li>• Dùng bản đồ mini góc phải để xem đường đi</li>
+                <li>• Nhấn 💡 để xem gợi ý đường thoát (mất điểm)</li>
+                <li>• Mê cung có nhiều đường đi khác nhau</li>
+                <li>• Thu thập đá quý để được điểm thưởng</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="flex gap-3 mt-6">
+            <Button 
+              onClick={onClose}
+              variant="outline"
+              className="flex-1 border-white/20 text-white hover:bg-white/10"
+            >
+              Đóng
+            </Button>
+            <Button 
+              onClick={onStart}
+              className="flex-1 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600"
+            >
+              🎮 Bắt đầu chơi
+            </Button>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
+// Game Over Modal
+function GameOverModal({ 
+  isOpen, 
+  isWin, 
+  score, 
+  timeUsed,
+  gemsCollected,
+  hintsUsed,
+  onRestart, 
+  onHome 
+}: { 
+  isOpen: boolean; 
+  isWin: boolean; 
+  score: number; 
+  timeUsed: number;
+  gemsCollected: number;
+  hintsUsed: number;
+  onRestart: () => void; 
+  onHome: () => void;
+}) {
+  if (!isOpen) return null;
+
+  const stars = hintsUsed === 0 ? 3 : hintsUsed <= 2 ? 2 : 1;
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
+      >
+        <motion.div
+          initial={{ scale: 0.8, y: 50 }}
+          animate={{ scale: 1, y: 0 }}
+          className={`bg-gradient-to-br ${isWin ? 'from-emerald-900 via-cyan-900 to-blue-900' : 'from-red-900 via-slate-900 to-gray-900'} rounded-2xl p-6 max-w-md w-full border ${isWin ? 'border-emerald-500/30' : 'border-red-500/30'} shadow-2xl text-center`}
+        >
+          <div className="text-7xl mb-4">
+            {isWin ? '🎉' : '😢'}
+          </div>
+          
+          <h2 className="text-3xl font-bold text-white mb-2">
+            {isWin ? 'Thoát thành công!' : 'Hết thời gian!'}
+          </h2>
+          
+          {isWin && (
+            <div className="flex justify-center gap-2 mb-4">
+              {[1, 2, 3].map(i => (
+                <span key={i} className={`text-3xl ${i <= stars ? 'opacity-100' : 'opacity-30'}`}>
+                  ⭐
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div className="bg-black/30 rounded-xl p-4 mb-4 space-y-2">
+            <div className="flex justify-between text-white/80">
+              <span>Điểm số:</span>
+              <span className="font-bold text-yellow-400">{score.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-white/80">
+              <span>Thời gian:</span>
+              <span>{Math.floor(timeUsed / 60)}:{(timeUsed % 60).toString().padStart(2, '0')}</span>
+            </div>
+            <div className="flex justify-between text-white/80">
+              <span>Đá quý thu:</span>
+              <span className="text-emerald-400">{gemsCollected}</span>
+            </div>
+            <div className="flex justify-between text-white/80">
+              <span>Gợi ý đã dùng:</span>
+              <span className="text-purple-400">{hintsUsed}</span>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <Button 
+              onClick={onHome}
+              variant="outline"
+              className="flex-1 border-white/20 text-white hover:bg-white/10"
+            >
+              🏠 Về trang chủ
+            </Button>
+            <Button 
+              onClick={onRestart}
+              className={`flex-1 ${isWin ? 'bg-gradient-to-r from-emerald-500 to-cyan-500' : 'bg-gradient-to-r from-orange-500 to-red-500'}`}
+            >
+              🔄 Chơi lại
+            </Button>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
+// HUD component
+function GameHUD({ 
+  score, 
+  timeLeft, 
+  level, 
+  gemsCollected,
+  totalGems,
+  onHint,
+  hintsUsed 
+}: { 
+  score: number; 
+  timeLeft: number; 
+  level: number; 
+  gemsCollected: number;
+  totalGems: number;
+  onHint: () => void;
+  hintsUsed: number;
+}) {
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
+  const isLowTime = timeLeft <= 60;
+
+  return (
+    <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
+      <div className="bg-black/70 backdrop-blur-sm rounded-xl px-4 py-2 flex items-center gap-4 border border-white/10">
+        <div className="flex items-center gap-2">
+          <Trophy className="w-5 h-5 text-yellow-400" />
+          <span className="text-white font-bold">{score.toLocaleString()}</span>
+        </div>
+        <div className="w-px h-6 bg-white/20" />
+        <div className={`flex items-center gap-2 ${isLowTime ? 'text-red-400 animate-pulse' : 'text-white'}`}>
+          <Clock className="w-5 h-5" />
+          <span className="font-mono font-bold">
+            {minutes}:{seconds.toString().padStart(2, '0')}
+          </span>
+        </div>
+        <div className="w-px h-6 bg-white/20" />
+        <div className="flex items-center gap-2 text-emerald-400">
+          <span>💎 {gemsCollected}/{totalGems}</span>
+        </div>
+      </div>
+      
+      <div className="flex gap-2">
+        <div className="bg-black/70 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
+          <span className="text-cyan-400 font-medium">Level {level}</span>
+        </div>
+        <button
+          onClick={onHint}
+          className="bg-purple-600/80 hover:bg-purple-500/80 backdrop-blur-sm rounded-xl px-4 py-2 border border-purple-400/30 flex items-center gap-2 text-white transition-colors"
+        >
+          <Lightbulb className="w-5 h-5 text-yellow-400" />
+          <span className="text-sm">Gợi ý ({3 - hintsUsed})</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function MazeRunner3D({ level = 1, onLevelComplete, onBack }: MazeRunner3DProps) {
-  const mazeSize = 9 + level * 2;
+  // Larger maze for more intellectual challenge
+  const mazeWidth = 15 + level * 4; // 19, 23, 27...
+  const mazeHeight = 15 + level * 4;
   const cellSize = 1;
-  const coinCount = 3 + level;
-  const ghostCount = Math.floor(level / 2);
+  const gemCount = 8 + level * 2;
+  const TIME_LIMIT = 300; // 5 minutes
 
-  const [maze, setMaze] = useState(() => generateMaze(mazeSize));
-  const [playerPos, setPlayerPos] = useState<[number, number, number]>([
-    (1 - mazeSize / 2) * cellSize, 0.5, (1 - mazeSize / 2) * cellSize
-  ]);
-  const [goalPos] = useState<[number, number, number]>([
-    (mazeSize - 2 - mazeSize / 2) * cellSize, 0.5, (mazeSize - 2 - mazeSize / 2) * cellSize
-  ]);
+  const [mazeData, setMazeData] = useState(() => generateAdvancedMaze(mazeWidth, mazeHeight));
+  const maze = mazeData.maze;
   
-  const generateCoins = useCallback(() => {
-    const coins: [number, number, number][] = [];
-    for (let i = 0; i < coinCount; i++) {
-      let x, z;
-      do {
-        x = Math.floor(Math.random() * (mazeSize - 2)) + 1;
-        z = Math.floor(Math.random() * (mazeSize - 2)) + 1;
-      } while (maze[z]?.[x] || (x === 1 && z === 1) || (x === mazeSize - 2 && z === mazeSize - 2));
-      
-      coins.push([
-        (x - mazeSize / 2) * cellSize,
-        0.5,
-        (z - mazeSize / 2) * cellSize
-      ]);
-    }
-    return coins;
-  }, [maze, mazeSize, cellSize, coinCount]);
+  const [playerGridPos, setPlayerGridPos] = useState<[number, number]>([1, 1]);
+  const [goalGridPos] = useState<[number, number]>([mazeWidth - 2, mazeHeight - 2]);
+  
+  const gridToWorld = useCallback((gx: number, gy: number): [number, number, number] => {
+    return [
+      (gx - mazeWidth / 2) * cellSize,
+      0,
+      (gy - mazeHeight / 2) * cellSize
+    ];
+  }, [mazeWidth, mazeHeight, cellSize]);
 
-  const generateGhosts = useCallback(() => {
-    const ghosts: [number, number, number][] = [];
-    for (let i = 0; i < ghostCount; i++) {
-      let x, z;
-      do {
-        x = Math.floor(Math.random() * (mazeSize - 4)) + 2;
-        z = Math.floor(Math.random() * (mazeSize - 4)) + 2;
-      } while (maze[z]?.[x]);
-      
-      ghosts.push([
-        (x - mazeSize / 2) * cellSize,
-        0.8,
-        (z - mazeSize / 2) * cellSize
-      ]);
-    }
-    return ghosts;
-  }, [maze, mazeSize, cellSize, ghostCount]);
+  const playerPos = useMemo(() => gridToWorld(playerGridPos[0], playerGridPos[1]), [playerGridPos, gridToWorld]);
+  const goalPos = useMemo(() => gridToWorld(goalGridPos[0], goalGridPos[1]), [goalGridPos, gridToWorld]);
 
-  const [coins, setCoins] = useState<[number, number, number][]>([]);
-  const [ghosts, setGhosts] = useState<[number, number, number][]>([]);
-  const [collectedCoins, setCollectedCoins] = useState(0);
+  const generateGems = useCallback(() => {
+    const gems: { pos: [number, number, number]; type: "emerald" | "ruby" | "sapphire" | "diamond"; value: number }[] = [];
+    const types: ("emerald" | "ruby" | "sapphire" | "diamond")[] = ["emerald", "ruby", "sapphire", "diamond"];
+    const values = { emerald: 100, ruby: 300, sapphire: 200, diamond: 500 };
+    
+    for (let i = 0; i < gemCount; i++) {
+      let x, y, attempts = 0;
+      do {
+        x = Math.floor(Math.random() * (mazeWidth - 2)) + 1;
+        y = Math.floor(Math.random() * (mazeHeight - 2)) + 1;
+        attempts++;
+      } while ((maze[y]?.[x] || (x === 1 && y === 1) || (x === mazeWidth - 2 && y === mazeHeight - 2)) && attempts < 100);
+      
+      if (attempts < 100) {
+        const type = types[Math.floor(Math.random() * (i < 2 ? 4 : 3))]; // More diamonds early
+        gems.push({
+          pos: gridToWorld(x, y),
+          type,
+          value: values[type]
+        });
+      }
+    }
+    return gems;
+  }, [maze, mazeWidth, mazeHeight, gemCount, gridToWorld]);
+
+  const generateTorches = useCallback(() => {
+    const torches: [number, number, number][] = [];
+    for (let y = 3; y < mazeHeight - 3; y += 5) {
+      for (let x = 3; x < mazeWidth - 3; x += 5) {
+        if (maze[y]?.[x]) {
+          torches.push([(x - mazeWidth / 2) * cellSize + 0.4, 0, (y - mazeHeight / 2) * cellSize]);
+        }
+      }
+    }
+    return torches;
+  }, [maze, mazeWidth, mazeHeight, cellSize]);
+
+  const [gems, setGems] = useState<{ pos: [number, number, number]; type: "emerald" | "ruby" | "sapphire" | "diamond"; value: number }[]>([]);
+  const [torches, setTorches] = useState<[number, number, number][]>([]);
+  const [collectedGems, setCollectedGems] = useState(0);
   const [score, setScore] = useState(0);
-  const [earnedCoins, setEarnedCoins] = useState(0);
-  const [lives, setLives] = useState(3);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showTutorial, setShowTutorial] = useState(true);
   const [showGameOver, setShowGameOver] = useState(false);
   const [isWin, setIsWin] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(60 + level * 15);
+  const [timeLeft, setTimeLeft] = useState(TIME_LIMIT);
+  const [visitedCells, setVisitedCells] = useState<Set<string>>(new Set());
+  const [hintPath, setHintPath] = useState<[number, number][]>([]);
+  const [hintsUsed, setHintsUsed] = useState(0);
 
   useEffect(() => {
-    const shown = localStorage.getItem("mazerunner3d_tutorial");
+    const shown = localStorage.getItem("mazerunner3d_v2_tutorial");
     if (shown) setShowTutorial(false);
   }, []);
 
+  // Timer
   useEffect(() => {
     if (!isPlaying || timeLeft <= 0) return;
     
@@ -440,49 +1088,56 @@ export function MazeRunner3D({ level = 1, onLevelComplete, onBack }: MazeRunner3
     return () => clearInterval(timer);
   }, [isPlaying, timeLeft]);
 
+  // Track visited cells
+  useEffect(() => {
+    if (isPlaying) {
+      setVisitedCells(prev => new Set(prev).add(`${playerGridPos[0]},${playerGridPos[1]}`));
+    }
+  }, [playerGridPos, isPlaying]);
+
   // Check win condition
   useEffect(() => {
     if (!isPlaying) return;
     
-    const px = Math.round(playerPos[0] / cellSize + mazeSize / 2);
-    const pz = Math.round(playerPos[2] / cellSize + mazeSize / 2);
-    
-    if (px === mazeSize - 2 && pz === mazeSize - 2) {
-      toast.success("🎉 Level hoàn thành!");
+    if (playerGridPos[0] === goalGridPos[0] && playerGridPos[1] === goalGridPos[1]) {
+      const timeBonus = Math.floor(timeLeft * 10);
+      setScore(s => s + timeBonus + 1000);
+      toast.success(`🎉 Thoát thành công! +${timeBonus + 1000} điểm thưởng!`);
       haptics.success();
       setIsWin(true);
       setShowGameOver(true);
       setIsPlaying(false);
       onLevelComplete?.();
     }
-  }, [playerPos, isPlaying, mazeSize, cellSize, onLevelComplete]);
+  }, [playerGridPos, goalGridPos, isPlaying, timeLeft, onLevelComplete]);
 
   const handleMove = useCallback((dir: string) => {
     if (!isPlaying) return;
     
-    setPlayerPos(prev => {
-      const newPos: [number, number, number] = [...prev];
-      let dx = 0, dz = 0;
+    setPlayerGridPos(prev => {
+      let nx = prev[0];
+      let ny = prev[1];
       
       switch (dir) {
-        case "up": dz = -cellSize; break;
-        case "down": dz = cellSize; break;
-        case "left": dx = -cellSize; break;
-        case "right": dx = cellSize; break;
+        case "up": ny -= 1; break;
+        case "down": ny += 1; break;
+        case "left": nx -= 1; break;
+        case "right": nx += 1; break;
       }
       
-      const newX = Math.round((prev[0] + dx) / cellSize + mazeSize / 2);
-      const newZ = Math.round((prev[2] + dz) / cellSize + mazeSize / 2);
-      
-      if (newX >= 0 && newX < mazeSize && newZ >= 0 && newZ < mazeSize && !maze[newZ]?.[newX]) {
-        newPos[0] = prev[0] + dx;
-        newPos[2] = prev[2] + dz;
+      if (nx >= 0 && nx < mazeWidth && ny >= 0 && ny < mazeHeight && !maze[ny]?.[nx]) {
         haptics.light();
+        return [nx, ny];
       }
       
-      return newPos;
+      return prev;
     });
-  }, [isPlaying, maze, mazeSize, cellSize]);
+    
+    // Clear hint path on move
+    if (hintPath.length > 0) {
+      setHintPath([]);
+    }
+  }, [isPlaying, maze, mazeWidth, mazeHeight, hintPath]);
 
   // Keyboard controls
   useEffect(() => {
@@ -501,102 +1156,107 @@ export function MazeRunner3D({ level = 1, onLevelComplete, onBack }: MazeRunner3
     return () => window.removeEventListener("keydown", handleKey);
   }, [isPlaying, handleMove]);
 
-  const handleCoinCollect = (index: number) => {
-    setCoins(c => c.filter((_, i) => i !== index));
-    setCollectedCoins(c => c + 1);
-    setScore(s => s + 100);
-    setEarnedCoins(c => c + 50);
+  const handleGemCollect = (index: number, value: number) => {
+    setGems(g => g.filter((_, i) => i !== index));
+    setCollectedGems(c => c + 1);
+    setScore(s => s + value);
     haptics.success();
-    toast.success("+100 🪙");
+    toast.success(`+${value} 💎`);
+  };
+
+  const handleHint = () => {
+    if (hintsUsed >= 3) {
+      toast.error("Đã hết lượt gợi ý!");
+      return;
+    }
+    
+    const path = findPath(maze, playerGridPos, goalGridPos);
+    if (path.length > 0) {
+      setHintPath(path.slice(0, 10)); // Show next 10 steps
+      setHintsUsed(h => h + 1);
+      setScore(s => Math.max(0, s - 200));
+      toast("💡 Đường đi được hiển thị trên bản đồ! (-200 điểm)");
+      
+      // Auto-clear hint after 5 seconds
+      setTimeout(() => setHintPath([]), 5000);
+    }
   };
 
   const startGame = () => {
-    const newMaze = generateMaze(mazeSize);
-    setMaze(newMaze);
-    setPlayerPos([(1 - mazeSize / 2) * cellSize, 0.5, (1 - mazeSize / 2) * cellSize]);
-    setCoins(generateCoins());
-    setGhosts(generateGhosts());
-    setCollectedCoins(0);
+    const newMazeData = generateAdvancedMaze(mazeWidth, mazeHeight);
+    setMazeData(newMazeData);
+    setPlayerGridPos([1, 1]);
+    setGems(generateGems());
+    setTorches(generateTorches());
+    setCollectedGems(0);
     setScore(0);
-    setEarnedCoins(0);
-    setLives(3);
-    setTimeLeft(60 + level * 15);
+    setTimeLeft(TIME_LIMIT);
     setIsPlaying(true);
     setShowGameOver(false);
+    setVisitedCells(new Set());
+    setHintPath([]);
+    setHintsUsed(0);
   };
 
   return (
     <div className="flex flex-col items-center gap-2 w-full h-full">
-      {showTutorial && (
-        <Game3DTutorial
-          isOpen={showTutorial}
-          onClose={() => {
-            localStorage.setItem("mazerunner3d_tutorial", "true");
-            setShowTutorial(false);
-          }}
-          onStart={() => {
-            localStorage.setItem("mazerunner3d_tutorial", "true");
-            setShowTutorial(false);
-            startGame();
-          }}
-          gameTitle="Mê Cung 3D"
-          gameIcon="🏃"
-          howToPlay={[
-            "WASD/Mũi tên để di chuyển",
-            "Thu thập coins 🪙 trên đường",
-            "Tránh ma 👻 và tìm đường ra",
-            "Đến cổng xanh ✨ để hoàn thành"
-          ]}
-          objectives={[
-            "Thoát khỏi mê cung",
-            "Thu thập nhiều coins",
-            "Hoàn thành trước khi hết giờ"
-          ]}
-          rewards={{ perLevel: 5000, firstPlay: 10000, combo: 2000 }}
-        />
-      )}
+      <TutorialModal
+        isOpen={showTutorial}
+        onClose={() => {
+          localStorage.setItem("mazerunner3d_v2_tutorial", "true");
+          setShowTutorial(false);
+        }}
+        onStart={() => {
+          localStorage.setItem("mazerunner3d_v2_tutorial", "true");
+          setShowTutorial(false);
+          startGame();
+        }}
+      />
 
-      {showGameOver && (
-        <Game3DGameOver
-          isOpen={showGameOver}
-          onClose={() => setShowGameOver(false)}
-          onRestart={startGame}
-          onHome={() => onBack?.()}
-          isWin={isWin}
-          score={score}
-          coinsEarned={earnedCoins}
-          level={level}
-          stats={[
-            { label: "Coins thu", value: collectedCoins },
-            { label: "Thời gian", value: `${60 + level * 15 - timeLeft}s` },
-          ]}
-        />
-      )}
+      <GameOverModal
+        isOpen={showGameOver}
+        isWin={isWin}
+        score={score}
+        timeUsed={TIME_LIMIT - timeLeft}
+        gemsCollected={collectedGems}
+        hintsUsed={hintsUsed}
+        onRestart={startGame}
+        onHome={() => onBack?.()}
+      />
 
-      <div className="relative w-full aspect-video max-w-[700px] rounded-xl overflow-hidden bg-gradient-to-b from-indigo-900 to-slate-950">
+      <div className="relative w-full aspect-video max-w-[900px] rounded-xl overflow-hidden bg-gradient-to-b from-sky-400 via-sky-300 to-emerald-200">
         {isPlaying && (
-          <Game3DHUD
-            score={score}
-            level={level}
-            lives={lives}
-            maxLives={3}
-            coins={earnedCoins}
-            targetScore={coinCount * 100}
-            timeLeft={timeLeft}
-          />
+          <>
+            <GameHUD
+              score={score}
+              timeLeft={timeLeft}
+              level={level}
+              gemsCollected={collectedGems}
+              totalGems={gemCount}
+              onHint={handleHint}
+              hintsUsed={hintsUsed}
+            />
+            <MiniMap
+              maze={maze}
+              playerPos={playerGridPos}
+              goalPos={goalGridPos}
+              visitedCells={visitedCells}
+              hintPath={hintPath}
+            />
+          </>
         )}
         
-        <Canvas shadows dpr={[1, 2]} camera={{ position: [0, 10, 10], fov: 50 }}>
+        <Canvas shadows dpr={[1, 2]} camera={{ position: [0, 15, 15], fov: 50 }}>
           <Suspense fallback={<Loader />}>
             <MazeScene
               maze={maze}
               playerPos={playerPos}
-              coins={coins}
-              ghosts={ghosts}
-              goalPos={goalPos}
-              onCoinCollect={handleCoinCollect}
-              onMove={handleMove}
+              gems={gems}
+              exitPos={goalPos}
+              torches={torches}
+              onGemCollect={handleGemCollect}
               cellSize={cellSize}
+              visitedCells={visitedCells}
             />
           </Suspense>
         </Canvas>
@@ -606,14 +1266,25 @@ export function MazeRunner3D({ level = 1, onLevelComplete, onBack }: MazeRunner3
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="text-center"
+              className="text-center bg-black/60 rounded-2xl p-8"
             >
-              <div className="text-6xl mb-4">🏃</div>
-              <h2 className="text-2xl font-bold text-white mb-2">Mê Cung 3D</h2>
-              <p className="text-white/70 mb-4">Level {level}</p>
-              <Button onClick={startGame} size="lg" className="bg-indigo-500 hover:bg-indigo-600">
-                Bắt đầu
-              </Button>
+              <div className="text-7xl mb-4">🧭</div>
+              <h2 className="text-3xl font-bold text-white mb-2">Mê Cung Kỳ Bí 3D</h2>
+              <p className="text-white/70 mb-2">Level {level} - Mê cung {mazeWidth}x{mazeHeight}</p>
+              <p className="text-emerald-400 mb-6">⏱️ 5 phút để thoát</p>
+              <div className="flex gap-3 justify-center">
+                <Button 
+                  onClick={() => setShowTutorial(true)} 
+                  variant="outline"
+                  className="border-white/30 text-white hover:bg-white/10"
+                >
+                  <HelpCircle className="mr-2 h-4 w-4" />
+                  Hướng dẫn
+                </Button>
+                <Button onClick={startGame} size="lg" className="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600">
+                  🎮 Bắt đầu
+                </Button>
+              </div>
             </motion.div>
           </div>
         )}
@@ -625,39 +1296,39 @@ export function MazeRunner3D({ level = 1, onLevelComplete, onBack }: MazeRunner3
         <Button
           size="lg"
           variant="outline"
-          className="h-14 w-14 touch-manipulation active:scale-95"
+          className="h-16 w-16 touch-manipulation active:scale-95 bg-emerald-600/20 border-emerald-500/50"
           onTouchStart={(e) => { e.preventDefault(); handleMove("up"); }}
           disabled={!isPlaying}
         >
-          <ArrowUp className="h-7 w-7" />
+          <ArrowUp className="h-8 w-8" />
         </Button>
         <div />
         <Button
           size="lg"
           variant="outline"
-          className="h-14 w-14 touch-manipulation active:scale-95"
+          className="h-16 w-16 touch-manipulation active:scale-95 bg-emerald-600/20 border-emerald-500/50"
           onTouchStart={(e) => { e.preventDefault(); handleMove("left"); }}
           disabled={!isPlaying}
         >
-          <ArrowLeft className="h-7 w-7" />
+          <ArrowLeft className="h-8 w-8" />
         </Button>
         <Button
           size="lg"
           variant="outline"
-          className="h-14 w-14 touch-manipulation active:scale-95"
+          className="h-16 w-16 touch-manipulation active:scale-95 bg-emerald-600/20 border-emerald-500/50"
           onTouchStart={(e) => { e.preventDefault(); handleMove("down"); }}
           disabled={!isPlaying}
         >
-          <ArrowDown className="h-7 w-7" />
+          <ArrowDown className="h-8 w-8" />
         </Button>
         <Button
           size="lg"
           variant="outline"
-          className="h-14 w-14 touch-manipulation active:scale-95"
+          className="h-16 w-16 touch-manipulation active:scale-95 bg-emerald-600/20 border-emerald-500/50"
           onTouchStart={(e) => { e.preventDefault(); handleMove("right"); }}
           disabled={!isPlaying}
         >
-          <ArrowRightIcon className="h-7 w-7" />
+          <ArrowRightIcon className="h-8 w-8" />
         </Button>
       </div>
 
@@ -668,9 +1339,17 @@ export function MazeRunner3D({ level = 1, onLevelComplete, onBack }: MazeRunner3
             Quay lại
           </Button>
         )}
+        <Button 
+          onClick={() => setShowTutorial(true)} 
+          variant="outline"
+          className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10"
+        >
+          <HelpCircle className="mr-2 h-4 w-4" />
+          Hướng dẫn
+        </Button>
         {!showTutorial && (
-          <Button onClick={startGame} className="bg-gradient-to-r from-indigo-500 to-purple-500">
-            {isPlaying ? "Chơi lại" : "Bắt đầu"} 🏃
+          <Button onClick={startGame} className="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600">
+            {isPlaying ? "🔄 Chơi lại" : "🎮 Bắt đầu"} 
           </Button>
         )}
       </div>
