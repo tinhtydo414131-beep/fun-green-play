@@ -19,6 +19,17 @@ export interface Game {
 }
 
 export const games: Game[] = [
+  // Featured - New Games
+  {
+    id: 'harvest-haven',
+    title: 'Harvest Haven',
+    description: 'Build your farm empire from village to metropolis!',
+    category: 'casual',
+    difficulty: 'easy',
+    image: '/images/games/farm-builder.jpg',
+    playable: true,
+  },
+  
   // Casual & Happy Games
   {
     id: 'memory-cards',
@@ -94,15 +105,6 @@ export const games: Game[] = [
     category: 'adventure',
     difficulty: 'medium',
     image: platformerImg,
-    playable: true,
-  },
-  {
-    id: 'harvest-haven',
-    title: 'Harvest Haven',
-    description: 'Build your farm empire from village to metropolis!',
-    category: 'casual',
-    difficulty: 'easy',
-    image: '/images/games/farm-builder.jpg',
     playable: true,
   },
 ];
