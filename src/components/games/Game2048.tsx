@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, RotateCcw, Trophy } from "lucide-react";
+import { ArrowLeft, RotateCcw, Trophy, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Game2048Props {
@@ -42,6 +42,11 @@ const Game2048: React.FC<Game2048Props> = ({ onBack }) => {
 
   // Touch handling
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
+
+  // Level calculation: each level = 1000 points
+  const level = useMemo(() => Math.floor(score / 1000) + 1, [score]);
+  const pointsToNextLevel = useMemo(() => 1000 - (score % 1000), [score]);
+  const levelProgress = useMemo(() => ((score % 1000) / 1000) * 100, [score]);
 
   const getNextId = useCallback(() => {
     setTileIdCounter((prev) => prev + 1);
@@ -290,15 +295,37 @@ const Game2048: React.FC<Game2048Props> = ({ onBack }) => {
           </Button>
         </div>
 
-        {/* Score */}
-        <div className="flex justify-center gap-4 mb-4">
+        {/* Score & Level */}
+        <div className="flex justify-center gap-3 mb-4 flex-wrap">
           <div className="bg-amber-500 text-white px-4 py-2 rounded-lg text-center min-w-[80px]">
             <div className="text-xs opacity-80">SCORE</div>
             <div className="text-xl font-bold">{score}</div>
           </div>
+          <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-lg text-center min-w-[80px]">
+            <div className="text-xs opacity-80 flex items-center justify-center gap-1">
+              <Star className="w-3 h-3" /> LEVEL
+            </div>
+            <div className="text-xl font-bold">{level}</div>
+          </div>
           <div className="bg-amber-600 text-white px-4 py-2 rounded-lg text-center min-w-[80px]">
             <div className="text-xs opacity-80">BEST</div>
             <div className="text-xl font-bold">{bestScore}</div>
+          </div>
+        </div>
+
+        {/* Level Progress Bar */}
+        <div className="mb-4">
+          <div className="flex justify-between text-xs text-muted-foreground mb-1">
+            <span>Level {level}</span>
+            <span>{pointsToNextLevel} pts to Level {level + 1}</span>
+          </div>
+          <div className="w-full h-2 bg-amber-200 dark:bg-amber-800 rounded-full overflow-hidden">
+            <motion.div
+              className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${levelProgress}%` }}
+              transition={{ duration: 0.3 }}
+            />
           </div>
         </div>
       </div>
