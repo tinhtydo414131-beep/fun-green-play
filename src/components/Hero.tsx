@@ -28,9 +28,12 @@ export const Hero = () => {
         loop
         muted
         playsInline
-        className="absolute inset-0 w-full h-full object-cover contrast-110 brightness-105 saturate-110"
+        poster="/videos/hero-background-latest.mp4"
+        className="absolute inset-0 w-full h-full object-cover contrast-110 brightness-105 saturate-110 z-0"
+        style={{ minHeight: '100%' }}
       >
         <source src="/videos/hero-background-latest.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
       </video>
       <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30" />
       <div className="container mx-auto max-w-6xl relative z-10">
