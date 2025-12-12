@@ -17,7 +17,8 @@ const CELL_SIZE = 1.2;
 const CELL_GAP = 0.1;
 
 type Player = 'X' | 'O' | null;
-type Difficulty = 'easy' | 'medium' | 'hard';
+type Difficulty = 'easy' | 'medium' | 'hard' | 'expert';
+type GameMode = 'vsAI' | 'vsPlayer';
 
 function Loader() {
   const { progress } = useProgress();
@@ -215,6 +216,7 @@ export default function TicTacToe3D({ level = 1, onLevelComplete, onBack }: TicT
   const [winningCells, setWinningCells] = useState<Set<number>>(new Set());
   const [score, setScore] = useState({ X: 0, O: 0 });
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
+  const [gameMode, setGameMode] = useState<GameMode>('vsAI');
   const [gameStarted, setGameStarted] = useState(false);
   const [viewOffset, setViewOffset] = useState({ x: 10, y: 10 });
   const [zoom, setZoom] = useState(30);
@@ -330,13 +332,37 @@ export default function TicTacToe3D({ level = 1, onLevelComplete, onBack }: TicT
     const candidates = nearbyEmpty.length > 0 ? nearbyEmpty : emptyCells;
     
     // Easy: mostly random moves
-    if (difficulty === 'easy' && Math.random() < 0.7) {
+    if (difficulty === 'easy' && Math.random() < 0.8) {
       return candidates[Math.floor(Math.random() * candidates.length)];
     }
     
-    // Medium: 50% smart
+    // Medium: 40% random
     if (difficulty === 'medium' && Math.random() < 0.4) {
       return candidates[Math.floor(Math.random() * candidates.length)];
+    }
+    
+    // Hard: 15% random
+    if (difficulty === 'hard' && Math.random() < 0.15) {
+      return candidates[Math.floor(Math.random() * candidates.length)];
+    }
+    
+    // Expert: always optimal + look ahead for threats
+    if (difficulty === 'expert') {
+      // Check for creating winning threat (4 in a row with open ends)
+      for (const move of candidates) {
+        const newSquares = [...squares];
+        newSquares[move] = 'O';
+        let threatCount = 0;
+        for (const nextMove of candidates) {
+          if (nextMove === move) continue;
+          const testSquares = [...newSquares];
+          testSquares[nextMove] = 'O';
+          if (checkWinner(testSquares, nextMove)?.winner === 'O') {
+            threatCount++;
+          }
+        }
+        if (threatCount >= 2) return move; // Double threat = guaranteed win
+      }
     }
     
     // Check for winning moves and blocking moves
@@ -377,10 +403,13 @@ export default function TicTacToe3D({ level = 1, onLevelComplete, onBack }: TicT
   }, [difficulty, checkWinner, evaluatePosition]);
   
   const handleCellClick = useCallback((index: number) => {
-    if (board[index] || winner || currentPlayer !== 'X') return;
+    if (board[index] || winner) return;
+    
+    // In 2P mode, allow both players. In AI mode, only X can play directly
+    if (gameMode === 'vsAI' && currentPlayer !== 'X') return;
     
     const newBoard = [...board];
-    newBoard[index] = 'X';
+    newBoard[index] = currentPlayer;
     setBoard(newBoard);
     
     // Center view on last move
@@ -395,17 +424,21 @@ export default function TicTacToe3D({ level = 1, onLevelComplete, onBack }: TicT
     if (result) {
       setWinner(result.winner);
       setWinningCells(new Set(result.cells));
-      if (result.winner === 'X') {
-        setScore(prev => ({ ...prev, X: prev.X + 1 }));
-        if (onLevelComplete) {
-          setTimeout(() => onLevelComplete(100, 10), 1500);
-        }
+      setScore(prev => ({ ...prev, [result.winner as 'X' | 'O']: prev[result.winner as 'X' | 'O'] + 1 }));
+      if (result.winner === 'X' && onLevelComplete) {
+        setTimeout(() => onLevelComplete(100, 10), 1500);
       }
       return;
     }
     
     if (!newBoard.includes(null)) {
       setWinner('draw');
+      return;
+    }
+    
+    // 2 Player mode: switch turns
+    if (gameMode === 'vsPlayer') {
+      setCurrentPlayer(currentPlayer === 'X' ? 'O' : 'X');
       return;
     }
     
@@ -432,7 +465,7 @@ export default function TicTacToe3D({ level = 1, onLevelComplete, onBack }: TicT
         setCurrentPlayer('X');
       }
     }, 300);
-  }, [board, winner, currentPlayer, viewSize, checkWinner, getBestMove, onLevelComplete]);
+  }, [board, winner, currentPlayer, gameMode, viewSize, checkWinner, getBestMove, onLevelComplete]);
   
   const resetGame = () => {
     setBoard(Array(BOARD_SIZE * BOARD_SIZE).fill(null));
@@ -442,8 +475,9 @@ export default function TicTacToe3D({ level = 1, onLevelComplete, onBack }: TicT
     setViewOffset({ x: 10, y: 10 });
   };
   
-  const startGame = (diff: Difficulty) => {
-    setDifficulty(diff);
+  const startGame = (mode: GameMode, diff?: Difficulty) => {
+    setGameMode(mode);
+    if (diff) setDifficulty(diff);
     setGameStarted(true);
     resetGame();
   };
@@ -471,27 +505,47 @@ export default function TicTacToe3D({ level = 1, onLevelComplete, onBack }: TicT
         <h2 className="text-3xl font-bold text-white">Caro 5 Ô (30x30)</h2>
         <p className="text-gray-400 text-center">Nối 5 ô liên tiếp để thắng</p>
         
-        <div className="flex flex-col gap-4 w-full max-w-xs">
+        {/* 2 Player Mode */}
+        <div className="w-full max-w-xs">
           <Button 
-            onClick={() => startGame('easy')} 
+            onClick={() => startGame('vsPlayer')} 
+            size="lg" 
+            className="w-full bg-purple-500 hover:bg-purple-600 text-white mb-4"
+          >
+            👥 2 Người chơi
+          </Button>
+        </div>
+        
+        <p className="text-gray-500 text-sm">— hoặc chơi với máy —</p>
+        
+        <div className="flex flex-col gap-3 w-full max-w-xs">
+          <Button 
+            onClick={() => startGame('vsAI', 'easy')} 
             size="lg" 
             className="w-full bg-green-500 hover:bg-green-600 text-white"
           >
             🌱 Dễ
           </Button>
           <Button 
-            onClick={() => startGame('medium')} 
+            onClick={() => startGame('vsAI', 'medium')} 
             size="lg" 
             className="w-full bg-yellow-500 hover:bg-yellow-600 text-white"
           >
             ⚡ Trung bình
           </Button>
           <Button 
-            onClick={() => startGame('hard')} 
+            onClick={() => startGame('vsAI', 'hard')} 
             size="lg" 
-            className="w-full bg-red-500 hover:bg-red-600 text-white"
+            className="w-full bg-orange-500 hover:bg-orange-600 text-white"
           >
             🔥 Khó
+          </Button>
+          <Button 
+            onClick={() => startGame('vsAI', 'expert')} 
+            size="lg" 
+            className="w-full bg-red-600 hover:bg-red-700 text-white"
+          >
+            💀 Chuyên gia
           </Button>
         </div>
         
@@ -521,14 +575,21 @@ export default function TicTacToe3D({ level = 1, onLevelComplete, onBack }: TicT
         
         <div className="flex items-center gap-4">
           <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+            gameMode === 'vsPlayer' ? 'bg-purple-500/20 text-purple-400' :
             difficulty === 'easy' ? 'bg-green-500/20 text-green-400' :
             difficulty === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
+            difficulty === 'hard' ? 'bg-orange-500/20 text-orange-400' :
             'bg-red-500/20 text-red-400'
           }`}>
-            {difficulty === 'easy' ? 'Dễ' : difficulty === 'medium' ? 'TB' : 'Khó'}
+            {gameMode === 'vsPlayer' ? '2P' :
+             difficulty === 'easy' ? 'Dễ' : 
+             difficulty === 'medium' ? 'TB' : 
+             difficulty === 'hard' ? 'Khó' : 'Pro'}
           </span>
           <span className="text-white font-medium">
-            Lượt: {currentPlayer === 'X' ? 'Bạn (X)' : 'Máy (O)'}
+            Lượt: {gameMode === 'vsPlayer' 
+              ? (currentPlayer === 'X' ? 'Người chơi 1 (X)' : 'Người chơi 2 (O)')
+              : (currentPlayer === 'X' ? 'Bạn (X)' : 'Máy (O)')}
           </span>
         </div>
         
