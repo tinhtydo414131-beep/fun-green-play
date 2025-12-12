@@ -328,8 +328,10 @@ const GamePlay = () => {
       // Casual & Happy Games
       case "MemoryCards": return <MemoryCards3D {...gameProps} />;
       case "MemoryCards2D": return <MemoryCards {...gameProps} />;
-      case "ColorMatch": return <ColorMatch3D {...gameProps} />;
-      case "ColorMatch2D": return <ColorMatch {...gameProps} />;
+      case "ColorMatch":
+      case "color-match":
+        return <ColorMatch {...gameProps} />;
+      case "ColorMatch3D": return <ColorMatch3D {...gameProps} />;
       case "BalloonPop": return <BalloonPop3D {...gameProps} />;
       case "BalloonPop2D": return <BalloonPop {...gameProps} />;
       case "StarCollector": return <StarCollector3D {...gameProps} />;
@@ -479,8 +481,8 @@ const GamePlay = () => {
         return <Snake {...gameProps} />;
       case "TicTacToe":
       case "tic-tac-toe":
-        return <TicTacToe3D {...gameProps} />;
-      case "TicTacToe2D": return <TicTacToe {...gameProps} />;
+        return <TicTacToe {...gameProps} />;
+      case "TicTacToe3D": return <TicTacToe3D {...gameProps} />;
       case "RockPaperScissors":
       case "rock-paper-scissors":
         return <RockPaperScissors3D {...gameProps} />;
