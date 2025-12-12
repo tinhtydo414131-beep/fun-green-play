@@ -104,7 +104,7 @@ export function FunIDOnboarding({ onComplete, onSkip }: FunIDOnboardingProps) {
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-yellow-100/95 via-pink-100/95 to-purple-100/95 dark:from-slate-900/98 dark:via-purple-900/98 dark:to-pink-900/98 backdrop-blur-sm"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-yellow-100/60 via-pink-100/60 to-purple-100/60 dark:from-slate-900/80 dark:via-purple-900/80 dark:to-pink-900/80 backdrop-blur-md"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
