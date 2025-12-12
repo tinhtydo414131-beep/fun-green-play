@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { haptics } from '@/utils/haptics';
+import { uploadToR2 } from '@/utils/r2Upload';
 
 interface UseVoiceRecorderOptions {
   maxDuration?: number; // in seconds
@@ -126,20 +127,38 @@ export const useVoiceRecorder = (options: UseVoiceRecorderOptions = {}) => {
       
       const fileExt = audioBlob.type.includes('webm') ? 'webm' : 
                       audioBlob.type.includes('mp4') ? 'm4a' : 'wav';
-      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
       
-      const { data, error } = await supabase.storage
-        .from('voice-messages')
-        .upload(fileName, audioBlob, {
-          contentType: audioBlob.type,
-          cacheControl: '3600'
-        });
+      // Create File from Blob for R2 upload
+      const file = new File([audioBlob], `voice-${Date.now()}.${fileExt}`, { type: audioBlob.type });
       
-      if (error) throw error;
+      // Try R2 upload first (new uploads go to R2)
+      const r2Result = await uploadToR2(file, 'voice-messages');
       
-      const { data: { publicUrl } } = supabase.storage
-        .from('voice-messages')
-        .getPublicUrl(data.path);
+      let publicUrl: string;
+      
+      if (r2Result.success && r2Result.url) {
+        publicUrl = r2Result.url;
+        console.log('✅ Voice message uploaded to R2:', publicUrl);
+      } else {
+        // Fallback to Supabase Storage if R2 fails
+        console.log('⚠️ R2 upload failed, falling back to Supabase Storage');
+        const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+        
+        const { data, error } = await supabase.storage
+          .from('voice-messages')
+          .upload(fileName, audioBlob, {
+            contentType: audioBlob.type,
+            cacheControl: '3600'
+          });
+        
+        if (error) throw error;
+        
+        const { data: { publicUrl: supabaseUrl } } = supabase.storage
+          .from('voice-messages')
+          .getPublicUrl(data.path);
+        
+        publicUrl = supabaseUrl;
+      }
       
       onRecordingComplete?.(publicUrl, audioDuration);
       
