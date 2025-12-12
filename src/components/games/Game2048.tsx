@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, RotateCcw, Trophy, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { fireConfetti } from "@/components/ConfettiEffect";
 
 interface Game2048Props {
   onBack?: () => void;
@@ -47,6 +48,17 @@ const Game2048: React.FC<Game2048Props> = ({ onBack }) => {
   const level = useMemo(() => Math.floor(score / 1000) + 1, [score]);
   const pointsToNextLevel = useMemo(() => 1000 - (score % 1000), [score]);
   const levelProgress = useMemo(() => ((score % 1000) / 1000) * 100, [score]);
+
+  // Track previous level to detect level-up
+  const prevLevelRef = useRef(level);
+
+  // Firework effect on level up
+  useEffect(() => {
+    if (level > prevLevelRef.current) {
+      fireConfetti('achievement');
+    }
+    prevLevelRef.current = level;
+  }, [level]);
 
   const getNextId = useCallback(() => {
     setTileIdCounter((prev) => prev + 1);
