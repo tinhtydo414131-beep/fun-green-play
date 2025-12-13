@@ -42,6 +42,7 @@ export const Hero = () => {
         <source src="/videos/hero-background-latest.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
+      <div className="absolute inset-0 bg-white/20" />
       <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30" />
       <div className="container mx-auto max-w-6xl relative z-10">
         <div className="text-center space-y-6 sm:space-y-8 animate-fade-in">
