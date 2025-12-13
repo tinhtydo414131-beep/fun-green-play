@@ -1,4 +1,4 @@
-import { User, LogOut, Trophy, Users, MessageCircle, Wallet, Music, Settings, Coins, Gift, Bell, Menu, X, Search, History, ArrowUpRight, ArrowDownLeft, Gamepad2, Calendar, ChevronDown, Loader2, BookOpen, Shield } from "lucide-react";
+import { User, LogOut, Trophy, Users, MessageCircle, Wallet, Music, Settings, Coins, Gift, Bell, Menu, X, Search, History, ArrowUpRight, ArrowDownLeft, Gamepad2, Calendar, ChevronDown, Loader2, BookOpen, Shield, Gem } from "lucide-react";
 
 const funPlanetLogo = "/logo-header.png";
 import { NavLink } from "./NavLink";
@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/sheet";
 import { GlobalSearchModal } from "./GlobalSearchModal";
 import { MessengerButton } from "./MessengerButton";
-import { Web3Header } from "./Web3Header";
+import { LightWalletButton } from "./LightWallet";
 import { CharityCounter } from "./CharityCounter";
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -248,8 +248,8 @@ export const Navigation = () => {
                 </NavLink>
               ))}
 
-              {/* Web3 Wallet Connect */}
-              <Web3Header />
+              {/* Light Wallet Button */}
+              <LightWalletButton variant="header" />
 
               {user && (
                 <>
@@ -445,72 +445,8 @@ export const Navigation = () => {
                 {/* Mobile Messenger Button */}
                 <MessengerButton />
 
-                {/* Camly Balance with Rewards History Dropdown */}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30"
-                    >
-                      <Coins className="w-4 h-4 text-yellow-500" />
-                      <span className="font-jakarta font-bold text-sm bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
-                        {isLoadingRewards ? "..." : camlyBalance.toLocaleString()}
-                      </span>
-                      <ChevronDown className="w-3 h-3 text-yellow-500" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent align="end" className="w-72 p-0 border border-yellow-500/20 bg-background/95 backdrop-blur-lg">
-                    <div className="p-3 border-b border-border">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <History className="w-4 h-4 text-yellow-500" />
-                          <span className="font-bold text-sm text-foreground">Rewards History</span>
-                        </div>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => navigate("/rewards-history")}
-                          className="text-xs text-muted-foreground hover:text-primary h-7 px-2"
-                        >
-                          Xem tất cả
-                        </Button>
-                      </div>
-                    </div>
-                    <ScrollArea className="h-[250px]">
-                      {loadingRewards ? (
-                        <div className="flex items-center justify-center py-8">
-                          <Loader2 className="w-5 h-5 animate-spin text-yellow-500" />
-                        </div>
-                      ) : rewardTransactions.length === 0 ? (
-                        <div className="text-center py-6 px-4">
-                          <Coins className="w-10 h-10 text-muted-foreground/30 mx-auto mb-2" />
-                          <p className="text-xs text-muted-foreground">Chưa có giao dịch nào</p>
-                        </div>
-                      ) : (
-                        <div className="p-2 space-y-1.5">
-                          {rewardTransactions.map((tx) => (
-                            <div
-                              key={tx.id}
-                              className="flex items-center gap-2 p-2.5 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-                            >
-                              <div className={`w-7 h-7 rounded-full flex items-center justify-center ${getRewardColor(tx.reward_type)}`}>
-                                {getRewardIcon(tx.reward_type)}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-xs font-medium truncate">{getRewardLabel(tx.reward_type)}</p>
-                                <p className="text-[10px] text-muted-foreground">
-                                  {format(new Date(tx.created_at), 'dd/MM HH:mm', { locale: vi })}
-                                </p>
-                              </div>
-                              <p className={`text-xs font-bold ${tx.amount >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                                {tx.amount >= 0 ? '+' : ''}{tx.amount.toLocaleString()}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </ScrollArea>
-                  </PopoverContent>
-                </Popover>
+                {/* Light Wallet Button (Mobile) */}
+                <LightWalletButton variant="header" className="scale-90" />
               </>
             )}
             
