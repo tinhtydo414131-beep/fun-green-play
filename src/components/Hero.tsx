@@ -55,6 +55,8 @@ export const Hero = () => {
         style={{ minHeight: "100%" }}
       >
         <source src={backgroundVideo} type="video/mp4" />
+        {/* Local fallback so the background always works even if CDN is slow */}
+        <source src="/videos/hero-background-latest.mp4" type="video/mp4" />
       </video>
       
       {/* Gradient overlay */}
