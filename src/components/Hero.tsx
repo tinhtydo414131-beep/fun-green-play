@@ -23,15 +23,22 @@ export const Hero = () => {
 
   return (
     <section className="relative pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 overflow-hidden">
+      {/* Background video with robust fallbacks */}
       <video
         autoPlay
         loop
         muted
         playsInline
-        poster="/videos/hero-background-latest.mp4"
+        poster="/images/games/dream-world.jpg"
         className="absolute inset-0 w-full h-full object-cover contrast-110 brightness-105 saturate-110 z-0"
-        style={{ minHeight: '100%' }}
+        style={{ minHeight: "100%" }}
       >
+        {/* Primary CDN source */}
+        <source
+          src="https://media.funplanet.life/videos/hero-background-latest.mp4"
+          type="video/mp4"
+        />
+        {/* Local fallback in case CDN fails or is offline */}
         <source src="/videos/hero-background-latest.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
