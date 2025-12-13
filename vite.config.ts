@@ -10,6 +10,21 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
+  build: {
+    rollupOptions: {
+      external: [],
+    },
+    commonjsOptions: {
+      include: [/node_modules/],
+      transformMixedEsModules: true,
+    },
+  },
+  optimizeDeps: {
+    include: ['@walletconnect/ethereum-provider'],
+    esbuildOptions: {
+      target: 'esnext',
+    },
+  },
   plugins: [
     react(),
     mode === "development" && componentTagger(),
