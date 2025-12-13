@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Wallet, ArrowRight, Loader2, CheckCircle2, ExternalLink } from 'lucide-react';
+import { Wallet, ArrowRight, Loader2, CheckCircle2, ExternalLink, Shield, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import camlyCoinIcon from "@/assets/camly-coin-notification.png";
@@ -106,6 +106,17 @@ export const ClaimRewardsModal = ({
             </motion.div>
           ) : (
             <>
+              {/* Security notice */}
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                <Shield className="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
+                <div className="text-sm">
+                  <p className="font-medium text-blue-600 dark:text-blue-400">Secure Claim Process</p>
+                  <p className="text-muted-foreground text-xs mt-1">
+                    You'll be asked to sign a message to verify wallet ownership. No gas fees required.
+                  </p>
+                </div>
+              </div>
+
               {/* Balance display */}
               <div className="p-4 rounded-xl bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20">
                 <div className="flex items-center justify-between">
@@ -119,9 +130,9 @@ export const ClaimRewardsModal = ({
               {/* Wallet address */}
               {walletAddress && (
                 <div className="flex items-center gap-2 p-3 rounded-lg bg-muted">
-                  <Wallet className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">To:</span>
-                  <span className="font-mono text-sm">{shortenAddress(walletAddress)}</span>
+                  <Wallet className="w-4 h-4 text-green-500" />
+                  <span className="text-sm text-muted-foreground">Claim to:</span>
+                  <span className="font-mono text-sm font-medium">{shortenAddress(walletAddress)}</span>
                 </div>
               )}
 
@@ -135,26 +146,48 @@ export const ClaimRewardsModal = ({
                     placeholder="Enter amount"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="pr-20"
+                    className="pr-20 text-lg h-12"
                     max={camlyBalance}
                   />
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="secondary"
                     size="sm"
-                    className="absolute right-1 top-1/2 -translate-y-1/2 text-xs"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold"
                     onClick={() => setAmount(camlyBalance.toString())}
                   >
                     MAX
                   </Button>
                 </div>
+                {parseFloat(amount) > camlyBalance && (
+                  <p className="text-xs text-destructive flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" />
+                    Insufficient balance
+                  </p>
+                )}
+              </div>
+
+              {/* Quick amounts */}
+              <div className="flex gap-2">
+                {[10000, 50000, 100000].filter(a => a <= camlyBalance).map((quickAmount) => (
+                  <Button
+                    key={quickAmount}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 text-xs"
+                    onClick={() => setAmount(quickAmount.toString())}
+                  >
+                    {quickAmount.toLocaleString()}
+                  </Button>
+                ))}
               </div>
 
               {/* Contract info */}
               <div className="text-xs text-center text-muted-foreground space-y-1">
-                <p>Camly Token Contract:</p>
+                <p>CAMLY Token Contract (BSC):</p>
                 <a
-                  href={`https://bscscan.com/address/${contractAddress}`}
+                  href={`https://bscscan.com/token/${contractAddress}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-mono text-primary hover:underline inline-flex items-center gap-1"
@@ -168,17 +201,18 @@ export const ClaimRewardsModal = ({
               <Button
                 onClick={handleClaim}
                 disabled={isClaiming || !amount || parseFloat(amount) <= 0 || parseFloat(amount) > camlyBalance}
-                className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white"
+                className="w-full h-12 text-lg bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold"
               >
                 {isClaiming ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Claiming...
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Sign in Wallet...
                   </>
                 ) : (
                   <>
-                    Claim to Wallet
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    <Wallet className="w-5 h-5 mr-2" />
+                    Claim {amount ? parseFloat(amount).toLocaleString() : '0'} CAMLY
+                    <ArrowRight className="w-5 h-5 ml-2" />
                   </>
                 )}
               </Button>

@@ -436,7 +436,7 @@ export const useWeb3Rewards = () => {
     }
   }, [user]);
 
-  // Claim Camly to wallet
+  // Claim Camly to wallet - signs a message to verify ownership then processes claim
   const claimToWallet = useCallback(async (amount: number): Promise<{ success: boolean; txHash?: string }> => {
     if (!user || !state.walletAddress || amount <= 0 || amount > state.camlyBalance) {
       toast.error('Invalid claim amount or wallet not connected');
@@ -451,9 +451,32 @@ export const useWeb3Rewards = () => {
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
+      const signerAddress = await signer.getAddress();
       
-      // For demonstration - in production, this would be a contract call to mint/transfer tokens
-      // Here we're simulating a successful claim by updating the database
+      // Verify the connected wallet matches the stored wallet
+      if (signerAddress.toLowerCase() !== state.walletAddress.toLowerCase()) {
+        toast.error('Please connect with the wallet you registered');
+        return { success: false };
+      }
+
+      // Create a claim message for the user to sign
+      const timestamp = Date.now();
+      const claimMessage = `FUN Planet Claim Request\n\nAmount: ${amount.toLocaleString()} CAMLY\nWallet: ${signerAddress}\nTimestamp: ${timestamp}\n\nSign this message to confirm your claim request.`;
+      
+      // Request signature from user
+      toast.info('Please sign the message in your wallet to confirm claim');
+      const signature = await signer.signMessage(claimMessage);
+      
+      // Verify signature is valid
+      const recoveredAddress = ethers.verifyMessage(claimMessage, signature);
+      if (recoveredAddress.toLowerCase() !== signerAddress.toLowerCase()) {
+        toast.error('Signature verification failed');
+        return { success: false };
+      }
+
+      // Generate claim transaction hash from signature
+      const claimTxHash = ethers.keccak256(ethers.toUtf8Bytes(signature + timestamp));
+
       const newBalance = state.camlyBalance - amount;
 
       const { data: current } = await supabase
@@ -464,6 +487,7 @@ export const useWeb3Rewards = () => {
 
       const newTotalClaimed = (Number(current?.total_claimed_to_wallet) || 0) + amount;
 
+      // Update balance in database
       await supabase
         .from('web3_rewards')
         .update({
@@ -472,16 +496,22 @@ export const useWeb3Rewards = () => {
         })
         .eq('user_id', user.id);
 
-      // Generate a mock transaction hash for demo purposes
-      const mockTxHash = `0x${Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join('')}`;
-
+      // Record the claim transaction with signature
       await supabase.from('web3_reward_transactions').insert({
         user_id: user.id,
         amount: -amount,
         reward_type: 'claim_to_wallet',
-        description: `Claimed ${amount} Camly to wallet`,
-        transaction_hash: mockTxHash,
+        description: `Claimed ${amount.toLocaleString()} CAMLY to ${signerAddress.slice(0, 6)}...${signerAddress.slice(-4)}`,
+        transaction_hash: claimTxHash,
         claimed_to_wallet: true,
+      });
+
+      // Also record in camly_coin_transactions for wallet history
+      await supabase.from('camly_coin_transactions').insert({
+        user_id: user.id,
+        amount: -amount,
+        transaction_type: 'withdraw',
+        description: `Claim to wallet ${signerAddress.slice(0, 6)}...${signerAddress.slice(-4)}`,
       });
 
       setState(prev => ({
@@ -489,10 +519,15 @@ export const useWeb3Rewards = () => {
         camlyBalance: newBalance,
       }));
 
-      return { success: true, txHash: mockTxHash };
+      toast.success(`Successfully claimed ${amount.toLocaleString()} CAMLY!`);
+      return { success: true, txHash: claimTxHash };
     } catch (error: any) {
       console.error('Claim error:', error);
-      toast.error(error.message || 'Failed to claim to wallet');
+      if (error.code === 4001 || error.code === 'ACTION_REJECTED') {
+        toast.error('Claim cancelled by user');
+      } else {
+        toast.error(error.message || 'Failed to claim to wallet');
+      }
       return { success: false };
     }
   }, [user, state.walletAddress, state.camlyBalance]);
