@@ -449,6 +449,15 @@ const Games = () => {
               </Button>
               
               <Button
+                onClick={() => navigate('/sample-games')}
+                variant="outline"
+                className="rounded-full px-6 font-bold border-2 border-yellow-500/30 hover:border-yellow-500 hover:bg-yellow-500/10 text-yellow-600"
+              >
+                <Star className="w-4 h-4 mr-2" />
+                5 Sample Games ⭐
+              </Button>
+              
+              <Button
                 onClick={() => navigate('/upload-game')}
                 className="rounded-full px-6 font-bold bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg hover:shadow-xl"
               >

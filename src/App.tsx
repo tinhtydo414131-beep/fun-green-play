@@ -54,6 +54,7 @@ import PlanetExplorer from "./pages/PlanetExplorer";
 import AdminDashboard from "./pages/AdminDashboard";
 import About from "./pages/About";
 import LovableGamePlay from "./pages/LovableGamePlay";
+import SampleGames from "./pages/SampleGames";
 
 const queryClient = new QueryClient();
 
@@ -75,6 +76,7 @@ const AnimatedRoutes = () => {
         <Route path="/recently-played" element={<RecentlyPlayed />} />
         <Route path="/my-games" element={<MyGames />} />
         <Route path="/edit-game/:id" element={<EditGame />} />
+        <Route path="/sample-games" element={<SampleGames />} />
         
         {/* Upload & Creator */}
         <Route path="/upload" element={<UploadGame />} />
