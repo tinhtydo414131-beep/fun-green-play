@@ -404,6 +404,20 @@ export default function GameDetails() {
 
       console.log('Starting game load for:', game.game_file_path);
       
+      // Check for unsupported file formats
+      const filePath = game.game_file_path.toLowerCase();
+      if (filePath.endsWith('.rar')) {
+        toast.error("RAR format is not supported. Please ask the developer to re-upload as ZIP file.", { duration: 6000 });
+        setLoadingGame(false);
+        return;
+      }
+      
+      if (!filePath.endsWith('.zip')) {
+        toast.error("Unsupported file format. Only ZIP files can be played in browser.", { duration: 5000 });
+        setLoadingGame(false);
+        return;
+      }
+      
       // Download the ZIP file directly using Supabase storage
       const { data: zipData, error: downloadError } = await supabase.storage
         .from('uploaded-games')
@@ -478,8 +492,22 @@ export default function GameDetails() {
         }
       }
       
+      // If still no index.html, look for ANY .html file (handles "index copy.html" etc)
       if (!indexContent) {
-        toast.error("Game files not found in ZIP. Make sure index.html exists.");
+        for (const [path, file] of Object.entries(zip.files)) {
+          if (path.endsWith('.html') && !file.dir) {
+            indexContent = await file.async('string');
+            const fileName = path.split('/').pop() || '';
+            basePath = path.replace(fileName, '');
+            console.log('Found HTML file at:', path, 'basePath:', basePath);
+            break;
+          }
+        }
+      }
+      
+      if (!indexContent) {
+        toast.error("No HTML file found in ZIP. Please include an HTML file in your game.");
+        setLoadingGame(false);
         return;
       }
 
