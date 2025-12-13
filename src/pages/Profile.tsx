@@ -21,6 +21,7 @@ import { HonorBoard } from "@/components/profile/HonorBoard";
 import { MyGamesSection } from "@/components/profile/MyGamesSection";
 import { WalletConnectModal } from "@/components/WalletConnectModal";
 import { ClaimRewardsModal } from "@/components/ClaimRewardsModal";
+import { Web3RewardNotification } from "@/components/Web3RewardNotification";
 import { useWeb3Rewards } from "@/hooks/useWeb3Rewards";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -341,7 +342,12 @@ export default function Profile() {
         contractAddress={CAMLY_CONTRACT_ADDRESS}
       />
 
-      {/* Reward notification system removed per user request */}
+      <Web3RewardNotification
+        isOpen={!!pendingReward}
+        amount={pendingReward?.amount || 0}
+        description={pendingReward?.description || ''}
+        onClose={clearPendingReward}
+      />
     </div>
   );
 }

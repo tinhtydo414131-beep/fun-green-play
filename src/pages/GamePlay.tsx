@@ -575,7 +575,12 @@ const GamePlay = () => {
     <div className={isLandscape ? "min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5 overflow-hidden" : "min-h-screen bg-white"}>
       {!isLandscape && <Navigation />}
       <LiveComboNotifications />
-      {/* Web3RewardNotification removed per user request */}
+      <Web3RewardNotification 
+        isOpen={!!pendingReward}
+        amount={pendingReward?.amount || 0}
+        description={pendingReward?.description || ''}
+        onClose={clearPendingReward} 
+      />
       
       {isLandscape && gameStarted && (
         <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-primary/95 to-secondary/95 backdrop-blur-md px-3 py-1.5 flex items-center justify-between border-b-2 border-white/20 shadow-xl">

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -7,14 +7,11 @@ import {
   CheckCircle2, Loader2, Shield, Key, Copy, ExternalLink, X
 } from 'lucide-react';
 import { useAccount, useConnect, useDisconnect, useBalance, useChainId, useSwitchChain } from 'wagmi';
-import { injected, walletConnect } from 'wagmi/connectors';
 import { bsc } from 'wagmi/chains';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { formatCamly, REWARDS } from '@/lib/web3';
+import { formatCamly } from '@/lib/web3';
 import { toast } from 'sonner';
-import { fireDiamondConfetti } from '@/components/DiamondConfetti';
-import confetti from 'canvas-confetti';
 import { CharityCounter } from '@/components/CharityCounter';
 
 interface LightWalletModalProps {
@@ -55,15 +52,9 @@ export const LightWalletModal = ({ isOpen, onClose, camlyBalance, onBalanceUpdat
   const { switchChain } = useSwitchChain();
   const { user } = useAuth();
   
-  const [isAirdropping, setIsAirdropping] = useState(false);
-  const [airdropComplete, setAirdropComplete] = useState(false);
   const [showFunWalletCreate, setShowFunWalletCreate] = useState(false);
   const [creatingFunWallet, setCreatingFunWallet] = useState(false);
   const [copied, setCopied] = useState(false);
-  
-  // Use ref to prevent race conditions - survives re-renders and is synchronous
-  const airdropProcessingRef = useRef(false);
-  const hasProcessedAirdropRef = useRef(false);
 
   // BNB balance
   const { data: bnbBalance } = useBalance({ address });
@@ -78,102 +69,27 @@ export const LightWalletModal = ({ isOpen, onClose, camlyBalance, onBalanceUpdat
     }
   }, [isConnected, isOnBSC, switchChain]);
 
-  // Handle successful connection - with mutex lock to prevent multiple calls
+  // Note: First wallet connection reward is handled by useWeb3Rewards hook
+  // This modal only handles wallet connection UI, not the reward logic
+
+  // Update wallet address in profile when connected
   useEffect(() => {
-    if (isConnected && address && user && !airdropComplete && !airdropProcessingRef.current && !hasProcessedAirdropRef.current) {
-      handleFirstConnectionAirdrop();
+    if (isConnected && address && user) {
+      updateWalletAddress();
     }
-  }, [isConnected, address, user, airdropComplete]);
+  }, [isConnected, address, user]);
 
-  const handleFirstConnectionAirdrop = async () => {
-    // Synchronous mutex check - prevents race conditions
-    if (airdropProcessingRef.current || hasProcessedAirdropRef.current) {
-      console.log('⚠️ Airdrop already processing or processed, skipping');
-      return;
-    }
+  const updateWalletAddress = async () => {
+    if (!user || !address) return;
     
-    // Set lock immediately (synchronously, before any await)
-    airdropProcessingRef.current = true;
-    hasProcessedAirdropRef.current = true;
-    
-    if (!user || !address) {
-      airdropProcessingRef.current = false;
-      return;
-    }
-
     try {
-      // Check if already received airdrop
-      const { data: existingTx } = await supabase
-        .from('camly_coin_transactions')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('transaction_type', 'wallet_connection')
-        .maybeSingle();
-
-      if (existingTx) {
-        console.log('✅ Airdrop already received, skipping');
-        setAirdropComplete(true);
-        airdropProcessingRef.current = false;
-        return;
-      }
-
-      setIsAirdropping(true);
-
-      // Update wallet address and balance
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('wallet_balance')
-        .eq('id', user.id)
-        .single();
-
-      const newBalance = (profile?.wallet_balance || 0) + REWARDS.FIRST_WALLET_CONNECT;
-
+      // Just update the wallet address in profile (reward handled by useWeb3Rewards)
       await supabase
         .from('profiles')
-        .update({
-          wallet_address: address,
-          wallet_balance: newBalance,
-        })
+        .update({ wallet_address: address })
         .eq('id', user.id);
-
-      // Record transaction
-      await supabase.from('camly_coin_transactions').insert({
-        user_id: user.id,
-        amount: REWARDS.FIRST_WALLET_CONNECT,
-        transaction_type: 'wallet_connection',
-        description: 'First wallet connection airdrop - Welcome to FUN Planet! 🎉',
-      });
-
-      // Celebration effects!
-      setAirdropComplete(true);
-      fireDiamondConfetti('rainbow');
-      playBlingSound();
-      
-      // Rainbow confetti burst
-      const colors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7'];
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors,
-      });
-
-      toast.success(
-        <div className="flex items-center gap-2">
-          <Gem className="w-5 h-5 text-amber-500" />
-          <span>Welcome! You received {formatCamly(REWARDS.FIRST_WALLET_CONNECT)} CAMLY! 🎉</span>
-        </div>
-      );
-
-      onBalanceUpdate();
     } catch (error) {
-      console.error('Airdrop error:', error);
-      toast.error('Failed to process airdrop. Please try again.');
-      // Reset processing flag on error so user can retry
-      hasProcessedAirdropRef.current = false;
-    } finally {
-      setIsAirdropping(false);
-      airdropProcessingRef.current = false;
+      console.error('Error updating wallet address:', error);
     }
   };
 
@@ -301,21 +217,6 @@ export const LightWalletModal = ({ isOpen, onClose, camlyBalance, onBalanceUpdat
                   </Button>
                 </a>
               </div>
-
-              {/* Airdrop Status */}
-              {isAirdropping && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="p-4 rounded-xl bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 flex items-center gap-3"
-                >
-                  <Loader2 className="w-6 h-6 text-green-500 animate-spin" />
-                  <div>
-                    <p className="font-semibold text-green-500">Processing Airdrop...</p>
-                    <p className="text-sm text-muted-foreground">50,000 CAMLY coming your way!</p>
-                  </div>
-                </motion.div>
-              )}
 
               {/* Earn Rewards Section */}
               <div className="space-y-3">

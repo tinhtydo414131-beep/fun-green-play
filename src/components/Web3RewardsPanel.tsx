@@ -6,6 +6,7 @@ import { Wallet, Coins, Gift, Calendar, ArrowUpRight, Loader2, History, Flame, T
 import { useWeb3Rewards } from '@/hooks/useWeb3Rewards';
 import { WalletConnectModal } from './WalletConnectModal';
 import { ClaimRewardsModal } from './ClaimRewardsModal';
+import { Web3RewardNotification } from './Web3RewardNotification';
 import { motion } from 'framer-motion';
 
 export const Web3RewardsPanel = () => {
@@ -198,6 +199,14 @@ export const Web3RewardsPanel = () => {
         walletAddress={walletAddress}
         onClaim={claimToWallet}
         contractAddress={CAMLY_CONTRACT_ADDRESS}
+      />
+
+      {/* Reward Notification */}
+      <Web3RewardNotification
+        isOpen={!!pendingReward}
+        amount={pendingReward?.amount || 0}
+        description={pendingReward?.description || ''}
+        onClose={clearPendingReward}
       />
     </>
   );
