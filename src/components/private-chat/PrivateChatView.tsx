@@ -222,8 +222,11 @@ export const PrivateChatView: React.FC<PrivateChatViewProps> = ({
               </AvatarFallback>
             </Avatar>
             <h3 className="font-semibold text-lg">{otherUser.username}</h3>
-            <p className="text-muted-foreground text-sm mt-1">
-              Bắt đầu cuộc trò chuyện mới!
+            <p className="text-muted-foreground text-sm mt-1 max-w-[250px]">
+              Chưa có tin nhắn nào. Gửi tin nhắn để bắt đầu cuộc trò chuyện!
+            </p>
+            <p className="text-muted-foreground text-xs mt-2 max-w-[250px]">
+              Bạn bè sẽ nhận được thông báo khi có tin nhắn mới 💌
             </p>
             <div className="flex gap-2 mt-4">
               {['👋', '❤️', '😊'].map(emoji => (
@@ -231,7 +234,7 @@ export const PrivateChatView: React.FC<PrivateChatViewProps> = ({
                   key={emoji}
                   variant="outline"
                   size="lg"
-                  className="text-2xl"
+                  className="text-2xl hover:scale-110 transition-transform"
                   onClick={() => sendMessage(emoji, 'sticker')}
                 >
                   {emoji}
