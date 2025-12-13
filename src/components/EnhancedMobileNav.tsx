@@ -3,9 +3,10 @@ import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-
+import { haptics } from "@/utils/haptics";
+import confetti from "canvas-confetti";
 export const EnhancedMobileNav = () => {
   const location = useLocation();
   const { user } = useAuth();
@@ -111,10 +112,27 @@ export const EnhancedMobileNav = () => {
           const Icon = item.icon;
           const active = isActive(item.path);
           
+          const handleNavClick = () => {
+            haptics.light();
+            // Fire diamond confetti on special upload button
+            if (item.isSpecial) {
+              haptics.success();
+              confetti({
+                particleCount: 30,
+                spread: 60,
+                origin: { y: 0.9, x: 0.5 },
+                colors: ['#00D4FF', '#FFD700', '#FF69B4', '#00FF88'],
+                shapes: ['star'],
+                scalar: 0.8,
+              });
+            }
+          };
+          
           return (
             <Link
               key={item.label}
               to={item.path}
+              onClick={handleNavClick}
               className={cn(
                 "flex flex-col items-center justify-center gap-0.5 transition-all duration-200 touch-manipulation active:scale-95 min-h-[72px] relative",
                 active ? "text-primary" : "text-muted-foreground hover:text-foreground"
