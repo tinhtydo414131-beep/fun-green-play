@@ -6,9 +6,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// CAMLY Contract on BSC
-const CAMLY_CONTRACT = '0x0910320181889fefde0bb1ca63962b0a8882e413';
-const CAMLY_DECIMALS = 3;
+// CAMLY Contract on BSC (deployed by FUN Planet)
+const CAMLY_CONTRACT = '0xf9FfF1976FADEf8712319fa46881DB0E0FB2f828';
+const CAMLY_DECIMALS = 18; // Standard ERC20 decimals
 
 // Use multiple RPC endpoints with fallback (avoid rate limits)
 const BSC_RPC_ENDPOINTS = [
