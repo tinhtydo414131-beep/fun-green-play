@@ -1,7 +1,7 @@
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Search, Sparkles, Diamond } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import camlyCoin from "@/assets/camly-coin.png";
 import { useGameAudio } from "@/hooks/useGameAudio";
@@ -9,8 +9,11 @@ import { AudioControls } from "./AudioControls";
 import { HeroStats } from "./HeroStats";
 import { HeroActionButtons } from "./HeroActionButtons";
 import { motion } from "framer-motion";
+import { MEDIA_URLS } from "@/config/media";
+
 export const Hero = () => {
   const [search, setSearch] = useState("");
+  const [backgroundVideo, setBackgroundVideo] = useState<string>(MEDIA_URLS.videos.heroBackgroundLatest);
   const navigate = useNavigate();
   const {
     playClick,
@@ -20,6 +23,14 @@ export const Hero = () => {
     toggleSound,
     toggleMusic
   } = useGameAudio();
+
+  useEffect(() => {
+    const savedVideo = localStorage.getItem("funplanet-background-video");
+    if (savedVideo) {
+      setBackgroundVideo(savedVideo);
+    }
+  }, []);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (search.trim()) {
@@ -33,11 +44,17 @@ export const Hero = () => {
   };
   return <section className="relative pt-24 sm:pt-28 pb-12 sm:pb-16 px-4 overflow-hidden min-h-screen flex flex-col justify-center">
       {/* Background video */}
-      <video autoPlay loop muted playsInline poster="/images/games/dream-world.jpg" className="absolute inset-0 w-full h-full object-cover contrast-110 brightness-105 saturate-110 z-0" style={{
-      minHeight: "100%"
-    }}>
-        <source src="https://media.funplanet.life/videos/hero-background-latest.mp4" type="video/mp4" />
-        <source src="/videos/hero-background-latest.mp4" type="video/mp4" />
+      <video 
+        key={backgroundVideo}
+        autoPlay 
+        loop 
+        muted 
+        playsInline 
+        poster="/images/games/dream-world.jpg" 
+        className="absolute inset-0 w-full h-full object-cover contrast-110 brightness-105 saturate-110 z-0" 
+        style={{ minHeight: "100%" }}
+      >
+        <source src={backgroundVideo} type="video/mp4" />
       </video>
       
       {/* Gradient overlay */}
