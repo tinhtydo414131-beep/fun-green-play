@@ -6,7 +6,7 @@ import mathQuizImg from '@/assets/games/math-quiz.jpg';
 import triviaQuizImg from '@/assets/games/trivia-quiz.jpg';
 import mazeRunnerImg from '@/assets/games/maze-runner.jpg';
 import platformerImg from '@/assets/games/platformer.jpg';
-import farmBuilderImg from '@/assets/games/farm-builder.jpg';
+import racingImg from '@/assets/games/racing.jpg';
 
 export interface Game {
   id: string;
@@ -26,7 +26,7 @@ export const games: Game[] = [
     description: 'Build your farm empire from village to metropolis!',
     category: 'casual',
     difficulty: 'easy',
-    image: farmBuilderImg,
+    image: '/images/games/farm-builder.jpg',
     playable: true,
   },
   
