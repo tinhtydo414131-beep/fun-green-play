@@ -146,9 +146,9 @@ export function FriendsSection({ userId, totalFriends }: FriendsSectionProps) {
               >
                 <CardContent className="p-4">
                   <div className="relative">
-                    <Avatar className="w-20 h-20 mx-auto rounded-lg">
+                    <Avatar className="w-20 h-20 mx-auto">
                       <AvatarImage src={friend.avatar_url || ''} />
-                      <AvatarFallback className="rounded-lg bg-gradient-to-br from-primary to-secondary text-white text-2xl">
+                      <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl">
                         {friend.username?.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
