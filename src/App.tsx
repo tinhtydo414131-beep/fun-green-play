@@ -63,44 +63,72 @@ const AnimatedRoutes = () => {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
+        {/* Main Routes */}
         <Route path="/" element={<Index />} />
+        <Route path="/home" element={<Index />} />
+        
+        {/* Games */}
         <Route path="/games" element={<Games />} />
         <Route path="/game/:gameId" element={<GamePlay />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/dashboard" element={<Profile />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/profile/:userId" element={<PublicProfile />} />
-        <Route path="/leaderboard" element={<Leaderboard />} />
-        <Route path="/nexus-leaderboard" element={<NexusLeaderboard />} />
-        <Route path="/wallet" element={<FunWallet />} />
-        <Route path="/friends" element={<Friends />} />
-        <Route path="/chat" element={<Chat />} />
-        <Route path="/music" element={<MusicLibrary />} />
-        <Route path="/public-music" element={<PublicMusic />} />
-        <Route path="/wallet-guide" element={<WalletGuide />} />
+        <Route path="/game-details/:id" element={<GameDetails />} />
+        <Route path="/lovable-game/:id" element={<LovableGamePlay />} />
         <Route path="/recently-played" element={<RecentlyPlayed />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/install" element={<Install />} />
-        <Route path="/combo-leaderboard" element={<ComboLeaderboard />} />
-        <Route path="/upload-game" element={<UploadGame />} />
-        <Route path="/admin/game-review" element={<AdminGameReview />} />
         <Route path="/my-games" element={<MyGames />} />
         <Route path="/edit-game/:id" element={<EditGame />} />
-        <Route path="/game-details/:id" element={<GameDetails />} />
-        <Route path="/rewards-history" element={<RewardsHistory />} />
-        <Route path="/camly-leaderboard" element={<CamlyLeaderboard />} />
+        
+        {/* Upload & Creator */}
+        <Route path="/upload" element={<UploadGame />} />
+        <Route path="/upload-game" element={<UploadGame />} />
+        <Route path="/builder" element={<PlanetExplorer />} />
+        
+        {/* Auth & Profile */}
+        <Route path="/auth" element={<Auth />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/find-friends" element={<FindFriends />} />
-        <Route path="/messages" element={<PrivateMessages />} />
+        <Route path="/profile/:userId" element={<PublicProfile />} />
+        <Route path="/dashboard" element={<Profile />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="/nft-gallery" element={<NFTGallery />} />
-        <Route path="/education" element={<Education />} />
-        <Route path="/parent-dashboard" element={<ParentDashboard />} />
+        <Route path="/nft" element={<NFTGallery />} />
+        
+        {/* Wallet & Airdrop */}
+        <Route path="/wallet" element={<FunWallet />} />
+        <Route path="/wallet-guide" element={<WalletGuide />} />
+        <Route path="/airdrop" element={<GlobalAirdrop />} />
         <Route path="/global-airdrop" element={<GlobalAirdrop />} />
-        <Route path="/planet-explorer" element={<PlanetExplorer />} />
+        <Route path="/rewards-history" element={<RewardsHistory />} />
+        
+        {/* Social & Community */}
+        <Route path="/friends" element={<Friends />} />
+        <Route path="/find-friends" element={<FindFriends />} />
+        <Route path="/chat" element={<Chat />} />
+        <Route path="/community" element={<Chat />} />
+        <Route path="/messages" element={<PrivateMessages />} />
+        
+        {/* Leaderboards */}
+        <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/nexus-leaderboard" element={<NexusLeaderboard />} />
+        <Route path="/combo-leaderboard" element={<ComboLeaderboard />} />
+        <Route path="/camly-leaderboard" element={<CamlyLeaderboard />} />
+        
+        {/* Music */}
+        <Route path="/music" element={<MusicLibrary />} />
+        <Route path="/public-music" element={<PublicMusic />} />
+        
+        {/* Parent & Education */}
+        <Route path="/parent-dashboard" element={<ParentDashboard />} />
+        <Route path="/education" element={<Education />} />
+        
+        {/* Admin */}
+        <Route path="/admin/game-review" element={<AdminGameReview />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        
+        {/* Other */}
         <Route path="/about" element={<About />} />
-        <Route path="/lovable-game/:id" element={<LovableGamePlay />} />
-        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="/planet-explorer" element={<PlanetExplorer />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/install" element={<Install />} />
+        
+        {/* Catch-all 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
