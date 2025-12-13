@@ -53,6 +53,7 @@ import PetParadise from "@/components/games/PetParadise";
 import MusicCreator from "@/components/games/MusicCreator";
 import FlowerField from "@/components/games/FlowerField";
 import LilBlockBuddy from "@/components/games/LilBlockBuddy";
+import TetrisGame from "@/components/games/TetrisGame";
 import { Game2048Nexus } from "@/components/games/Game2048Nexus";
 import Game2048 from "@/components/games/Game2048";
 import { HappyKitchenJoy } from "@/components/games/HappyKitchenJoy";
@@ -457,6 +458,10 @@ const GamePlay = () => {
       case "Racing2D": return <Racing {...gameProps} />;
       case "LilBlockBuddy": return <LilBlockBuddy3D {...gameProps} />;
       case "LilBlockBuddy2D": return <LilBlockBuddy {...gameProps} />;
+      case "TetrisGame":
+      case "tetris":
+      case "xep-hinh":
+        return <TetrisGame {...gameProps} onBack={handleBackToLevelSelect} />;
       case "CookingMama":
       case "cooking-mama":
         return <CookingMama3D {...gameProps} />;
