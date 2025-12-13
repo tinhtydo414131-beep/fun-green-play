@@ -7,9 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import confetti from "canvas-confetti";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { useAccount } from "wagmi";
 import { CAMLY_CONTRACT_ADDRESS, CAMLY_ABI, formatCamly, shortenAddress, appKit } from "@/lib/web3";
-import { formatUnits } from "viem";
 import { ethers } from "ethers";
 
 const CLAIM_AMOUNT = 50000; // 50,000 CAMLY
@@ -57,75 +56,8 @@ export const ClaimCamlyOnChain = () => {
     checkStatus();
   }, [address, showSuccess]);
 
-  // Claim airdrop transaction
-  const { 
-    writeContract, 
-    data: txHash, 
-    isPending: isWriting,
-    error: writeError 
-  } = useWriteContract();
-
-  // Wait for transaction confirmation
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
-    hash: txHash,
-  });
-
-  // Handle successful claim
-  useEffect(() => {
-    if (isConfirmed && txHash) {
-      setShowSuccess(true);
-      setHasClaimed(true);
-      
-      // Diamond confetti!
-      const duration = 3000;
-      const end = Date.now() + duration;
-      
-      const frame = () => {
-        confetti({
-          particleCount: 7,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0, y: 0.6 },
-          colors: ['#00CED1', '#FFD700', '#FF69B4', '#00FF7F', '#FF6347']
-        });
-        confetti({
-          particleCount: 7,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1, y: 0.6 },
-          colors: ['#00CED1', '#FFD700', '#FF69B4', '#00FF7F', '#FF6347']
-        });
-        if (Date.now() < end) requestAnimationFrame(frame);
-      };
-      frame();
-
-      // Play bling sound
-      try {
-        const audio = new Audio('/sounds/bling.mp3');
-        audio.volume = 0.5;
-        audio.play().catch(() => {});
-      } catch {}
-
-      toast.success(
-        isVN 
-          ? `🎉💎 Chúc mừng! ${CLAIM_AMOUNT.toLocaleString()} CAMLY đã về ví bé rồi nè!` 
-          : `🎉💎 Congratulations! ${CLAIM_AMOUNT.toLocaleString()} CAMLY is now in your wallet!`,
-        { duration: 6000 }
-      );
-    }
-  }, [isConfirmed, txHash, isVN]);
-
-  // Handle write error
-  useEffect(() => {
-    if (writeError) {
-      console.error('Claim error:', writeError);
-      toast.error(
-        isVN 
-          ? 'Có lỗi xảy ra. Vui lòng thử lại!' 
-          : 'Something went wrong. Please try again!'
-      );
-    }
-  }, [writeError, isVN]);
+  const [txHash, setTxHash] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleConnect = () => {
     appKit.open();
@@ -137,8 +69,9 @@ export const ClaimCamlyOnChain = () => {
       return;
     }
 
+    setIsLoading(true);
+
     try {
-      // Use ethers to send the claim transaction directly
       if (typeof window.ethereum !== 'undefined') {
         const provider = new ethers.BrowserProvider(window.ethereum as any);
         const signer = await provider.getSigner();
@@ -146,13 +79,14 @@ export const ClaimCamlyOnChain = () => {
         
         toast.info(isVN ? 'Đang gửi giao dịch...' : 'Sending transaction...');
         const tx = await contract.claimAirdrop();
+        setTxHash(tx.hash);
         
         toast.info(isVN ? 'Đang xác nhận...' : 'Confirming...');
         await tx.wait();
         
         setShowSuccess(true);
         setHasClaimed(true);
-        
+
         // Diamond confetti!
         const duration = 3000;
         const end = Date.now() + duration;
@@ -197,10 +131,11 @@ export const ClaimCamlyOnChain = () => {
       } else {
         toast.error(isVN ? 'Có lỗi xảy ra. Vui lòng thử lại!' : 'Something went wrong!');
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const isLoading = isWriting || isConfirming;
   const alreadyClaimed = hasClaimed === true;
   const formattedBalance = balance;
   const formattedPool = remainingPool;
@@ -301,9 +236,7 @@ export const ClaimCamlyOnChain = () => {
                 {isLoading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    {isConfirming 
-                      ? (isVN ? 'Đang xác nhận...' : 'Confirming...') 
-                      : (isVN ? 'Đang xử lý...' : 'Processing...')}
+                    {isVN ? 'Đang xử lý...' : 'Processing...'}
                   </>
                 ) : !isConnected ? (
                   <>
