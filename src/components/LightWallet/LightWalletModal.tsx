@@ -60,6 +60,7 @@ export const LightWalletModal = ({ isOpen, onClose, camlyBalance, onBalanceUpdat
   const [showFunWalletCreate, setShowFunWalletCreate] = useState(false);
   const [creatingFunWallet, setCreatingFunWallet] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [hasCheckedAirdrop, setHasCheckedAirdrop] = useState(false);
 
   // BNB balance
   const { data: bnbBalance } = useBalance({ address });
@@ -74,12 +75,13 @@ export const LightWalletModal = ({ isOpen, onClose, camlyBalance, onBalanceUpdat
     }
   }, [isConnected, isOnBSC, switchChain]);
 
-  // Handle successful connection
+  // Handle successful connection - with guard to prevent multiple calls
   useEffect(() => {
-    if (isConnected && address && user && !airdropComplete) {
+    if (isConnected && address && user && !airdropComplete && !isAirdropping && !hasCheckedAirdrop) {
+      setHasCheckedAirdrop(true);
       handleFirstConnectionAirdrop();
     }
-  }, [isConnected, address, user]);
+  }, [isConnected, address, user, airdropComplete, isAirdropping, hasCheckedAirdrop]);
 
   const handleFirstConnectionAirdrop = async () => {
     if (!user || !address) return;
