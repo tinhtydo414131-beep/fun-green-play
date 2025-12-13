@@ -324,15 +324,25 @@ const Games = () => {
   };
 
   const handlePlayGame = (game: Game | UploadedGame | LovableGame) => {
+    fireDiamondConfetti();
+    
+    // Built-in games with component_name navigate to GamePlay page
+    if ('component_name' in game) {
+      navigate(`/game/${game.id}`);
+      return;
+    }
+    
     // Uploaded community games use the dedicated GameDetails page
     if ('category' in game) {
       navigate(`/game-details/${game.id}`);
       return;
     }
 
-    // Built-in and Lovable games open in fullscreen overlay
-    fireDiamondConfetti();
-    setFullscreenGame(game);
+    // Lovable games (external project URLs) open in fullscreen overlay
+    if ('project_url' in game) {
+      setFullscreenGame(game);
+      return;
+    }
   };
 
   const getGameUrl = (game: Game | UploadedGame | LovableGame): string => {
