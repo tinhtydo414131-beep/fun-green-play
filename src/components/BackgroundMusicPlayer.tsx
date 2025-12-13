@@ -40,7 +40,7 @@ export const BackgroundMusicPlayer = () => {
   // Move useDraggable BEFORE any conditional returns
   const { position, isDragging, handleMouseDown, style } = useDraggable({
     storageKey: "music_player_position",
-    defaultPosition: { x: 0, y: 0 },
+    defaultPosition: { x: window.innerWidth - 80, y: 16 },
   });
   useEffect(() => {
     const savedVolume = localStorage.getItem("funplanet_music_volume");
@@ -154,15 +154,15 @@ export const BackgroundMusicPlayer = () => {
 
   return (
     <div 
-      className="fixed bottom-6 right-6 z-50 select-none"
+      className="fixed top-4 right-4 z-50 select-none md:bottom-6 md:right-6 md:top-auto"
       style={style}
     >
       <div className="relative group">
-        {/* Drag handle */}
+        {/* Drag handle - always visible on mobile for easier dragging */}
         <div
           onMouseDown={handleMouseDown}
           onTouchStart={handleMouseDown}
-          className={`absolute -top-2 -left-2 w-6 h-6 rounded-full bg-primary/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 ${isDragging ? 'opacity-100' : ''}`}
+          className={`absolute -top-2 -left-2 w-6 h-6 rounded-full bg-primary/80 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10 cursor-grab active:cursor-grabbing ${isDragging ? 'opacity-100 scale-110' : 'opacity-70'}`}
           title="Drag to move"
         >
           <GripVertical className="w-3 h-3 text-white" />
@@ -172,9 +172,9 @@ export const BackgroundMusicPlayer = () => {
           <PopoverTrigger asChild>
             <Button
               size="lg"
-              className={`h-16 w-16 rounded-full bg-gradient-to-br from-primary via-secondary to-accent shadow-2xl hover:shadow-[0_20px_50px_rgba(59,130,246,0.6)] transition-all duration-300 hover:scale-110 border-4 border-white/20 ${isDragging ? 'cursor-grabbing scale-105' : ''}`}
+              className={`h-12 w-12 md:h-16 md:w-16 rounded-full bg-gradient-to-br from-primary via-secondary to-accent shadow-2xl hover:shadow-[0_20px_50px_rgba(59,130,246,0.6)] transition-all duration-300 hover:scale-110 border-2 md:border-4 border-white/20 ${isDragging ? 'cursor-grabbing scale-105' : ''}`}
             >
-              <Music className="w-8 h-8 text-white animate-pulse" />
+              <Music className="w-5 h-5 md:w-8 md:h-8 text-white animate-pulse" />
             </Button>
           </PopoverTrigger>
         
