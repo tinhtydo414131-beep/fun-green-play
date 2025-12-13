@@ -12,7 +12,11 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     rollupOptions: {
-      external: ['@walletconnect/ethereum-provider'],
+      external: [
+  '@walletconnect/ethereum-provider',
+  '@walletconnect/sign-client',
+  '@walletconnect/universal-provider'
+],
     },
     commonjsOptions: {
       include: [/node_modules/],
