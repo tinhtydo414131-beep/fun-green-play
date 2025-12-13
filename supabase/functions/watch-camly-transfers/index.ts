@@ -17,6 +17,8 @@ const BSC_RPC_ENDPOINTS = [
   'https://bsc-dataseed2.bnbchain.org',
   'https://bsc-dataseed3.bnbchain.org',
   'https://bsc-dataseed4.bnbchain.org',
+  'https://bsc.publicnode.com',
+  'https://binance.llamarpc.com',
 ];
 
 // Get a random RPC endpoint to distribute load
@@ -24,6 +26,58 @@ const getRandomRPC = () => BSC_RPC_ENDPOINTS[Math.floor(Math.random() * BSC_RPC_
 
 // ERC20 Transfer event signature
 const TRANSFER_EVENT_SIGNATURE = 'Transfer(address,address,uint256)';
+
+// Helper to delay execution
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Helper to retry with exponential backoff
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  maxRetries = 3,
+  baseDelay = 1000
+): Promise<T> {
+  let lastError: Error | null = null;
+  
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error: any) {
+      lastError = error;
+      const isRateLimit = error.message?.includes('rate limit') || 
+                          error.code === -32005 ||
+                          error.message?.includes('429');
+      
+      if (isRateLimit && attempt < maxRetries - 1) {
+        const waitTime = baseDelay * Math.pow(2, attempt);
+        console.log(`⏳ Rate limited, waiting ${waitTime}ms before retry ${attempt + 1}/${maxRetries}...`);
+        await delay(waitTime);
+      } else if (attempt < maxRetries - 1) {
+        await delay(baseDelay);
+      }
+    }
+  }
+  
+  throw lastError;
+}
+
+// Create provider with fallback
+async function createProviderWithFallback(): Promise<ethers.JsonRpcProvider> {
+  const shuffledEndpoints = [...BSC_RPC_ENDPOINTS].sort(() => Math.random() - 0.5);
+  
+  for (const endpoint of shuffledEndpoints) {
+    try {
+      const provider = new ethers.JsonRpcProvider(endpoint);
+      // Test the connection
+      await provider.getBlockNumber();
+      console.log(`✅ Connected to RPC: ${endpoint}`);
+      return provider;
+    } catch (error) {
+      console.log(`❌ Failed to connect to ${endpoint}, trying next...`);
+    }
+  }
+  
+  throw new Error('All RPC endpoints failed');
+}
 
 Deno.serve(async (req) => {
   // Handle CORS preflight
@@ -39,8 +93,8 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Initialize ethers provider
-    const provider = new ethers.JsonRpcProvider(getRandomRPC());
+    // Initialize ethers provider with fallback
+    const provider = await createProviderWithFallback();
     const contract = new ethers.Contract(
       CAMLY_CONTRACT,
       [
@@ -50,11 +104,11 @@ Deno.serve(async (req) => {
       provider
     );
 
-    // Get current block number
-    const currentBlock = await provider.getBlockNumber();
+    // Get current block number with retry
+    const currentBlock = await withRetry(() => provider.getBlockNumber());
     console.log('📊 Current block:', currentBlock);
 
-    // Get last processed block from database (or start from 100 blocks ago)
+    // Get last processed block from database (or start from 50 blocks ago)
     const { data: lastProcessed } = await supabase
       .from('wallet_transactions')
       .select('created_at')
@@ -63,12 +117,13 @@ Deno.serve(async (req) => {
       .limit(1)
       .maybeSingle();
 
-    // Start from 100 blocks ago if no history, or continue from last check
+    // Reduce block range to avoid rate limits (50 blocks instead of 100-1000)
+    const BLOCK_RANGE = 50;
     const fromBlock = lastProcessed 
-      ? currentBlock - 100  // Check last 100 blocks for safety
-      : currentBlock - 1000; // First run: check last 1000 blocks
+      ? currentBlock - BLOCK_RANGE
+      : currentBlock - BLOCK_RANGE * 2; // First run: check last 100 blocks max
 
-    console.log(`🔎 Scanning blocks ${fromBlock} to ${currentBlock}...`);
+    console.log(`🔎 Scanning blocks ${fromBlock} to ${currentBlock} (${currentBlock - fromBlock} blocks)...`);
 
     // Get all wallet addresses from profiles
     const { data: profiles, error: profilesError } = await supabase
@@ -98,9 +153,32 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Query Transfer events
-    const transferFilter = contract.filters.Transfer();
-    const events = await contract.queryFilter(transferFilter, fromBlock, currentBlock);
+    // Query Transfer events with retry and smaller batches
+    let events: any[] = [];
+    const BATCH_SIZE = 25; // Query in smaller batches
+    
+    for (let startBlock = fromBlock; startBlock < currentBlock; startBlock += BATCH_SIZE) {
+      const endBlock = Math.min(startBlock + BATCH_SIZE - 1, currentBlock);
+      
+      try {
+        const batchEvents = await withRetry(async () => {
+          const transferFilter = contract.filters.Transfer();
+          return await contract.queryFilter(transferFilter, startBlock, endBlock);
+        }, 3, 2000);
+        
+        events = events.concat(batchEvents);
+        console.log(`📦 Fetched events from blocks ${startBlock}-${endBlock}: ${batchEvents.length} events`);
+        
+        // Small delay between batches to avoid rate limiting
+        if (endBlock < currentBlock) {
+          await delay(500);
+        }
+      } catch (error: any) {
+        console.error(`⚠️ Error fetching blocks ${startBlock}-${endBlock}:`, error.message);
+        // Continue with next batch instead of failing completely
+        continue;
+      }
+    }
     
     console.log(`📨 Found ${events.length} total Transfer events`);
 
@@ -148,11 +226,16 @@ Deno.serve(async (req) => {
         continue;
       }
 
-      // Get transaction timestamp
-      const block = await provider.getBlock(event.blockNumber);
-      const timestamp = block?.timestamp 
-        ? new Date(block.timestamp * 1000).toISOString()
-        : new Date().toISOString();
+      // Get transaction timestamp with retry
+      let timestamp = new Date().toISOString();
+      try {
+        const block = await withRetry(() => provider.getBlock(event.blockNumber), 2, 1000);
+        if (block?.timestamp) {
+          timestamp = new Date(block.timestamp * 1000).toISOString();
+        }
+      } catch (error) {
+        console.log(`⚠️ Could not get block timestamp, using current time`);
+      }
 
       // Format amount
       const amount = parseFloat(ethers.formatUnits(value, CAMLY_DECIMALS));
@@ -176,6 +259,9 @@ Deno.serve(async (req) => {
       });
 
       processedCount++;
+      
+      // Small delay between processing to avoid rate limits on block fetches
+      await delay(100);
     }
 
     // Batch insert new transactions
