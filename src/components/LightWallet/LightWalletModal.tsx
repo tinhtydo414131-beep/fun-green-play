@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -60,7 +60,10 @@ export const LightWalletModal = ({ isOpen, onClose, camlyBalance, onBalanceUpdat
   const [showFunWalletCreate, setShowFunWalletCreate] = useState(false);
   const [creatingFunWallet, setCreatingFunWallet] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [hasCheckedAirdrop, setHasCheckedAirdrop] = useState(false);
+  
+  // Use ref to prevent race conditions - survives re-renders and is synchronous
+  const airdropProcessingRef = useRef(false);
+  const hasProcessedAirdropRef = useRef(false);
 
   // BNB balance
   const { data: bnbBalance } = useBalance({ address });
@@ -75,16 +78,28 @@ export const LightWalletModal = ({ isOpen, onClose, camlyBalance, onBalanceUpdat
     }
   }, [isConnected, isOnBSC, switchChain]);
 
-  // Handle successful connection - with guard to prevent multiple calls
+  // Handle successful connection - with mutex lock to prevent multiple calls
   useEffect(() => {
-    if (isConnected && address && user && !airdropComplete && !isAirdropping && !hasCheckedAirdrop) {
-      setHasCheckedAirdrop(true);
+    if (isConnected && address && user && !airdropComplete && !airdropProcessingRef.current && !hasProcessedAirdropRef.current) {
       handleFirstConnectionAirdrop();
     }
-  }, [isConnected, address, user, airdropComplete, isAirdropping, hasCheckedAirdrop]);
+  }, [isConnected, address, user, airdropComplete]);
 
   const handleFirstConnectionAirdrop = async () => {
-    if (!user || !address) return;
+    // Synchronous mutex check - prevents race conditions
+    if (airdropProcessingRef.current || hasProcessedAirdropRef.current) {
+      console.log('⚠️ Airdrop already processing or processed, skipping');
+      return;
+    }
+    
+    // Set lock immediately (synchronously, before any await)
+    airdropProcessingRef.current = true;
+    hasProcessedAirdropRef.current = true;
+    
+    if (!user || !address) {
+      airdropProcessingRef.current = false;
+      return;
+    }
 
     try {
       // Check if already received airdrop
@@ -96,7 +111,9 @@ export const LightWalletModal = ({ isOpen, onClose, camlyBalance, onBalanceUpdat
         .maybeSingle();
 
       if (existingTx) {
+        console.log('✅ Airdrop already received, skipping');
         setAirdropComplete(true);
+        airdropProcessingRef.current = false;
         return;
       }
 
@@ -152,8 +169,11 @@ export const LightWalletModal = ({ isOpen, onClose, camlyBalance, onBalanceUpdat
     } catch (error) {
       console.error('Airdrop error:', error);
       toast.error('Failed to process airdrop. Please try again.');
+      // Reset processing flag on error so user can retry
+      hasProcessedAirdropRef.current = false;
     } finally {
       setIsAirdropping(false);
+      airdropProcessingRef.current = false;
     }
   };
 
