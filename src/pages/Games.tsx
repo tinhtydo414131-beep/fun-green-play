@@ -522,20 +522,33 @@ const Games = () => {
             <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
               {ageFilters.map((filter) => {
                 const Icon = filter.icon;
+                const isDiamond = filter.id === 'all';
                 return (
                   <motion.button
                     key={filter.id}
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: 1.05, rotate: isDiamond ? 3 : 0 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setSelectedAge(filter.id)}
-                    className={`flex items-center gap-2 px-4 sm:px-6 py-3 rounded-full font-bold text-sm sm:text-base transition-all ${
-                      selectedAge === filter.id
-                        ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-lg'
-                        : 'bg-card border-2 border-primary/20 hover:border-primary/50 text-foreground'
+                    className={`flex items-center gap-2 px-4 sm:px-6 py-3 font-bold text-sm sm:text-base transition-all ${
+                      isDiamond 
+                        ? 'rounded-xl rotate-0 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 text-white shadow-lg shadow-cyan-500/40 border-2 border-white/30'
+                        : selectedAge === filter.id
+                          ? 'rounded-full bg-gradient-to-r from-primary to-secondary text-white shadow-lg'
+                          : 'rounded-full bg-card border-2 border-primary/20 hover:border-primary/50 text-foreground'
                     }`}
+                    style={isDiamond ? {
+                      clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
+                      padding: '1.5rem 2rem',
+                    } : undefined}
                   >
-                    <span className="text-lg">{filter.emoji}</span>
-                    <span className="hidden sm:inline">{filter.label}</span>
+                    {isDiamond ? (
+                      <span className="text-xl">💎</span>
+                    ) : (
+                      <>
+                        <span className="text-lg">{filter.emoji}</span>
+                        <span className="hidden sm:inline">{filter.label}</span>
+                      </>
+                    )}
                   </motion.button>
                 );
               })}
