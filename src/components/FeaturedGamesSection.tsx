@@ -6,11 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Play, X, Maximize2, Star, Users, Flame } from "lucide-react";
+import { GamePreviewPlaceholder } from "@/components/GamePreviewPlaceholder";
 
 interface FeaturedGame {
   id: string;
   title: string;
-  thumbnail_path: string;
+  thumbnail_path: string | null;
   external_url: string | null;
   play_count?: number;
   category: string;
@@ -46,7 +47,8 @@ export function FeaturedGamesSection() {
     }
   };
 
-  const getThumbnailUrl = (path: string) => {
+  const getThumbnailUrl = (path: string | null) => {
+    if (!path) return null;
     if (path.startsWith('http')) return path;
     const { data } = supabase.storage.from('uploaded-games').getPublicUrl(path);
     return data.publicUrl;
@@ -130,12 +132,16 @@ export function FeaturedGamesSection() {
                 >
                   {/* Thumbnail */}
                   <div className="relative aspect-video overflow-hidden">
-                    <img
-                      src={getThumbnailUrl(game.thumbnail_path)}
-                      alt={game.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      loading="lazy"
-                    />
+                    {getThumbnailUrl(game.thumbnail_path) ? (
+                      <img
+                        src={getThumbnailUrl(game.thumbnail_path)!}
+                        alt={game.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <GamePreviewPlaceholder title={game.title} category={game.category} />
+                    )}
                     
                     {/* Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
