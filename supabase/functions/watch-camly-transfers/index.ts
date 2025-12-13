@@ -117,11 +117,11 @@ Deno.serve(async (req) => {
       .limit(1)
       .maybeSingle();
 
-    // Reduce block range to avoid rate limits (50 blocks instead of 100-1000)
-    const BLOCK_RANGE = 50;
+    // Reduce block range to avoid rate limits (smaller window)
+    const BLOCK_RANGE = 20;
     const fromBlock = lastProcessed 
       ? currentBlock - BLOCK_RANGE
-      : currentBlock - BLOCK_RANGE * 2; // First run: check last 100 blocks max
+      : currentBlock - BLOCK_RANGE * 2; // First run: check last 40 blocks max
 
     console.log(`🔎 Scanning blocks ${fromBlock} to ${currentBlock} (${currentBlock - fromBlock} blocks)...`);
 
@@ -155,7 +155,7 @@ Deno.serve(async (req) => {
 
     // Query Transfer events with retry and smaller batches
     let events: any[] = [];
-    const BATCH_SIZE = 25; // Query in smaller batches
+    const BATCH_SIZE = 5; // Query in very small batches to avoid RPC limits
     
     for (let startBlock = fromBlock; startBlock < currentBlock; startBlock += BATCH_SIZE) {
       const endBlock = Math.min(startBlock + BATCH_SIZE - 1, currentBlock);
