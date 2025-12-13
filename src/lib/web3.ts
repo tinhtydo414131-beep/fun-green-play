@@ -7,7 +7,7 @@ const projectId = 'a01e309e8e50a5c1e4cc4f9f05e0d5a1';
 
 // CAMLY Token Contract on BSC Mainnet
 // ⚠️ THAY ĐỔI ĐỊA CHỈ NÀY SAU KHI DEPLOY CONTRACT MỚI
-export const CAMLY_CONTRACT_ADDRESS = '0x0910320181889fefde0bb1ca63962b0a8882e413';
+export const CAMLY_CONTRACT_ADDRESS = '0xf9FfF1976FADEf8712319fa46881DB0E0FB2f828';
 
 // Charity wallet receives 11% of all rewards
 export const CHARITY_WALLET_ADDRESS = '0x1234567890123456789012345678901234567890';
