@@ -51,7 +51,7 @@ export const Hero = () => {
         muted 
         playsInline 
         poster="/images/games/dream-world.jpg" 
-        className="absolute inset-0 w-full h-full object-cover contrast-110 brightness-105 saturate-110 z-0" 
+        className="absolute inset-0 w-full h-full object-cover contrast-110 brightness-105 saturate-110 z-0 opacity-5" 
         style={{ minHeight: "100%" }}
       >
         <source src={backgroundVideo} type="video/mp4" />
