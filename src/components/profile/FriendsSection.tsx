@@ -70,7 +70,7 @@ export function FriendsSection({ userId, totalFriends }: FriendsSectionProps) {
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
       {[...Array(6)].map((_, i) => (
         <div key={i} className="bg-card rounded-lg p-4 border border-border">
-          <Skeleton className="w-20 h-20 rounded-lg mx-auto mb-3" />
+          <Skeleton className="w-20 h-20 rounded-full mx-auto mb-3" />
           <Skeleton className="h-4 w-24 mx-auto mb-2" />
           <Skeleton className="h-3 w-16 mx-auto" />
         </div>
@@ -146,9 +146,9 @@ export function FriendsSection({ userId, totalFriends }: FriendsSectionProps) {
               >
                 <CardContent className="p-4">
                   <div className="relative">
-                    <Avatar className="w-20 h-20 mx-auto">
-                      <AvatarImage src={friend.avatar_url || ''} />
-                      <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl">
+                    <Avatar className="w-20 h-20 mx-auto rounded-full overflow-hidden">
+                      <AvatarImage src={friend.avatar_url || ''} className="rounded-full object-cover" />
+                      <AvatarFallback className="rounded-full bg-gradient-to-br from-primary to-secondary text-white text-2xl">
                         {friend.username?.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
