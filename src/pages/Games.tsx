@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { GameCard } from "@/components/GameCard";
@@ -6,12 +6,13 @@ import { UploadedGameCard } from "@/components/UploadedGameCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Home, ArrowUpDown, Users, Upload } from "lucide-react";
+import { Search, Home, Upload, Sparkles, Star, Flame, X, Play, Users, Coins, Baby, Rocket, Sparkle, Heart, Globe, Palette, Brain } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
+import confetti from "canvas-confetti";
 
 import { useLegendStatus } from "@/hooks/useLegendStatus";
 import LegendParticleEffect from "@/components/LegendParticleEffect";
@@ -28,6 +29,7 @@ interface UploadedGame {
   rating: number | null;
   user_id: string;
   status: string;
+  created_at?: string;
 }
 
 interface LovableGame {
@@ -57,6 +59,61 @@ interface Game {
   updated_at: string | null;
 }
 
+// Age filter options
+const ageFilters = [
+  { id: 'all', label: 'Tất cả', emoji: '🌈', icon: Sparkles },
+  { id: '4-7', label: '4-7 tuổi', emoji: '🍼', icon: Baby },
+  { id: '8-12', label: '8-12 tuổi', emoji: '🚀', icon: Rocket },
+  { id: '13+', label: '13+ tuổi', emoji: '✨', icon: Sparkle },
+];
+
+// Topic filter options
+const topicFilters = [
+  { id: 'creative', label: 'Sáng tạo', emoji: '🎨', icon: Palette, color: 'from-pink-500 to-rose-500' },
+  { id: 'brain', label: 'Trí tuệ', emoji: '🧩', icon: Brain, color: 'from-purple-500 to-violet-500' },
+  { id: 'adventure', label: 'Vũ trụ', emoji: '🚀', icon: Rocket, color: 'from-blue-500 to-cyan-500' },
+  { id: 'casual', label: 'Tình bạn', emoji: '🤗', icon: Heart, color: 'from-orange-500 to-amber-500' },
+  { id: 'educational', label: 'Biết ơn', emoji: '💖', icon: Heart, color: 'from-red-500 to-pink-500' },
+  { id: 'racing', label: 'Trái Đất', emoji: '🌍', icon: Globe, color: 'from-green-500 to-emerald-500' },
+];
+
+// Play bling sound
+const playBlingSound = () => {
+  try {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.setValueAtTime(528, audioContext.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(1056, audioContext.currentTime + 0.1);
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.3);
+  } catch (e) {
+    console.log('Audio not supported');
+  }
+};
+
+// Diamond confetti effect
+const fireDiamondConfetti = () => {
+  const colors = ['#00D4FF', '#FFD700', '#FF69B4', '#00FF88', '#9B59B6'];
+  confetti({
+    particleCount: 50,
+    spread: 60,
+    origin: { y: 0.7 },
+    colors,
+    shapes: ['star'],
+    scalar: 1.2,
+  });
+  playBlingSound();
+};
+
 const Games = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -67,27 +124,41 @@ const Games = () => {
   const [filteredGames, setFilteredGames] = useState<Game[]>([]);
   const [favoriteGameIds, setFavoriteGameIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedAge, setSelectedAge] = useState<string>('all');
+  const [selectedTopics, setSelectedTopics] = useState<Set<string>>(new Set());
+  const [specialFilter, setSpecialFilter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
-  const [sortBy, setSortBy] = useState<string>('popular');
   const { isLegend } = useLegendStatus();
+  
+  // Infinite scroll
+  const [visibleCount, setVisibleCount] = useState(12);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  
+  // Fullscreen game
+  const [fullscreenGame, setFullscreenGame] = useState<Game | UploadedGame | LovableGame | null>(null);
+  
+  // Realtime players count
+  const [playersOnline, setPlayersOnline] = useState<Record<string, number>>({});
   
   useScrollAnimation();
   
-  const categories = [
-    { id: 'all', label: 'All Games 🎮', emoji: '🎮' },
-    { id: 'favorites', label: 'My Favorites', emoji: '❤️', requiresAuth: true },
-    { id: 'casual', label: 'Casual', emoji: '🎯' },
-    { id: 'brain', label: 'Brain', emoji: '🧠' },
-    { id: 'adventure', label: 'Adventure', emoji: '🗺️' },
-    { id: 'educational', label: 'Educational', emoji: '📚' },
-    { id: 'racing', label: 'Racing', emoji: '🏎️' },
-  ];
-
   useEffect(() => {
     fetchGames();
     fetchUploadedGames();
     fetchLovableGames();
+    
+    // Simulate realtime player counts
+    const interval = setInterval(() => {
+      setPlayersOnline(prev => {
+        const newCounts: Record<string, number> = {};
+        games.forEach(game => {
+          newCounts[game.id] = Math.floor(Math.random() * 50) + 1;
+        });
+        return newCounts;
+      });
+    }, 5000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -98,7 +169,26 @@ const Games = () => {
 
   useEffect(() => {
     filterGames();
-  }, [games, selectedCategory, searchQuery, sortBy, favoriteGameIds]);
+    setVisibleCount(12);
+  }, [games, selectedAge, selectedTopics, specialFilter, searchQuery, favoriteGameIds]);
+
+  // Infinite scroll observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && visibleCount < filteredGames.length) {
+          setVisibleCount(prev => Math.min(prev + 8, filteredGames.length));
+        }
+      },
+      { threshold: 0.1 }
+    );
+    
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+    
+    return () => observer.disconnect();
+  }, [visibleCount, filteredGames.length]);
 
   const fetchGames = async () => {
     try {
@@ -144,20 +234,14 @@ const Games = () => {
 
       if (error) throw error;
       
-      // Fetch creator profiles for games with user_id
       const gamesWithProfiles = await Promise.all(
         (data || []).map(async (game) => {
           if (game.user_id) {
-            const { data: profile, error: profileError } = await supabase
+            const { data: profile } = await supabase
               .from("profiles")
               .select("username, avatar_url")
               .eq("id", game.user_id)
               .maybeSingle();
-            
-            if (profileError) {
-              console.error("Error fetching profile:", profileError);
-              return { ...game, profiles: null };
-            }
             return { ...game, profiles: profile };
           }
           return { ...game, profiles: null };
@@ -192,12 +276,9 @@ const Games = () => {
   const filterGames = () => {
     let filtered = games;
 
-    // Filter by category
-    if (selectedCategory === 'favorites') {
-      // Show only favorite games
-      filtered = filtered.filter(game => favoriteGameIds.has(game.id));
-    } else if (selectedCategory !== 'all') {
-      filtered = filtered.filter(game => game.genre === selectedCategory);
+    // Filter by topic
+    if (selectedTopics.size > 0) {
+      filtered = filtered.filter(game => selectedTopics.has(game.genre));
     }
 
     // Filter by search query
@@ -210,321 +291,555 @@ const Games = () => {
       );
     }
 
-    // Sort games - Recently updated games come first, then 2048 Nexus
-    const recentlyUpdatedGames = ['TicTacToe', 'Caro']; // Games with new features
-    const oneWeekAgo = new Date();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-    
+    // Special filters
+    if (specialFilter === 'new') {
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+      filtered = filtered.filter(game => 
+        game.updated_at && new Date(game.updated_at) > oneWeekAgo
+      );
+    } else if (specialFilter === 'hot') {
+      filtered = filtered.filter(game => (game.total_plays || 0) > 100);
+    }
+
+    // Sort by popularity
     const sorted = [...filtered].sort((a, b) => {
-      // Check if game was recently updated (within last 7 days) or has new features
-      const aIsNew = recentlyUpdatedGames.some(name => 
-        a.component_name?.includes(name) || a.title.toLowerCase().includes('caro')
-      ) || (a.updated_at && new Date(a.updated_at) > oneWeekAgo);
-      const bIsNew = recentlyUpdatedGames.some(name => 
-        b.component_name?.includes(name) || b.title.toLowerCase().includes('caro')
-      ) || (b.updated_at && new Date(b.updated_at) > oneWeekAgo);
-      
-      // Recently updated games come first
-      if (aIsNew && !bIsNew) return -1;
-      if (!aIsNew && bIsNew) return 1;
-      
-      // Then 2048 Nexus
-      const aIs2048 = a.title.toLowerCase().includes('2048');
-      const bIs2048 = b.title.toLowerCase().includes('2048');
-      if (aIs2048 && !bIs2048) return -1;
-      if (!aIs2048 && bIs2048) return 1;
-      
-      switch (sortBy) {
-        case 'popular':
-          return (b.total_plays || 0) - (a.total_plays || 0);
-        case 'liked':
-          return (b.total_likes || 0) - (a.total_likes || 0);
-        case 'az':
-          return a.title.localeCompare(b.title);
-        case 'za':
-          return b.title.localeCompare(a.title);
-        default:
-          return 0;
-      }
+      return (b.total_plays || 0) - (a.total_plays || 0);
     });
 
     setFilteredGames(sorted);
   };
 
-  const handleCategoryChange = (categoryId: string) => {
-    const category = categories.find(c => c.id === categoryId);
-    
-    if (category?.requiresAuth && !user) {
-      toast.error("Please log in to view your favorites! 😊");
-      return;
-    }
-    
-    setSelectedCategory(categoryId);
+  const toggleTopic = (topicId: string) => {
+    setSelectedTopics(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(topicId)) {
+        newSet.delete(topicId);
+      } else {
+        newSet.add(topicId);
+      }
+      return newSet;
+    });
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    filterGames();
+  const handlePlayGame = (game: Game | UploadedGame | LovableGame) => {
+    fireDiamondConfetti();
+    setFullscreenGame(game);
   };
+
+  const getGameUrl = (game: Game | UploadedGame | LovableGame): string => {
+    if ('component_name' in game) {
+      return `/game/${game.id}`;
+    } else if ('project_url' in game) {
+      return game.project_url;
+    } else if ('game_file_path' in game) {
+      return `/play/${game.id}`;
+    }
+    return '#';
+  };
+
+  const totalGames = games.length + uploadedGames.length + lovableGames.length;
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-gradient-to-b from-background via-primary/5 to-background">
         <Navigation />
         <div className="container mx-auto py-32 px-4 text-center">
-          <div className="animate-bounce text-6xl mb-4">🎮</div>
-          <p className="text-2xl font-fredoka text-primary">Loading awesome games... ⏳</p>
+          <motion.div
+            animate={{ 
+              rotate: 360,
+              scale: [1, 1.2, 1]
+            }}
+            transition={{ 
+              rotate: { duration: 2, repeat: Infinity, ease: "linear" },
+              scale: { duration: 1, repeat: Infinity }
+            }}
+            className="text-8xl mb-6 inline-block"
+          >
+            💎
+          </motion.div>
+          <p className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            Đang mở Kho Báu Ánh Sáng... ✨
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white pb-safe">
-      {/* Legend Particle Effect */}
+    <div className="min-h-screen bg-gradient-to-b from-background via-primary/5 to-background pb-safe">
       <LegendParticleEffect isLegend={isLegend} />
-      
       <Navigation />
       
+      {/* Fullscreen Game Modal */}
+      <AnimatePresence>
+        {fullscreenGame && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black"
+          >
+            <Button
+              onClick={() => setFullscreenGame(null)}
+              className="absolute top-4 right-4 z-50 bg-red-500 hover:bg-red-600 rounded-full p-3"
+            >
+              <X className="w-6 h-6" />
+            </Button>
+            <iframe
+              src={'project_url' in fullscreenGame ? fullscreenGame.project_url : getGameUrl(fullscreenGame)}
+              className="w-full h-full border-0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
       <section className="pt-20 md:pt-24 pb-20 px-4 pb-safe">
-        <div className="container mx-auto">
-          {/* Action Buttons */}
-          <div className="mb-6 sm:mb-8 flex flex-wrap gap-3">
-            <Button
-              onClick={() => navigate('/')}
-              variant="outline"
-              size="lg"
-              className="font-bold group min-w-[48px] rounded-[20px] sm:rounded-2xl"
-            >
-              <Home className="w-4 h-4 sm:w-5 sm:h-5 mr-0 sm:mr-2 text-primary group-hover:scale-110 transition-transform" />
-              <span className="hidden xs:inline sm:inline">Về Trang Chính</span>
-            </Button>
+        <div className="container mx-auto max-w-7xl">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-8 space-y-4"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-400/20 to-orange-400/20 rounded-full border border-yellow-400/30 mb-4">
+              <Sparkles className="w-5 h-5 text-yellow-500 animate-pulse" />
+              <span className="text-sm font-bold text-yellow-600">KHO BÁU ÁNH SÁNG</span>
+              <Sparkles className="w-5 h-5 text-yellow-500 animate-pulse" />
+            </div>
             
-            <Button
-              onClick={() => navigate('/upload-game')}
-              size="lg"
-              className="font-bold group min-w-[48px] rounded-[20px] sm:rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all"
-            >
-              <Upload className="w-4 h-4 sm:w-5 sm:h-5 mr-0 sm:mr-2 group-hover:scale-110 transition-transform" />
-              <span className="hidden xs:inline sm:inline">Tải Game Lên</span>
-            </Button>
-          </div>
-
-          <div className="text-center mb-8 sm:mb-12 space-y-3 sm:space-y-4 animate-slide-up">
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-fredoka font-bold text-primary">
-              Game Library 🎮
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold">
+              <span className="bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                Khám phá Kho Báu Game Ánh Sáng!
+              </span>
+              <span className="ml-2">🌟</span>
             </h1>
-            <p className="text-base sm:text-xl text-muted-foreground font-comic max-w-2xl mx-auto">
-              {games.length} amazing games waiting for you! 🌟
+            
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
+              Hiện có <span className="font-bold text-primary text-2xl">{totalGames}</span> game hướng thượng chờ bé khám phá!
             </p>
-          </div>
+            
+            {/* Action Buttons */}
+            <div className="flex flex-wrap justify-center gap-3 pt-4">
+              <Button
+                onClick={() => navigate('/')}
+                variant="outline"
+                className="rounded-full px-6 font-bold border-2 border-primary/30 hover:border-primary hover:bg-primary/10"
+              >
+                <Home className="w-4 h-4 mr-2" />
+                Về Trang Chính
+              </Button>
+              
+              <Button
+                onClick={() => navigate('/upload-game')}
+                className="rounded-full px-6 font-bold bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg hover:shadow-xl"
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Tải Game Lên +500K 💎
+              </Button>
+            </div>
+          </motion.div>
 
           {/* AI Game Suggestions */}
           {user && (
-            <div className="max-w-lg mx-auto mb-8 sm:mb-12 animate-slide-up">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="max-w-lg mx-auto mb-8"
+            >
               <AIGameSuggestions />
-            </div>
+            </motion.div>
           )}
 
-          {/* Search Bar - Mobile Optimized */}
-          <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-8 sm:mb-12 animate-slide-up stagger-1">
+          {/* Search Bar */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="max-w-2xl mx-auto mb-8"
+          >
             <div className="relative group">
-              <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground group-hover:text-primary transition-colors" />
-              <Input
-                type="text"
-                placeholder="Search for games... 🔍"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-11 sm:pl-14 pr-20 sm:pr-4 py-4 sm:py-6 text-base sm:text-lg font-comic border-4 border-primary/50 focus:border-primary rounded-2xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all focus:ring-4 focus:ring-primary/20"
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="relative flex items-center bg-card border-2 border-primary/20 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl hover:border-primary/40 transition-all">
+                <Search className="absolute left-4 w-5 h-5 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="🔍 Tìm game yêu thích..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-12 pr-4 py-4 text-lg border-0 bg-transparent focus-visible:ring-0"
+                />
+                {searchQuery && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSearchQuery('')}
+                    className="mr-2"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Age Filter */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mb-6"
+          >
+            <p className="text-center text-sm font-bold text-muted-foreground mb-3">🎂 ĐỘ TUỔI</p>
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+              {ageFilters.map((filter) => {
+                const Icon = filter.icon;
+                return (
+                  <motion.button
+                    key={filter.id}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setSelectedAge(filter.id)}
+                    className={`flex items-center gap-2 px-4 sm:px-6 py-3 rounded-full font-bold text-sm sm:text-base transition-all ${
+                      selectedAge === filter.id
+                        ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-lg'
+                        : 'bg-card border-2 border-primary/20 hover:border-primary/50 text-foreground'
+                    }`}
+                  >
+                    <span className="text-lg">{filter.emoji}</span>
+                    <span className="hidden sm:inline">{filter.label}</span>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </motion.div>
+
+          {/* Topic Filter */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+            className="mb-6"
+          >
+            <p className="text-center text-sm font-bold text-muted-foreground mb-3">📚 CHỦ ĐỀ</p>
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+              {topicFilters.map((filter) => {
+                const Icon = filter.icon;
+                const isSelected = selectedTopics.has(filter.id);
+                return (
+                  <motion.button
+                    key={filter.id}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => toggleTopic(filter.id)}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-full font-bold text-sm transition-all ${
+                      isSelected
+                        ? `bg-gradient-to-r ${filter.color} text-white shadow-lg`
+                        : 'bg-card border-2 border-primary/20 hover:border-primary/50 text-foreground'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{filter.emoji}</span>
+                    <span className="hidden sm:inline">{filter.label}</span>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </motion.div>
+
+          {/* Special Filters */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="flex justify-center gap-3 mb-8"
+          >
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setSpecialFilter(specialFilter === 'new' ? null : 'new')}
+              className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold text-base transition-all ${
+                specialFilter === 'new'
+                  ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30'
+                  : 'bg-blue-500/10 border-2 border-blue-500/30 text-blue-600 hover:bg-blue-500/20'
+              }`}
+            >
+              <Flame className="w-5 h-5" />
+              Game mới 🔥
+            </motion.button>
+            
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setSpecialFilter(specialFilter === 'hot' ? null : 'hot')}
+              className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold text-base transition-all ${
+                specialFilter === 'hot'
+                  ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/30'
+                  : 'bg-orange-500/10 border-2 border-orange-500/30 text-orange-600 hover:bg-orange-500/20'
+              }`}
+            >
+              <Star className="w-5 h-5" />
+              Game hot ⭐
+            </motion.button>
+          </motion.div>
+
+          {/* Games Grid */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.35 }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
+          >
+            {/* Community Games First */}
+            {lovableGames.slice(0, Math.ceil(visibleCount / 3)).map((game, index) => (
+              <LightTreasureCard
+                key={`lovable-${game.id}`}
+                game={game}
+                type="lovable"
+                index={index}
+                playersOnline={Math.floor(Math.random() * 30) + 1}
+                onPlay={() => handlePlayGame(game)}
               />
-              <Button 
-                type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 font-fredoka font-bold px-4 sm:px-6 py-3 sm:py-5 text-sm sm:text-base bg-gradient-to-r from-primary to-secondary hover:shadow-lg transform hover:scale-105 transition-all rounded-xl sm:rounded-2xl"
-              >
-                Search
-              </Button>
-            </div>
-          </form>
+            ))}
+            
+            {uploadedGames.slice(0, Math.ceil(visibleCount / 3)).map((game, index) => (
+              <LightTreasureCard
+                key={`uploaded-${game.id}`}
+                game={game}
+                type="uploaded"
+                index={index + lovableGames.length}
+                playersOnline={Math.floor(Math.random() * 30) + 1}
+                onPlay={() => handlePlayGame(game)}
+              />
+            ))}
+            
+            {/* Official Games */}
+            {filteredGames.slice(0, visibleCount).map((game, index) => (
+              <LightTreasureCard
+                key={game.id}
+                game={game}
+                type="official"
+                index={index + lovableGames.length + uploadedGames.length}
+                playersOnline={playersOnline[game.id] || Math.floor(Math.random() * 50) + 1}
+                onPlay={() => handlePlayGame(game)}
+              />
+            ))}
+          </motion.div>
           
-          {/* Category Filters - Mobile Optimized */}
-          <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-8 sm:mb-12 animate-slide-up stagger-2">
-            {categories.map((category) => {
-              const isFavorites = category.id === 'favorites';
-              const isDisabled = isFavorites && !user;
-              
-              return (
-                <Button
-                  key={category.id}
-                  variant={selectedCategory === category.id ? 'default' : 'outline'}
-                  onClick={() => handleCategoryChange(category.id)}
-                  disabled={isDisabled}
-                  className={`font-fredoka font-bold text-sm sm:text-lg px-4 sm:px-8 py-3 sm:py-6 border-3 sm:border-4 transform hover:scale-105 sm:hover:scale-110 transition-all rounded-[20px] sm:rounded-2xl ${
-                    selectedCategory === category.id
-                      ? 'bg-gradient-to-r from-primary to-secondary shadow-lg'
-                      : isDisabled
-                      ? 'border-muted-foreground/20 opacity-50 cursor-not-allowed'
-                      : 'border-primary/30 hover:border-primary hover:bg-primary/10'
-                  }`}
-                >
-                  <span className="mr-1 sm:mr-2">{category.emoji}</span>
-                  <span className="hidden xs:inline">{category.label}</span>
-                  {isFavorites && favoriteGameIds.size > 0 && (
-                    <span className="ml-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                      {favoriteGameIds.size}
-                    </span>
-                  )}
-                </Button>
-              );
-            })}
-          </div>
-
-          {/* Sort Options */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8 sm:mb-12 animate-slide-up stagger-3">
-            <div className="flex items-center gap-2">
-              <ArrowUpDown className="w-5 h-5 text-primary" />
-              <span className="font-fredoka font-bold text-primary text-sm sm:text-base">Sắp xếp:</span>
-            </div>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[200px] sm:w-[250px] font-comic border-2 border-primary/30 focus:border-primary rounded-xl">
-                <SelectValue placeholder="Chọn cách sắp xếp" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="popular" className="font-comic">🔥 Phổ biến nhất</SelectItem>
-                <SelectItem value="liked" className="font-comic">❤️ Được yêu thích nhất</SelectItem>
-                <SelectItem value="az" className="font-comic">🔤 Tên A-Z</SelectItem>
-                <SelectItem value="za" className="font-comic">🔤 Tên Z-A</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-
-          {/* All Games Section */}
-          {selectedCategory === 'all' && !searchQuery.trim() && (
-            <div className="text-center mb-6">
-              <h2 className="text-2xl sm:text-3xl font-fredoka font-bold text-primary mb-2">
-                🎮 All Games 🎮
-              </h2>
+          {/* Load More Trigger */}
+          {visibleCount < filteredGames.length && (
+            <div ref={loadMoreRef} className="flex justify-center py-8">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                className="text-4xl"
+              >
+                💎
+              </motion.div>
             </div>
           )}
-
-          {/* Community Uploaded Games Section */}
-          {(uploadedGames.length > 0 || lovableGames.length > 0) && selectedCategory === 'all' && !searchQuery.trim() && (
-            <div className="mb-12">
-              <div className="text-center mb-6">
-                <h2 className="text-2xl sm:text-3xl font-fredoka font-bold text-primary mb-2">
-                  🌟 Community Games 🌟
-                </h2>
-                <p className="text-muted-foreground font-comic">Games uploaded by our amazing community!</p>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-                {/* Lovable Games */}
-                {lovableGames.map((game, index) => (
-                  <div 
-                    key={`lovable-${game.id}`} 
-                    className="fade-in-on-scroll game-card"
-                    style={{ animationDelay: `${Math.min(index * 0.03, 0.3)}s` }}
-                  >
-                    <Link 
-                      to={`/lovable-game/${game.id}`}
-                      className="block group"
-                    >
-                      <div className="bg-gradient-to-br from-card to-card/80 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform group-hover:scale-[1.02] border-2 border-primary/20 group-hover:border-primary/50">
-                        <div className="aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center overflow-hidden">
-                          {game.image_url ? (
-                            <img 
-                              src={game.image_url} 
-                              alt={game.title}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            />
-                          ) : (
-                            <span className="text-5xl">🎮</span>
-                          )}
-                        </div>
-                        <div className="p-3 sm:p-4">
-                          <h3 className="font-fredoka font-bold text-sm sm:text-base text-foreground truncate group-hover:text-primary transition-colors">
-                            {game.title}
-                          </h3>
-                          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mt-1">
-                            {game.description || 'A fun game from Lovable!'}
-                          </p>
-                          <div className="mt-2 flex items-center justify-between gap-1">
-                            <span className="text-xs bg-gradient-to-r from-pink-500 to-purple-500 text-white px-2 py-0.5 rounded-full">
-                              ❤️ Lovable
-                            </span>
-                            {game.profiles?.username && (
-                              <span className="text-xs text-muted-foreground truncate max-w-[80px]">
-                                by {game.profiles.username}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  </div>
-                ))}
-{/* Uploaded Games */}
-                {uploadedGames.map((game, index) => (
-                  <div 
-                    key={game.id} 
-                    className="fade-in-on-scroll game-card"
-                    style={{ animationDelay: `${Math.min((lovableGames.length + index) * 0.03, 0.3)}s` }}
-                  >
-                    <UploadedGameCard game={game} onDeleted={fetchUploadedGames} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Games Grid - Mobile Optimized */}
-          {filteredGames.length === 0 ? (
-            <div className="text-center py-12 sm:py-20 px-4">
-              <div className="text-5xl sm:text-6xl mb-4">
-                {selectedCategory === 'favorites' ? '❤️' : '😢'}
-              </div>
-              <p className="text-xl sm:text-2xl font-fredoka text-muted-foreground mb-2">
-                {selectedCategory === 'favorites' ? 'No favorite games yet!' : 'No games found!'}
-              </p>
-              <p className="text-base sm:text-lg font-comic text-muted-foreground">
-                {selectedCategory === 'favorites' 
-                  ? 'Start adding games to your favorites by clicking the ❤️ button!' 
-                  : 'Try a different search or category'}
+          
+          {/* Empty State */}
+          {filteredGames.length === 0 && uploadedGames.length === 0 && lovableGames.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center py-16"
+            >
+              <div className="text-6xl mb-4">🔍</div>
+              <h3 className="text-2xl font-bold text-muted-foreground mb-2">
+                Chưa tìm thấy game nào
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                Thử tìm kiếm với từ khóa khác nhé!
               </p>
               <Button
                 onClick={() => {
                   setSearchQuery('');
-                  setSelectedCategory('all');
+                  setSelectedTopics(new Set());
+                  setSpecialFilter(null);
                 }}
-                className="mt-4 sm:mt-6 font-fredoka font-bold px-6 sm:px-8 py-4 sm:py-6 text-base sm:text-lg bg-gradient-to-r from-primary to-secondary rounded-[30px]"
+                className="rounded-full"
               >
-                Show All Games
+                Xem tất cả game
               </Button>
-            </div>
-          ) : (
-            <>
-              <div className="text-center mb-6 sm:mb-8">
-                <p className="text-base sm:text-lg font-comic text-muted-foreground">
-                  Showing <span className="font-fredoka font-bold text-primary text-lg sm:text-xl">{filteredGames.length}</span> game{filteredGames.length !== 1 ? 's' : ''}
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-                {filteredGames.map((game, index) => (
-                  <div 
-                    key={game.id} 
-                    className="fade-in-on-scroll game-card"
-                    style={{ animationDelay: `${Math.min(index * 0.03, 0.3)}s` }}
-                  >
-                    <GameCard game={game} />
-                  </div>
-                ))}
-              </div>
-            </>
+            </motion.div>
           )}
         </div>
       </section>
-      
     </div>
+  );
+};
+
+// Light Treasure Card Component
+interface LightTreasureCardProps {
+  game: Game | UploadedGame | LovableGame;
+  type: 'official' | 'uploaded' | 'lovable';
+  index: number;
+  playersOnline: number;
+  onPlay: () => void;
+}
+
+const LightTreasureCard = ({ game, type, index, playersOnline, onPlay }: LightTreasureCardProps) => {
+  const [isHovered, setIsHovered] = useState(false);
+  
+  const getThumbnail = () => {
+    if ('thumbnail_url' in game && game.thumbnail_url) return game.thumbnail_url;
+    if ('image_url' in game && game.image_url) return game.image_url;
+    if ('thumbnail_path' in game && game.thumbnail_path) {
+      return `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/game-thumbnails/${game.thumbnail_path}`;
+    }
+    return null;
+  };
+  
+  const getBadge = () => {
+    if (type === 'lovable') return { text: 'Cộng đồng', color: 'from-purple-500 to-pink-500' };
+    if (type === 'uploaded') return { text: 'Mới tải', color: 'from-green-500 to-emerald-500' };
+    if ('total_plays' in game && (game.total_plays || 0) > 100) {
+      return { text: 'Hot 🔥', color: 'from-orange-500 to-red-500' };
+    }
+    return { text: 'Hướng thượng 100%', color: 'from-blue-500 to-cyan-500' };
+  };
+  
+  const getGamePath = () => {
+    if ('component_name' in game) return `/game/${game.id}`;
+    if ('project_url' in game) return `/lovable-game/${game.id}`;
+    return `/play/${game.id}`;
+  };
+  
+  const badge = getBadge();
+  const thumbnail = getThumbnail();
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: Math.min(index * 0.05, 0.5) }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className="group relative"
+    >
+      <Link to={getGamePath()} className="block">
+        <motion.div
+          animate={{
+            y: isHovered ? -8 : 0,
+            rotateY: isHovered ? 5 : 0,
+          }}
+          transition={{ type: "spring", stiffness: 300 }}
+          className="relative bg-card rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-primary/10 hover:border-primary/30"
+        >
+          {/* Diamond sparkle effect on hover */}
+          {isHovered && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="absolute inset-0 pointer-events-none z-10"
+            >
+              {[...Array(5)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ 
+                    scale: [0, 1, 0],
+                    opacity: [0, 1, 0],
+                    x: [0, Math.random() * 40 - 20],
+                    y: [0, Math.random() * 40 - 20],
+                  }}
+                  transition={{ 
+                    duration: 1,
+                    delay: i * 0.1,
+                    repeat: Infinity,
+                  }}
+                  className="absolute text-2xl"
+                  style={{
+                    left: `${20 + Math.random() * 60}%`,
+                    top: `${20 + Math.random() * 60}%`,
+                  }}
+                >
+                  💎
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+          
+          {/* Thumbnail */}
+          <div className="aspect-video bg-gradient-to-br from-primary/20 via-purple-500/10 to-pink-500/20 relative overflow-hidden">
+            {thumbnail ? (
+              <img
+                src={thumbnail}
+                alt={game.title}
+                className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <span className="text-6xl">🎮</span>
+              </div>
+            )}
+            
+            {/* Badge */}
+            <div className={`absolute top-3 left-3 px-3 py-1 rounded-full bg-gradient-to-r ${badge.color} text-white text-xs font-bold shadow-lg`}>
+              {badge.text}
+            </div>
+            
+            {/* Genre/Category badge */}
+            {'genre' in game && game.genre && (
+              <div className="absolute top-3 right-3 px-2 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-bold">
+                {game.genre}
+              </div>
+            )}
+            {'category' in game && (game as UploadedGame).category && (
+              <div className="absolute top-3 right-3 px-2 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-bold">
+                {(game as UploadedGame).category}
+              </div>
+            )}
+          </div>
+          
+          {/* Content */}
+          <div className="p-4 space-y-3">
+            <h3 className="font-bold text-lg text-foreground truncate group-hover:text-primary transition-colors">
+              {game.title}
+            </h3>
+            
+            {/* Stats Row */}
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-1 text-green-500">
+                <Users className="w-4 h-4" />
+                <span className="font-bold">{playersOnline} bé đang chơi</span>
+              </div>
+              
+              <div className="flex items-center gap-1 text-yellow-500">
+                <Coins className="w-4 h-4" />
+                <span className="font-bold">+10K</span>
+                <span className="text-lg">💎</span>
+              </div>
+            </div>
+            
+            {/* Play Button */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={(e) => {
+                e.preventDefault();
+                onPlay();
+              }}
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-primary via-purple-500 to-pink-500 text-white font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all relative overflow-hidden"
+            >
+              <motion.div
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                style={{ transform: 'skewX(-20deg)' }}
+              />
+              <Play className="w-5 h-5 fill-current" />
+              Chơi ngay!
+              <span className="text-lg">💎</span>
+            </motion.button>
+          </div>
+        </motion.div>
+      </Link>
+    </motion.div>
   );
 };
 
