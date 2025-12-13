@@ -365,6 +365,10 @@ export const Navigation = () => {
                       <Wallet className="mr-3 h-5 w-5" />
                       <span className="font-medium">Fun Wallet</span>
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/claim")} className="py-3">
+                      <Gift className="mr-3 h-5 w-5" />
+                      <span className="font-medium">Claim</span>
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate("/find-friends")} className="py-3 relative">
                       <Users className="mr-3 h-5 w-5" />
                       <span className="font-medium">Find Friends</span>
