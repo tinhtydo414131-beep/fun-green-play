@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Heart } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { formatCamly } from '@/lib/web3-bsc';
+import { formatCamly } from '@/lib/web3';
 
 export function CharityCounter() {
   const [totalDonated, setTotalDonated] = useState(0);
@@ -10,6 +10,28 @@ export function CharityCounter() {
 
   useEffect(() => {
     fetchCharityStats();
+
+    // Subscribe to realtime updates
+    const channel = supabase
+      .channel('charity-stats-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'charity_wallet_stats',
+        },
+        (payload) => {
+          if (payload.new && 'total_donated' in payload.new) {
+            setTotalDonated(Number(payload.new.total_donated));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   // Animate counter
