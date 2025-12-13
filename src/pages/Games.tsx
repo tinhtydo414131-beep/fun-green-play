@@ -324,6 +324,13 @@ const Games = () => {
   };
 
   const handlePlayGame = (game: Game | UploadedGame | LovableGame) => {
+    // Uploaded community games use the dedicated GameDetails page
+    if ('category' in game) {
+      navigate(`/game-details/${game.id}`);
+      return;
+    }
+
+    // Built-in and Lovable games open in fullscreen overlay
     fireDiamondConfetti();
     setFullscreenGame(game);
   };
@@ -333,10 +340,9 @@ const Games = () => {
       return `/game/${game.id}`;
     } else if ('project_url' in game) {
       return game.project_url;
-    } else if ('game_file_path' in game) {
-      return `/play/${game.id}`;
     }
-    return '#';
+    // Fallback (should not normally be used for uploaded games)
+    return `/game-details/${game.id}`;
   };
 
   const totalGames = games.length + uploadedGames.length + lovableGames.length;
@@ -707,9 +713,10 @@ const LightTreasureCard = ({ game, type, index, playersOnline, onPlay }: LightTr
   const getGamePath = () => {
     if ('component_name' in game) return `/game/${game.id}`;
     if ('project_url' in game) return `/lovable-game/${game.id}`;
-    return `/play/${game.id}`;
+    // Uploaded HTML games go to the details/play page
+    return `/game-details/${game.id}`;
   };
-  
+
   const badge = getBadge();
   const thumbnail = getThumbnail();
   
