@@ -361,10 +361,6 @@ export const Navigation = () => {
                       <User className="mr-3 h-5 w-5" />
                       <span className="font-medium">My Profile</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/my-games")} className="py-3">
-                      <Gamepad2 className="mr-3 h-5 w-5" />
-                      <span className="font-medium">My Games</span>
-                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate("/wallet")} className="py-3">
                       <Wallet className="mr-3 h-5 w-5" />
                       <span className="font-medium">Fun Wallet</span>
