@@ -5,6 +5,7 @@ import { GameCard } from "@/components/GameCard";
 import { UploadedGameCard } from "@/components/UploadedGameCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ButtonFacets } from "@/components/ui/button-facets";
 import { supabase } from "@/integrations/supabase/client";
 import { Search, Home, Upload, Sparkles, Star, Flame, X, Play, Users, Coins, Baby, Rocket, Sparkle, Heart, Globe, Palette, Brain } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -826,15 +827,16 @@ const LightTreasureCard = ({ game, type, index, playersOnline, onPlay }: LightTr
               }}
               className="w-full py-3 rounded-xl bg-gradient-to-r from-primary via-purple-500 to-pink-500 text-white font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all relative overflow-hidden"
             >
+              <ButtonFacets />
               <motion.div
                 animate={{ scale: [1, 1.2, 1] }}
                 transition={{ duration: 1.5, repeat: Infinity }}
                 className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
                 style={{ transform: 'skewX(-20deg)' }}
               />
-              <Play className="w-5 h-5 fill-current" />
-              Chơi ngay!
-              <span className="text-lg">💎</span>
+              <Play className="w-5 h-5 fill-current relative z-10" />
+              <span className="relative z-10">Chơi ngay!</span>
+              <span className="text-lg relative z-10">💎</span>
             </motion.button>
           </div>
         </motion.div>
